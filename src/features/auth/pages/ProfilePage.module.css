@@ -1,0 +1,270 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen py-12 sm:py-16;
+  background-color: #f1f2f6;
+}
+
+.container {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+}
+
+.profileCard {
+  @apply bg-white rounded-2xl shadow-sm p-8 mb-8 border border-pink-100;
+}
+
+.profileRow {
+  @apply flex items-start justify-between;
+}
+
+.profileInfo {
+  @apply flex gap-6;
+}
+
+.avatar {
+  @apply w-24 h-24 bg-gradient-to-br from-pink-300 to-pink-500 rounded-full flex items-center justify-center text-white text-lg font-semibold;
+}
+
+.name {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 mb-2;
+}
+
+.email {
+  @apply text-gray-600;
+}
+
+.badgeRow {
+  @apply flex items-center gap-2 mt-4;
+}
+
+.memberSince {
+  @apply text-gray-600;
+}
+
+.logoutButton {
+  @apply w-full sm:w-auto;
+}
+
+.loyaltyCard {
+  @apply mt-8 p-6 bg-gradient-to-r from-pink-50 to-pink-100 rounded-2xl;
+}
+
+.loyaltyHeader {
+  @apply flex items-center justify-between mb-4;
+}
+
+.loyaltyTitle {
+  @apply text-gray-900 font-semibold mb-1;
+}
+
+.loyaltyText {
+  @apply text-gray-600;
+}
+
+.loyaltyHighlight {
+  @apply text-pink-600;
+}
+
+.tabsCard {
+  @apply bg-white rounded-2xl shadow-sm border border-pink-100;
+}
+
+.tabsRoot {
+  @apply w-full;
+}
+
+.progressBar {
+  @apply h-2;
+}
+
+.textRight {
+  @apply text-right;
+}
+
+.iconInline {
+  @apply size-4 mr-2;
+}
+
+.iconSmall {
+  @apply size-4;
+}
+
+.iconFavorite {
+  @apply size-4 fill-pink-500 text-pink-500;
+}
+
+.tabsList {
+  @apply w-full justify-start border-b rounded-none h-auto p-0 bg-transparent;
+}
+
+.tabTrigger {
+  @apply rounded-none data-[state=active]:border-b-2 data-[state=active]:border-pink-500;
+}
+
+.tabContent {
+  @apply p-6;
+}
+
+.sectionTitle {
+  @apply text-xl font-semibold text-gray-900 mb-6;
+}
+
+.ordersList {
+  @apply space-y-4;
+}
+
+.orderCard {
+  @apply flex items-center justify-between p-4 border border-pink-100 rounded-2xl hover:bg-pink-50 transition-colors;
+}
+
+.orderInfo {
+  @apply flex items-center gap-4;
+}
+
+.orderImage {
+  @apply w-16 h-16 object-cover rounded-lg;
+}
+
+.orderMeta {
+  @apply text-gray-600;
+}
+
+.orderId {
+  @apply text-gray-800;
+}
+
+.statusBadge {
+  @apply text-white;
+}
+
+.statusDelivered {
+  @apply bg-green-500;
+}
+
+.statusTransit {
+  @apply bg-blue-500;
+}
+
+.statusOther {
+  @apply bg-yellow-500;
+}
+
+.orderTotal {
+  @apply text-pink-600 font-semibold mb-2;
+}
+
+.orderButton {
+  @apply w-full sm:w-auto;
+}
+
+.wishlistGrid {
+  @apply grid md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.wishlistCard {
+  @apply border border-pink-100 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow;
+}
+
+.wishlistImageWrap {
+  @apply aspect-square bg-pink-50;
+}
+
+.wishlistImage {
+  @apply w-full h-full object-cover;
+}
+
+.wishlistBody {
+  @apply p-4;
+}
+
+.wishlistTitle {
+  @apply text-gray-800 font-medium mb-2 line-clamp-2;
+}
+
+.wishlistPrice {
+  @apply text-pink-600 font-semibold mb-3;
+}
+
+.wishlistActions {
+  @apply flex gap-2;
+}
+
+.wishlistAddButton {
+  @apply flex-1;
+}
+
+.wishlistIconButton {
+  @apply w-10;
+}
+
+.reviewList {
+  @apply space-y-4;
+}
+
+.reviewCard {
+  @apply p-4 border border-pink-100 rounded-2xl;
+}
+
+.reviewHeader {
+  @apply flex items-start justify-between mb-3;
+}
+
+.reviewTitle {
+  @apply text-gray-900 font-medium mb-1;
+}
+
+.reviewStars {
+  @apply flex;
+}
+
+.reviewStar {
+  @apply size-4 fill-yellow-400 text-yellow-400;
+}
+
+.reviewDate {
+  @apply text-gray-500;
+}
+
+.reviewText {
+  @apply text-gray-700;
+}
+
+.settingsSection {
+  @apply space-y-6 max-w-2xl;
+}
+
+.settingsGroupTitle {
+  @apply text-gray-900 font-semibold mb-4;
+}
+
+.settingsList {
+  @apply space-y-3;
+}
+
+.settingsRow {
+  @apply flex justify-between items-center p-3 border border-pink-100 rounded-2xl;
+}
+
+.settingsLabel {
+  @apply text-gray-600;
+}
+
+.settingsValue {
+  @apply text-gray-800;
+}
+
+.addressCard {
+  @apply p-4 border border-pink-100 rounded-2xl;
+}
+
+.addressTitle {
+  @apply text-gray-900 font-medium mb-1;
+}
+
+.addressText {
+  @apply text-gray-600;
+}
+
+.passwordButton {
+  @apply w-full sm:w-auto;
+}

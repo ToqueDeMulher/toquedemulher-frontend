@@ -1,0 +1,329 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen font-sans;
+  background-color: #f1f2f6;
+}
+
+.heroSection {
+  @apply relative overflow-hidden;
+  background-color: #f1f2f6;
+}
+
+.heroSection::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 140px;
+  background: linear-gradient(
+    to bottom,
+    rgba(241, 242, 246, 0) 0%,
+    rgba(241, 242, 246, 0.35) 45%,
+    #f1f2f6 100%
+  );
+  pointer-events: none;
+}
+
+.carousel {
+  @apply w-full;
+}
+
+.slide {
+  @apply relative h-[620px] w-full flex items-center justify-center overflow-hidden;
+}
+
+.slideDark {
+  @apply bg-black;
+}
+
+.slideImage {
+  @apply w-full h-full object-cover opacity-100;
+}
+
+.slideImageAbsolute {
+  @apply absolute inset-0 w-full h-full object-cover opacity-100;
+}
+
+.carouselPrev {
+  @apply left-8 bg-white/85 shadow-xl border border-white/80 transition-all w-8 h-8 text-pink-600;
+  backdrop-filter: blur(6px);
+}
+
+.carouselNext {
+  @apply right-8 bg-white/85 shadow-xl border border-white/80 transition-all w-8 h-8 text-pink-600;
+  backdrop-filter: blur(6px);
+}
+
+.carouselPrev:hover,
+.carouselNext:hover {
+  @apply bg-white scale-110 shadow-2xl border-pink-300;
+}
+
+.promoStrip {
+  @apply w-full;
+  background-color: #ec4899;
+}
+
+.promoStripInner {
+  @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-10 py-3.5 text-center text-white text-base sm:text-lg flex flex-wrap items-center justify-center gap-3;
+}
+
+.promoSep {
+  @apply opacity-60 font-light;
+}
+
+.promoCodeWrap {
+  @apply inline-flex items-center gap-2;
+}
+
+.promoCode {
+  @apply font-semibold px-2 py-0.5 rounded-sm;
+  background-color: #ffd400;
+  color: #4a1c7a;
+}
+
+.promoLink {
+  @apply underline underline-offset-2 text-white;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.trendingSection {
+  @apply py-16 sm:py-20 relative;
+}
+
+.trendingContainer {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+}
+
+.trendingHeader {
+  @apply text-center mb-10;
+  animation: fade-in 0.8s ease-out;
+}
+
+.trendingSubHeader {
+  @apply text-center mt-12 mb-6;
+  animation: fade-in 0.8s ease-out;
+}
+
+.recommendedGrid {
+  @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5;
+}
+
+.recommendedItem {
+  @apply h-full;
+}
+
+.trendingTitle {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900 tracking-tight;
+  font-family: var(--font-display, "Satoshi Variable", "Poppins", ui-sans-serif, system-ui, sans-serif);
+}
+
+.trendingLogoWrap {
+  @apply inline-block;
+}
+
+.trendingLogo {
+  @apply w-full max-w-2xl h-auto mx-auto;
+}
+
+.productGrid {
+  @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 mb-12 sm:mb-16;
+}
+
+.productCarousel {
+  @apply relative;
+}
+
+.productCarouselContent {
+  @apply -ml-3 pb-3 sm:pb-4;
+}
+
+.productCarouselItem {
+  @apply pl-3;
+  flex: 0 0 50%;
+}
+
+@media (min-width: 640px) {
+  .productCarouselItem {
+    flex-basis: 33.3333%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .productCarouselItem {
+    flex-basis: 16.6667%;
+  }
+}
+
+.productCarouselPrev {
+  @apply -left-10 top-1/2 -translate-y-1/2 size-7 bg-white shadow-md border border-gray-200 text-pink-600;
+}
+
+.productCarouselNext {
+  @apply -right-10 top-1/2 -translate-y-1/2 size-7 bg-white shadow-md border border-gray-200 text-pink-600;
+}
+
+.productCarouselProgress {
+  @apply mt-1.5 flex items-center justify-center gap-2 mx-auto;
+}
+
+.productCarouselDot {
+  @apply h-2 w-2 rounded-full bg-gray-300 transition-all;
+}
+
+.productCarouselDotActive {
+  @apply bg-pink-600;
+  transform: scale(1.15);
+}
+
+.trendingButtonWrap {
+  @apply text-center mt-4;
+}
+
+.trendingButtonWrap {
+  @apply text-center;
+}
+
+.trendingButton {
+  @apply w-full sm:w-auto text-base sm:text-lg h-12 rounded-md shadow-md transition-all font-normal;
+  min-width: 220px;
+}
+
+.trendingButton:hover {
+  @apply bg-pink-600 shadow-lg -translate-y-0.5;
+}
+
+.faqSection {
+  @apply py-16 sm:py-20;
+  background-color: #f1f2f6;
+}
+
+.faqContainer {
+  @apply mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-10;
+}
+
+.faqHeader {
+  @apply text-center mb-10;
+}
+
+.faqTitle {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 mb-2;
+}
+
+.faqAccordion {
+  @apply w-full;
+}
+
+.faqItem {
+  @apply border-b border-pink-100;
+}
+
+.faqTrigger {
+  @apply text-left text-gray-800 hover:text-pink-600 font-medium text-base sm:text-lg py-4;
+}
+
+.faqContent {
+  @apply text-gray-600 text-sm sm:text-base leading-relaxed pb-4;
+}
+
+.faqButtonWrap {
+  @apply text-center mt-10;
+}
+
+.faqButton {
+  @apply w-full sm:w-auto;
+}
+
+.lotusPattern {
+  @apply absolute top-0 left-0 opacity-10 pointer-events-none;
+}
+
+.localCard {
+  @apply bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-pink-200/50 transition-all duration-300 flex flex-col h-full border border-pink-50 cursor-pointer;
+}
+
+.localCardImageWrap {
+  @apply relative aspect-square overflow-hidden bg-pink-50;
+}
+
+.localCardImage {
+  @apply w-full h-full object-cover transform transition-transform duration-500;
+}
+
+.localCardBadges {
+  @apply absolute top-2 left-2 md:top-3 md:left-3 flex flex-col gap-1 md:gap-2;
+}
+
+.localBadgeNew {
+  @apply bg-black text-white text-[10px] md:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-2xl uppercase tracking-wider;
+}
+
+.localBadgeDiscount {
+  @apply bg-pink-600 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-2xl;
+}
+
+.localCardHoverButton {
+  @apply hidden md:block absolute bottom-4 right-4 translate-y-12 opacity-0 transition-all duration-300;
+}
+
+.localCardIconButton {
+  @apply bg-white text-pink-600 hover:bg-pink-600 hover:text-white rounded-2xl shadow-lg h-10 w-10;
+}
+
+.localCard:hover .localCardImage {
+  transform: scale(1.1);
+}
+
+.localCard:hover .localCardHoverButton {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.localCardIcon {
+  @apply w-5 h-5;
+}
+
+.localCardBody {
+  @apply p-3 md:p-5 flex-1 flex flex-col;
+}
+
+.localCardRating {
+  @apply flex items-center gap-1 mb-1 md:mb-2;
+}
+
+.localStar {
+  @apply w-2.5 h-2.5 md:w-3 md:h-3 text-gray-300;
+}
+
+.localStarFilled {
+  @apply fill-yellow-400 text-yellow-400;
+}
+
+.localReviews {
+  @apply text-[10px] md:text-xs text-gray-500 ml-1;
+}
+
+.localCardTitle {
+  @apply text-sm md:text-base font-semibold text-gray-800 mb-2 line-clamp-2 hover:text-pink-600 cursor-pointer transition-colors;
+}
+
+.localPriceRow {
+  @apply mt-auto pt-2 flex items-baseline gap-2;
+}
+
+.localPrice {
+  @apply text-lg md:text-xl font-bold text-pink-600;
+}
+
+.localOriginalPrice {
+  @apply text-xs md:text-sm text-gray-400 line-through hidden sm:inline-block;
+}
+
+.localDetailsButton {
+  @apply w-full mt-3 md:mt-4 bg-transparent border border-pink-200 text-pink-600 hover:bg-pink-50 hover:border-pink-300 transition-colors text-xs md:text-sm h-8 md:h-10;
+}

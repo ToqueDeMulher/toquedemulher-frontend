@@ -1,0 +1,283 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-[80vh] flex flex-col items-center justify-center py-12 px-6 relative overflow-hidden;
+  background-color: #f1f2f6;
+}
+
+.decorLayer {
+  @apply absolute inset-0 opacity-10 pointer-events-none;
+}
+
+.decorOrb {
+  @apply absolute rounded-full blur-3xl animate-pulse;
+}
+
+.decorOrbTopLeft {
+  @apply top-10 left-10 w-32 h-32 bg-pink-300;
+}
+
+.decorOrbBottomRight {
+  @apply bottom-10 right-10 w-40 h-40 bg-pink-400 delay-1000;
+}
+
+.decorOrbCenter {
+  @apply top-1/2 left-1/2 w-36 h-36 bg-pink-200 delay-500;
+}
+
+.content {
+  @apply w-full max-w-md relative z-10 space-y-6;
+}
+
+.header {
+  @apply flex flex-col items-center text-center;
+}
+
+.title {
+  @apply text-gray-900 mb-2 text-3xl sm:text-4xl font-semibold;
+}
+
+.subtitle {
+  @apply text-gray-600 text-sm sm:text-base;
+}
+
+.card {
+  @apply bg-white rounded-2xl shadow-xl p-8 border border-pink-100 backdrop-blur-sm;
+}
+
+.tabsRoot {
+  @apply w-full;
+}
+
+.tabsList {
+  @apply grid w-full grid-cols-2 mb-8 bg-pink-50;
+}
+
+.tabTriggerLogin {
+  @apply data-[state=active]:bg-pink-600 data-[state=active]:text-white;
+}
+
+.tabTriggerRegister {
+  @apply data-[state=active]:bg-pink-600 data-[state=active]:text-white;
+}
+
+.formLogin {
+  @apply space-y-5;
+}
+
+.formRegister {
+  @apply space-y-4;
+}
+
+.fieldLabel {
+  @apply text-gray-700;
+}
+
+.input {
+  @apply border-pink-200 mt-1.5;
+}
+
+.inputWithIcon {
+  @apply border-pink-200 pr-10;
+}
+
+.inputWrapper {
+  @apply relative mt-1.5;
+}
+
+.toggleButton {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600;
+}
+
+.metaRow {
+  @apply flex items-center justify-between text-sm;
+}
+
+.checkboxLabel {
+  @apply flex items-center gap-2 cursor-pointer;
+}
+
+.checkboxInput {
+  @apply rounded border-pink-300 text-pink-500 focus:ring-pink-500;
+}
+
+.checkboxText {
+  @apply text-gray-600;
+}
+
+.forgotButton {
+  @apply text-pink-600 hover:text-pink-700 hover:underline;
+}
+
+.submitButton {
+  @apply w-full;
+}
+
+.divider {
+  @apply mt-6;
+}
+
+.dividerLineWrap {
+  @apply relative;
+}
+
+.dividerLine {
+  @apply absolute inset-0 flex items-center;
+}
+
+.dividerLineInner {
+  @apply w-full border-t border-gray-200;
+}
+
+.dividerTextWrap {
+  @apply relative flex justify-center text-sm;
+}
+
+.dividerText {
+  @apply px-2 bg-white text-gray-500;
+}
+
+.socialStack {
+  @apply mt-4 space-y-2;
+}
+
+.socialButton {
+  @apply w-full;
+}
+
+.iconMedium {
+  @apply w-5 h-5;
+}
+
+.iconSocial {
+  @apply w-5 h-5 mr-2;
+}
+
+.iconTiny {
+  @apply w-3 h-3;
+}
+
+.iconTinyMuted {
+  @apply w-3 h-3 text-gray-400;
+}
+
+.iconSpin {
+  @apply w-4 h-4 mr-2 animate-spin;
+}
+
+.passwordHint {
+  @apply text-xs text-red-500 mt-1 flex items-center gap-1;
+}
+
+.passwordStrengthWrap {
+  @apply mt-2 space-y-2;
+}
+
+.strengthBars {
+  @apply flex gap-1;
+}
+
+.strengthBar {
+  @apply h-1.5 flex-1 rounded-full transition-all;
+}
+
+.strengthLabel {
+  @apply text-xs;
+}
+
+.strengthTextRed {
+  @apply text-red-600;
+}
+
+.strengthTextOrange {
+  @apply text-orange-600;
+}
+
+.strengthTextYellow {
+  @apply text-yellow-600;
+}
+
+.strengthTextGreen {
+  @apply text-green-600;
+}
+
+.strengthTextEmerald {
+  @apply text-emerald-600;
+}
+
+.strengthBarInactive {
+  @apply bg-gray-200;
+}
+
+.strengthBarRed {
+  @apply bg-red-500;
+}
+
+.strengthBarOrange {
+  @apply bg-orange-500;
+}
+
+.strengthBarYellow {
+  @apply bg-yellow-500;
+}
+
+.strengthBarGreen {
+  @apply bg-green-500;
+}
+
+.strengthBarEmerald {
+  @apply bg-emerald-500;
+}
+
+.strengthRules {
+  @apply text-xs text-gray-600 space-y-1;
+}
+
+.ruleRow {
+  @apply flex items-center gap-1;
+}
+
+.ruleOk {
+  @apply text-green-600;
+}
+
+.confirmHintBad {
+  @apply text-xs text-red-500 mt-1 flex items-center gap-1;
+}
+
+.confirmHintGood {
+  @apply text-xs text-green-600 mt-1 flex items-center gap-1;
+}
+
+.termsRow {
+  @apply text-sm pt-2;
+}
+
+.termsLabel {
+  @apply flex items-start gap-2 cursor-pointer;
+}
+
+.termsCheckbox {
+  @apply rounded border-pink-300 text-pink-500 focus:ring-pink-500 mt-1;
+}
+
+.termsText {
+  @apply text-gray-600;
+}
+
+.termsButton {
+  @apply text-pink-600 hover:underline;
+}
+
+.registerButton {
+  @apply w-full;
+}
+
+
+.registerMeta {
+  @apply mt-6 text-center text-sm text-gray-600;
+}
+
+.footerMeta {
+  @apply text-center text-sm text-gray-600;
+}

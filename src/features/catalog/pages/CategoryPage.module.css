@@ -1,0 +1,185 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen relative overflow-hidden;
+  background-color: #f1f2f6;
+}
+
+.container {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+}
+
+.breadcrumb {
+  @apply py-4 sm:py-6;
+}
+
+.breadcrumbRow {
+  @apply flex items-center gap-2 text-sm text-gray-600;
+}
+
+.breadcrumbIcon {
+  @apply size-4;
+}
+
+.breadcrumbLink {
+  @apply hover:text-pink-600 transition-colors;
+}
+
+.breadcrumbActive {
+  @apply text-pink-600 font-medium;
+}
+
+.headerSection {
+  @apply pb-6 sm:pb-8;
+}
+
+.headerInner {
+  @apply text-center max-w-2xl mx-auto;
+}
+
+.headerTitle {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-3;
+  animation: fade-in 0.8s ease-out;
+}
+
+.headerDescription {
+  @apply text-gray-600 text-base sm:text-lg leading-relaxed;
+}
+
+.filterSection {
+  @apply pb-8;
+}
+
+.filterCard {
+  @apply bg-white rounded-2xl shadow-sm p-4 sm:p-6 border border-pink-100;
+}
+
+.filterRow {
+  @apply flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between;
+}
+
+.filterGroup {
+  @apply flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto;
+}
+
+.filterLabel {
+  @apply flex items-center gap-2 min-w-fit;
+}
+
+.filterIcon {
+  @apply size-5 text-pink-600;
+}
+
+.filterLabelText {
+  @apply text-gray-700 font-medium;
+}
+
+.filterButtons {
+  @apply flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full;
+  scrollbar-width: none;
+}
+
+.filterButtons::-webkit-scrollbar {
+  display: none;
+}
+
+.filterButtonActive {
+  @apply whitespace-nowrap;
+}
+
+.filterButton {
+  @apply whitespace-nowrap;
+}
+
+.sortRow {
+  @apply flex items-center gap-3 w-full sm:w-auto justify-end;
+}
+
+.sortLabel {
+  @apply text-gray-700 font-medium whitespace-nowrap;
+}
+
+.sortTrigger {
+  @apply w-[180px];
+}
+
+.resultsRow {
+  @apply mt-4 pt-4 border-t border-pink-100 text-sm text-gray-500;
+}
+
+.resultsCount {
+  @apply text-pink-600 font-medium;
+}
+
+.productsSection {
+  @apply pb-16;
+}
+
+.productsGrid {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6;
+}
+
+.emptyState {
+  @apply text-center py-16;
+}
+
+.emptyCard {
+  @apply bg-white rounded-2xl shadow-sm p-10 sm:p-12 inline-block border border-pink-100;
+}
+
+.emptyIcon {
+  @apply text-pink-300 mb-4;
+}
+
+.emptySvg {
+  @apply size-16 mx-auto;
+}
+
+.emptyTitle {
+  @apply text-gray-800 font-semibold text-lg mb-2;
+}
+
+.emptyText {
+  @apply text-gray-500;
+}
+
+.clearButton {
+  @apply text-pink-600 mt-2;
+}
+
+.newsletterSection {
+  @apply pb-16;
+}
+
+.newsletterCard {
+  @apply bg-gradient-to-r from-pink-600 to-pink-400 rounded-3xl shadow-xl p-8 sm:p-12 text-center text-white relative overflow-hidden;
+}
+
+.newsletterPattern {
+  @apply absolute inset-0 opacity-20;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4xIi8+PC9zdmc+");
+}
+
+.newsletterContent {
+  @apply relative z-10;
+}
+
+.newsletterTitle {
+  @apply text-2xl sm:text-3xl font-semibold mb-4;
+}
+
+.newsletterText {
+  @apply text-pink-50 mb-8 max-w-xl mx-auto text-base sm:text-lg;
+}
+
+.newsletterForm {
+  @apply flex flex-col sm:flex-row gap-3 max-w-md mx-auto;
+}
+
+.newsletterInput {
+  @apply flex-1 px-4 h-11 rounded-2xl text-gray-800 bg-white/95 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all placeholder:text-gray-400 text-sm;
+}
+
+.newsletterButton {
+  @apply w-full sm:w-auto text-white border-white/50 bg-transparent hover:bg-white/10 hover:border-white/70;
+}

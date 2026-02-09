@@ -1,0 +1,174 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen py-12 sm:py-16;
+  background-color: #f1f2f6;
+}
+
+.container {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+}
+
+.header {
+  @apply text-center mb-12;
+}
+
+.title {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-3;
+}
+
+.subtitle {
+  @apply text-gray-600 mb-8 text-base sm:text-lg;
+}
+
+.searchWrap {
+  @apply max-w-2xl mx-auto;
+}
+
+.searchInner {
+  @apply relative;
+}
+
+.searchIcon {
+  @apply absolute left-4 top-1/2 transform -translate-y-1/2 text-pink-400 size-5;
+}
+
+.searchInput {
+  @apply pl-12;
+}
+
+.contactGrid {
+  @apply grid md:grid-cols-3 gap-6 mb-12;
+}
+
+.contactCard {
+  @apply bg-white rounded-2xl p-6 border border-pink-100 text-center hover:shadow-lg transition-shadow;
+}
+
+.contactIconWrap {
+  @apply w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4;
+}
+
+.contactIcon {
+  @apply size-6 text-pink-600;
+}
+
+.contactTitle {
+  @apply text-gray-900 font-semibold mb-2;
+}
+
+.contactText {
+  @apply text-gray-600 mb-4;
+}
+
+.contactButton {
+  @apply w-full;
+}
+
+.faqCard {
+  @apply bg-white rounded-2xl p-8 border border-pink-100 shadow-sm;
+}
+
+.faqTitle {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 mb-6;
+}
+
+.tabsRoot {
+  @apply w-full;
+}
+
+.tabsList {
+  @apply grid w-full grid-cols-4 mb-6;
+}
+
+.accordion {
+  @apply w-full;
+}
+
+.accordionTrigger {
+  @apply text-left text-gray-800 hover:text-pink-600;
+}
+
+.accordionContent {
+  @apply text-gray-600;
+}
+
+.helpCta {
+  @apply mt-12 rounded-2xl p-8 text-center;
+  background-color: #f1f2f6;
+}
+
+.helpCtaTitle {
+  @apply text-2xl sm:text-3xl font-semibold mb-4;
+}
+
+.helpCtaText {
+  @apply mb-6 text-sm sm:text-base;
+}
+
+.helpCtaButton {
+  @apply w-full sm:w-auto text-pink-600 border-pink-200 bg-transparent hover:bg-pink-50 hover:border-pink-300;
+}
+
+.heroSection {
+  @apply py-12 sm:py-16;
+  background-color: #f1f2f6;
+}
+
+.heroGrid {
+  @apply grid lg:grid-cols-2 gap-10 items-center;
+}
+
+.heroBadge {
+  @apply inline-flex items-center rounded-full bg-pink-100 text-pink-700 text-xs font-semibold px-3 py-1;
+}
+
+.heroTitle {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mt-4;
+}
+
+.heroText {
+  @apply text-gray-600 text-base sm:text-lg leading-relaxed mt-3;
+}
+
+.searchBox {
+  @apply relative mt-6;
+}
+
+.heroCard {
+  @apply bg-white rounded-2xl p-6 border border-pink-100 shadow-sm;
+}
+
+.heroCardTitle {
+  @apply text-lg font-semibold text-gray-900 mb-2;
+}
+
+.heroCardText {
+  @apply text-gray-600 text-sm sm:text-base mb-6;
+}
+
+.heroStats {
+  @apply grid grid-cols-2 gap-6;
+}
+
+.heroStatValue {
+  @apply text-2xl font-semibold text-gray-900;
+}
+
+.heroStatLabel {
+  @apply text-xs sm:text-sm text-gray-500;
+}
+
+.contactSection {
+  @apply py-12 sm:py-16;
+  background-color: #f1f2f6;
+}
+
+.contactBadge {
+  @apply bg-pink-100 text-pink-700 border-transparent;
+}
+
+.faqSection {
+  @apply py-12 sm:py-16;
+  background-color: #f1f2f6;
+}

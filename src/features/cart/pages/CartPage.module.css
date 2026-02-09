@@ -1,0 +1,210 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen py-12 sm:py-16;
+  background-color: #f1f2f6;
+}
+
+.container {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+}
+
+.emptyWrap {
+  @apply max-w-2xl mx-auto text-center py-16;
+}
+
+.emptyIcon {
+  @apply size-24 mx-auto text-pink-300 mb-6;
+}
+
+.emptyTitle {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 mb-3;
+}
+
+.emptyText {
+  @apply text-gray-600 mb-8 text-base;
+}
+
+.emptyButton {
+  @apply w-full sm:w-auto;
+}
+
+.pageTitle {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-8;
+}
+
+.freeShippingNotice {
+  @apply border rounded-xl p-4 mb-6;
+}
+
+.freeShippingPending {
+  @apply bg-pink-100 border-pink-200;
+}
+
+.freeShippingSuccess {
+  @apply bg-green-100 border-green-200;
+}
+
+.freeShippingText {
+  @apply text-center;
+}
+
+.freeShippingPendingText {
+  @apply text-pink-700;
+}
+
+.freeShippingSuccessText {
+  @apply text-green-700;
+}
+
+.grid {
+  @apply grid lg:grid-cols-3 gap-8;
+}
+
+.itemsColumn {
+  @apply lg:col-span-2 space-y-4;
+}
+
+.itemCard {
+  @apply bg-white rounded-2xl p-6 border border-pink-100 shadow-sm;
+}
+
+.itemRow {
+  @apply flex gap-4;
+}
+
+.itemImageWrap {
+  @apply w-24 h-24 bg-pink-50 rounded-xl overflow-hidden flex-shrink-0;
+}
+
+.itemImage {
+  @apply w-full h-full object-cover;
+}
+
+.itemInfo {
+  @apply flex-1;
+}
+
+.itemHeader {
+  @apply flex justify-between mb-2;
+}
+
+.itemTitle {
+  @apply text-gray-900 font-medium;
+}
+
+.removeButton {
+  @apply text-gray-400 hover:text-red-500 rounded-full p-1 transition-colors;
+}
+
+.removeIcon {
+  @apply size-5;
+}
+
+.priceRow {
+  @apply flex items-center gap-2 mb-4;
+}
+
+.price {
+  @apply text-pink-600 font-semibold;
+}
+
+.originalPrice {
+  @apply text-gray-400 line-through;
+}
+
+.quantityRow {
+  @apply flex items-center justify-between;
+}
+
+.quantityControls {
+  @apply flex items-center gap-2 border border-pink-200 rounded-xl w-32 bg-white;
+}
+
+.quantityIcon {
+  @apply size-4;
+}
+
+.quantityValue {
+  @apply flex-1 text-center;
+}
+
+.lineTotal {
+  @apply text-gray-900 font-medium;
+}
+
+.summaryColumn {
+  @apply lg:col-span-1;
+}
+
+.summaryCard {
+  @apply bg-white rounded-2xl p-6 border border-pink-100 sticky top-24 shadow-sm;
+}
+
+.summaryTitle {
+  @apply text-xl font-semibold text-gray-900 mb-6;
+}
+
+.summarySection {
+  @apply mb-6;
+}
+
+.summaryLabel {
+  @apply text-gray-700 mb-2 block text-sm font-medium;
+}
+
+.summaryRow {
+  @apply flex gap-2;
+}
+
+.summaryInput {
+  @apply border-pink-200;
+}
+
+.summaryButton {
+  @apply whitespace-nowrap;
+}
+
+.breakdown {
+  @apply space-y-3 mb-6 pb-6 border-b border-pink-100;
+}
+
+.breakdownRow {
+  @apply flex justify-between text-gray-600;
+}
+
+.breakdownHighlight {
+  @apply flex justify-between text-green-600;
+}
+
+.totalRow {
+  @apply flex justify-between mb-6;
+}
+
+.totalLabel {
+  @apply text-gray-900 font-medium;
+}
+
+.totalValue {
+  @apply text-pink-600;
+}
+
+.checkoutButton {
+  @apply w-full mb-3;
+}
+
+.continueButton {
+  @apply w-full;
+}
+
+.recommendSection {
+  @apply mt-16;
+}
+
+.recommendTitle {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 mb-6;
+}
+
+.recommendGrid {
+  @apply grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4;
+}

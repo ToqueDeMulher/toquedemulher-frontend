@@ -1,0 +1,119 @@
+@reference "tailwindcss";
+
+.footer {
+  @apply mt-20 font-sans;
+}
+
+.topBar {
+  @apply bg-gray-100 border-t border-gray-200;
+}
+
+.topContainer {
+  @apply container mx-auto px-4 py-4;
+}
+
+.topRow {
+  @apply flex flex-row justify-between items-center gap-4 w-full;
+}
+
+.socialRow {
+  @apply flex items-center gap-2 sm:gap-4;
+}
+
+.socialLabel {
+  @apply text-gray-600 text-sm font-medium hidden sm:inline-block;
+}
+
+.socialButtons {
+  @apply flex gap-2;
+}
+
+.socialButton {
+  @apply bg-white text-gray-600 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all shadow-sm;
+}
+
+.socialIcon {
+  @apply size-4;
+}
+
+.socialButton:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+.appLink {
+  @apply flex items-center gap-2;
+}
+
+.appIcon {
+  @apply size-5 text-gray-600;
+}
+
+.appText {
+  @apply text-gray-600 text-sm font-medium cursor-pointer transition-colors whitespace-nowrap;
+}
+
+.appText:hover {
+  color: var(--primary);
+}
+
+.mainSection {
+  @apply text-white;
+  background-color: var(--primary);
+}
+
+.mainContainer {
+  @apply container mx-auto px-4 pt-16 pb-8;
+}
+
+.linksGrid {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-12 text-sm;
+}
+
+.columnTitle {
+  @apply mb-6 text-white uppercase tracking-wider font-bold text-xs md:text-sm;
+}
+
+.linkList {
+  @apply space-y-3;
+}
+
+.linkButton {
+  @apply text-white/90 transition-colors hover:underline;
+}
+
+.linkButton:hover {
+  color: white;
+}
+
+.logoSection {
+  @apply text-center py-8 border-t border-white/20;
+}
+
+.logoRow {
+  @apply flex items-center justify-center mb-1;
+}
+
+.logoImage {
+  @apply h-34 md:h-62 w-auto brightness-0 invert opacity-90 transition-opacity;
+}
+
+.logoImage:hover {
+  @apply opacity-100;
+}
+
+.bottomBar {
+  @apply bg-black text-white py-6;
+}
+
+.bottomContainer {
+  @apply container mx-auto px-4;
+}
+
+.bottomText {
+  @apply text-center;
+}
+
+.bottomCopy {
+  @apply text-gray-400 text-xs;
+}

@@ -1,0 +1,185 @@
+@reference "tailwindcss";
+
+.page {
+  @apply bg-gradient-to-b from-white via-pink-50/30 to-white py-12 sm:py-16;
+}
+
+.container {
+  @apply mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-10;
+}
+
+.headerRow {
+  @apply flex flex-wrap items-start justify-between gap-4;
+}
+
+.headerLeft {
+  @apply flex min-w-[280px] flex-1 flex-col gap-3;
+}
+
+.headerMetaRow {
+  @apply flex items-center gap-3;
+}
+
+.headerBadge {
+  @apply bg-pink-100 text-pink-700;
+}
+
+.headerMeta {
+  @apply text-sm text-slate-500;
+}
+
+.title {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900;
+}
+
+.description {
+  @apply text-base text-gray-600;
+}
+
+.backButton {
+  @apply h-12 rounded-2xl border-pink-200 text-pink-700 hover:bg-pink-50;
+}
+
+.form {
+  @apply space-y-8;
+}
+
+.gridTwo {
+  @apply grid gap-6 md:grid-cols-2;
+}
+
+.gridThree {
+  @apply grid gap-6 md:grid-cols-3;
+}
+
+.gridTwoWide {
+  @apply grid gap-6 md:grid-cols-2 max-w-xl;
+}
+
+.gridImageFields {
+  @apply grid gap-4 md:grid-cols-3;
+}
+
+.footerGrid {
+  @apply grid w-full gap-4 md:grid-cols-3;
+}
+
+.footerItem {
+  @apply flex items-center justify-between rounded-2xl border border-pink-100 p-4;
+}
+
+.footerItemWide {
+  @apply flex items-center justify-between rounded-2xl border border-pink-100 p-4 md:col-span-3;
+}
+
+.footerTextGroup {
+  @apply space-y-1;
+}
+
+.cardFlex {
+  @apply flex flex-col gap-4;
+}
+
+.cardFlexLarge {
+  @apply flex flex-col gap-6;
+}
+
+.fieldLabel {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.maxWidthMd {
+  @apply max-w-md;
+}
+
+.maxWidthXl {
+  @apply w-full max-w-xl;
+}
+
+.fullWidth {
+  @apply w-full;
+}
+
+.imageIntro {
+  @apply rounded-2xl border border-dashed border-pink-200 bg-pink-50/50 p-4;
+}
+
+.inputTopSpace {
+  @apply mt-2;
+}
+
+.helperText {
+  @apply mt-2 text-xs text-gray-500;
+}
+
+.imageCard {
+  @apply rounded-2xl border border-pink-100 p-4;
+}
+
+.imageCardHeader {
+  @apply mb-4 flex items-center justify-between;
+}
+
+.imageCardMeta {
+  @apply flex items-center gap-2;
+}
+
+.primaryBadge {
+  @apply text-xs text-pink-600;
+}
+
+.removeButton {
+  @apply text-pink-600 hover:text-pink-700;
+}
+
+.imageRow {
+  @apply mb-4 flex flex-wrap items-center gap-3;
+}
+
+.hiddenInput {
+  @apply hidden;
+}
+
+.uploadButton {
+  @apply flex items-center gap-2;
+}
+
+.uploadHint {
+  @apply text-xs text-gray-500;
+}
+
+.errorText {
+  @apply -mt-2 text-sm text-pink-600;
+}
+
+.imageFieldWide {
+  @apply md:col-span-2;
+}
+
+.addButton {
+  @apply self-start;
+}
+
+.preview {
+  @apply max-h-[320px] overflow-auto rounded-2xl bg-slate-900 p-4 text-sm text-emerald-200;
+}
+
+.cardFooter {
+  @apply flex flex-wrap items-center justify-end gap-4;
+}
+
+.submitButton {
+  @apply w-full sm:w-auto;
+}
+
+.iconLeft {
+  @apply mr-2 h-4 w-4;
+}
+
+.iconSpin {
+  @apply mr-2 h-4 w-4 animate-spin;
+}
+
+.iconSmall {
+  @apply h-4 w-4;
+}

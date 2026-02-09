@@ -1,0 +1,137 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen;
+  background-color: #f1f2f6;
+}
+
+.heroSection {
+  @apply relative py-20;
+  background-image: linear-gradient(135deg, #f1f2f6 0%, #f1f2f6 60%, #f6f7fb 100%);
+}
+
+.container {
+  @apply container mx-auto px-4;
+}
+
+.heroContent {
+  @apply max-w-3xl mx-auto text-center;
+}
+
+.heroTitle {
+  @apply text-pink-600 mb-6;
+}
+
+.textBody {
+  @apply text-gray-700;
+}
+
+.section {
+  @apply py-16;
+}
+
+.storyWrapper {
+  @apply max-w-4xl mx-auto;
+}
+
+.storyGrid {
+  @apply grid md:grid-cols-2 gap-12 items-center mb-16;
+}
+
+.sectionTitle {
+  @apply text-pink-600 mb-4;
+}
+
+.textSpacing {
+  @apply text-gray-700 mb-4;
+}
+
+.imageFrame {
+  @apply relative h-80 bg-pink-100 rounded-2xl overflow-hidden;
+}
+
+.imageCover {
+  @apply w-full h-full object-cover;
+}
+
+.valuesSection {
+  @apply py-16;
+  background-color: #f1f2f6;
+}
+
+.centerTitle {
+  @apply text-pink-600 text-center mb-12;
+}
+
+.valuesGrid {
+  @apply grid md:grid-cols-4 gap-8 max-w-5xl mx-auto;
+}
+
+.valueCard {
+  @apply text-center;
+}
+
+.valueIconWrap {
+  @apply w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4;
+}
+
+.valueIcon {
+  @apply size-8 text-pink-600;
+}
+
+.valueTitle {
+  @apply text-gray-800 mb-2;
+}
+
+.valueText {
+  @apply text-gray-600;
+}
+
+.policiesSection {
+  @apply py-16;
+  background-color: #f1f2f6;
+}
+
+.policiesTitle {
+  @apply text-pink-600 mb-8;
+}
+
+.policiesStack {
+  @apply space-y-6;
+}
+
+.policyCard {
+  @apply bg-white rounded-lg p-6 border border-pink-100;
+}
+
+.policyTitle {
+  @apply text-gray-800 mb-3;
+}
+
+.policyList {
+  @apply text-gray-600 space-y-2;
+}
+
+.ctaSection {
+  @apply py-16;
+}
+
+.ctaCard {
+  @apply max-w-3xl mx-auto bg-gradient-to-r from-pink-500 to-pink-400 rounded-2xl p-12 text-white text-center;
+}
+
+.ctaTitle {
+  @apply mb-4;
+}
+
+.ctaText {
+  @apply mb-6;
+}
+
+.ctaActions {
+  @apply flex flex-col sm:flex-row gap-4 justify-center;
+}
+
+.ctaLink {
+  @apply bg-white text-pink-600 px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors;
+}

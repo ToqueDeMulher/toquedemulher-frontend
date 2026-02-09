@@ -1,0 +1,276 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen;
+  background-color: #f1f2f6;
+}
+
+.section {
+  @apply py-12 sm:py-16;
+}
+
+.container {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+}
+
+.grid {
+  @apply grid md:grid-cols-2 gap-8;
+}
+
+.imagePanel {
+  @apply bg-pink-50 rounded-2xl overflow-hidden mb-4 border border-pink-100;
+}
+
+.mainImage {
+  @apply w-full aspect-square object-cover;
+}
+
+.thumbGrid {
+  @apply grid grid-cols-4 gap-2;
+}
+
+.thumbButton {
+  @apply bg-pink-50 rounded-xl overflow-hidden border-2;
+}
+
+.thumbActive {
+  @apply border-pink-500;
+}
+
+.thumbInactive {
+  @apply border-transparent;
+}
+
+.thumbImage {
+  @apply w-full aspect-square object-cover;
+}
+
+.title {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-4;
+}
+
+.ratingRow {
+  @apply flex items-center gap-2 mb-4;
+}
+
+.ratingStars {
+  @apply flex;
+}
+
+.ratingStar {
+  @apply size-5 fill-yellow-400 text-yellow-400;
+}
+
+.ratingText {
+  @apply text-gray-600 text-sm;
+}
+
+.ratingSeparator {
+  @apply text-gray-400;
+}
+
+.priceBlock {
+  @apply mb-6;
+}
+
+.priceRow {
+  @apply flex items-center gap-3 mb-2;
+}
+
+.price {
+  @apply text-pink-600 text-2xl sm:text-3xl font-semibold;
+}
+
+.originalPrice {
+  @apply text-gray-400 line-through;
+}
+
+.badgeDiscount {
+  @apply bg-red-500 text-white;
+}
+
+.description {
+  @apply text-gray-600 text-base leading-relaxed mb-6;
+}
+
+.quantityBlock {
+  @apply mb-6;
+}
+
+.quantityLabel {
+  @apply block text-gray-700 text-sm font-medium mb-2;
+}
+
+.quantityControls {
+  @apply flex items-center gap-2 w-40 border border-pink-200 rounded-xl bg-white;
+}
+
+.quantityIcon {
+  @apply size-4;
+}
+
+.quantityValue {
+  @apply flex-1 text-center;
+}
+
+.actionRow {
+  @apply flex flex-col sm:flex-row gap-3 mb-6;
+}
+
+.addButton {
+  @apply flex-1;
+}
+
+.wishlistButton {
+  @apply border-pink-200;
+}
+
+.wishlistActive {
+  @apply bg-pink-50;
+}
+
+.wishlistIcon {
+  @apply size-5 text-pink-500;
+}
+
+.wishlistIconActive {
+  @apply fill-pink-500;
+}
+
+.accordion {
+  @apply w-full;
+}
+
+.accordionTrigger {
+  @apply text-gray-800;
+}
+
+.accordionContent {
+  @apply text-gray-600;
+}
+
+.reviewsSection {
+  @apply py-16 sm:py-20;
+  background-color: #f1f2f6;
+}
+
+.reviewHeader {
+  @apply mb-8;
+}
+
+.reviewTitle {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 text-center mb-8;
+}
+
+.summaryCard {
+  @apply bg-white rounded-2xl p-8 max-w-md mx-auto mb-8 border border-pink-100 shadow-sm;
+}
+
+.summaryInner {
+  @apply text-center;
+}
+
+.summaryRating {
+  @apply mb-2;
+}
+
+.summaryStars {
+  @apply flex justify-center mb-2;
+}
+
+.summaryStar {
+  @apply size-5 fill-yellow-400 text-yellow-400;
+}
+
+.summaryCount {
+  @apply text-gray-600 text-sm;
+}
+
+.summaryButton {
+  @apply mt-4 w-full;
+}
+
+.reviewList {
+  @apply max-w-4xl mx-auto space-y-6;
+}
+
+.reviewCard {
+  @apply bg-white rounded-2xl p-6 border border-pink-100;
+}
+
+.reviewTop {
+  @apply flex items-start justify-between mb-3;
+}
+
+.reviewAuthor {
+  @apply text-gray-800 mb-1;
+}
+
+.reviewStars {
+  @apply flex;
+}
+
+.reviewStar {
+  @apply size-4 fill-gray-200 text-gray-200;
+}
+
+.reviewStarActive {
+  @apply fill-yellow-400 text-yellow-400;
+}
+
+.reviewDate {
+  @apply text-gray-500 text-sm;
+}
+
+.reviewText {
+  @apply text-gray-700 text-sm sm:text-base mb-4;
+}
+
+.reviewImages {
+  @apply flex gap-2;
+}
+
+.reviewImage {
+  @apply w-20 h-20 object-cover rounded-xl;
+}
+
+.relatedSection {
+  @apply py-16 sm:py-20;
+}
+
+.relatedTitle {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 text-center mb-10;
+}
+
+.relatedGrid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6;
+}
+
+.relatedButtonWrap {
+  @apply text-center mt-8;
+}
+
+.relatedButton {
+  @apply w-full sm:w-auto;
+}
+
+.faqSection {
+  @apply py-16 sm:py-20 border-t border-pink-100;
+  background-color: #f1f2f6;
+}
+
+.faqContainer {
+  @apply mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-10;
+}
+
+.faqTitle {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 text-center mb-8;
+}
+
+.faqButtonWrap {
+  @apply text-center mt-8;
+}
+
+.faqButton {
+  @apply w-full sm:w-auto;
+}

@@ -1,0 +1,226 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen py-12 sm:py-16;
+  background-color: #f1f2f6;
+}
+
+.container {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+}
+
+.title {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-8;
+}
+
+.stepsWrapper {
+  @apply flex items-center justify-center mb-12;
+}
+
+.stepsRow {
+  @apply flex items-center;
+}
+
+.stepCircle {
+  @apply flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold;
+}
+
+.stepCircleActive {
+  @apply bg-pink-500 text-white shadow-sm;
+}
+
+.stepCircleInactive {
+  @apply bg-gray-200 text-gray-500;
+}
+
+.iconCheck {
+  @apply size-5;
+}
+
+.stepConnector {
+  @apply w-24 h-1;
+}
+
+.stepConnectorActive {
+  @apply bg-pink-500;
+}
+
+.stepConnectorInactive {
+  @apply bg-gray-200;
+}
+
+.layoutGrid {
+  @apply grid lg:grid-cols-3 gap-8;
+}
+
+.mainColumn {
+  @apply lg:col-span-2 space-y-6;
+}
+
+.card {
+  @apply bg-white rounded-2xl p-6 border border-pink-100 shadow-sm;
+}
+
+.cardTitle {
+  @apply text-xl font-semibold text-gray-900 mb-6;
+}
+
+.gridTwo {
+  @apply grid md:grid-cols-2 gap-4;
+}
+
+.gridThree {
+  @apply grid md:grid-cols-3 gap-4;
+}
+
+.gridTwoWide {
+  @apply grid md:grid-cols-2 gap-4;
+}
+
+.gridTwoThirds {
+  @apply md:col-span-2;
+}
+
+.checkboxRow {
+  @apply flex items-center gap-2;
+}
+
+.checkbox {
+  @apply rounded border-pink-300;
+}
+
+.checkboxLabel {
+  @apply text-gray-600 text-sm;
+}
+
+.actionsRight {
+  @apply mt-6 flex justify-end;
+}
+
+.actionsBetween {
+  @apply mt-6 flex justify-between;
+}
+
+.primaryButton {
+  @apply w-full sm:w-auto;
+}
+
+.secondaryButton {
+  @apply w-full sm:w-auto;
+}
+
+.paymentOptions {
+  @apply space-y-4;
+}
+
+.paymentOption {
+  @apply border rounded-xl p-4 cursor-pointer transition-colors;
+}
+
+.paymentOptionActive {
+  @apply border-pink-500 bg-pink-50;
+}
+
+.paymentOptionInactive {
+  @apply border-gray-200;
+}
+
+.paymentOptionHeader {
+  @apply flex items-center gap-3 mb-4;
+}
+
+.paymentOptionHeaderCompact {
+  @apply flex items-center gap-3;
+}
+
+.paymentOptionLabel {
+  @apply flex items-center gap-2 cursor-pointer text-gray-800;
+}
+
+.paymentIcon {
+  @apply size-5 text-pink-600;
+}
+
+.paymentDetails {
+  @apply space-y-4 pl-8;
+}
+
+.input {
+  @apply border-pink-200;
+}
+
+.select {
+  @apply w-full h-11 px-4 border border-pink-200 rounded-xl bg-white text-sm;
+}
+
+.paymentNote {
+  @apply text-gray-600 mt-3 pl-8;
+}
+
+.reviewSection {
+  @apply space-y-6;
+}
+
+.reviewSubTitle {
+  @apply text-gray-800 font-medium mb-2;
+}
+
+.reviewText {
+  @apply text-gray-600;
+}
+
+.reviewItems {
+  @apply space-y-2;
+}
+
+.reviewRow {
+  @apply flex justify-between text-gray-600;
+}
+
+.summaryColumn {
+  @apply lg:col-span-1;
+}
+
+.summaryCard {
+  @apply bg-white rounded-2xl p-6 border border-pink-100 sticky top-24 shadow-sm;
+}
+
+.summaryTitle {
+  @apply text-lg font-semibold text-gray-900 mb-4;
+}
+
+.freeShipping {
+  @apply bg-green-100 border border-green-200 rounded-xl p-3 mb-4;
+}
+
+.freeShippingText {
+  @apply text-green-700 text-center;
+}
+
+.summaryList {
+  @apply space-y-3 mb-6 pb-6 border-b border-pink-100;
+}
+
+.summaryRow {
+  @apply flex justify-between text-gray-600;
+}
+
+.summaryRowDiscount {
+  @apply flex justify-between text-green-600;
+}
+
+.summaryTotal {
+  @apply flex justify-between mb-6;
+}
+
+.summaryTotalLabel {
+  @apply text-gray-900 font-medium;
+}
+
+.summaryTotalValue {
+  @apply text-pink-600 font-semibold;
+}
+
+.summaryMeta {
+  @apply space-y-2 text-gray-600;
+}
