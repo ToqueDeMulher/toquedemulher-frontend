@@ -23,6 +23,12 @@ import styles from "./HomePage.module.css";
 
 import offSeasonSale from "@/shared/assets/banner-off-season/Sale.png";
 import offSeasonSkincare from "@/shared/assets/banner-off-season/Skincare.png";
+import byomaImage from "@/shared/assets/Byoma.jpg";
+import instagramImage from "@/shared/assets/Instagram.jpg";
+import downloadFourImage from "@/shared/assets/download (4).jpg";
+import downloadFiveImage from "@/shared/assets/download (5).jpg";
+import aintSheSweetImage from "@/shared/assets/Ain't She Sweet Candle Product Shoot - Crickle Daisy - Treesha Millicent.jpg";
+import skincareSweetImage from "@/shared/assets/skincare-sweet.jpg";
 
 const trendingProducts = [
   {
@@ -130,6 +136,15 @@ const faqs = [
     answer:
       "Sim! Aceitamos parcelamento em ate 6x sem juros no cartao de credito para compras acima de R$ 100.",
   },
+];
+
+const favoriteProducts = [
+  { id: "fav-1", image: byomaImage, title: "byoma" },
+  { id: "fav-2", image: instagramImage, title: "dior" },
+  { id: "fav-3", image: downloadFourImage, title: "innisfree" },
+  { id: "fav-4", image: downloadFiveImage, title: "mella" },
+  { id: "fav-5", image: aintSheSweetImage, title: "crickle daisy" },
+  { id: "fav-6", image: skincareSweetImage, title: "offweglow" },
 ];
 
 export function HomePage() {
@@ -270,6 +285,40 @@ export function HomePage() {
                   index === productIndex ? styles.productCarouselDotActive : ""
                 }`}
               />
+            ))}
+          </div>
+
+          <div className={styles.trendingSubHeader}>
+            <h2 className={styles.trendingTitle}>Favoritos da semana</h2>
+          </div>
+
+          <div className={styles.favoritesGrid}>
+            {favoriteProducts.map((product) => (
+              <div
+                key={`favorite-${product.id}`}
+                className={styles.favoriteCard}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(routes.category("feminino"))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    navigate(routes.category("feminino"));
+                  }
+                }}
+              >
+                <ImageWithFallback
+                  src={product.image}
+                  alt={product.title}
+                  className={styles.favoriteImage}
+                />
+                <button
+                  className={styles.favoriteCaptionButton}
+                  type="button"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <span className={styles.favoriteCaption}>{product.title}</span>
+                </button>
+              </div>
             ))}
           </div>
 
