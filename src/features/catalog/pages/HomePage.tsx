@@ -289,7 +289,7 @@ export function HomePage() {
           </div>
 
           <div className={styles.trendingSubHeader}>
-            <h2 className={styles.trendingTitle}>Favoritos da semana</h2>
+            <h2 className={styles.trendingTitle}>Favoritos da Semana</h2>
           </div>
 
           <div className={styles.favoritesGrid}>

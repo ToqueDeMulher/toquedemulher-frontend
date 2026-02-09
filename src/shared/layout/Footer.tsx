@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Youtube, Smartphone } from "lucide-react";
-import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { routes } from "@/shared/lib/routes";
-import logoImage from "@/shared/assets/nome_tdm.png";
 import styles from "./Footer.module.css";
 
 export function Footer() {
@@ -205,11 +203,7 @@ export function Footer() {
 
           <div className={styles.logoSection}>
             <div className={styles.logoRow}>
-              <ImageWithFallback
-                src={logoImage}
-                alt="Toque de Mulher"
-                className={styles.logoImage}
-              />
+              <span className={styles.logoText}>toque de mulher</span>
             </div>
           </div>
         </div>

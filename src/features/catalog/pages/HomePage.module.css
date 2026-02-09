@@ -78,7 +78,7 @@
 }
 
 .trendingSection {
-  @apply py-16 sm:py-20 relative;
+  @apply pt-8 pb-16 sm:pt-10 sm:pb-20 relative;
 }
 
 .trendingContainer {
@@ -91,7 +91,7 @@
 }
 
 .trendingSubHeader {
-  @apply text-center mt-12 mb-6;
+  @apply text-center mt-16 mb-6;
   animation: fade-in 0.8s ease-out;
 }
 
@@ -104,7 +104,7 @@
 }
 
 .favoritesGrid {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6;
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6;
 }
 
 .favoriteCard {
@@ -121,7 +121,7 @@
 }
 
 .favoriteImage {
-  @apply w-full h-72 sm:h-80 lg:h-[26rem] object-cover;
+  @apply w-full h-64 sm:h-72 lg:h-[22rem] object-cover;
 }
 
 .favoriteCaptionButton {
@@ -130,8 +130,12 @@
 }
 
 .favoriteCaption {
-  @apply text-base sm:text-lg text-black font-semibold;
+  @apply text-base sm:text-lg text-black/60 font-semibold;
   font-family: var(--font-display);
+}
+
+.favoriteCard:hover .favoriteCaption {
+  @apply text-black/90;
 }
 
 .trendingTitle {
