@@ -19,6 +19,7 @@ interface ProductCardProps {
   discount?: number;
   onAddToCart?: () => void;
   onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
 export function ProductCard({
@@ -33,6 +34,7 @@ export function ProductCard({
   discount,
   onAddToCart,
   onClick,
+  style,
 }: ProductCardProps) {
   const [isFav, setIsFav] = useState(false);
   const navigate = useNavigate();
@@ -51,6 +53,7 @@ export function ProductCard({
   return (
     <div
       className={styles.card}
+      style={style}
       onClick={handleCardClick}
       role="button"
       tabIndex={0}

@@ -1,8 +1,17 @@
 @reference "tailwindcss";
 
 .card {
-  @apply relative bg-white shadow-sm rounded-3xl overflow-hidden transition-all hover:shadow-lg cursor-pointer border border-gray-100 min-h-[265px] sm:min-h-[285px];
+  @apply relative rounded-3xl overflow-hidden transition-all cursor-pointer;
+  background-color: var(--product-card-bg, #ffffff);
+  border: var(--product-card-border, 1px solid #f3f4f6);
+  min-height: var(--product-card-min-h, 265px);
   border-top-right-radius: 0;
+}
+
+@media (min-width: 640px) {
+  .card {
+    min-height: var(--product-card-min-h-sm, 285px);
+  }
 }
 
 .imageWrapper {
@@ -11,7 +20,14 @@
 }
 
 .productImage {
-  @apply w-full h-36 sm:h-40 object-cover;
+  @apply w-full object-cover;
+  height: var(--product-card-image-h, 9rem);
+}
+
+@media (min-width: 640px) {
+  .productImage {
+    height: var(--product-card-image-h-sm, 10rem);
+  }
 }
 
 .badgeRow {

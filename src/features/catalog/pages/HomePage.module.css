@@ -78,7 +78,7 @@
 }
 
 .trendingSection {
-  @apply pt-8 pb-16 sm:pt-10 sm:pb-20 relative;
+  @apply pt-8 pb-10 sm:pt-10 sm:pb-12 relative;
 }
 
 .trendingContainer {
@@ -107,9 +107,24 @@
   @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6;
 }
 
+.favoritesGridCompact {
+  @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6;
+  margin-top: 1.5rem;
+}
+
 .favoriteCard {
-  @apply relative bg-white shadow-sm overflow-hidden border border-gray-100 transition-all hover:shadow-lg cursor-pointer;
+  @apply relative bg-white shadow-sm overflow-hidden transition-all hover:shadow-lg cursor-pointer;
   border-radius: 0;
+}
+
+.favoriteGradient {
+  @apply absolute inset-x-0 bottom-0 h-28;
+  background: linear-gradient(
+    180deg,
+    rgba(var(--favorite-dominant, 236, 72, 153), 0) 0%,
+    rgba(var(--favorite-dominant, 236, 72, 153), 0.78) 52%,
+    rgba(var(--favorite-dominant, 236, 72, 153), 0.98) 100%
+  );
 }
 
 .favoriteCard:hover {
@@ -121,18 +136,23 @@
   @apply w-full h-64 sm:h-72 lg:h-[22rem] object-cover;
 }
 
-.favoriteCaptionButton {
-  @apply absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 text-center px-4 py-2 rounded-full shadow-sm;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.favoriteCardCompact {
+  @apply shadow-sm;
+}
+
+.favoriteImageCompact {
+  @apply w-full h-44 sm:h-52 lg:h-56 object-cover;
 }
 
 .favoriteCaption {
-  @apply text-base sm:text-lg text-black/60 font-semibold;
+  @apply absolute bottom-4 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-semibold px-3 py-1.5;
+  color: var(--favorite-text, rgba(255, 255, 255, 0.95));
   font-family: var(--font-display);
+  white-space: nowrap;
 }
 
 .favoriteCard:hover .favoriteCaption {
-  @apply text-black/90;
+  @apply text-white;
 }
 
 .trendingTitle {
@@ -207,12 +227,46 @@
 }
 
 .trendingButton {
-  @apply w-full sm:w-auto text-base sm:text-lg h-12 rounded-md shadow-md transition-all font-normal;
+  @apply w-full sm:w-auto text-base sm:text-lg h-12 shadow-md transition-all font-normal rounded-tl-2xl rounded-tr-none rounded-bl-none rounded-br-2xl;
   min-width: 220px;
 }
 
 .trendingButton:hover {
   @apply bg-pink-600 shadow-lg -translate-y-0.5;
+}
+
+.recentSection {
+  @apply mt-14 sm:mt-16 py-6 sm:py-8 px-4 sm:px-6 lg:px-10;
+  background-color: #ffffff;
+  border-radius: 2rem;
+}
+
+.recentHeader {
+  @apply text-center mb-6;
+}
+
+.recentTitle {
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900;
+  font-family: var(--font-display, "Satoshi Variable", "Poppins", ui-sans-serif, system-ui, sans-serif);
+}
+
+.recentGrid {
+  @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5;
+}
+
+.scrollTopButton {
+  @apply fixed bottom-6 right-6 z-40 bg-white/80 text-pink-600 border border-pink-200/70 shadow-lg transition-all backdrop-blur-sm flex items-center justify-center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+}
+
+.scrollTopButton:hover {
+  @apply bg-pink-50 shadow-xl -translate-y-0.5;
+}
+
+.scrollTopIcon {
+  @apply w-6 h-6;
 }
 
 .faqSection {

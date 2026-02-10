@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import {
@@ -23,13 +24,19 @@ import styles from "./HomePage.module.css";
 
 import offSeasonSale from "@/shared/assets/banner-off-season/Sale.png";
 import offSeasonSkincare from "@/shared/assets/banner-off-season/Skincare.png";
-import byomaImage from "@/shared/assets/Byoma.jpg";
-import instagramImage from "@/shared/assets/Instagram.jpg";
-import downloadFourImage from "@/shared/assets/download (4).jpg";
-import downloadFiveImage from "@/shared/assets/download (5).jpg";
-import aintSheSweetImage from "@/shared/assets/Ain't She Sweet Candle Product Shoot - Crickle Daisy - Treesha Millicent.jpg";
-import skincareSweetImage from "@/shared/assets/skincare-sweet.jpg";
-
+import aintSheSweetImage from "@/shared/assets/favorites-cards/Ain't She Sweet Candle Product Shoot - Crickle Daisy - Treesha Millicent.jpg";
+import byomaImage from "@/shared/assets/favorites-cards/Byoma.jpg";
+import gisouLipOilImage from "@/shared/assets/favorites-cards/Gisou_Honey_Infused_lip_oil.jpg";
+import blueTubeImage from "@/shared/assets/favorites-cards/Instagram (1).jpg";
+import instagramTwoImage from "@/shared/assets/favorites-cards/Instagram (2).jpg";
+import instagramImage from "@/shared/assets/favorites-cards/Instagram.jpg";
+import sanrioImage from "@/shared/assets/favorites-cards/Mei_Melody_Instagram.jpg";
+import skincareSweetImage from "@/shared/assets/favorites-cards/skincare-sweet.jpg";
+import downloadFourImage from "@/shared/assets/favorites-cards/download (4).jpg";
+import downloadFiveImage from "@/shared/assets/favorites-cards/download (5).jpg";
+import beVelvetImage from "@/shared/assets/favorites-cards/download (6).jpg";
+import downloadSevenImage from "@/shared/assets/favorites-cards/download (7).jpg";
+import glamOnImage from "@/shared/assets/favorites-cards/Game_on_Glam_on.jpg";
 const trendingProducts = [
   {
     id: "1",
@@ -145,7 +152,59 @@ const favoriteProducts = [
   { id: "fav-4", image: downloadFiveImage, title: "mella" },
   { id: "fav-5", image: aintSheSweetImage, title: "crickle daisy" },
   { id: "fav-6", image: skincareSweetImage, title: "offweglow" },
+  { id: "fav-7", image: beVelvetImage, title: "beauty of joseon" },
+  { id: "fav-8", image: gisouLipOilImage, title: "gisou" },
+  { id: "fav-9", image: sanrioImage, title: "sheglam" },
+  { id: "fav-10", image: blueTubeImage, title: "be velvet" },
+  { id: "fav-12", image: downloadSevenImage, title: "joocyee" },
+  { id: "fav-13", image: instagramTwoImage, title: "colorgram" },
+  { id: "fav-14", image: glamOnImage, title: "judydoll" },
 ];
+
+const applyDominantColor = (img: HTMLImageElement) => {
+  const card = img.closest(`.${styles.favoriteCard}`) as HTMLElement | null;
+  if (!card || img.naturalWidth === 0 || img.naturalHeight === 0) return;
+
+  try {
+    const canvas = document.createElement("canvas");
+    const size = 48;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    ctx.drawImage(img, 0, 0, size, size);
+    const { data } = ctx.getImageData(0, 0, size, size);
+
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    let count = 0;
+    const step = 4 * 2;
+    for (let i = 0; i < data.length; i += step) {
+      const alpha = data[i + 3];
+      if (alpha < 200) continue;
+      r += data[i];
+      g += data[i + 1];
+      b += data[i + 2];
+      count += 1;
+    }
+
+    if (count === 0) return;
+    const avgR = Math.round(r / count);
+    const avgG = Math.round(g / count);
+    const avgB = Math.round(b / count);
+    card.style.setProperty("--favorite-dominant", `${avgR}, ${avgG}, ${avgB}`);
+
+    // Decide text color based on perceived brightness.
+    const luminance = (0.2126 * avgR + 0.7152 * avgG + 0.0722 * avgB) / 255;
+    const textColor =
+      luminance > 0.62 ? "rgba(17, 24, 39, 0.9)" : "rgba(255, 255, 255, 0.95)";
+    card.style.setProperty("--favorite-text", textColor);
+  } catch {
+    // Ignore CORS/canvas errors and keep default gradient.
+  }
+};
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -155,6 +214,37 @@ export function HomePage() {
   const [productIndex, setProductIndex] = useState(0);
   const [productCount, setProductCount] = useState(0);
   const [promoCountdown, setPromoCountdown] = useState("06h 00m 00s");
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
+
+  const recentKey = "tdm_recent_products";
+
+  const loadRecentIds = () => {
+    try {
+      const raw = window.localStorage.getItem(recentKey);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveRecentIds = (ids: string[]) => {
+    try {
+      window.localStorage.setItem(recentKey, JSON.stringify(ids));
+    } catch {
+      // ignore storage errors
+    }
+  };
+
+  const handleRecentClick = (productId: string) => {
+    const current = loadRecentIds();
+    const next = [productId, ...current.filter((id) => id !== productId)].slice(0, 12);
+    saveRecentIds(next);
+    setRecentIds(next);
+    navigate(routes.product(productId));
+  };
 
   useEffect(() => {
     if (!heroApi) return;
@@ -203,6 +293,32 @@ export function HomePage() {
     const intervalId = window.setInterval(tick, 1000);
     return () => window.clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    setRecentIds(loadRecentIds());
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShowScrollTop(window.scrollY > 360);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const recentProducts = recentIds
+    .map((id) => trendingProducts.find((product) => product.id === id))
+    .filter(Boolean);
+
+  const recentCardStyle = {
+    "--product-card-min-h": "320px",
+    "--product-card-min-h-sm": "350px",
+    "--product-card-image-h": "11.5rem",
+    "--product-card-image-h-sm": "13rem",
+    "--product-card-bg": "transparent",
+    "--product-card-border": "none",
+  } as React.CSSProperties;
 
   return (
     <div className={styles.page}>
@@ -270,7 +386,11 @@ export function HomePage() {
             <CarouselContent className={styles.productCarouselContent}>
               {trendingProducts.slice(0, 12).map((product) => (
                 <CarouselItem key={product.id} className={styles.productCarouselItem}>
-                  <ProductCard {...product} onAddToCart={() => addItem(1)} />
+                  <ProductCard
+                    {...product}
+                    onAddToCart={() => addItem(1)}
+                    onClick={() => handleRecentClick(product.id)}
+                  />
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -293,7 +413,7 @@ export function HomePage() {
           </div>
 
           <div className={styles.favoritesGrid}>
-            {favoriteProducts.map((product) => (
+            {favoriteProducts.slice(0, 8).map((product) => (
               <div
                 key={`favorite-${product.id}`}
                 className={styles.favoriteCard}
@@ -310,17 +430,40 @@ export function HomePage() {
                   src={product.image}
                   alt={product.title}
                   className={styles.favoriteImage}
+                  onLoad={(event) => applyDominantColor(event.currentTarget)}
                 />
-                <button
-                  className={styles.favoriteCaptionButton}
-                  type="button"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  <span className={styles.favoriteCaption}>{product.title}</span>
-                </button>
+                <div className={styles.favoriteGradient} aria-hidden="true" />
+                <span className={styles.favoriteCaption}>{product.title}</span>
               </div>
             ))}
           </div>
+          {favoriteProducts.length > 8 && (
+            <div className={styles.favoritesGridCompact}>
+              {favoriteProducts.slice(8).map((product) => (
+                <div
+                  key={`favorite-compact-${product.id}`}
+                  className={`${styles.favoriteCard} ${styles.favoriteCardCompact}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(routes.category("feminino"))}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      navigate(routes.category("feminino"));
+                    }
+                  }}
+                >
+                  <ImageWithFallback
+                    src={product.image}
+                    alt={product.title}
+                    className={styles.favoriteImageCompact}
+                    onLoad={(event) => applyDominantColor(event.currentTarget)}
+                  />
+                  <div className={styles.favoriteGradient} aria-hidden="true" />
+                  <span className={styles.favoriteCaption}>{product.title}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className={styles.trendingSubHeader}>
             <h2 className={styles.trendingTitle}>Recomendados</h2>
@@ -331,7 +474,11 @@ export function HomePage() {
               const product = trendingProducts[index % trendingProducts.length];
               return (
                 <div key={`recommended-${index}`} className={styles.recommendedItem}>
-                  <ProductCard {...product} onAddToCart={() => addItem(1)} />
+                  <ProductCard
+                    {...product}
+                    onAddToCart={() => addItem(1)}
+                    onClick={() => handleRecentClick(product.id)}
+                  />
                 </div>
               );
             })}
@@ -347,44 +494,39 @@ export function HomePage() {
               Ver tudo
             </Button>
           </div>
+
+          {recentProducts.length > 0 && (
+            <section className={styles.recentSection} aria-label="Visto recentemente">
+              <div className={styles.recentHeader}>
+                <h2 className={styles.recentTitle}>Visto recentemente</h2>
+              </div>
+              <div className={styles.recentGrid}>
+                {recentProducts.map((product) => (
+                  <div key={`recent-${product!.id}`} className={styles.recommendedItem}>
+                    <ProductCard
+                      {...product!}
+                      style={recentCardStyle}
+                      onAddToCart={() => addItem(1)}
+                      onClick={() => handleRecentClick(product!.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </section>
+      {showScrollTop && (
+        <button
+          type="button"
+          className={styles.scrollTopButton}
+          aria-label="Voltar ao topo"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          <ChevronUp className={styles.scrollTopIcon} />
+        </button>
+      )}
 
-      <section className={styles.faqSection}>
-        <div className={styles.faqContainer}>
-          <div className={styles.faqHeader}>
-            <h2 className={styles.faqTitle}>PERGUNTAS FREQUENTES</h2>
-          </div>
-
-          <Accordion type="single" collapsible className={styles.faqAccordion}>
-            {faqs.map((faq, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className={styles.faqItem}
-              >
-                <AccordionTrigger className={styles.faqTrigger}>
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className={styles.faqContent}>
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-
-          <div className={styles.faqButtonWrap}>
-            <Button
-              size="lg"
-              variant="outline"
-              className={styles.faqButton}
-              onClick={() => navigate(routes.help)}
-            >
-              VER TODAS
-            </Button>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
