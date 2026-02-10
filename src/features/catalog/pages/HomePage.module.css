@@ -108,15 +108,12 @@
 }
 
 .favoriteCard {
-  @apply relative bg-white shadow-sm rounded-3xl overflow-hidden border border-gray-100 transition-all hover:shadow-lg cursor-pointer;
-  border-top-right-radius: 0;
-  border-bottom-left-radius: 0;
+  @apply relative bg-white shadow-sm overflow-hidden border border-gray-100 transition-all hover:shadow-lg cursor-pointer;
+  border-radius: 0;
 }
 
 .favoriteCard:hover {
   border-top-left-radius: 1.5rem;
-  border-top-right-radius: 1.5rem;
-  border-bottom-left-radius: 1.5rem;
   border-bottom-right-radius: 1.5rem;
 }
 
