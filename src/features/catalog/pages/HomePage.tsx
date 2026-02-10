@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import {
@@ -517,14 +517,24 @@ export function HomePage() {
         </div>
       </section>
       {showScrollTop && (
-        <button
-          type="button"
-          className={styles.scrollTopButton}
-          aria-label="Voltar ao topo"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
-          <ChevronUp className={styles.scrollTopIcon} />
-        </button>
+        <>
+          <button
+            type="button"
+            className={styles.scrollChatButton}
+            aria-label="Abrir chat"
+            onClick={() => navigate(routes.help)}
+          >
+            <MessageCircle className={styles.scrollTopIcon} />
+          </button>
+          <button
+            type="button"
+            className={styles.scrollTopButton}
+            aria-label="Voltar ao topo"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <ChevronUp className={styles.scrollTopIcon} />
+          </button>
+        </>
       )}
 
     </div>
