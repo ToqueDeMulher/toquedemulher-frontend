@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -20,6 +20,8 @@ export function LoginPage() {
   const redirectReason = (location.state as { reason?: string } | null)?.reason;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [animateLogin, setAnimateLogin] = useState(false);
+  const [animateRegister, setAnimateRegister] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -33,11 +35,25 @@ export function LoginPage() {
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
+  const loginAnimateTimeoutRef = useRef<number | null>(null);
+  const registerAnimateTimeoutRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (redirectReason === "admin-only") {
       toast.error("Acesso restrito. Entre com usuário admn.");
     }
   }, [redirectReason]);
+
+  useEffect(() => {
+    return () => {
+      if (loginAnimateTimeoutRef.current) {
+        window.clearTimeout(loginAnimateTimeoutRef.current);
+      }
+      if (registerAnimateTimeoutRef.current) {
+        window.clearTimeout(registerAnimateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -88,6 +104,22 @@ export function LoginPage() {
 
   const passwordStrength = getPasswordStrength(registerPassword);
   const passwordStrengthData = getPasswordStrengthLabel(passwordStrength);
+
+  const triggerBubblyAnimation = (
+    setAnimate: React.Dispatch<React.SetStateAction<boolean>>,
+    timeoutRef: React.MutableRefObject<number | null>
+  ) => {
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+    }
+    setAnimate(false);
+    window.requestAnimationFrame(() => {
+      setAnimate(true);
+      timeoutRef.current = window.setTimeout(() => {
+        setAnimate(false);
+      }, 1200);
+    });
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -276,7 +308,15 @@ export function LoginPage() {
                   type="submit"
                   size="lg"
                   variant="default"
-                  className={styles.submitButton}
+                  className={`${styles.submitButton} ${styles.bubblyButton} ${
+                    animateLogin ? styles.bubblyButtonAnimate : ""
+                  }`}
+                  onClick={() =>
+                    triggerBubblyAnimation(
+                      setAnimateLogin,
+                      loginAnimateTimeoutRef
+                    )
+                  }
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -558,7 +598,15 @@ export function LoginPage() {
                   type="submit"
                   size="lg"
                   variant="default"
-                  className={styles.registerButton}
+                  className={`${styles.registerButton} ${styles.bubblyButton} ${
+                    animateRegister ? styles.bubblyButtonAnimate : ""
+                  }`}
+                  onClick={() =>
+                    triggerBubblyAnimation(
+                      setAnimateRegister,
+                      registerAnimateTimeoutRef
+                    )
+                  }
                   disabled={isLoading}
                 >
                   {isLoading ? (
