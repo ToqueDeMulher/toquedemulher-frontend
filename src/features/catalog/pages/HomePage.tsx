@@ -320,6 +320,11 @@ export function HomePage() {
     "--product-card-border": "none",
   } as React.CSSProperties;
 
+  const recommendedCardStyle = {
+    "--product-card-bg": "transparent",
+    "--product-card-border": "none",
+  } as React.CSSProperties;
+
   return (
     <div className={styles.page}>
       <section className={styles.heroSection}>
@@ -469,19 +474,22 @@ export function HomePage() {
             <h2 className={styles.trendingTitle}>Recomendados</h2>
           </div>
 
-          <div className={styles.recommendedGrid}>
-            {Array.from({ length: 18 }).map((_, index) => {
-              const product = trendingProducts[index % trendingProducts.length];
-              return (
-                <div key={`recommended-${index}`} className={styles.recommendedItem}>
-                  <ProductCard
-                    {...product}
-                    onAddToCart={() => addItem(1)}
-                    onClick={() => handleRecentClick(product.id)}
-                  />
-                </div>
-              );
-            })}
+          <div className={styles.recommendedBox}>
+            <div className={styles.recommendedGrid}>
+              {Array.from({ length: 18 }).map((_, index) => {
+                const product = trendingProducts[index % trendingProducts.length];
+                return (
+                  <div key={`recommended-${index}`} className={styles.recommendedItem}>
+                    <ProductCard
+                      {...product}
+                      style={recommendedCardStyle}
+                      onAddToCart={() => addItem(1)}
+                      onClick={() => handleRecentClick(product.id)}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <div className={styles.trendingButtonWrap}>
