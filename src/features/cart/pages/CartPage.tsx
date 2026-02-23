@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Package, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
@@ -136,68 +136,80 @@ export function CartPage() {
       <div className={styles.container}>
         <h1 className={styles.pageTitle}>Carrinho de Compras</h1>
 
-        {remainingForFreeShipping > 0 && (
-          <div
-            className={`${styles.freeShippingNotice} ${styles.freeShippingPending}`}
-          >
-            <p
-              className={`${styles.freeShippingText} ${styles.freeShippingPendingText}`}
-            >
-              Faltam R$ {remainingForFreeShipping.toFixed(2)} para ganhar {""}
-              <strong>FRETE GRATIS</strong>!
-            </p>
-          </div>
-        )}
-        {remainingForFreeShipping === 0 && (
-          <div
-            className={`${styles.freeShippingNotice} ${styles.freeShippingSuccess}`}
-          >
-            <p
-              className={`${styles.freeShippingText} ${styles.freeShippingSuccessText}`}
-            >
-              Parabens! Voce ganhou <strong>FRETE GRATIS</strong>!
-            </p>
-          </div>
-        )}
-
         <div className={styles.grid}>
           <div className={styles.itemsColumn}>
-            {items.map((item) => (
-              <div key={item.id} className={styles.itemCard}>
-                <div className={styles.itemRow}>
-                  <div className={styles.itemImageWrap}>
-                    <ImageWithFallback
-                      src={item.image}
-                      alt={item.name}
-                      className={styles.itemImage}
-                    />
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.itemHeader}>
-                      <h3 className={styles.itemTitle}>{item.name}</h3>
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className={styles.removeButton}
-                      >
-                        <Trash2 className={styles.removeIcon} />
-                      </button>
+            {remainingForFreeShipping > 0 && (
+              <div
+                className={`${styles.freeShippingNotice} ${styles.freeShippingPending}`}
+              >
+                <p
+                  className={`${styles.freeShippingText} ${styles.freeShippingPendingText}`}
+                >
+                  Faltam R$ {remainingForFreeShipping.toFixed(2)} para ganhar {""}
+                  <strong>FRETE GRATIS</strong>!
+                </p>
+              </div>
+            )}
+            {remainingForFreeShipping === 0 && (
+              <div
+                className={`${styles.freeShippingNotice} ${styles.freeShippingSuccess}`}
+              >
+                <p
+                  className={`${styles.freeShippingText} ${styles.freeShippingSuccessText}`}
+                >
+                  <Package className={styles.freeShippingIcon} aria-hidden="true" /> Parabens! Voce ganhou{" "}
+                  <strong>FRETE GRATIS</strong>!
+                </p>
+              </div>
+            )}
+
+            <div className={styles.itemsPanel}>
+              {items.map((item, index) => (
+                <div
+                  key={item.id}
+                  className={`${styles.itemCard} ${
+                    index < items.length - 1 ? styles.itemCardDivider : ""
+                  }`}
+                >
+                  <div className={styles.itemMainRow}>
+                    <div className={styles.itemImageWrap}>
+                      <ImageWithFallback
+                        src={item.image}
+                        alt={item.name}
+                        className={styles.itemImage}
+                      />
                     </div>
-                    <div className={styles.priceRow}>
-                      <span className={styles.price}>
-                        R$ {item.price.toFixed(2).replace(".", ",")}
-                      </span>
-                      {item.originalPrice && (
-                        <span className={styles.originalPrice}>
-                          R$ {item.originalPrice.toFixed(2).replace(".", ",")}
+                    <div className={styles.itemContent}>
+                      <div className={styles.itemPriceRow}>
+                        <span className={styles.price}>
+                          R$ {item.price.toFixed(2).replace(".", ",")}
                         </span>
+                        {item.originalPrice && (
+                          <span className={styles.originalPrice}>
+                            R$ {item.originalPrice.toFixed(2).replace(".", ",")}
+                          </span>
+                        )}
+                      </div>
+                      {item.originalPrice && (
+                        <p className={styles.itemOfferLine}>
+                          {Math.round((1 - item.price / item.originalPrice) * 100)}% OFF
+                          <span className={styles.itemOfferTime}>Oferta por tempo limitado</span>
+                        </p>
                       )}
+                      <div className={styles.itemHeader}>
+                        <h3 className={styles.itemTitle}>{item.name}</h3>
+                      </div>
+                      <p className={styles.itemStockText}>
+                        Em estoque - envio rapido
+                      </p>
                     </div>
-                    <div className={styles.quantityRow}>
+                    <div className={styles.itemSide}>
                       <div className={styles.quantityControls}>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => updateQuantity(item.id, -1)}
+                          className={styles.quantityButton}
                         >
                           <Minus className={styles.quantityIcon} />
                         </Button>
@@ -208,6 +220,7 @@ export function CartPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => updateQuantity(item.id, 1)}
+                          className={styles.quantityButton}
                         >
                           <Plus className={styles.quantityIcon} />
                         </Button>
@@ -218,106 +231,123 @@ export function CartPage() {
                           .toFixed(2)
                           .replace(".", ",")}
                       </p>
+                      <div className={styles.itemActions}>
+                        <button
+                          type="button"
+                          className={styles.itemActionLink}
+                          onClick={() => toast.success("Item salvo para depois")}
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.itemActionLink}
+                          onClick={() => removeItem(item.id)}
+                        >
+                          Excluir
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+              <button type="button" className={styles.itemGiftRow}>
+                <span>Embrulho para presente por apenas R$ 12,90!</span>
+                <ChevronRight className={styles.itemGiftIcon} />
+              </button>
+            </div>
           </div>
 
           <div className={styles.summaryColumn}>
             <div className={styles.summaryCard}>
-              <h2 className={styles.summaryTitle}>Resumo do Pedido</h2>
+              <div className={styles.summaryHeader}>
+                <h2 className={styles.summaryTitle}>Checkout</h2>
+              </div>
+              <div className={styles.summaryBody}>
+                <div className={styles.summaryInnerBox}>
+                  <div className={styles.summarySection}>
+                    <label className={styles.summaryLabel}>Cupom de Desconto</label>
+                    <div className={styles.summaryRow}>
+                      <Input
+                        placeholder="Digite o cupom"
+                        value={coupon}
+                        onChange={(e) => setCoupon(e.target.value)}
+                        className={styles.summaryInput}
+                      />
+                      <Button
+                        onClick={applyCoupon}
+                        variant="outline"
+                        className={styles.summaryButton}
+                      >
+                        Aplicar
+                      </Button>
+                    </div>
+                  </div>
 
-              <div className={styles.summarySection}>
-                <label className={styles.summaryLabel}>Cupom de Desconto</label>
-                <div className={styles.summaryRow}>
-                  <Input
-                    placeholder="Digite o cupom"
-                    value={coupon}
-                    onChange={(e) => setCoupon(e.target.value)}
-                    className={styles.summaryInput}
-                  />
+                  <div className={styles.summarySection}>
+                    <label className={styles.summaryLabel}>Calcular Frete</label>
+                    <div className={styles.summaryRow}>
+                      <Input
+                        placeholder="CEP"
+                        value={zipCode}
+                        onChange={(e) =>
+                          setZipCode(e.target.value.replace(/\D/g, ""))
+                        }
+                        maxLength={8}
+                        className={styles.summaryInput}
+                      />
+                      <Button
+                        onClick={calculateShipping}
+                        variant="outline"
+                        className={styles.summaryButton}
+                      >
+                        OK
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className={styles.breakdown}>
+                    <div className={styles.breakdownRow}>
+                      <span>Subtotal</span>
+                      <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>
+                    </div>
+                    {discount > 0 && (
+                      <div className={styles.breakdownHighlight}>
+                        <span>Desconto</span>
+                        <span>- R$ {discount.toFixed(2).replace(".", ",")}</span>
+                      </div>
+                    )}
+                    {shipping > 0 && (
+                      <div className={styles.breakdownRow}>
+                        <span>Frete</span>
+                        <span>R$ {shipping.toFixed(2).replace(".", ",")}</span>
+                      </div>
+                    )}
+                    {shipping === 0 && zipCode && (
+                      <div className={styles.breakdownHighlight}>
+                        <span>Frete</span>
+                        <span>Gratis</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.totalRow}>
+                    <span className={styles.totalLabel}>Total</span>
+                    <span className={styles.totalValue}>
+                      R$ {total.toFixed(2).replace(".", ",")}
+                    </span>
+                  </div>
+
                   <Button
-                    onClick={applyCoupon}
-                    variant="outline"
-                    className={styles.summaryButton}
+                    size="lg"
+                    variant="default"
+                    className={styles.checkoutButton}
+                    onClick={() => navigate(routes.checkout)}
                   >
-                    Aplicar
+                    Finalizar Compra
                   </Button>
                 </div>
               </div>
-
-              <div className={styles.summarySection}>
-                <label className={styles.summaryLabel}>Calcular Frete</label>
-                <div className={styles.summaryRow}>
-                  <Input
-                    placeholder="CEP"
-                    value={zipCode}
-                    onChange={(e) =>
-                      setZipCode(e.target.value.replace(/\D/g, ""))
-                    }
-                    maxLength={8}
-                    className={styles.summaryInput}
-                  />
-                  <Button
-                    onClick={calculateShipping}
-                    variant="outline"
-                    className={styles.summaryButton}
-                  >
-                    OK
-                  </Button>
-                </div>
-              </div>
-
-              <div className={styles.breakdown}>
-                <div className={styles.breakdownRow}>
-                  <span>Subtotal</span>
-                  <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>
-                </div>
-                {discount > 0 && (
-                  <div className={styles.breakdownHighlight}>
-                    <span>Desconto</span>
-                    <span>- R$ {discount.toFixed(2).replace(".", ",")}</span>
-                  </div>
-                )}
-                {shipping > 0 && (
-                  <div className={styles.breakdownRow}>
-                    <span>Frete</span>
-                    <span>R$ {shipping.toFixed(2).replace(".", ",")}</span>
-                  </div>
-                )}
-                {shipping === 0 && zipCode && (
-                  <div className={styles.breakdownHighlight}>
-                    <span>Frete</span>
-                    <span>Gratis</span>
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.totalRow}>
-                <span className={styles.totalLabel}>Total</span>
-                <span className={styles.totalValue}>
-                  R$ {total.toFixed(2).replace(".", ",")}
-                </span>
-              </div>
-
-              <Button
-                size="lg"
-                variant="default"
-                className={styles.checkoutButton}
-                onClick={() => navigate(routes.checkout)}
-              >
-                Finalizar Compra
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className={styles.continueButton}
-                onClick={() => navigate(routes.home)}
-              >
-                Continuar Comprando
-              </Button>
             </div>
           </div>
         </div>
