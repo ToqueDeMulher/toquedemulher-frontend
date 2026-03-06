@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { CheckoutStepper } from "@/features/cart/components/CheckoutStepper";
 import { toast } from "sonner";
 import { routes } from "@/shared/lib/routes";
 import styles from "./CheckoutPage.module.css";
@@ -24,6 +25,7 @@ export function CheckoutPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
+        <CheckoutStepper currentStep={1} className={styles.stepper} />
         <section className={styles.checkoutCard}>
           <header className={styles.checkoutHeader}>
             <h1 className={styles.checkoutTitle}>Checkout</h1>

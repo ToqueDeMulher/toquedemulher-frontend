@@ -34,6 +34,10 @@
   font-family: var(--font-display);
 }
 
+.stepper {
+  @apply mb-4;
+}
+
 .freeShippingNotice {
   @apply border p-4 mb-6 rounded-tl-2xl rounded-tr-none rounded-bl-none rounded-br-2xl;
 }

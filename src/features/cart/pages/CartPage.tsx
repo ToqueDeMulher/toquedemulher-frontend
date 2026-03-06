@@ -4,6 +4,7 @@ import { Minus, Plus, ShoppingBag, Package, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
+import { CheckoutStepper } from "@/features/cart/components/CheckoutStepper";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { toast } from "sonner";
 import { routes } from "@/shared/lib/routes";
@@ -134,6 +135,7 @@ export function CartPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
+        <CheckoutStepper currentStep={0} className={styles.stepper} />
         <h1 className={styles.pageTitle}>Carrinho de Compras</h1>
 
         <div className={styles.grid}>

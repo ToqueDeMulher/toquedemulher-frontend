@@ -9,6 +9,10 @@
   @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
 }
 
+.stepper {
+  @apply mb-8;
+}
+
 .checkoutCard {
   @apply max-w-[420px] border overflow-hidden;
   border-color: #20da08;
@@ -97,4 +101,3 @@
 .continueButton {
   @apply w-full h-14 rounded-xl bg-[#17191f] text-white text-[1.6rem] font-medium tracking-[0.08em] hover:bg-[#0f1117];
 }
-
