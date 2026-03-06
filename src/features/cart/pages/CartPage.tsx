@@ -355,7 +355,7 @@ export function CartPage() {
         </div>
 
         <div className={styles.recommendSection}>
-          <h2 className={styles.recommendTitle}>Voce tambem pode gostar</h2>
+          <h2 className={styles.recommendTitle}>Você também pode gostar</h2>
           <div className={styles.recommendGrid}>
             {recommendedProducts.map((product) => (
               <ProductCard

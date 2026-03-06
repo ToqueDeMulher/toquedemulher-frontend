@@ -3,62 +3,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 
 @font-face {
-  font-family: "Integral CF";
-  src: url("./shared/assets/fonts/Integral-CF/Fontspring-DEMO-integralcf-regular.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Integral CF";
-  src: url("./shared/assets/fonts/Integral-CF/Fontspring-DEMO-integralcf-medium.otf") format("opentype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Integral CF";
-  src: url("./shared/assets/fonts/Integral-CF/Fontspring-DEMO-integralcf-bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "All Round Gothic";
-  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-book.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "All Round Gothic";
-  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-medium.otf") format("opentype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "All Round Gothic";
-  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-demi.otf") format("opentype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "All Round Gothic";
-  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "Satoshi Variable";
   src: url("./shared/assets/fonts/Satoshi-Variable/Satoshi-Variable.ttf") format("truetype-variations");
   font-weight: 300 900;
@@ -3432,7 +3376,7 @@ body {
 
 :root {
   --font-size: 16px;
-  --font-display: "All Round Gothic", "Integral CF", "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "all-round-gothic", "Poppins", ui-sans-serif, system-ui, sans-serif;
   --background: #f1f2f6;
   --foreground: oklch(0.278 0.033 256.848);
   --card: oklch(1 0 0);
