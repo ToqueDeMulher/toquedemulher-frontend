@@ -1,19 +1,7 @@
-import {
-  CreditCard,
-  MapPin,
-  Package,
-  ShoppingCart,
-  type LucideIcon,
-} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/shared/ui/utils";
+import { checkoutSteps } from "@/features/cart/lib/checkout-flow";
 import styles from "./CheckoutStepper.module.css";
-
-const checkoutSteps: { id: string; icon: LucideIcon }[] = [
-  { id: "cart", icon: ShoppingCart },
-  { id: "address", icon: MapPin },
-  { id: "payment", icon: CreditCard },
-  { id: "confirmation", icon: Package },
-];
 
 interface CheckoutStepperProps {
   className?: string;
@@ -24,6 +12,7 @@ export function CheckoutStepper({
   className,
   currentStep = 0,
 }: CheckoutStepperProps) {
+  const navigate = useNavigate();
   const activeStep = Math.min(
     Math.max(currentStep, 0),
     checkoutSteps.length - 1,
@@ -44,16 +33,24 @@ export function CheckoutStepper({
           return (
             <li key={step.id} className={styles.stepItem}>
               <div className={styles.iconRow}>
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    styles.iconCircle,
-                    isActive && styles.iconCircleActive,
-                    isCompleted && styles.iconCircleCompleted,
-                  )}
+                <button
+                  type="button"
+                  aria-label={`Ir para ${step.label}`}
+                  aria-current={isActive ? "step" : undefined}
+                  className={styles.stepButton}
+                  onClick={() => navigate(step.route)}
                 >
-                  <Icon className={styles.icon} />
-                </span>
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      styles.iconCircle,
+                      isActive && styles.iconCircleActive,
+                      isCompleted && styles.iconCircleCompleted,
+                    )}
+                  >
+                    <Icon className={styles.icon} />
+                  </span>
+                </button>
                 {!isLast && (
                   <span
                     aria-hidden="true"

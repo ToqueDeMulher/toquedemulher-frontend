@@ -24,6 +24,24 @@
   @apply flex items-center;
 }
 
+.stepButton {
+  @apply rounded-full outline-none transition-transform;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.stepButton:hover .iconCircle {
+  transform: translateY(-1px);
+}
+
+.stepButton:focus-visible .iconCircle {
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, white 90%, transparent),
+    0 0 0 5px color-mix(in oklab, var(--primary) 25%, transparent);
+}
+
 /* ── Circle ──────────────────────────────────────────── */
 .iconCircle {
   @apply inline-flex items-center justify-center rounded-full flex-shrink-0 relative;

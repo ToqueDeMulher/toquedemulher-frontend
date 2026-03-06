@@ -6,6 +6,7 @@ export const routes = {
   profile: "/perfil",
   cart: "/carrinho",
   checkout: "/checkout",
+  checkoutStep: (step: string = ":step") => `/checkout/${step}`,
   help: "/ajuda",
   about: "/sobre",
   productCreate: "/admin/produtos/novo",

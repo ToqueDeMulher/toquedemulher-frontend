@@ -13,14 +13,34 @@
   @apply mt-6 sm:mt-7 mb-6 sm:mb-8;
 }
 
-.pageTitle {
-  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-8;
+.layout {
+  @apply grid gap-8 xl:grid-cols-[minmax(0,1fr)_24rem] items-start;
+}
+
+.cartCard {
+  @apply bg-white border border-pink-100 overflow-hidden shadow-sm;
+  border-radius: 2rem;
+  border-top-right-radius: 0;
+}
+
+.cartHeader {
+  @apply px-6 sm:px-8 py-6 text-white;
+  background-color: var(--primary);
+}
+
+.cartTitle {
+  @apply text-3xl sm:text-4xl font-semibold leading-none mb-2;
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+}
+
+.cartBody {
+  @apply bg-white;
 }
 
 .emptyWrap {
-  @apply max-w-2xl mx-auto text-center py-20;
+  @apply max-w-3xl mx-auto text-center py-20 px-8 bg-white border border-pink-100 shadow-sm;
+  border-radius: 2rem;
+  border-top-right-radius: 0;
 }
 
 .emptyIcon {
@@ -40,9 +60,39 @@
   @apply w-full sm:w-auto;
 }
 
+.section {
+  @apply p-6 sm:p-8;
+}
+
+.section + .section {
+  border-top: 1px solid rgb(251 207 232);
+}
+
+.sectionHeader {
+  @apply flex items-start gap-4 mb-6;
+}
+
+.sectionIconWrap {
+  @apply inline-flex items-center justify-center rounded-2xl bg-pink-50 text-pink-600 shrink-0;
+  width: 3rem;
+  height: 3rem;
+}
+
+.sectionIcon {
+  @apply size-5;
+}
+
+.sectionTitle {
+  @apply text-xl sm:text-2xl font-semibold text-gray-900 mb-2;
+  font-family: var(--font-display);
+}
+
+.sectionText {
+  @apply text-sm text-gray-600;
+}
+
 .freeShippingNotice {
-  @apply p-4 mb-5 border rounded-2xl;
-  border-top-right-radius: 0;
+  @apply p-5 border rounded-2xl;
 }
 
 .freeShippingPending {
@@ -55,7 +105,8 @@
 }
 
 .freeShippingText {
-  @apply inline-flex items-center gap-2 w-full text-sm font-medium;
+  @apply inline-flex items-center gap-3 w-full text-sm font-medium;
+  color: color-mix(in oklab, var(--primary) 82%, black);
 }
 
 .freeShippingPendingText {
@@ -63,31 +114,20 @@
 }
 
 .freeShippingSuccessText {
-  color: color-mix(in oklab, var(--primary) 80%, black);
+  color: color-mix(in oklab, var(--primary) 82%, black);
 }
 
 .freeShippingIcon {
-  width: 1.1rem;
-  height: 1.1rem;
-  flex-shrink: 0;
-}
-
-.grid {
-  @apply grid lg:grid-cols-3 gap-8 items-start;
-}
-
-.itemsColumn {
-  @apply lg:col-span-2 space-y-3;
+  @apply size-5 shrink-0 text-pink-600;
 }
 
 .summaryColumn {
-  @apply lg:col-span-1;
+  @apply xl:col-span-1;
 }
 
 .itemsPanel {
-  @apply bg-white border border-pink-100 overflow-hidden shadow-sm;
-  border-radius: 2rem;
-  border-top-right-radius: 0;
+  @apply bg-white border border-pink-100 overflow-hidden;
+  border-radius: 1.75rem;
 }
 
 .itemCard {
@@ -124,7 +164,7 @@
 }
 
 .itemTitle {
-  @apply font-medium text-sm leading-snug text-gray-900;
+  @apply font-medium text-sm sm:text-base leading-snug text-gray-900;
 }
 
 .itemPriceRow {
@@ -148,12 +188,12 @@
 }
 
 .itemStockText {
-  @apply text-xs leading-snug text-gray-600;
+  @apply text-sm leading-snug text-gray-600;
 }
 
 .itemSide {
   @apply flex flex-col items-end justify-between;
-  min-width: 160px;
+  min-width: 168px;
 }
 
 .quantityControls {
@@ -212,9 +252,6 @@
 
 .summaryCard {
   @apply sticky top-24 bg-white border border-pink-100 overflow-hidden shadow-sm;
-  width: 100%;
-  max-width: 360px;
-  margin-left: auto;
   border-radius: 2rem;
   border-top-right-radius: 0;
 }
@@ -230,23 +267,71 @@
 }
 
 .summaryBody {
-  @apply bg-white;
-}
-
-.summaryInnerBox {
   @apply p-6;
 }
 
 .summarySection {
-  @apply mb-6;
+  @apply py-5 bg-white;
+  border-bottom: 1px solid rgb(251 207 232);
 }
 
-.summaryLabel {
-  @apply block mb-2 text-sm font-medium text-gray-700;
+.summarySection:first-child {
+  @apply pt-0;
+}
+
+.summarySection:last-child {
+  @apply pb-0;
+  border-bottom: none;
+}
+
+.summaryActionHeader {
+  @apply w-full flex items-center justify-between text-left text-gray-900 font-medium mb-4 transition-colors;
+}
+
+.summaryActionHeader:hover {
+  @apply text-pink-600;
+}
+
+.summaryChevron {
+  @apply size-4 text-pink-600;
+}
+
+.summaryShippingLine {
+  @apply flex items-start gap-3;
+}
+
+.summaryRadioOuter {
+  @apply mt-0.5 inline-flex items-center justify-center rounded-full flex-shrink-0;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 2px solid var(--primary);
+}
+
+.summaryRadioInner {
+  @apply rounded-full;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--primary);
+}
+
+.summaryShippingText {
+  @apply min-w-0;
+}
+
+.summaryShippingTitle {
+  @apply text-sm font-semibold leading-snug text-gray-900;
+}
+
+.summaryShippingSub {
+  @apply mt-1 text-xs leading-snug text-gray-600;
 }
 
 .summaryRow {
   @apply flex gap-2;
+}
+
+.summaryZipRow {
+  @apply flex gap-2 mb-5;
 }
 
 .summaryInput {
@@ -257,8 +342,13 @@
   @apply whitespace-nowrap;
 }
 
+.summarySectionTitle {
+  @apply text-2xl font-semibold text-gray-900 mb-5;
+  font-family: var(--font-display);
+}
+
 .breakdown {
-  @apply space-y-3 mb-6 pb-6;
+  @apply space-y-3 pb-4 mb-4;
   border-bottom: 1px solid rgb(251 207 232);
 }
 
@@ -271,7 +361,7 @@
 }
 
 .totalRow {
-  @apply flex justify-between items-end mb-6;
+  @apply flex justify-between items-center pt-2;
 }
 
 .totalLabel {
@@ -279,9 +369,18 @@
 }
 
 .totalValue {
-  @apply text-2xl font-semibold;
+  @apply text-3xl font-semibold;
   color: var(--primary);
   font-family: var(--font-display);
+}
+
+.summaryEta {
+  @apply mt-4 pt-4 text-sm text-gray-500;
+  border-top: 1px solid rgb(251 207 232);
+}
+
+.summaryFooter {
+  @apply px-6 pb-6 pt-6 bg-white;
 }
 
 .checkoutButton {
@@ -299,4 +398,17 @@
 
 .recommendGrid {
   @apply grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5;
+}
+
+@media (max-width: 1279px) {
+  .summaryCard {
+    position: static;
+  }
+}
+
+@media (max-width: 639px) {
+  .summaryRow,
+  .summaryZipRow {
+    @apply flex-col;
+  }
 }

@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { routes } from "@/shared/lib/routes";
 import { AppLayout } from "@/app/layout/AppLayout";
 import { RequireAuth } from "@/app/components/RequireAuth";
@@ -26,6 +26,14 @@ export function AppRoutes() {
         <Route path={routes.cart} element={<CartPage />} />
         <Route
           path={routes.checkout}
+          element={
+            <RequireAuth>
+              <Navigate to={routes.checkoutStep("address")} replace />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path={routes.checkoutStep()}
           element={
             <RequireAuth>
               <CheckoutPage />
