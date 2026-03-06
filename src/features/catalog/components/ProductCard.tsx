@@ -20,6 +20,8 @@ interface ProductCardProps {
   onAddToCart?: () => void;
   onClick?: () => void;
   style?: React.CSSProperties;
+  hideMeta?: boolean;
+  hideTitle?: boolean;
 }
 
 export function ProductCard({
@@ -35,6 +37,8 @@ export function ProductCard({
   onAddToCart,
   onClick,
   style,
+  hideMeta = false,
+  hideTitle = false,
 }: ProductCardProps) {
   const [isFav, setIsFav] = useState(false);
   const navigate = useNavigate();
@@ -99,9 +103,9 @@ export function ProductCard({
       </div>
 
       <div className={styles.content}>
-        <h3 className={styles.title}>{name}</h3>
+        {!hideTitle && <h3 className={styles.title}>{name}</h3>}
 
-        {typeof rating === "number" && (
+        {!hideMeta && typeof rating === "number" && (
           <div className={styles.ratingRow}>
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
@@ -118,7 +122,9 @@ export function ProductCard({
           </div>
         )}
 
-        <div className={styles.priceRow}>
+        <div
+          className={`${styles.priceRow} ${hideTitle ? styles.priceRowCompact : ""}`}
+        >
           <span className={styles.price}>{priceBRL}</span>
           {originalBRL && originalPrice! > price && (
             <span className={styles.originalPrice}>{originalBRL}</span>

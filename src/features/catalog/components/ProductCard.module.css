@@ -86,6 +86,10 @@
   @apply mt-3 flex items-end gap-2;
 }
 
+.priceRowCompact {
+  @apply mt-1;
+}
+
 .price {
   @apply text-gray-900 font-semibold text-sm sm:text-base;
 }
