@@ -4,7 +4,7 @@ import {
   UploadProductImageOptions,
 } from "@/shared/types/product";
 
-const API_URL = "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export async function createProduct(payload: CreateProductPayload) {
   const response = await fetch(`${API_URL}/products`, {

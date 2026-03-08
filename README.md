@@ -8,6 +8,13 @@ Run `npm i` to install the dependencies.
 
 Run `npm run dev` to start the development server.
 
+## API configuration
+
+- Create a `.env` file based on `.env.example`.
+- Set `VITE_API_URL` to your backend base URL (default: `http://localhost:8000`).
+- Example:
+  - `VITE_API_URL=http://localhost:8000`
+
 ## Cadastro de produtos
 
 - Clique em **Cadastrar Produto** no topo do site para abrir a nova página administrativa.
