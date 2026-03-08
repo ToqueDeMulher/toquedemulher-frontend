@@ -1,17 +1,42 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Check, X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import { toast } from "sonner";
-import { Eye, EyeOff, Check, X, Loader2 } from "lucide-react";
-import { useAuth } from "@/shared/contexts/auth-context";
+import {
+  useAuth,
+  type AuthRole,
+  type AuthUser,
+} from "@/shared/contexts/auth-context";
 import { routes } from "@/shared/lib/routes";
 import styles from "./LoginPage.module.css";
 
+const ADMIN_EMAILS = new Set(["admin", "admin@toquedemulher.com"]);
+
+function getDefaultRouteForRole(role: AuthRole) {
+  return role === "admin" ? routes.adminDashboard : routes.profile;
+}
+
+function buildCustomerName(email: string) {
+  const baseName = email
+    .split("@")[0]
+    .replace(/[._-]+/g, " ")
+    .trim();
+
+  if (!baseName) return "Cliente";
+
+  return baseName
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo =
@@ -20,6 +45,7 @@ export function LoginPage() {
   const redirectReason = (location.state as { reason?: string } | null)?.reason;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [loginRole, setLoginRole] = useState<AuthRole>("customer");
   const [animateLogin, setAnimateLogin] = useState(false);
   const [animateRegister, setAnimateRegister] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +66,8 @@ export function LoginPage() {
 
   useEffect(() => {
     if (redirectReason === "admin-only") {
-      toast.error("Acesso restrito. Entre com usuário admn.");
+      setLoginRole("admin");
+      toast.error("Acesso restrito. Entre com uma conta admin.");
     }
   }, [redirectReason]);
 
@@ -49,11 +76,16 @@ export function LoginPage() {
       if (loginAnimateTimeoutRef.current) {
         window.clearTimeout(loginAnimateTimeoutRef.current);
       }
+
       if (registerAnimateTimeoutRef.current) {
         window.clearTimeout(registerAnimateTimeoutRef.current);
       }
     };
   }, []);
+
+  if (isLoggedIn && role && redirectReason !== "admin-only") {
+    return <Navigate to={getDefaultRouteForRole(role)} replace />;
+  }
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -102,6 +134,43 @@ export function LoginPage() {
     };
   };
 
+  const resolveRedirect = (nextRole: AuthRole) => {
+    const defaultRoute = getDefaultRouteForRole(nextRole);
+
+    if (
+      redirectTo === routes.home ||
+      redirectTo === routes.login ||
+      redirectTo.trim().length === 0
+    ) {
+      return defaultRoute;
+    }
+
+    if (nextRole === "admin" && redirectTo === routes.profile) {
+      return routes.adminDashboard;
+    }
+
+    if (nextRole === "customer" && redirectTo.startsWith("/admin")) {
+      return routes.profile;
+    }
+
+    return redirectTo;
+  };
+
+  const completeSignIn = (
+    authUser: AuthUser,
+    successMessage: string,
+    delay: number = 1200
+  ) => {
+    setIsLoading(true);
+
+    window.setTimeout(() => {
+      setIsLoading(false);
+      toast.success(successMessage);
+      login(authUser);
+      navigate(resolveRedirect(authUser.role), { replace: true });
+    }, delay);
+  };
+
   const passwordStrength = getPasswordStrength(registerPassword);
   const passwordStrengthData = getPasswordStrengthLabel(passwordStrength);
 
@@ -112,6 +181,7 @@ export function LoginPage() {
     if (timeoutRef.current) {
       window.clearTimeout(timeoutRef.current);
     }
+
     setAnimate(false);
     window.requestAnimationFrame(() => {
       setAnimate(true);
@@ -121,30 +191,52 @@ export function LoginPage() {
     });
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const isAdminLogin = loginEmail.trim().toLowerCase() === "admin";
+    const normalizedEmail = loginEmail.trim().toLowerCase();
 
-    if (!isAdminLogin) {
-      toast.error("Acesso restrito. Somente admin pode entrar.");
+    if (loginRole === "admin") {
+      if (!ADMIN_EMAILS.has(normalizedEmail) || loginPassword !== "admin123") {
+        toast.error(
+          "Credenciais admin invalidas. Use admin@toquedemulher.com e admin123."
+        );
+        return;
+      }
+
+      completeSignIn(
+        {
+          name: "Equipe Toque de Mulher",
+          email: "admin@toquedemulher.com",
+          role: "admin",
+        },
+        "Login admin realizado com sucesso!"
+      );
       return;
     }
 
-    setIsLoading(true);
+    if (!validateEmail(loginEmail)) {
+      toast.error("Digite um e-mail valido.");
+      return;
+    }
 
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Login realizado com sucesso!");
-      login(isAdminLogin);
-      navigate(redirectTo, { replace: true });
-    }, 1500);
+    if (loginPassword.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+
+    completeSignIn(
+      {
+        name: buildCustomerName(loginEmail.trim()),
+        email: loginEmail.trim(),
+        role: "customer",
+      },
+      "Login realizado com sucesso!"
+    );
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.error("Cadastro desabilitado. Somente admin pode entrar.");
-    return;
 
     if (registerName.trim().length < 3) {
       toast.error("Nome deve ter pelo menos 3 caracteres");
@@ -176,26 +268,32 @@ export function LoginPage() {
       return;
     }
 
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Cadastro realizado com sucesso! Bem-vinda!");
-      login(false);
-      navigate(redirectTo, { replace: true });
-    }, 1500);
+    completeSignIn(
+      {
+        name: registerName.trim(),
+        email: registerEmail.trim(),
+        role: "customer",
+      },
+      "Cadastro realizado com sucesso! Bem-vinda!",
+      1500
+    );
   };
 
   const handleSocialLogin = (provider: string) => {
-    toast.error("Login social desabilitado. Somente admin pode entrar.");
-    return;
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success(`Login com ${provider} realizado com sucesso!`);
-      login(false);
-      navigate(redirectTo, { replace: true });
-    }, 1000);
+    if (loginRole === "admin") {
+      toast.error("Login social nao esta disponivel para contas admin.");
+      return;
+    }
+
+    completeSignIn(
+      {
+        name: `${provider} User`,
+        email: `${provider.toLowerCase()}@cliente.com`,
+        role: "customer",
+      },
+      `Login com ${provider} realizado com sucesso!`,
+      1000
+    );
   };
 
   const handleForgotPassword = () => {
@@ -203,10 +301,12 @@ export function LoginPage() {
       toast.error("Digite seu e-mail primeiro");
       return;
     }
-    if (!validateEmail(loginEmail)) {
+
+    if (!validateEmail(loginEmail) && loginRole !== "admin") {
       toast.error("Digite um e-mail valido");
       return;
     }
+
     toast.success(`Instrucoes enviadas para ${loginEmail}`);
   };
 
@@ -222,7 +322,7 @@ export function LoginPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>Boas-vindas!</h1>
           <p className={styles.subtitle}>
-            Entre para acessar sua conta e aproveitar beneficios exclusivos
+            Entre como cliente ou admin para acessar a area certa da conta.
           </p>
         </div>
 
@@ -242,14 +342,47 @@ export function LoginPage() {
 
             <TabsContent value="login">
               <form onSubmit={handleLogin} className={styles.formLogin}>
+                <div className={styles.roleSection}>
+                  <span className={styles.roleLabel}>Entrando como</span>
+                  <div className={styles.roleToggle}>
+                    <button
+                      type="button"
+                      className={`${styles.roleButton} ${
+                        loginRole === "customer" ? styles.roleButtonActive : ""
+                      }`}
+                      onClick={() => setLoginRole("customer")}
+                    >
+                      Cliente
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.roleButton} ${
+                        loginRole === "admin" ? styles.roleButtonActive : ""
+                      }`}
+                      onClick={() => setLoginRole("admin")}
+                    >
+                      Admin
+                    </button>
+                  </div>
+                  <p className={styles.roleHint}>
+                    {loginRole === "admin"
+                      ? "Acesso admin: admin@toquedemulher.com com senha admin123."
+                      : "Acesso cliente: entre com seu e-mail para ver pedidos, wishlist e configuracoes."}
+                  </p>
+                </div>
+
                 <div>
                   <Label htmlFor="email" className={styles.fieldLabel}>
                     E-mail
                   </Label>
                   <Input
                     id="email"
-                    type="text"
-                    placeholder="usuario"
+                    type="email"
+                    placeholder={
+                      loginRole === "admin"
+                        ? "admin@toquedemulher.com"
+                        : "seu@email.com"
+                    }
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     required
@@ -324,8 +457,10 @@ export function LoginPage() {
                       <Loader2 className={styles.iconSpin} />
                       Entrando...
                     </>
+                  ) : loginRole === "admin" ? (
+                    "Entrar como admin"
                   ) : (
-                    "Entrar"
+                    "Entrar como cliente"
                   )}
                 </Button>
               </form>
@@ -387,6 +522,12 @@ export function LoginPage() {
                     Login com Facebook
                   </Button>
                 </div>
+
+                <p className={styles.footerMeta}>
+                  {loginRole === "admin"
+                    ? "Painel administrativo separado da area do cliente."
+                    : "Sua area de cliente mostra pedidos, wishlist e configuracoes pessoais."}
+                </p>
               </div>
             </TabsContent>
 
@@ -519,7 +660,7 @@ export function LoginPage() {
                           ) : (
                             <X className={styles.iconTinyMuted} />
                           )}
-                          Numeros
+                          Pelo menos um numero
                         </div>
                       </div>
                     </div>
@@ -527,26 +668,25 @@ export function LoginPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="reg-confirm" className={styles.fieldLabel}>
+                  <Label
+                    htmlFor="reg-confirm-password"
+                    className={styles.fieldLabel}
+                  >
                     Confirmar Senha
                   </Label>
                   <div className={styles.inputWrapper}>
                     <Input
-                      id="reg-confirm"
+                      id="reg-confirm-password"
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={registerConfirmPassword}
-                      onChange={(e) =>
-                        setRegisterConfirmPassword(e.target.value)
-                      }
+                      onChange={(e) => setRegisterConfirmPassword(e.target.value)}
                       required
                       className={styles.inputWithIcon}
                     />
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className={styles.toggleButton}
                     >
                       {showConfirmPassword ? (
@@ -556,20 +696,24 @@ export function LoginPage() {
                       )}
                     </button>
                   </div>
-                  {registerConfirmPassword &&
-                    registerPassword !== registerConfirmPassword && (
-                      <p className={styles.confirmHintBad}>
-                        <X className={styles.iconTiny} /> As senhas nao
-                        coincidem
-                      </p>
-                    )}
-                  {registerConfirmPassword &&
-                    registerPassword === registerConfirmPassword && (
-                      <p className={styles.confirmHintGood}>
-                        <Check className={styles.iconTiny} /> As senhas
-                        coincidem
-                      </p>
-                    )}
+                  {registerConfirmPassword && (
+                    <p
+                      className={
+                        registerPassword === registerConfirmPassword
+                          ? styles.confirmHintGood
+                          : styles.confirmHintBad
+                      }
+                    >
+                      {registerPassword === registerConfirmPassword ? (
+                        <Check className={styles.iconTiny} />
+                      ) : (
+                        <X className={styles.iconTiny} />
+                      )}
+                      {registerPassword === registerConfirmPassword
+                        ? "As senhas coincidem"
+                        : "As senhas nao coincidem"}
+                    </p>
+                  )}
                 </div>
 
                 <div className={styles.termsRow}>
@@ -579,17 +723,13 @@ export function LoginPage() {
                       checked={acceptTerms}
                       onChange={(e) => setAcceptTerms(e.target.checked)}
                       className={styles.termsCheckbox}
-                      required
                     />
                     <span className={styles.termsText}>
-                      Aceito os {""}
+                      Eu concordo com os{" "}
                       <button type="button" className={styles.termsButton}>
                         termos de uso
                       </button>{" "}
-                      e{" "}
-                      <button type="button" className={styles.termsButton}>
-                        politica de privacidade
-                      </button>
+                      e a politica de privacidade.
                     </span>
                   </label>
                 </div>
@@ -612,26 +752,20 @@ export function LoginPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className={styles.iconSpin} />
-                      Cadastrando...
+                      Criando conta...
                     </>
                   ) : (
-                    "Criar Conta"
+                    "Criar conta de cliente"
                   )}
                 </Button>
-              </form>
 
-              <div className={styles.registerMeta}>
-                <p>
-                  Ao criar uma conta, voce concorda em receber e-mails
-                  promocionais e atualizacoes.
+                <p className={styles.registerMeta}>
+                  Cadastro cria uma conta de cliente. Contas admin continuam
+                  restritas a acessos autorizados.
                 </p>
-              </div>
+              </form>
             </TabsContent>
           </Tabs>
-        </div>
-
-        <div className={styles.footerMeta}>
-          <p>Seus dados estao seguros conosco</p>
         </div>
       </div>
     </div>

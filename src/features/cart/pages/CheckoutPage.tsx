@@ -17,12 +17,15 @@ import {
   normalizeCheckoutFlowStep,
 } from "@/features/cart/lib/checkout-flow";
 import { trendingProducts } from "@/shared/data/catalog-products";
+import { useAuth } from "@/shared/contexts/auth-context";
+import { useCart } from "@/shared/contexts/cart-context";
 import { routes } from "@/shared/lib/routes";
 import { toast } from "sonner";
 import styles from "./CheckoutPage.module.css";
 
 type AddressFormState = {
   fullName: string;
+  email: string;
   zipCode: string;
   phone: string;
   street: string;
@@ -63,6 +66,7 @@ const checkoutItems = [
 
 const REQUIRED_ADDRESS_FIELDS: Array<keyof AddressFormState> = [
   "fullName",
+  "email",
   "zipCode",
   "phone",
   "street",
@@ -109,6 +113,40 @@ function formatExpiry(expiry: string) {
   return `${digits.slice(0, 2)}/${digits.slice(2)}`;
 }
 
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function hasMissingAddressField(addressForm: AddressFormState) {
+  return REQUIRED_ADDRESS_FIELDS.some((field) => {
+    if (field === "email") return !isValidEmail(addressForm.email.trim());
+    if (field === "zipCode") return addressForm.zipCode.length !== 8;
+    if (field === "phone") return addressForm.phone.length < 10;
+    return addressForm[field].trim().length === 0;
+  });
+}
+
+function isCardPaymentValid(paymentForm: PaymentFormState) {
+  return !(
+    paymentForm.cardName.trim().length === 0 ||
+    paymentForm.cardNumber.replace(/\D/g, "").length !== 16 ||
+    paymentForm.expiry.replace(/\D/g, "").length !== 4 ||
+    paymentForm.cvv.replace(/\D/g, "").length < 3 ||
+    paymentForm.cpf.replace(/\D/g, "").length !== 11
+  );
+}
+
+function createOrderNumber() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+
+  return `TDM-${year}${month}${day}-${hours}${minutes}`;
+}
+
 function addBusinessDays(baseDate: Date, businessDays: number) {
   const result = new Date(baseDate);
   let addedDays = 0;
@@ -128,14 +166,13 @@ function addBusinessDays(baseDate: Date, businessDays: number) {
 export function CheckoutPage() {
   const navigate = useNavigate();
   const { step } = useParams<{ step?: string }>();
+  const { isLoggedIn } = useAuth();
+  const { reset } = useCart();
   const currentStep = normalizeCheckoutFlowStep(step);
-
-  if (step !== undefined && step !== currentStep) {
-    return <Navigate to={routes.checkoutStep(currentStep)} replace />;
-  }
 
   const [addressForm, setAddressForm] = useState<AddressFormState>({
     fullName: "",
+    email: "",
     zipCode: "",
     phone: "",
     street: "",
@@ -155,6 +192,26 @@ export function CheckoutPage() {
     cpf: "",
     installments: "1x sem juros",
   });
+  const [orderNumber] = useState(createOrderNumber);
+  const isAddressComplete = !hasMissingAddressField(addressForm);
+  const isPaymentComplete =
+    paymentForm.method === "card" ? isCardPaymentValid(paymentForm) : true;
+
+  if (step !== undefined && step !== currentStep) {
+    return <Navigate to={routes.checkoutStep(currentStep)} replace />;
+  }
+
+  if (currentStep === "payment" && !isAddressComplete) {
+    return <Navigate to={routes.checkoutStep("address")} replace />;
+  }
+
+  if (currentStep === "confirmation" && !isAddressComplete) {
+    return <Navigate to={routes.checkoutStep("address")} replace />;
+  }
+
+  if (currentStep === "confirmation" && !isPaymentComplete) {
+    return <Navigate to={routes.checkoutStep("payment")} replace />;
+  }
 
   const itemCount = checkoutItems.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = checkoutItems.reduce(
@@ -168,7 +225,6 @@ export function CheckoutPage() {
     month: "long",
     year: "numeric",
   }).format(addBusinessDays(new Date(), 7));
-  const orderNumber = "TDM-20260306-1842";
   const currentStepIndex = getCheckoutStepIndex(currentStep);
   const addressSummary = [
     addressForm.street,
@@ -189,14 +245,8 @@ export function CheckoutPage() {
   const handleAddressSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const hasMissingRequiredField = REQUIRED_ADDRESS_FIELDS.some((field) => {
-      if (field === "zipCode") return addressForm.zipCode.length !== 8;
-      if (field === "phone") return addressForm.phone.length < 10;
-      return addressForm[field].trim().length === 0;
-    });
-
-    if (hasMissingRequiredField) {
-      toast.error("Preencha os campos obrigatorios do endereco.");
+    if (hasMissingAddressField(addressForm)) {
+      toast.error("Preencha os campos obrigatorios com dados validos.");
       return;
     }
 
@@ -207,18 +257,9 @@ export function CheckoutPage() {
   const handlePaymentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (paymentForm.method === "card") {
-      const invalidCardFields =
-        paymentForm.cardName.trim().length === 0 ||
-        paymentForm.cardNumber.replace(/\D/g, "").length !== 16 ||
-        paymentForm.expiry.replace(/\D/g, "").length !== 4 ||
-        paymentForm.cvv.replace(/\D/g, "").length < 3 ||
-        paymentForm.cpf.replace(/\D/g, "").length !== 11;
-
-      if (invalidCardFields) {
-        toast.error("Preencha os dados do cartao corretamente.");
-        return;
-      }
+    if (paymentForm.method === "card" && !isCardPaymentValid(paymentForm)) {
+      toast.error("Preencha os dados do cartao corretamente.");
+      return;
     }
 
     toast.success("Pagamento revisado. Confira os dados e finalize o pedido.");
@@ -226,8 +267,15 @@ export function CheckoutPage() {
   };
 
   const handleFinishOrder = () => {
-    toast.success("Pedido confirmado com sucesso!");
-    navigate(routes.profile);
+    const contactEmail = addressForm.email.trim();
+
+    reset();
+    toast.success(
+      !isLoggedIn && contactEmail
+        ? `Pedido confirmado! Vamos enviar as atualizacoes para ${contactEmail}.`
+        : "Pedido confirmado com sucesso!",
+    );
+    navigate(routes.home, { replace: true });
   };
 
   const renderAddressStep = () => (
@@ -259,6 +307,22 @@ export function CheckoutPage() {
               }
               className={styles.fieldInput}
               placeholder="Como deve aparecer na entrega"
+            />
+          </div>
+
+          <div className={styles.fullField}>
+            <Label htmlFor="email" className={styles.fieldLabel}>
+              E-mail
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={addressForm.email}
+              onChange={(event) =>
+                updateAddressField("email", event.target.value)
+              }
+              className={styles.fieldInput}
+              placeholder="voce@exemplo.com"
             />
           </div>
 
@@ -621,6 +685,9 @@ export function CheckoutPage() {
               {addressForm.fullName || "Nome do destinatario"}
             </p>
             <p className={styles.confirmationPanelText}>
+              {addressForm.email || "E-mail de contato ainda nao informado"}
+            </p>
+            <p className={styles.confirmationPanelText}>
               {addressSummary || "Endereco ainda nao preenchido"}
             </p>
             <p className={styles.confirmationPanelText}>
@@ -681,6 +748,19 @@ export function CheckoutPage() {
               <h1 className={styles.checkoutTitle}>{stepContent[currentStep].title}</h1>
             </header>
 
+            {!isLoggedIn && (
+              <div className={styles.guestBanner}>
+                <ShieldCheck className={styles.guestBannerIcon} />
+                <div>
+                  <p className={styles.guestBannerTitle}>Checkout sem login</p>
+                  <p className={styles.guestBannerText}>
+                    Voce pode concluir a compra como visitante. Precisamos apenas
+                    dos dados de entrega, contato e pagamento.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {currentStep === "address" && renderAddressStep()}
             {currentStep === "payment" && renderPaymentStep()}
             {currentStep === "confirmation" && renderConfirmationStep()}
@@ -730,6 +810,9 @@ export function CheckoutPage() {
                 <h3 className={styles.summaryPanelTitle}>Endereco</h3>
                 <p className={styles.summaryPanelText}>
                   {addressForm.fullName || "Nenhum destinatario informado"}
+                </p>
+                <p className={styles.summaryPanelText}>
+                  {addressForm.email || "Nenhum e-mail de contato informado"}
                 </p>
                 <p className={styles.summaryPanelText}>
                   {addressSummary || "Preencha o endereco para visualizar aqui."}

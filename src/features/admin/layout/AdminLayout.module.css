@@ -1,0 +1,180 @@
+@reference "tailwindcss";
+
+.shell {
+  @apply min-h-screen lg:grid;
+  background:
+    radial-gradient(circle at top left, rgb(251 207 232 / 0.45), transparent 20%),
+    linear-gradient(180deg, #f8f7fb 0%, #f1f2f6 100%);
+}
+
+.shellSidebarOpen {
+  @apply lg:grid-cols-[18.5rem_minmax(0,1fr)];
+}
+
+.shellSidebarClosed {
+  @apply lg:grid-cols-[5.75rem_minmax(0,1fr)];
+}
+
+.backdrop {
+  @apply fixed inset-0 z-30 bg-black/20;
+}
+
+.sidebar {
+  @apply flex flex-col gap-6 border-b border-pink-100 bg-white/90 p-5 backdrop-blur-sm lg:min-h-screen lg:border-b-0 lg:border-r lg:sticky lg:top-0 transition-[width,transform] duration-200 ease-out;
+}
+
+.sidebarOpen {
+  @apply translate-x-0;
+}
+
+.sidebarClosed {
+  @apply lg:w-[5.75rem];
+}
+
+.sidebarTopRow {
+  @apply flex items-center justify-end;
+}
+
+.sidebarToggle {
+  @apply rounded-2xl text-gray-600 hover:bg-pink-50 hover:text-pink-700;
+}
+
+.toggleIcon {
+  @apply size-4;
+}
+
+.brandBlock {
+  @apply rounded-[1.75rem] border border-pink-100 bg-white p-5 shadow-sm;
+}
+
+.brandBadge {
+  @apply border-0 bg-pink-100 text-pink-700 mb-4;
+}
+
+.brandTitle {
+  @apply text-2xl font-semibold text-gray-900 lowercase;
+  font-family: var(--font-display);
+}
+
+.brandText {
+  @apply mt-3 text-sm text-gray-600 leading-relaxed;
+}
+
+.accountCard {
+  @apply rounded-[1.75rem] border border-pink-100 bg-pink-50/70 p-5;
+}
+
+.accountLabel {
+  @apply block text-xs uppercase tracking-[0.18em] text-pink-500 mb-2;
+}
+
+.accountName {
+  @apply block text-base font-semibold text-gray-900;
+}
+
+.accountEmail {
+  @apply mt-1 text-sm text-gray-600 break-all;
+}
+
+.nav {
+  @apply flex flex-col gap-2;
+}
+
+.navLink {
+  @apply inline-flex items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-sm font-medium text-gray-700 transition-colors;
+}
+
+.navLinkCollapsed {
+  @apply justify-center px-0;
+}
+
+.navLink:hover {
+  @apply border-pink-200 bg-pink-50 text-pink-700;
+}
+
+.navLinkActive {
+  @apply border-pink-200 bg-white text-pink-700 shadow-sm;
+}
+
+.navIcon {
+  @apply size-4 shrink-0;
+}
+
+.sidebarActions {
+  @apply mt-auto grid gap-3;
+}
+
+.storeButton {
+  @apply justify-start rounded-2xl border-pink-200 text-pink-700 hover:bg-pink-50;
+}
+
+.logoutButton {
+  @apply justify-start rounded-2xl text-gray-600 hover:bg-white hover:text-pink-700;
+}
+
+.actionButtonCollapsed {
+  @apply justify-center px-0;
+}
+
+.actionIcon {
+  @apply mr-2 size-4;
+}
+
+.actionButtonCollapsed .actionIcon {
+  @apply mr-0;
+}
+
+.contentHidden {
+  @apply lg:hidden;
+}
+
+.main {
+  @apply min-w-0;
+}
+
+.mainInner {
+  @apply min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-6;
+}
+
+.statusBar {
+  @apply mb-5 flex items-center justify-between rounded-2xl border border-pink-100 bg-white px-4 py-3 shadow-sm;
+}
+
+.statusTextWrap {
+  @apply inline-flex items-center gap-2 text-sm text-gray-700;
+}
+
+.mainToggle {
+  @apply rounded-2xl text-gray-600 hover:bg-pink-50 hover:text-pink-700;
+}
+
+.statusIcon {
+  @apply size-4 text-pink-600;
+}
+
+.statusText {
+  @apply font-medium;
+}
+
+@media (max-width: 1023px) {
+  .shell {
+    @apply block;
+  }
+
+  .sidebar {
+    @apply fixed inset-y-0 left-0 z-40 w-[18.5rem] border-b-0 border-r shadow-xl;
+  }
+
+  .sidebarClosed {
+    transform: translateX(-100%);
+    width: 18.5rem;
+  }
+
+  .sidebarActions {
+    @apply mt-0;
+  }
+
+  .contentHidden {
+    display: initial;
+  }
+}

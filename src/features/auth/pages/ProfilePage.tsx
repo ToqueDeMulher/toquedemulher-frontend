@@ -6,7 +6,7 @@ import {
   LogOut,
   ShoppingBag,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Badge } from "@/shared/ui/badge";
@@ -68,8 +68,21 @@ const wishlist = [
 ];
 
 export function ProfilePage() {
-  const { logout } = useAuth();
+  const { logout, user, isAdmin } = useAuth();
   const navigate = useNavigate();
+
+  if (isAdmin) {
+    return <Navigate to={routes.adminDashboard} replace />;
+  }
+
+  const displayName = user?.name ?? "Cliente";
+  const email = user?.email ?? "cliente@email.com";
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
 
   const handleLogout = () => {
     logout();
@@ -83,11 +96,11 @@ export function ProfilePage() {
           <div className={styles.profileRow}>
             <div className={styles.profileInfo}>
               <div className={styles.avatar}>
-                <span>MJ</span>
+                <span>{initials || "CL"}</span>
               </div>
               <div>
-                <h1 className={styles.name}>Ana Clara</h1>
-                <p className={styles.email}>anaclara12@email.com</p>
+                <h1 className={styles.name}>{displayName}</h1>
+                <p className={styles.email}>{email}</p>
                 <div className={styles.badgeRow}>
                   <Badge className={styles.statusOther}>Cliente VIP</Badge>
                   <span className={styles.memberSince}>
@@ -271,13 +284,11 @@ export function ProfilePage() {
                   <div className={styles.settingsList}>
                     <div className={styles.settingsRow}>
                       <span className={styles.settingsLabel}>Nome</span>
-                      <span className={styles.settingsValue}>Ana Clara</span>
+                      <span className={styles.settingsValue}>{displayName}</span>
                     </div>
                     <div className={styles.settingsRow}>
                       <span className={styles.settingsLabel}>E-mail</span>
-                      <span className={styles.settingsValue}>
-                        anaclara12@email.com
-                      </span>
+                      <span className={styles.settingsValue}>{email}</span>
                     </div>
                     <div className={styles.settingsRow}>
                       <span className={styles.settingsLabel}>Telefone</span>

@@ -10,6 +10,8 @@ import { CartPage } from "@/features/cart/pages/CartPage";
 import { CheckoutPage } from "@/features/cart/pages/CheckoutPage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { ProfilePage } from "@/features/auth/pages/ProfilePage";
+import { AdminDashboardPage } from "@/features/admin/pages/AdminDashboardPage";
+import { AdminLayout } from "@/features/admin/layout/AdminLayout";
 import { HelpPage } from "@/features/institutional/pages/HelpPage";
 import { AboutPage } from "@/features/institutional/pages/AboutPage";
 import { InstitutionalPage } from "@/features/institutional/pages/InstitutionalPage";
@@ -26,20 +28,9 @@ export function AppRoutes() {
         <Route path={routes.cart} element={<CartPage />} />
         <Route
           path={routes.checkout}
-          element={
-            <RequireAuth>
-              <Navigate to={routes.checkoutStep("address")} replace />
-            </RequireAuth>
-          }
+          element={<Navigate to={routes.checkoutStep("address")} replace />}
         />
-        <Route
-          path={routes.checkoutStep()}
-          element={
-            <RequireAuth>
-              <CheckoutPage />
-            </RequireAuth>
-          }
-        />
+        <Route path={routes.checkoutStep()} element={<CheckoutPage />} />
         <Route path={routes.login} element={<LoginPage />} />
         <Route
           path={routes.profile}
@@ -52,14 +43,16 @@ export function AppRoutes() {
         <Route path={routes.help} element={<HelpPage />} />
         <Route path={routes.about} element={<AboutPage />} />
         <Route path={routes.institutional()} element={<InstitutionalPage />} />
-        <Route
-          path={routes.productCreate}
-          element={
-            <RequireAdmin>
-              <ProductCreatePage />
-            </RequireAdmin>
-          }
-        />
+      </Route>
+      <Route
+        element={
+          <RequireAdmin>
+            <AdminLayout />
+          </RequireAdmin>
+        }
+      >
+        <Route path={routes.adminDashboard} element={<AdminDashboardPage />} />
+        <Route path={routes.productCreate} element={<ProductCreatePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

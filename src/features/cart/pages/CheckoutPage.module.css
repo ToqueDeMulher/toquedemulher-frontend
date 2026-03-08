@@ -37,6 +37,25 @@
   @apply bg-white;
 }
 
+.guestBanner {
+  @apply mx-6 sm:mx-8 mt-6 rounded-2xl border p-4 flex items-start gap-3;
+  border-color: rgb(253 230 138);
+  background-color: rgb(254 249 195 / 0.8);
+}
+
+.guestBannerIcon {
+  @apply size-5 shrink-0;
+  color: rgb(202 138 4);
+}
+
+.guestBannerTitle {
+  @apply text-sm font-semibold text-gray-900 mb-1;
+}
+
+.guestBannerText {
+  @apply text-sm text-gray-700;
+}
+
 .section {
   @apply p-6 sm:p-8;
 }

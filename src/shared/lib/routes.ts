@@ -4,6 +4,7 @@ export const routes = {
   category: (category: string = ":category") => `/categoria/${category}`,
   login: "/login",
   profile: "/perfil",
+  adminDashboard: "/admin",
   cart: "/carrinho",
   checkout: "/checkout",
   checkoutStep: (step: string = ":step") => `/checkout/${step}`,

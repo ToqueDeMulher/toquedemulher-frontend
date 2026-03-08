@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User, Heart } from "lucide-react";
+import { Search, ShoppingCart, User, Heart, LayoutDashboard } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Input } from "@/shared/ui/input";
@@ -20,8 +20,9 @@ import styles from "./Header.module.css";
 
 export function Header() {
   const [activeCategory, setActiveCategory] = useState<string>("");
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isAdmin } = useAuth();
   const { itemCount } = useCart();
+  const accountRoute = isLoggedIn && isAdmin ? routes.adminDashboard : routes.profile;
 
   const handleCategoryClick = (category: string) => {
     setActiveCategory(category);
@@ -294,7 +295,7 @@ export function Header() {
                   className={styles.iconButton}
                 >
                   <Link
-                    to={isLoggedIn ? routes.profile : routes.login}
+                    to={accountRoute}
                     aria-label="Perfil"
                   >
                     <User className={styles.iconLarge} />
@@ -308,8 +309,15 @@ export function Header() {
                     size="icon"
                     className={`${styles.iconButton} ${styles.iconButtonHidden}`}
                   >
-                    <Link to={routes.profile} aria-label="Favoritos">
-                      <Heart className={styles.iconLarge} />
+                    <Link
+                      to={isAdmin ? routes.productCreate : routes.profile}
+                      aria-label={isAdmin ? "Painel administrativo" : "Favoritos"}
+                    >
+                      {isAdmin ? (
+                        <LayoutDashboard className={styles.iconLarge} />
+                      ) : (
+                        <Heart className={styles.iconLarge} />
+                      )}
                     </Link>
                   </Button>
                 )}

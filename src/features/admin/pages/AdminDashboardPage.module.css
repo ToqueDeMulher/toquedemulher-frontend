@@ -1,0 +1,230 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen py-12 sm:py-16 relative overflow-hidden;
+  background:
+    radial-gradient(circle at top left, rgb(251 207 232 / 0.65), transparent 24%),
+    radial-gradient(circle at top right, rgb(249 168 212 / 0.28), transparent 22%),
+    linear-gradient(180deg, #f8f7fb 0%, #f1f2f6 100%);
+}
+
+.container {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10 relative z-10;
+}
+
+.hero {
+  @apply grid gap-8 border border-pink-100 bg-white p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end overflow-hidden relative shadow-sm;
+  border-radius: 2rem;
+  border-top-right-radius: 0;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6.25rem;
+  background: linear-gradient(135deg, var(--primary) 0%, color-mix(in oklab, var(--primary) 72%, white) 100%);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.34) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.heroContent {
+  @apply relative z-10 pt-14;
+}
+
+.heroBadge {
+  @apply inline-flex border-0 bg-pink-100 text-pink-700 mb-4;
+}
+
+.heroTitle {
+  @apply text-3xl sm:text-4xl font-semibold mb-3 text-gray-900;
+  font-family: var(--font-display);
+}
+
+.heroText {
+  @apply max-w-2xl text-sm sm:text-base text-gray-600 leading-relaxed;
+}
+
+.identityRow {
+  @apply mt-6 grid gap-3 sm:grid-cols-2;
+}
+
+.identityCard {
+  @apply rounded-2xl border border-pink-100 bg-pink-50/70 p-4;
+}
+
+.identityLabel {
+  @apply block text-xs uppercase tracking-[0.18em] text-pink-500 mb-2;
+}
+
+.identityValue {
+  @apply text-sm sm:text-base text-gray-900;
+}
+
+.heroActions {
+  @apply relative z-10 flex flex-col gap-3 rounded-[1.75rem] border border-pink-100 bg-pink-50/70 p-4 sm:p-5;
+}
+
+.primaryAction {
+  @apply bg-pink-600 text-white hover:bg-pink-700 shadow-sm;
+}
+
+.secondaryAction {
+  @apply border-pink-200 bg-white text-pink-700 hover:bg-pink-50;
+}
+
+.logoutAction {
+  @apply border border-transparent text-gray-600 hover:bg-white hover:text-pink-700;
+}
+
+.actionIcon {
+  @apply size-4;
+}
+
+.metricsGrid {
+  @apply grid gap-4 mt-8 md:grid-cols-2 xl:grid-cols-4;
+}
+
+.metricCard {
+  @apply rounded-[1.75rem] border border-pink-100 bg-white p-5 shadow-sm transition-transform;
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+}
+
+.metricIconWrap {
+  @apply inline-flex items-center justify-center rounded-2xl mb-4 bg-pink-50 text-pink-600;
+  width: 3rem;
+  height: 3rem;
+}
+
+.metricIcon {
+  @apply size-5;
+}
+
+.metricLabel {
+  @apply text-sm text-gray-500 mb-2;
+}
+
+.metricValue {
+  @apply block text-2xl font-semibold text-gray-900 mb-1;
+  font-family: var(--font-display);
+}
+
+.metricDetail {
+  @apply text-sm text-pink-600;
+}
+
+.contentGrid {
+  @apply grid gap-6 mt-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)];
+}
+
+.panel {
+  @apply rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm;
+}
+
+.panelHeader {
+  @apply flex items-start justify-between gap-4 mb-6;
+}
+
+.panelEyebrow {
+  @apply text-xs uppercase tracking-[0.18em] text-pink-500 mb-2;
+}
+
+.panelTitle {
+  @apply text-2xl font-semibold text-gray-900;
+  font-family: var(--font-display);
+}
+
+.panelBadge {
+  @apply border-0 bg-pink-100 text-pink-700;
+}
+
+.operationList {
+  @apply space-y-3;
+}
+
+.operationCard {
+  @apply flex flex-col gap-4 rounded-2xl border border-pink-100 bg-pink-50/50 p-4 sm:flex-row sm:items-center sm:justify-between transition-colors;
+}
+
+.operationCard:hover {
+  @apply bg-white;
+}
+
+.operationId {
+  @apply text-xs uppercase tracking-[0.16em] text-pink-500 mb-2;
+}
+
+.operationCustomer {
+  @apply text-base font-medium text-gray-900 mb-1;
+}
+
+.operationStatus {
+  @apply text-sm text-gray-600;
+}
+
+.operationMeta {
+  @apply flex flex-col items-start gap-2 sm:items-end;
+}
+
+.operationTotal {
+  @apply text-base text-gray-900;
+}
+
+.operationLink {
+  @apply inline-flex items-center gap-2 text-sm text-pink-600;
+}
+
+.operationLinkIcon {
+  @apply size-4;
+}
+
+.checklist {
+  @apply space-y-3;
+}
+
+.checkItem {
+  @apply flex items-start gap-3 rounded-2xl border border-pink-100 bg-pink-50/50 p-4;
+}
+
+.checkBullet {
+  @apply mt-1 inline-block size-2 rounded-full bg-pink-500 shrink-0;
+}
+
+.checkText {
+  @apply text-sm text-gray-700 leading-relaxed;
+}
+
+.quickLinks {
+  @apply mt-6 grid gap-3;
+}
+
+.quickLink {
+  @apply inline-flex items-center justify-between rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-medium text-gray-800 transition-colors;
+}
+
+.quickLink:hover {
+  @apply border-pink-300 bg-pink-50 text-pink-700;
+}
+
+.quickLinkIcon {
+  @apply size-4;
+}
+
+@media (max-width: 1023px) {
+  .heroContent {
+    @apply pt-12;
+  }
+}
