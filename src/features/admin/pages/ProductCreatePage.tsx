@@ -32,8 +32,6 @@ import styles from "./ProductCreatePage.module.css";
 
 import {
   CreateProductPayload,
-  CategoryPayload,
-  ProductImagePayload,
 } from "@/shared/types/product";
 
 import { createProduct, uploadProductImage } from "@/shared/services/productService";
@@ -141,62 +139,44 @@ function normalizeNumber(value?: string) {
 }
 
 function buildPayload(values: ProductFormValues): CreateProductPayload {
-  const categories: CategoryPayload[] = values.categories_names
+  const tags = values.categories_names
     .split(",")
     .map((item) => item.trim())
-    .filter(Boolean)
-    .map((name) => ({ name }));
-
-  const images: ProductImagePayload[] = values.images
-    .filter((image) => image.url.trim().length > 0)
-    .map((image, index) => ({
-      url: image.url.trim(),
-      order: normalizeNumber(image.order || String(index + 1)) ?? index + 1,
-      alt_text: image.alt_text?.trim() || null,
-    }));
+    .filter(Boolean);
 
   const stockQuantity = normalizeNumber(values.stock_quantity) ?? 0;
-  const stockExpiry =
-    values.stock_expiry_date.trim().length > 0
-      ? values.stock_expiry_date.trim()
-      : null;
+  const categoryId = normalizeNumber(values.categories_names);
+  const attributes: Record<string, unknown> = {
+    volume: values.volume.trim() || null,
+    target_audience: values.target_audience.trim() || null,
+    product_type: values.product_type.trim() || null,
+    skin_type: values.skin_type.trim() || null,
+    hair_type: values.hair_type.trim() || null,
+    color: values.color.trim() || null,
+    fragrance: values.fragrance.trim() || null,
+    spf: normalizeNumber(values.spf),
+    vegan: values.vegan,
+    cruelty_free: values.cruelty_free,
+    hypoallergenic: values.hypoallergenic,
+    supplier_name: values.supplier_name.trim() || null,
+    supplier_contact: values.supplier_contact.trim() || null,
+    supplier_email: values.supplier_email.trim() || null,
+    usage_tips: values.description_usage_tips.trim() || null,
+    ingredients: values.description_ingredients.trim() || null,
+    stock_expiry_date: values.stock_expiry_date.trim() || null,
+  };
 
   return {
-    product: {
-      name: values.name.trim(),
-      price: Number(values.price) || 0,
-      active: values.active,
-      volume: values.volume.trim() || null,
-      target_audience: values.target_audience.trim() || null,
-      product_type: values.product_type.trim() || null,
-      skin_type: values.skin_type.trim() || null,
-      hair_type: values.hair_type.trim() || null,
-      color: values.color.trim() || null,
-      fragrance: values.fragrance.trim() || null,
-      spf: normalizeNumber(values.spf),
-      vegan: values.vegan,
-      cruelty_free: values.cruelty_free,
-      hypoallergenic: values.hypoallergenic,
-    },
-    supplier: {
-      name: values.supplier_name.trim(),
-      contact: values.supplier_contact.trim() || null,
-      email: values.supplier_email.trim() || null,
-    },
-    brand: {
-      name: values.brand_name.trim(),
-    },
-    description: {
-      text: values.description_text.trim(),
-      usage_tips: values.description_usage_tips.trim() || null,
-      ingredients: values.description_ingredients.trim() || null,
-    },
-    categories,
-    stock: {
-      quantity: stockQuantity,
-      expiry_date: stockExpiry,
-    },
-    images,
+    name: values.name.trim(),
+    description: values.description_text.trim(),
+    short_description: values.description_text.trim().slice(0, 500) || null,
+    brand: values.brand_name.trim() || null,
+    price: Number(values.price) || 0,
+    stock_quantity: stockQuantity,
+    status: values.active ? "active" : "inactive",
+    attributes,
+    tags: tags.length > 0 ? tags : null,
+    category_id: categoryId && categoryId > 0 ? categoryId : null,
   };
 }
 
@@ -249,20 +229,22 @@ export function ProductCreatePage() {
     setUploadErrors((prev) => ({ ...prev, [index]: null }));
 
     try {
-      const currentOrder = normalizeNumber(
-        form.getValues(`images.${index}.order` as const),
-      );
+      const parsedId = normalizeNumber(uploadProductId.trim());
+      if (!parsedId) {
+        throw new Error("ID do produto invalido.");
+      }
+
       const altTextValue = form
         .getValues(`images.${index}.alt_text` as const)
         ?.trim();
 
-      const response = await uploadProductImage(uploadProductId.trim(), file, {
-        order: currentOrder ?? undefined,
+      const response = await uploadProductImage(parsedId, file, {
+        is_primary: index === 0,
         alt_text: altTextValue || undefined,
       });
 
       form.setValue(`images.${index}.url`, response.url);
-      form.setValue(`images.${index}.order`, String(response.order));
+      form.setValue(`images.${index}.order`, String(response.sort_order || index + 1));
       if (response.alt_text) {
         form.setValue(`images.${index}.alt_text`, response.alt_text);
       }
@@ -304,7 +286,7 @@ export function ProductCreatePage() {
                 Novo recurso
               </Badge>
               <span className={styles.headerMeta}>
-                Envie os dados no formato aceito pelo endpoint POST /products
+                Envie os dados no formato aceito pelo endpoint POST /api/v1/products
               </span>
             </div>
             <h1 className={styles.title}>Cadastro de Produtos</h1>
@@ -850,7 +832,8 @@ export function ProductCreatePage() {
               <CardHeader>
                 <CardTitle>Categorias (Category)</CardTitle>
                 <CardDescription>
-                  Nomes das categorias que serão criadas/vinculadas ao produto.
+                  Este campo alimenta tags do produto. Se informar um numero,
+                  ele sera usado como category_id.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -863,17 +846,17 @@ export function ProductCreatePage() {
                         className={styles.fieldLabel}
                         onMouseDown={preventLabelFocus}
                       >
-                        Categorias (nomes)
+                        Tags ou category_id
                       </span>
                       <FormControl>
                         <Input
-                          placeholder="Maquiagem, Lábios, Batom"
+                          placeholder="Maquiagem, Labios, Batom ou 1"
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        Separe por vírgulas. Cada nome vira um objeto{" "}
-                        {"{ name }"}.
+                        Valores separados por virgula viram `tags`; se o conteudo
+                        for numerico, vira `category_id`.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -909,7 +892,7 @@ export function ProductCreatePage() {
                         <Input type="number" min="0" step="1" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Será registrada em Stock.quantity.
+                        Sera registrada em stock_quantity.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -979,7 +962,7 @@ export function ProductCreatePage() {
               <CardHeader>
                 <CardTitle>Imagens (ProductImage)</CardTitle>
                 <CardDescription>
-                  A primeira imagem será usada como principal (order = 1).
+                  A primeira imagem enviada sera marcada como principal.
                 </CardDescription>
               </CardHeader>
               <CardContent className={styles.cardFlexLarge}>
@@ -993,15 +976,14 @@ export function ProductCreatePage() {
                   <Input
                     value={uploadProductId}
                     onChange={(event) => setUploadProductId(event.target.value)}
-                    placeholder="UUID retornado após criar o produto"
+                    placeholder="ID numerico retornado apos criar o produto"
                     className={styles.inputTopSpace}
                   />
                   <p className={styles.helperText}>
                     O endpoint{" "}
-                    <code>/products/&lt;product_id&gt;/images/upload</code>
-                    requer o ID do produto. Informe o valor e, em seguida, use o
-                    botão de upload em cada imagem para enviar o arquivo
-                    diretamente ao backend.
+                    <code>/api/v1/products/&lt;product_id&gt;/images</code>
+                    requer o ID numerico do produto e autenticacao admin.
+                    Informe o valor e use o botao de upload em cada imagem.
                   </p>
                 </div>
 
@@ -1168,7 +1150,7 @@ export function ProductCreatePage() {
               <CardHeader>
                 <CardTitle>Pré-visualização da requisição</CardTitle>
                 <CardDescription>
-                  Payload pronto para ser enviado ao endpoint POST /products.
+                  Payload pronto para ser enviado ao endpoint POST /api/v1/products.
                 </CardDescription>
               </CardHeader>
               <CardContent>

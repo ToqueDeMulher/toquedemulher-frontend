@@ -4,6 +4,8 @@
 logs
 **/*.backup.*
 **/*.back.*
+.env
+.env.*
 
 node_modules
 bower_components

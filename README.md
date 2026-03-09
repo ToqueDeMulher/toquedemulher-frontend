@@ -11,9 +11,11 @@ Run `npm run dev` to start the development server.
 ## API configuration
 
 - Create a `.env` file based on `.env.example`.
-- Set `VITE_API_URL` to your backend base URL (default: `http://localhost:8000`).
+- Set `VITE_API_URL` to your backend host URL (default: `http://localhost:8000`).
+- Set `VITE_API_PREFIX` to the backend API prefix (default: `/api/v1`).
 - Example:
   - `VITE_API_URL=http://localhost:8000`
+  - `VITE_API_PREFIX=/api/v1`
 
 ## Cadastro de produtos
 

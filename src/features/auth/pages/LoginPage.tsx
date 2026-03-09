@@ -9,30 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import {
   useAuth,
   type AuthRole,
-  type AuthUser,
 } from "@/shared/contexts/auth-context";
 import { routes } from "@/shared/lib/routes";
+import {
+  forgotPasswordRequest,
+  getMeRequest,
+  loginRequest,
+  registerRequest,
+} from "@/shared/services/authService";
 import styles from "./LoginPage.module.css";
-
-const ADMIN_EMAILS = new Set(["admin", "admin@toquedemulher.com"]);
 
 function getDefaultRouteForRole(role: AuthRole) {
   return role === "admin" ? routes.adminDashboard : routes.profile;
-}
-
-function buildCustomerName(email: string) {
-  const baseName = email
-    .split("@")[0]
-    .replace(/[._-]+/g, " ")
-    .trim();
-
-  if (!baseName) return "Cliente";
-
-  return baseName
-    .split(" ")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 }
 
 export function LoginPage() {
@@ -156,17 +144,24 @@ export function LoginPage() {
     return redirectTo;
   };
 
-  const completeSignIn = (
-    authUser: AuthUser,
-    successMessage: string,
-    delay: number = 1200
-  ) => {
+  const completeSignIn = (params: {
+    authUser: { id: number; name: string; email: string; role: AuthRole };
+    accessToken: string;
+    refreshToken: string;
+    successMessage: string;
+    delay?: number;
+  }) => {
+    const { authUser, accessToken, refreshToken, successMessage, delay = 1200 } = params;
     setIsLoading(true);
 
     window.setTimeout(() => {
       setIsLoading(false);
       toast.success(successMessage);
-      login(authUser);
+      login({
+        user: authUser,
+        accessToken,
+        refreshToken,
+      });
       navigate(resolveRedirect(authUser.role), { replace: true });
     }, delay);
   };
@@ -191,29 +186,8 @@ export function LoginPage() {
     });
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const normalizedEmail = loginEmail.trim().toLowerCase();
-
-    if (loginRole === "admin") {
-      if (!ADMIN_EMAILS.has(normalizedEmail) || loginPassword !== "admin123") {
-        toast.error(
-          "Credenciais admin invalidas. Use admin@toquedemulher.com e admin123."
-        );
-        return;
-      }
-
-      completeSignIn(
-        {
-          name: "Equipe Toque de Mulher",
-          email: "admin@toquedemulher.com",
-          role: "admin",
-        },
-        "Login admin realizado com sucesso!"
-      );
-      return;
-    }
 
     if (!validateEmail(loginEmail)) {
       toast.error("Digite um e-mail valido.");
@@ -225,17 +199,42 @@ export function LoginPage() {
       return;
     }
 
-    completeSignIn(
-      {
-        name: buildCustomerName(loginEmail.trim()),
+    setIsLoading(true);
+
+    try {
+      const token = await loginRequest({
         email: loginEmail.trim(),
-        role: "customer",
-      },
-      "Login realizado com sucesso!"
-    );
+        password: loginPassword,
+      });
+      const me = await getMeRequest(token.access_token);
+
+      if (loginRole === "admin" && me.role !== "admin") {
+        toast.error("Essa conta nao tem permissao de admin.");
+        setIsLoading(false);
+        return;
+      }
+
+      completeSignIn({
+        authUser: {
+          id: me.id,
+          name: me.full_name,
+          email: me.email,
+          role: me.role,
+        },
+        accessToken: token.access_token,
+        refreshToken: token.refresh_token,
+        successMessage:
+          me.role === "admin"
+            ? "Login admin realizado com sucesso!"
+            : "Login realizado com sucesso!",
+      });
+    } catch (error) {
+      setIsLoading(false);
+      toast.error(error instanceof Error ? error.message : "Falha no login.");
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (registerName.trim().length < 3) {
@@ -268,35 +267,44 @@ export function LoginPage() {
       return;
     }
 
-    completeSignIn(
-      {
-        name: registerName.trim(),
+    setIsLoading(true);
+
+    try {
+      await registerRequest({
+        full_name: registerName.trim(),
         email: registerEmail.trim(),
-        role: "customer",
-      },
-      "Cadastro realizado com sucesso! Bem-vinda!",
-      1500
-    );
+        password: registerPassword,
+      });
+
+      const token = await loginRequest({
+        email: registerEmail.trim(),
+        password: registerPassword,
+      });
+      const me = await getMeRequest(token.access_token);
+
+      completeSignIn({
+        authUser: {
+          id: me.id,
+          name: me.full_name,
+          email: me.email,
+          role: me.role,
+        },
+        accessToken: token.access_token,
+        refreshToken: token.refresh_token,
+        successMessage: "Cadastro realizado com sucesso! Bem-vinda!",
+        delay: 1500,
+      });
+    } catch (error) {
+      setIsLoading(false);
+      toast.error(error instanceof Error ? error.message : "Falha no cadastro.");
+    }
   };
 
   const handleSocialLogin = (provider: string) => {
-    if (loginRole === "admin") {
-      toast.error("Login social nao esta disponivel para contas admin.");
-      return;
-    }
-
-    completeSignIn(
-      {
-        name: `${provider} User`,
-        email: `${provider.toLowerCase()}@cliente.com`,
-        role: "customer",
-      },
-      `Login com ${provider} realizado com sucesso!`,
-      1000
-    );
+    toast.error(`Login com ${provider} ainda nao foi integrado ao backend.`);
   };
 
-  const handleForgotPassword = () => {
+  const handleForgotPassword = async () => {
     if (!loginEmail) {
       toast.error("Digite seu e-mail primeiro");
       return;
@@ -307,7 +315,12 @@ export function LoginPage() {
       return;
     }
 
-    toast.success(`Instrucoes enviadas para ${loginEmail}`);
+    try {
+      const response = await forgotPasswordRequest(loginEmail.trim());
+      toast.success(response.message);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Falha ao enviar email.");
+    }
   };
 
   return (
@@ -366,7 +379,7 @@ export function LoginPage() {
                   </div>
                   <p className={styles.roleHint}>
                     {loginRole === "admin"
-                      ? "Acesso admin: admin@toquedemulher.com com senha admin123."
+                      ? "Acesso admin: use uma conta com role admin cadastrada no backend."
                       : "Acesso cliente: entre com seu e-mail para ver pedidos, wishlist e configuracoes."}
                   </p>
                 </div>
