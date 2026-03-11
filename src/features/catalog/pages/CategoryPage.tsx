@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { Button } from "@/shared/ui/button";
 import {
@@ -10,137 +10,50 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { ChevronRight, SlidersHorizontal } from "lucide-react";
+import {
+  catalogCategories,
+  defaultCategorySlug,
+  getProductsByCategory,
+  isCatalogCategorySlug,
+} from "@/shared/data/catalog-products";
 import { routes } from "@/shared/lib/routes";
 import { useCart } from "@/shared/contexts/cart-context";
 import styles from "./CategoryPage.module.css";
-
-const categoryData = {
-  feminino: {
-    title: "Produtos Femininos",
-    description: "Beleza e cuidado especial para voce",
-    products: [
-      {
-        id: "1",
-        name: "Batom Matte Rose",
-        price: 89.9,
-        image:
-          "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=500",
-        category: "Maquiagem",
-        rating: 4.8,
-      },
-      {
-        id: "2",
-        name: "Serum Facial Antioxidante",
-        price: 149.9,
-        image:
-          "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500",
-        category: "Skincare",
-        rating: 4.9,
-      },
-      {
-        id: "3",
-        name: "Base Liquida HD",
-        price: 119.9,
-        image:
-          "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=500",
-        category: "Maquiagem",
-        rating: 4.7,
-      },
-      {
-        id: "4",
-        name: "Mascara de Cílios Volume",
-        price: 79.9,
-        image:
-          "https://images.unsplash.com/photo-1631214524020-7e18db3a8a1c?w=500",
-        category: "Maquiagem",
-        rating: 4.6,
-      },
-      {
-        id: "5",
-        name: "Hidratante Facial Rosa",
-        price: 99.9,
-        image:
-          "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=500",
-        category: "Skincare",
-        rating: 4.8,
-      },
-      {
-        id: "6",
-        name: "Paleta de Sombras Nude",
-        price: 159.9,
-        image:
-          "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=500",
-        category: "Maquiagem",
-        rating: 4.9,
-      },
-    ],
-  },
-  masculino: {
-    title: "Produtos Masculinos",
-    description: "Cuidados essenciais para o homem moderno",
-    products: [
-      {
-        id: "m1",
-        name: "Locao Pos Barba",
-        price: 69.9,
-        image:
-          "https://images.unsplash.com/photo-1621607512214-68297480165e?w=500",
-        category: "Cuidados",
-        rating: 4.7,
-      },
-      {
-        id: "m2",
-        name: "Gel Modelador Cabelo",
-        price: 49.9,
-        image:
-          "https://images.unsplash.com/photo-1564024672607-494485e9c00a?w=500",
-        category: "Cabelo",
-        rating: 4.6,
-      },
-      {
-        id: "m3",
-        name: "Sabonete Facial Carvao",
-        price: 39.9,
-        image:
-          "https://images.unsplash.com/photo-1580870069867-74c57ee1bb07?w=500",
-        category: "Skincare",
-        rating: 4.8,
-      },
-      {
-        id: "m4",
-        name: "Perfume Masculino",
-        price: 199.9,
-        image:
-          "https://images.unsplash.com/photo-1610461888750-10bfc601b874?w=500",
-        category: "Perfume",
-        rating: 4.9,
-      },
-    ],
-  },
-} as const;
-
-type CategoryKey = keyof typeof categoryData;
 
 export function CategoryPage() {
   const { category } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
-
-  const categoryKey =
-    (category as CategoryKey | undefined) ?? ("feminino" as CategoryKey);
-  const data = categoryData[categoryKey] ?? categoryData.feminino;
-
-  const subcategories = [
-    "all",
-    ...new Set(data.products.map((product) => product.category.toLowerCase())),
-  ];
   const [filteredCategory, setFilteredCategory] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
+  const isValidCategory = isCatalogCategorySlug(category);
 
-  const filteredProducts = data.products.filter((product) =>
+  useEffect(() => {
+    if (!isValidCategory) {
+      return;
+    }
+
+    setFilteredCategory("all");
+    setSortBy("featured");
+  }, [category, isValidCategory]);
+
+  if (!isValidCategory) {
+    return <Navigate to={routes.category(defaultCategorySlug)} replace />;
+  }
+
+  const categoryConfig = catalogCategories[category];
+  const categoryProducts = getProductsByCategory(category);
+  const subcategories = [
+    "all",
+    ...new Set(
+      categoryProducts.map((product) => product.subcategory.toLowerCase()),
+    ),
+  ];
+
+  const filteredProducts = categoryProducts.filter((product) =>
     filteredCategory === "all"
       ? true
-      : product.category.toLowerCase() === filteredCategory,
+      : product.subcategory.toLowerCase() === filteredCategory,
   );
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -163,20 +76,21 @@ export function CategoryPage() {
       <div className={`${styles.container} ${styles.breadcrumb}`}>
         <div className={styles.breadcrumbRow}>
           <button
+            type="button"
             onClick={() => navigate(routes.home)}
             className={styles.breadcrumbLink}
           >
             Home
           </button>
           <ChevronRight className={styles.breadcrumbIcon} />
-          <span className={styles.breadcrumbActive}>{data.title}</span>
+          <span className={styles.breadcrumbActive}>{categoryConfig.title}</span>
         </div>
       </div>
 
       <div className={`${styles.container} ${styles.headerSection}`}>
         <div className={styles.headerInner}>
-          <h1 className={styles.headerTitle}>{data.title}</h1>
-          <p className={styles.headerDescription}>{data.description}</p>
+          <h1 className={styles.headerTitle}>{categoryConfig.title}</h1>
+          <p className={styles.headerDescription}>{categoryConfig.description}</p>
         </div>
       </div>
 
@@ -189,19 +103,19 @@ export function CategoryPage() {
                 <span className={styles.filterLabelText}>Filtrar:</span>
               </div>
               <div className={styles.filterButtons}>
-                {subcategories.map((cat) => (
+                {subcategories.map((subcategory) => (
                   <Button
-                    key={cat}
-                    variant={filteredCategory === cat ? "default" : "outline"}
+                    key={subcategory}
+                    variant={filteredCategory === subcategory ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setFilteredCategory(cat)}
+                    onClick={() => setFilteredCategory(subcategory)}
                     className={
-                      filteredCategory === cat
+                      filteredCategory === subcategory
                         ? styles.filterButtonActive
                         : styles.filterButton
                     }
                   >
-                    {cat === "all" ? "Todos" : cat}
+                    {subcategory === "all" ? "Todos" : subcategory}
                   </Button>
                 ))}
               </div>
@@ -215,9 +129,9 @@ export function CategoryPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="featured">Em Destaque</SelectItem>
-                  <SelectItem value="price-asc">Menor Preco</SelectItem>
-                  <SelectItem value="price-desc">Maior Preco</SelectItem>
-                  <SelectItem value="rating">Melhor Avaliacao</SelectItem>
+                  <SelectItem value="price-asc">Menor Preço</SelectItem>
+                  <SelectItem value="price-desc">Maior Preço</SelectItem>
+                  <SelectItem value="rating">Melhor Avaliação</SelectItem>
                   <SelectItem value="name">Nome A-Z</SelectItem>
                 </SelectContent>
               </Select>
@@ -236,12 +150,8 @@ export function CategoryPage() {
           {sortedProducts.map((product) => (
             <ProductCard
               key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              image={product.image}
-              rating={product.rating}
-              onAddToCart={() => addItem(1)}
+              {...product}
+              onAddToCart={() => addItem(product.id, 1)}
             />
           ))}
         </div>

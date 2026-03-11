@@ -15,7 +15,6 @@ import {
 import { routes } from "@/shared/lib/routes";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
-import logoImage from "@/shared/assets/logo_tm.png";
 import styles from "./Header.module.css";
 
 export function Header() {
@@ -34,14 +33,14 @@ export function Header() {
         <div className={styles.promoRow}>
           {[1, 2, 3, 4].map((i) => (
             <span key={i} className={styles.promoText}>
-              Frete Gratis acima de R$ 150,00 • Ate 50% OFF em selecionados
+              Frete Grátis acima de R$ 150,00 • Até 50% OFF em selecionados
             </span>
           ))}
         </div>
         <div className={styles.promoRow} aria-hidden="true">
           {[1, 2, 3, 4].map((i) => (
             <span key={`clone-${i}`} className={styles.promoText}>
-              Frete Gratis acima de R$ 150,00 • Ate 50% OFF em selecionados
+              Frete Grátis acima de R$ 150,00 • Até 50% OFF em selecionados
             </span>
           ))}
         </div>

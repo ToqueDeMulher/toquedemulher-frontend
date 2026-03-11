@@ -27,7 +27,7 @@ export const checkoutSteps: CheckoutStep[] = [
   {
     id: "address",
     icon: MapPin,
-    label: "Endereco",
+    label: "Endereço",
     route: routes.checkoutStep("address"),
   },
   {
@@ -39,7 +39,7 @@ export const checkoutSteps: CheckoutStep[] = [
   {
     id: "confirmation",
     icon: Package,
-    label: "Confirmacao",
+    label: "Confirmação",
     route: routes.checkoutStep("confirmation"),
   },
 ];

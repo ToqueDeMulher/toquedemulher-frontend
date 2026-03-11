@@ -16,7 +16,6 @@ import {
   getCheckoutStepIndex,
   normalizeCheckoutFlowStep,
 } from "@/features/cart/lib/checkout-flow";
-import { trendingProducts } from "@/shared/data/catalog-products";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
 import { routes } from "@/shared/lib/routes";
@@ -49,21 +48,6 @@ type PaymentFormState = {
   installments: string;
 };
 
-const checkoutItems = [
-  {
-    id: trendingProducts[0].id,
-    name: trendingProducts[0].name,
-    price: trendingProducts[0].price,
-    quantity: 1,
-  },
-  {
-    id: trendingProducts[2].id,
-    name: trendingProducts[2].name,
-    price: trendingProducts[2].price,
-    quantity: 2,
-  },
-];
-
 const REQUIRED_ADDRESS_FIELDS: Array<keyof AddressFormState> = [
   "fullName",
   "email",
@@ -78,13 +62,13 @@ const REQUIRED_ADDRESS_FIELDS: Array<keyof AddressFormState> = [
 
 const stepContent = {
   address: {
-    title: "Endereco de entrega",
+    title: "Endereço de entrega",
   },
   payment: {
     title: "Pagamento",
   },
   confirmation: {
-    title: "Confirmacao do pedido",
+    title: "Confirmação do pedido",
   },
 } as const;
 
@@ -167,7 +151,7 @@ export function CheckoutPage() {
   const navigate = useNavigate();
   const { step } = useParams<{ step?: string }>();
   const { isLoggedIn } = useAuth();
-  const { reset } = useCart();
+  const { items, itemCount, subtotal, reset } = useCart();
   const currentStep = normalizeCheckoutFlowStep(step);
 
   const [addressForm, setAddressForm] = useState<AddressFormState>({
@@ -213,11 +197,10 @@ export function CheckoutPage() {
     return <Navigate to={routes.checkoutStep("payment")} replace />;
   }
 
-  const itemCount = checkoutItems.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = checkoutItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
+  if (items.length === 0) {
+    return <Navigate to={routes.cart} replace />;
+  }
+
   const shipping = 0;
   const total = subtotal + shipping;
   const estimatedDate = new Intl.DateTimeFormat("pt-BR", {
@@ -246,11 +229,11 @@ export function CheckoutPage() {
     event.preventDefault();
 
     if (hasMissingAddressField(addressForm)) {
-      toast.error("Preencha os campos obrigatorios com dados validos.");
+      toast.error("Preencha os campos obrigatórios com dados válidos.");
       return;
     }
 
-    toast.success("Endereco salvo. Agora escolha a forma de pagamento.");
+    toast.success("Endereço salvo. Agora escolha a forma de pagamento.");
     navigate(routes.checkoutStep("payment"));
   };
 
@@ -258,7 +241,7 @@ export function CheckoutPage() {
     event.preventDefault();
 
     if (paymentForm.method === "card" && !isCardPaymentValid(paymentForm)) {
-      toast.error("Preencha os dados do cartao corretamente.");
+      toast.error("Preencha os dados do cartão corretamente.");
       return;
     }
 
@@ -272,7 +255,7 @@ export function CheckoutPage() {
     reset();
     toast.success(
       !isLoggedIn && contactEmail
-        ? `Pedido confirmado! Vamos enviar as atualizacoes para ${contactEmail}.`
+        ? `Pedido confirmado! Vamos enviar as atualizações para ${contactEmail}.`
         : "Pedido confirmado com sucesso!",
     );
     navigate(routes.home, { replace: true });
@@ -286,9 +269,9 @@ export function CheckoutPage() {
             <MapPin className={styles.sectionIcon} />
           </span>
           <div>
-            <h2 className={styles.sectionTitle}>Dados do endereco</h2>
+            <h2 className={styles.sectionTitle}>Dados do endereço</h2>
             <p className={styles.sectionText}>
-              Use um endereco em que alguem possa receber a entrega em horario
+              Use um endereço em que alguém possa receber a entrega em horário
               comercial.
             </p>
           </div>
@@ -322,7 +305,7 @@ export function CheckoutPage() {
                 updateAddressField("email", event.target.value)
               }
               className={styles.fieldInput}
-              placeholder="voce@exemplo.com"
+              placeholder="seu@exemplo.com"
             />
           </div>
 
@@ -364,7 +347,7 @@ export function CheckoutPage() {
 
           <div className={styles.fullField}>
             <Label htmlFor="street" className={styles.fieldLabel}>
-              Endereco
+              Endereço
             </Label>
             <Input
               id="street"
@@ -379,7 +362,7 @@ export function CheckoutPage() {
 
           <div>
             <Label htmlFor="number" className={styles.fieldLabel}>
-              Numero
+              Número
             </Label>
             <Input
               id="number"
@@ -450,7 +433,7 @@ export function CheckoutPage() {
 
           <div className={styles.fullField}>
             <Label htmlFor="reference" className={styles.fieldLabel}>
-              Ponto de referencia
+              Ponto de referência
             </Label>
             <Textarea
               id="reference"
@@ -459,7 +442,7 @@ export function CheckoutPage() {
                 updateAddressField("reference", event.target.value)
               }
               className={styles.fieldTextarea}
-              placeholder="Predio, cor do portao, instrucoes para entrega, etc."
+              placeholder="Prédio, cor do portão, instruções para entrega etc."
             />
           </div>
         </div>
@@ -468,9 +451,9 @@ export function CheckoutPage() {
       <div className={styles.noticeCard}>
         <Truck className={styles.noticeIcon} />
         <div>
-          <p className={styles.noticeTitle}>Entrega padrao</p>
+          <p className={styles.noticeTitle}>Entrega padrão</p>
           <p className={styles.noticeText}>
-            Prazo medio de 5 a 10 dias uteis apos a confirmacao do pagamento.
+            Prazo médio de 5 a 10 dias úteis após a confirmação do pagamento.
           </p>
         </div>
       </div>
@@ -502,14 +485,14 @@ export function CheckoutPage() {
           <div>
             <h2 className={styles.sectionTitle}>Forma de pagamento</h2>
             <p className={styles.sectionText}>
-              Escolha o metodo e preencha os dados apenas se necessario.
+              Escolha o método e preencha os dados apenas se necessário.
             </p>
           </div>
         </div>
 
         <div className={styles.methodGrid}>
           {[
-            { id: "card", label: "Cartao de credito" },
+            { id: "card", label: "Cartão de crédito" },
             { id: "pix", label: "Pix" },
             { id: "boleto", label: "Boleto" },
           ].map((method) => (
@@ -533,7 +516,7 @@ export function CheckoutPage() {
           <div className={styles.formGrid}>
             <div className={styles.fullField}>
               <Label htmlFor="cardName" className={styles.fieldLabel}>
-                Nome impresso no cartao
+                Nome impresso no cartão
               </Label>
               <Input
                 id="cardName"
@@ -542,13 +525,13 @@ export function CheckoutPage() {
                   updatePaymentField("cardName", event.target.value)
                 }
                 className={styles.fieldInput}
-                placeholder="Como aparece no cartao"
+                placeholder="Como aparece no cartão"
               />
             </div>
 
             <div className={styles.fullField}>
               <Label htmlFor="cardNumber" className={styles.fieldLabel}>
-                Numero do cartao
+                Número do cartão
               </Label>
               <Input
                 id="cardNumber"
@@ -639,8 +622,8 @@ export function CheckoutPage() {
               </p>
               <p className={styles.noticeText}>
                 {paymentForm.method === "pix"
-                  ? "O QR Code sera exibido na proxima etapa, junto da confirmacao do pedido."
-                  : "O boleto sera gerado apos a confirmacao final e podera ser pago pelo banco ou app."}
+                  ? "O QR Code será exibido na próxima etapa, junto da confirmação do pedido."
+                  : "O boleto será gerado após a confirmação final e poderá ser pago pelo banco ou app."}
               </p>
             </div>
           </div>
@@ -655,7 +638,7 @@ export function CheckoutPage() {
           className={styles.secondaryButton}
           onClick={() => navigate(routes.checkoutStep("address"))}
         >
-          Voltar ao endereco
+          Voltar ao endereço
         </Button>
         <Button size="lg" type="submit" className={styles.primaryButton}>
           Revisar pedido
@@ -673,7 +656,7 @@ export function CheckoutPage() {
           </span>
           <h2 className={styles.confirmationTitle}>Tudo pronto para finalizar</h2>
           <p className={styles.confirmationText}>
-            Revise o endereco, o pagamento e confirme seu pedido. Voce pode
+            Revise o endereço, o pagamento e confirme seu pedido. Você pode
             voltar pelas etapas no stepper quando quiser.
           </p>
         </div>
@@ -682,13 +665,13 @@ export function CheckoutPage() {
           <div className={styles.confirmationPanel}>
             <h3 className={styles.confirmationPanelTitle}>Entrega</h3>
             <p className={styles.confirmationPanelText}>
-              {addressForm.fullName || "Nome do destinatario"}
+              {addressForm.fullName || "Nome do destinatário"}
             </p>
             <p className={styles.confirmationPanelText}>
-              {addressForm.email || "E-mail de contato ainda nao informado"}
+              {addressForm.email || "E-mail de contato ainda não informado"}
             </p>
             <p className={styles.confirmationPanelText}>
-              {addressSummary || "Endereco ainda nao preenchido"}
+              {addressSummary || "Endereço ainda não preenchido"}
             </p>
             <p className={styles.confirmationPanelText}>
               {[addressForm.neighborhood, addressForm.city, addressForm.state]
@@ -701,7 +684,7 @@ export function CheckoutPage() {
             <h3 className={styles.confirmationPanelTitle}>Pagamento</h3>
             <p className={styles.confirmationPanelText}>
               {paymentForm.method === "card"
-                ? "Cartao de credito"
+                ? "Cartão de crédito"
                 : paymentForm.method === "pix"
                   ? "Pix"
                   : "Boleto"}
@@ -710,8 +693,8 @@ export function CheckoutPage() {
               {paymentForm.method === "card"
                 ? paymentForm.cardNumber
                   ? `Final ${paymentForm.cardNumber.slice(-4)}`
-                  : "Cartao ainda nao informado"
-                : "Pagamento sera gerado apos a finalizacao"}
+                  : "Cartão ainda não informado"
+                : "Pagamento será gerado após a finalização"}
             </p>
             <p className={styles.confirmationPanelText}>
               Prazo estimado: {estimatedDate}
@@ -754,7 +737,7 @@ export function CheckoutPage() {
                 <div>
                   <p className={styles.guestBannerTitle}>Checkout sem login</p>
                   <p className={styles.guestBannerText}>
-                    Voce pode concluir a compra como visitante. Precisamos apenas
+                    Você pode concluir a compra como visitante. Precisamos apenas
                     dos dados de entrega, contato e pagamento.
                   </p>
                 </div>
@@ -776,7 +759,7 @@ export function CheckoutPage() {
 
             <div className={styles.summaryBody}>
               <div className={styles.summaryList}>
-                {checkoutItems.map((item) => (
+                {items.map((item) => (
                   <div key={item.id} className={styles.summaryItem}>
                     <div>
                       <p className={styles.summaryItemName}>{item.name}</p>
@@ -798,7 +781,7 @@ export function CheckoutPage() {
                 </div>
                 <div className={styles.summaryRow}>
                   <span>Frete</span>
-                  <span>Gratis</span>
+                  <span>Grátis</span>
                 </div>
                 <div className={styles.summaryTotalRow}>
                   <span>Total</span>
@@ -807,15 +790,15 @@ export function CheckoutPage() {
               </div>
 
               <div className={styles.summaryPanel}>
-                <h3 className={styles.summaryPanelTitle}>Endereco</h3>
+                <h3 className={styles.summaryPanelTitle}>Endereço</h3>
                 <p className={styles.summaryPanelText}>
-                  {addressForm.fullName || "Nenhum destinatario informado"}
+                  {addressForm.fullName || "Nenhum destinatário informado"}
                 </p>
                 <p className={styles.summaryPanelText}>
                   {addressForm.email || "Nenhum e-mail de contato informado"}
                 </p>
                 <p className={styles.summaryPanelText}>
-                  {addressSummary || "Preencha o endereco para visualizar aqui."}
+                  {addressSummary || "Preencha o endereço para visualizá-lo aqui."}
                 </p>
                 <p className={styles.summaryPanelText}>
                   {[addressForm.city, addressForm.state].filter(Boolean).join(" - ") ||
@@ -827,7 +810,7 @@ export function CheckoutPage() {
                 <h3 className={styles.summaryPanelTitle}>Pagamento</h3>
                 <p className={styles.summaryPanelText}>
                   {paymentForm.method === "card"
-                    ? "Cartao de credito"
+                    ? "Cartão de crédito"
                     : paymentForm.method === "pix"
                       ? "Pix"
                       : "Boleto"}
@@ -835,7 +818,7 @@ export function CheckoutPage() {
                 <p className={styles.summaryPanelText}>
                   {paymentForm.method === "card" && paymentForm.cardNumber
                     ? `Final ${paymentForm.cardNumber.slice(-4)}`
-                    : "Ainda nao configurado"}
+                    : "Ainda não configurado"}
                 </p>
               </div>
 

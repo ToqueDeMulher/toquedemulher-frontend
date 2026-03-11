@@ -42,7 +42,7 @@ const PAGES: Record<string, { title: string; description: string }> = {
 };
 
 function formatFallbackTitle(slug?: string) {
-  if (!slug) return "Conteudo";
+  if (!slug) return "Conteúdo";
   return slug
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
@@ -56,7 +56,7 @@ export function InstitutionalPage() {
   const title = data?.title ?? formatFallbackTitle(slug);
   const description =
     data?.description ??
-    "Essa secao ainda esta sendo preparada. Volte em breve.";
+    "Essa seção ainda está sendo preparada. Volte em breve.";
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10 py-16">

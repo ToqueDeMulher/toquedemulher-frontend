@@ -20,7 +20,12 @@ import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { routes } from "@/shared/lib/routes";
 import { useCart } from "@/shared/contexts/cart-context";
-import { trendingProducts } from "@/shared/data/catalog-products";
+import {
+  defaultCategorySlug,
+  getProductById,
+  trendingProducts,
+  type CatalogProduct,
+} from "@/shared/data/catalog-products";
 import styles from "./HomePage.module.css";
 
 import offSeasonSale from "@/shared/assets/banner-off-season/Sale.png";
@@ -42,22 +47,22 @@ const faqs = [
   {
     question: "Qual o prazo de entrega?",
     answer:
-      "O prazo de entrega varia de acordo com sua regiao. Para compras acima de R$ 150, o frete e gratis! Geralmente, entregamos em 5-10 dias uteis.",
+      "O prazo de entrega varia de acordo com sua região. Para compras acima de R$ 150, o frete é grátis! Geralmente, entregamos em 5 a 10 dias úteis.",
   },
   {
-    question: "Como funciona a politica de trocas?",
+    question: "Como funciona a política de trocas?",
     answer:
-      "Voce tem ate 30 dias para trocar ou devolver produtos nao utilizados. Basta entrar em contato com nossa central de atendimento.",
+      "Você tem até 30 dias para trocar ou devolver produtos não utilizados. Basta entrar em contato com nossa central de atendimento.",
   },
   {
-    question: "Os produtos sao originais?",
+    question: "Os produtos são originais?",
     answer:
-      "Sim! Todos os nossos produtos sao 100% originais e adquiridos diretamente das marcas ou distribuidores autorizados.",
+      "Sim! Todos os nossos produtos são 100% originais e adquiridos diretamente das marcas ou distribuidores autorizados.",
   },
   {
     question: "Posso parcelar minhas compras?",
     answer:
-      "Sim! Aceitamos parcelamento em ate 6x sem juros no cartao de credito para compras acima de R$ 100.",
+      "Sim! Aceitamos parcelamento em até 6x sem juros no cartão de crédito para compras acima de R$ 100.",
   },
 ];
 
@@ -176,7 +181,8 @@ export function HomePage() {
   useEffect(() => {
     if (!productApi) return;
 
-    const updateProgress = (api: CarouselApi) => {
+    const updateProgress = (api?: CarouselApi) => {
+      if (!api) return;
       const snaps = api.scrollSnapList();
       const index = api.selectedScrollSnap();
       setProductCount(snaps.length);
@@ -224,8 +230,8 @@ export function HomePage() {
   }, []);
 
   const recentProducts = recentIds
-    .map((id) => trendingProducts.find((product) => product.id === id))
-    .filter(Boolean);
+    .map((id) => getProductById(id))
+    .filter((product): product is CatalogProduct => Boolean(product));
 
   const recentCardStyle = {
     "--product-card-min-h": "320px",
@@ -309,7 +315,7 @@ export function HomePage() {
                 <CarouselItem key={product.id} className={styles.productCarouselItem}>
                   <ProductCard
                     {...product}
-                    onAddToCart={() => addItem(1)}
+                    onAddToCart={() => addItem(product.id, 1)}
                     onClick={() => handleRecentClick(product.id)}
                   />
                 </CarouselItem>
@@ -340,10 +346,10 @@ export function HomePage() {
                 className={styles.favoriteCard}
                 role="button"
                 tabIndex={0}
-                onClick={() => navigate(routes.category("feminino"))}
+                onClick={() => navigate(routes.category(defaultCategorySlug))}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
-                    navigate(routes.category("feminino"));
+                    navigate(routes.category(defaultCategorySlug));
                   }
                 }}
               >
@@ -366,10 +372,10 @@ export function HomePage() {
                   className={`${styles.favoriteCard} ${styles.favoriteCardCompact}`}
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(routes.category("feminino"))}
+                  onClick={() => navigate(routes.category(defaultCategorySlug))}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                      navigate(routes.category("feminino"));
+                      navigate(routes.category(defaultCategorySlug));
                     }
                   }}
                 >
@@ -399,7 +405,7 @@ export function HomePage() {
                     <ProductCard
                       {...product}
                       style={recommendedCardStyle}
-                      onAddToCart={() => addItem(1)}
+                      onAddToCart={() => addItem(product.id, 1)}
                       onClick={() => handleRecentClick(product.id)}
                     />
                   </div>
@@ -413,7 +419,7 @@ export function HomePage() {
               size="sm"
               variant="default"
               className={styles.trendingButton}
-              onClick={() => navigate(routes.category("feminino"))}
+              onClick={() => navigate(routes.category(defaultCategorySlug))}
             >
               Ver tudo
             </Button>
@@ -426,12 +432,12 @@ export function HomePage() {
               </div>
               <div className={styles.recentGrid}>
                 {recentProducts.map((product) => (
-                  <div key={`recent-${product!.id}`} className={styles.recommendedItem}>
+                  <div key={`recent-${product.id}`} className={styles.recommendedItem}>
                     <ProductCard
-                      {...product!}
+                      {...product}
                       style={recentCardStyle}
-                      onAddToCart={() => addItem(1)}
-                      onClick={() => handleRecentClick(product!.id)}
+                      onAddToCart={() => addItem(product.id, 1)}
+                      onClick={() => handleRecentClick(product.id)}
                     />
                   </div>
                 ))}

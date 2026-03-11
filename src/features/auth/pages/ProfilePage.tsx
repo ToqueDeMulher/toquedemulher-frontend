@@ -28,7 +28,7 @@ const orders = [
   {
     id: "1233",
     date: "15/10/2025",
-    status: "Em transito",
+    status: "Em trânsito",
     total: 89.9,
     items: 1,
     image: "https://images.unsplash.com/photo-1758738880475-dac2ab1c92d4?w=100",
@@ -46,7 +46,7 @@ const orders = [
 const wishlist = [
   {
     id: "w1",
-    name: "Serum Anti-Idade Vitamina C",
+    name: "Sérum Anti-Idade Vitamina C",
     price: 89.9,
     image: "https://images.unsplash.com/photo-1613803745799-ba6c10aace85?w=200",
     inStock: true,
@@ -60,7 +60,7 @@ const wishlist = [
   },
   {
     id: "w3",
-    name: "Base Liquida HD",
+    name: "Base Líquida HD",
     price: 69.9,
     image: "https://images.unsplash.com/photo-1664165786318-9af861f2a9c3?w=200",
     inStock: false,
@@ -124,11 +124,11 @@ export function ProfilePage() {
             <div className={styles.loyaltyHeader}>
               <div>
                 <h3 className={styles.loyaltyTitle}>Programa de Fidelidade</h3>
-                <p className={styles.loyaltyText}>Voce tem 850 pontos</p>
+                <p className={styles.loyaltyText}>Você tem 850 pontos</p>
               </div>
               <div className={styles.textRight}>
                 <p className={styles.loyaltyHighlight}>Faltam 150 pontos</p>
-                <p className={styles.loyaltyText}>para o proximo nivel</p>
+                <p className={styles.loyaltyText}>para o próximo nível</p>
               </div>
             </div>
             <Progress value={85} className={styles.progressBar} />
@@ -148,16 +148,16 @@ export function ProfilePage() {
               </TabsTrigger>
               <TabsTrigger value="reviews" className={styles.tabTrigger}>
                 <Star className={styles.iconInline} />
-                Avaliacoes
+                Avaliações
               </TabsTrigger>
               <TabsTrigger value="settings" className={styles.tabTrigger}>
                 <Settings className={styles.iconInline} />
-                Configuracoes
+                Configurações
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="orders" className={styles.tabContent}>
-              <h2 className={styles.sectionTitle}>Historico de Pedidos</h2>
+              <h2 className={styles.sectionTitle}>Histórico de Pedidos</h2>
               <div className={styles.ordersList}>
                 {orders.map((order) => (
                   <div key={order.id} className={styles.orderCard}>
@@ -177,7 +177,7 @@ export function ProfilePage() {
                           className={
                             order.status === "Entregue"
                               ? `${styles.statusBadge} ${styles.statusDelivered}`
-                              : order.status === "Em transito"
+                              : order.status === "Em trânsito"
                               ? `${styles.statusBadge} ${styles.statusTransit}`
                               : `${styles.statusBadge} ${styles.statusOther}`
                           }
@@ -233,7 +233,7 @@ export function ProfilePage() {
                               Adicionar
                             </>
                           ) : (
-                            "Indisponivel"
+                            "Indisponível"
                           )}
                         </Button>
                         <Button
@@ -251,7 +251,7 @@ export function ProfilePage() {
             </TabsContent>
 
             <TabsContent value="reviews" className={styles.tabContent}>
-              <h2 className={styles.sectionTitle}>Minhas Avaliacoes</h2>
+              <h2 className={styles.sectionTitle}>Minhas Avaliações</h2>
               <div className={styles.reviewList}>
                 <div className={styles.reviewCard}>
                   <div className={styles.reviewHeader}>
@@ -268,18 +268,18 @@ export function ProfilePage() {
                     <span className={styles.reviewDate}>15/10/2025</span>
                   </div>
                   <p className={styles.reviewText}>
-                    Produto maravilhoso! Amei a textura e a cor e perfeita.
+                    Produto maravilhoso! Amei a textura, e a cor é perfeita.
                   </p>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="settings" className={styles.tabContent}>
-              <h2 className={styles.sectionTitle}>Configuracoes da Conta</h2>
+              <h2 className={styles.sectionTitle}>Configurações da Conta</h2>
               <div className={styles.settingsSection}>
                 <div>
                   <h3 className={styles.settingsGroupTitle}>
-                    Informacoes Pessoais
+                    Informações Pessoais
                   </h3>
                   <div className={styles.settingsList}>
                     <div className={styles.settingsRow}>
@@ -301,18 +301,18 @@ export function ProfilePage() {
 
                 <div>
                   <h3 className={styles.settingsGroupTitle}>
-                    Enderecos Salvos
+                    Endereços Salvos
                   </h3>
                   <div className={styles.addressCard}>
-                    <p className={styles.addressTitle}>Endereco Principal</p>
+                    <p className={styles.addressTitle}>Endereço Principal</p>
                     <p className={styles.addressText}>
-                      SQN 303 Bloco D - Brasilia, DF - 01234-567
+                      SQN 303 Bloco D - Brasília, DF - 01234-567
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className={styles.settingsGroupTitle}>Seguranca</h3>
+                  <h3 className={styles.settingsGroupTitle}>Segurança</h3>
                   <Button size="lg" variant="default" className={styles.passwordButton}>
                     Alterar Senha
                   </Button>

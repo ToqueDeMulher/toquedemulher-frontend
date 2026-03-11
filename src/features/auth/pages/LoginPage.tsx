@@ -105,7 +105,7 @@ export function LoginPage() {
       };
     if (strength === 3)
       return {
-        label: "Media",
+        label: "Média",
         colorClass: styles.strengthTextYellow,
         barClass: styles.strengthBarYellow,
       };
@@ -190,7 +190,7 @@ export function LoginPage() {
     e.preventDefault();
 
     if (!validateEmail(loginEmail)) {
-      toast.error("Digite um e-mail valido.");
+      toast.error("Digite um e-mail válido.");
       return;
     }
 
@@ -209,7 +209,7 @@ export function LoginPage() {
       const me = await getMeRequest(token.access_token);
 
       if (loginRole === "admin" && me.role !== "admin") {
-        toast.error("Essa conta nao tem permissao de admin.");
+        toast.error("Essa conta não tem permissão de admin.");
         setIsLoading(false);
         return;
       }
@@ -243,7 +243,7 @@ export function LoginPage() {
     }
 
     if (!validateEmail(registerEmail)) {
-      toast.error("Por favor, insira um e-mail valido");
+      toast.error("Por favor, insira um e-mail válido.");
       return;
     }
 
@@ -258,12 +258,12 @@ export function LoginPage() {
     }
 
     if (registerPassword !== registerConfirmPassword) {
-      toast.error("As senhas nao coincidem");
+      toast.error("As senhas não coincidem.");
       return;
     }
 
     if (!acceptTerms) {
-      toast.error("Voce precisa aceitar os termos de uso");
+      toast.error("Você precisa aceitar os termos de uso.");
       return;
     }
 
@@ -301,7 +301,7 @@ export function LoginPage() {
   };
 
   const handleSocialLogin = (provider: string) => {
-    toast.error(`Login com ${provider} ainda nao foi integrado ao backend.`);
+    toast.error(`Login com ${provider} ainda não foi integrado ao backend.`);
   };
 
   const handleForgotPassword = async () => {
@@ -311,7 +311,7 @@ export function LoginPage() {
     }
 
     if (!validateEmail(loginEmail) && loginRole !== "admin") {
-      toast.error("Digite um e-mail valido");
+      toast.error("Digite um e-mail válido.");
       return;
     }
 
@@ -319,7 +319,7 @@ export function LoginPage() {
       const response = await forgotPasswordRequest(loginEmail.trim());
       toast.success(response.message);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Falha ao enviar email.");
+      toast.error(error instanceof Error ? error.message : "Falha ao enviar e-mail.");
     }
   };
 
@@ -335,7 +335,7 @@ export function LoginPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>Boas-vindas!</h1>
           <p className={styles.subtitle}>
-            Entre como cliente ou admin para acessar a area certa da conta.
+            Entre como cliente ou admin para acessar a área certa da conta.
           </p>
         </div>
 
@@ -380,7 +380,7 @@ export function LoginPage() {
                   <p className={styles.roleHint}>
                     {loginRole === "admin"
                       ? "Acesso admin: use uma conta com role admin cadastrada no backend."
-                      : "Acesso cliente: entre com seu e-mail para ver pedidos, wishlist e configuracoes."}
+                      : "Acesso cliente: entre com seu e-mail para ver pedidos, wishlist e configurações."}
                   </p>
                 </div>
 
@@ -538,8 +538,8 @@ export function LoginPage() {
 
                 <p className={styles.footerMeta}>
                   {loginRole === "admin"
-                    ? "Painel administrativo separado da area do cliente."
-                    : "Sua area de cliente mostra pedidos, wishlist e configuracoes pessoais."}
+                    ? "Painel administrativo separado da área do cliente."
+                    : "Sua área de cliente mostra pedidos, wishlist e configurações pessoais."}
                 </p>
               </div>
             </TabsContent>
@@ -561,7 +561,7 @@ export function LoginPage() {
                   />
                   {registerName && registerName.length < 3 && (
                     <p className={styles.passwordHint}>
-                      <X className={styles.iconTiny} /> Minimo 3 caracteres
+                      <X className={styles.iconTiny} /> Mínimo de 3 caracteres
                     </p>
                   )}
                 </div>
@@ -581,7 +581,7 @@ export function LoginPage() {
                   />
                   {registerEmail && !validateEmail(registerEmail) && (
                     <p className={styles.passwordHint}>
-                      <X className={styles.iconTiny} /> E-mail invalido
+                      <X className={styles.iconTiny} /> E-mail inválido
                     </p>
                   )}
                 </div>
@@ -630,7 +630,7 @@ export function LoginPage() {
                       <p
                         className={`${styles.strengthLabel} ${passwordStrengthData.colorClass}`}
                       >
-                        Forca da senha: {passwordStrengthData.label}
+                        Força da senha: {passwordStrengthData.label}
                       </p>
                       <div className={styles.strengthRules}>
                         <div
@@ -643,7 +643,7 @@ export function LoginPage() {
                           ) : (
                             <X className={styles.iconTinyMuted} />
                           )}
-                          Minimo 8 caracteres
+                          Mínimo de 8 caracteres
                         </div>
                         <div
                           className={`${styles.ruleRow} ${
@@ -659,7 +659,7 @@ export function LoginPage() {
                           ) : (
                             <X className={styles.iconTinyMuted} />
                           )}
-                          Maiusculas e minusculas
+                          Maiúsculas e minúsculas
                         </div>
                         <div
                           className={`${styles.ruleRow} ${
@@ -673,7 +673,7 @@ export function LoginPage() {
                           ) : (
                             <X className={styles.iconTinyMuted} />
                           )}
-                          Pelo menos um numero
+                          Pelo menos um número
                         </div>
                       </div>
                     </div>
@@ -724,7 +724,7 @@ export function LoginPage() {
                       )}
                       {registerPassword === registerConfirmPassword
                         ? "As senhas coincidem"
-                        : "As senhas nao coincidem"}
+                        : "As senhas não coincidem"}
                     </p>
                   )}
                 </div>
@@ -742,7 +742,7 @@ export function LoginPage() {
                       <button type="button" className={styles.termsButton}>
                         termos de uso
                       </button>{" "}
-                      e a politica de privacidade.
+                      e a política de privacidade.
                     </span>
                   </label>
                 </div>

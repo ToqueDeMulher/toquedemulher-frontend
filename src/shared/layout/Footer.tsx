@@ -39,11 +39,11 @@ export function Footer() {
         <div className={styles.mainContainer}>
           <div className={styles.linksGrid}>
             <div>
-              <h4 className={styles.columnTitle}>Informacoes</h4>
+              <h4 className={styles.columnTitle}>Informações</h4>
               <ul className={styles.linkList}>
                 <li>
                   <Link to={routes.about} className={styles.linkButton}>
-                    Sobre Nos
+                    Sobre Nós
                   </Link>
                 </li>
                 <li>
@@ -91,7 +91,7 @@ export function Footer() {
                     to={routes.institutional("trocas")}
                     className={styles.linkButton}
                   >
-                    Trocas e Devolucoes
+                    Trocas e Devoluções
                   </Link>
                 </li>
                 <li>
@@ -110,7 +110,7 @@ export function Footer() {
               <ul className={styles.linkList}>
                 <li>
                   <Link
-                    to={routes.category("feminino")}
+                    to={routes.category("maquiagem")}
                     className={styles.linkButton}
                   >
                     Maquiagem
@@ -118,7 +118,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    to={routes.category("feminino")}
+                    to={routes.category("skincare")}
                     className={styles.linkButton}
                   >
                     Skincare
@@ -126,7 +126,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    to={routes.category("acessorios")}
+                    to={routes.category("cabelos")}
                     className={styles.linkButton}
                   >
                     Cabelos
@@ -176,14 +176,14 @@ export function Footer() {
             </div>
 
             <div>
-              <h4 className={styles.columnTitle}>Seguranca</h4>
+              <h4 className={styles.columnTitle}>Segurança</h4>
               <ul className={styles.linkList}>
                 <li>
                   <Link
                     to={routes.institutional("privacidade")}
                     className={styles.linkButton}
                   >
-                    Politica de Privacidade
+                    Política de Privacidade
                   </Link>
                 </li>
                 <li>

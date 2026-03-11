@@ -231,7 +231,7 @@ export function ProductCreatePage() {
     try {
       const parsedId = normalizeNumber(uploadProductId.trim());
       if (!parsedId) {
-        throw new Error("ID do produto invalido.");
+        throw new Error("ID do produto inválido.");
       }
 
       const altTextValue = form
@@ -832,8 +832,8 @@ export function ProductCreatePage() {
               <CardHeader>
                 <CardTitle>Categorias (Category)</CardTitle>
                 <CardDescription>
-                  Este campo alimenta tags do produto. Se informar um numero,
-                  ele sera usado como category_id.
+                  Este campo alimenta tags do produto. Se informar um número,
+                  ele será usado como category_id.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -850,13 +850,13 @@ export function ProductCreatePage() {
                       </span>
                       <FormControl>
                         <Input
-                          placeholder="Maquiagem, Labios, Batom ou 1"
+                          placeholder="Maquiagem, Lábios, Batom ou 1"
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        Valores separados por virgula viram `tags`; se o conteudo
-                        for numerico, vira `category_id`.
+                        Valores separados por vírgula viram `tags`; se o conteúdo
+                        for numérico, vira `category_id`.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -892,7 +892,7 @@ export function ProductCreatePage() {
                         <Input type="number" min="0" step="1" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Sera registrada em stock_quantity.
+                        Será registrada em stock_quantity.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -962,7 +962,7 @@ export function ProductCreatePage() {
               <CardHeader>
                 <CardTitle>Imagens (ProductImage)</CardTitle>
                 <CardDescription>
-                  A primeira imagem enviada sera marcada como principal.
+                  A primeira imagem enviada será marcada como principal.
                 </CardDescription>
               </CardHeader>
               <CardContent className={styles.cardFlexLarge}>
@@ -976,14 +976,14 @@ export function ProductCreatePage() {
                   <Input
                     value={uploadProductId}
                     onChange={(event) => setUploadProductId(event.target.value)}
-                    placeholder="ID numerico retornado apos criar o produto"
+                    placeholder="ID numérico retornado após criar o produto"
                     className={styles.inputTopSpace}
                   />
                   <p className={styles.helperText}>
                     O endpoint{" "}
                     <code>/api/v1/products/&lt;product_id&gt;/images</code>
-                    requer o ID numerico do produto e autenticacao admin.
-                    Informe o valor e use o botao de upload em cada imagem.
+                    requer o ID numérico do produto e autenticação admin.
+                    Informe o valor e use o botão de upload em cada imagem.
                   </p>
                 </div>
 

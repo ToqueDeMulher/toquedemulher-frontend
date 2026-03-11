@@ -1,15 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Minus, Plus, ShoppingBag, Package, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { CheckoutStepper } from "@/features/cart/components/CheckoutStepper";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { toast } from "sonner";
 import { routes } from "@/shared/lib/routes";
 import { useCart } from "@/shared/contexts/cart-context";
-import { trendingProducts } from "@/shared/data/catalog-products";
 import styles from "./CartPage.module.css";
 
 const CEP_STATE_RANGES = [
@@ -46,29 +44,8 @@ const CEP_STATE_RANGES = [
 ] as const;
 
 const BUSINESS_DAYS_FOR_ESTIMATE = 15;
-
-const cartItems = [
-  {
-    id: trendingProducts[0].id,
-    name: trendingProducts[0].name,
-    price: trendingProducts[0].price,
-    originalPrice: trendingProducts[0].originalPrice,
-    quantity: 1,
-    image: trendingProducts[0].image,
-  },
-  {
-    id: trendingProducts[2].id,
-    name: trendingProducts[2].name,
-    price: trendingProducts[2].price,
-    originalPrice: trendingProducts[2].originalPrice,
-    quantity: 2,
-    image: trendingProducts[2].image,
-  },
-];
-
-const recommendedProducts = trendingProducts.filter(
-  (product) => !cartItems.some((cartItem) => cartItem.id === product.id),
-);
+const FREE_SHIPPING_THRESHOLD = 150;
+const VALID_COUPON = "BEMVINDA10";
 
 function getStateFromZipCode(zipCode: string) {
   if (zipCode.length !== 8) return "Brasil";
@@ -102,36 +79,41 @@ function addBusinessDays(baseDate: Date, businessDays: number) {
 
 export function CartPage() {
   const navigate = useNavigate();
-  const { addItem } = useCart();
-  const [items, setItems] = useState(cartItems);
+  const { items, itemCount, subtotal, updateItemQuantity, removeItem } = useCart();
   const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState("");
   const [zipCode, setZipCode] = useState("");
-  const [shipping, setShipping] = useState(0);
+  const [isShippingCalculated, setIsShippingCalculated] = useState(false);
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  useEffect(() => {
+    if (zipCode.length !== 8 && isShippingCalculated) {
+      setIsShippingCalculated(false);
+    }
+  }, [isShippingCalculated, zipCode]);
+
+  const discount = appliedCoupon === VALID_COUPON ? subtotal * 0.1 : 0;
+  const shipping = isShippingCalculated
+    ? subtotal >= FREE_SHIPPING_THRESHOLD
+      ? 0
+      : 15.9
+    : 0;
   const total = subtotal - discount + shipping;
-  const freeShippingThreshold = 150;
   const remainingForFreeShipping = Math.max(
     0,
-    freeShippingThreshold - subtotal,
+    FREE_SHIPPING_THRESHOLD - subtotal,
   );
   const shippingDestination = getStateFromZipCode(zipCode);
-  const shippingSummary = zipCode
+  const shippingSummary = isShippingCalculated
     ? shipping === 0
-      ? "GRATIS"
+      ? "GRÁTIS"
       : `R$ ${shipping.toFixed(2).replace(".", ",")}`
     : "Calcular";
-  const shippingLineTitle = zipCode
+  const shippingLineTitle = isShippingCalculated
     ? shipping === 0
       ? "Padrão - GRÁTIS"
       : `Padrão - ${shippingSummary}`
     : "Padrão - Calcular frete";
-  const shippingLineSub = zipCode
+  const shippingLineSub = isShippingCalculated
     ? "15 a 30 dias úteis, com código de rastreio"
     : "Informe o CEP para calcular frete e prazo.";
   const estimatedShippingDate = new Intl.DateTimeFormat("pt-BR", {
@@ -140,43 +122,32 @@ export function CartPage() {
     year: "numeric",
   }).format(addBusinessDays(new Date(), BUSINESS_DAYS_FOR_ESTIMATE));
 
-  const updateQuantity = (id: string, delta: number) => {
-    setItems(
-      items.map((item) => {
-        if (item.id === id) {
-          const newQuantity = Math.max(1, item.quantity + delta);
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      }),
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
+  const handleRemoveItem = (productId: string) => {
+    removeItem(productId);
     toast.success("Produto removido do carrinho");
   };
 
   const applyCoupon = () => {
-    if (coupon.toUpperCase() === "BEMVINDA10") {
-      setDiscount(subtotal * 0.1);
+    if (coupon.trim().toUpperCase() === VALID_COUPON) {
+      setAppliedCoupon(VALID_COUPON);
       toast.success("Cupom aplicado! 10% de desconto");
-    } else {
-      toast.error("Cupom invalido");
+      return;
     }
+
+    setAppliedCoupon("");
+    toast.error("Cupom inválido.");
   };
 
   const calculateShipping = () => {
     if (zipCode.length === 8) {
-      const calculatedShipping = subtotal >= freeShippingThreshold ? 0 : 15.9;
-      setShipping(calculatedShipping);
-      if (calculatedShipping === 0) {
-        toast.success("Frete gratis aplicado!");
+      setIsShippingCalculated(true);
+      if (subtotal >= FREE_SHIPPING_THRESHOLD) {
+        toast.success("Frete grátis aplicado!");
       } else {
-        toast.success(`Frete: R$ ${calculatedShipping.toFixed(2)}`);
+        toast.success(`Frete: R$ ${shipping.toFixed(2)}`);
       }
     } else {
-      toast.error("CEP invalido");
+      toast.error("CEP inválido.");
     }
   };
 
@@ -186,9 +157,9 @@ export function CartPage() {
         <div className={styles.container}>
           <div className={styles.emptyWrap}>
             <ShoppingBag className={styles.emptyIcon} />
-            <h2 className={styles.emptyTitle}>Seu carrinho esta vazio</h2>
+            <h2 className={styles.emptyTitle}>Seu carrinho está vazio</h2>
             <p className={styles.emptyText}>
-              Adicione produtos incriveis ao seu carrinho!
+              Adicione produtos incríveis ao seu carrinho!
             </p>
             <Button
               size="lg"
@@ -224,7 +195,7 @@ export function CartPage() {
                       className={`${styles.freeShippingText} ${styles.freeShippingPendingText}`}
                     >
                       Faltam R$ {remainingForFreeShipping.toFixed(2)} para ganhar{" "}
-                      <strong>FRETE GRATIS</strong>!
+                      <strong>FRETE GRÁTIS</strong>!
                     </p>
                   </div>
                 )}
@@ -236,7 +207,7 @@ export function CartPage() {
                       className={`${styles.freeShippingText} ${styles.freeShippingSuccessText}`}
                     >
                       <Package className={styles.freeShippingIcon} aria-hidden="true" />
-                      Parabens! Voce ganhou <strong>FRETE GRATIS</strong>!
+                      Parabéns! Você ganhou <strong>FRETE GRÁTIS</strong>!
                     </p>
                   </div>
                 )}
@@ -296,7 +267,7 @@ export function CartPage() {
                             <h3 className={styles.itemTitle}>{item.name}</h3>
                           </div>
                           <p className={styles.itemStockText}>
-                            Em estoque - envio rapido
+                            Em estoque - envio rápido
                           </p>
                         </div>
                         <div className={styles.itemSide}>
@@ -304,7 +275,9 @@ export function CartPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => updateQuantity(item.id, -1)}
+                              onClick={() =>
+                                updateItemQuantity(item.id, item.quantity - 1)
+                              }
                               className={styles.quantityButton}
                             >
                               <Minus className={styles.quantityIcon} />
@@ -315,7 +288,9 @@ export function CartPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => updateQuantity(item.id, 1)}
+                              onClick={() =>
+                                updateItemQuantity(item.id, item.quantity + 1)
+                              }
                               className={styles.quantityButton}
                             >
                               <Plus className={styles.quantityIcon} />
@@ -338,7 +313,7 @@ export function CartPage() {
                             <button
                               type="button"
                               className={styles.itemActionLink}
-                              onClick={() => removeItem(item.id)}
+                              onClick={() => handleRemoveItem(item.id)}
                             >
                               Excluir
                             </button>
@@ -405,13 +380,13 @@ export function CartPage() {
                 </div>
 
                 <div className={styles.summarySection}>
-                  <h3 className={styles.summarySectionTitle}>Sumario</h3>
+                  <h3 className={styles.summarySectionTitle}>Sumário</h3>
                   <div className={styles.summaryZipRow}>
                     <Input
                       placeholder="CEP"
                       value={zipCode}
                       onChange={(e) =>
-                        setZipCode(e.target.value.replace(/\D/g, ""))
+                        setZipCode(e.target.value.replace(/\D/g, "").slice(0, 8))
                       }
                       maxLength={8}
                       className={styles.summaryInput}
@@ -438,7 +413,7 @@ export function CartPage() {
                     )}
                     <div
                       className={
-                        shipping === 0 && zipCode
+                        shipping === 0 && isShippingCalculated
                           ? styles.breakdownHighlight
                           : styles.breakdownRow
                       }
@@ -448,7 +423,7 @@ export function CartPage() {
                     </div>
                     <div className={styles.breakdownRow}>
                       <span>Taxas</span>
-                      <span>GRATIS</span>
+                      <span>GRÁTIS</span>
                     </div>
                   </div>
 

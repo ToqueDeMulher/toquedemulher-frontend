@@ -10,14 +10,14 @@ export function NotFoundPage() {
           404
         </p>
         <h1 className="mt-3 text-3xl md:text-4xl font-semibold text-gray-900">
-          Pagina nao encontrada
+          Página não encontrada
         </h1>
         <p className="mt-4 text-base text-gray-600 leading-relaxed">
-          A pagina que voce tentou acessar nao existe ou foi movida.
+          A página que você tentou acessar não existe ou foi movida.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button size="lg" variant="default" asChild>
-            <Link to={routes.home}>Ir para a pagina inicial</Link>
+            <Link to={routes.home}>Ir para a página inicial</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
             <Link to={routes.help}>Central de ajuda</Link>

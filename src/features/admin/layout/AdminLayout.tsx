@@ -108,7 +108,7 @@ export function AdminLayout() {
               !isSidebarOpen ? styles.contentHidden : ""
             }`}
           >
-            Painel administrativo com atalhos para operacao da loja.
+            Painel administrativo com atalhos para operação da loja.
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export function AdminLayout() {
               !isSidebarOpen ? styles.contentHidden : ""
             }`}
           >
-            Sessao ativa
+            Sessão ativa
           </span>
           <strong
             className={`${styles.accountName} ${
@@ -217,7 +217,7 @@ export function AdminLayout() {
               </Button>
               <ShieldCheck className={styles.statusIcon} />
               <span className={styles.statusText}>
-                Area administrativa protegida
+                Área administrativa protegida
               </span>
             </div>
           </div>

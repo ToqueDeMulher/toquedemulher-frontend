@@ -18,7 +18,7 @@ import styles from "./AdminDashboardPage.module.css";
 
 const kpis = [
   { title: "Total clientes", value: "2000+", detail: "base ativa", icon: Users },
-  { title: "Total produtos", value: "140+", detail: "catalogo vivo", icon: Boxes },
+  { title: "Total produtos", value: "140+", detail: "catálogo vivo", icon: Boxes },
   { title: "Total pedidos", value: "1600+", detail: "este ano", icon: ShoppingBag },
   { title: "Total vendas", value: "R$ 320K", detail: "faturamento", icon: DollarSign },
 ] as const;
@@ -133,10 +133,10 @@ export function AdminDashboardPage() {
         </div>
 
         <div className={styles.topActions}>
-          <button type="button" className={styles.iconButton} aria-label="Notificacoes">
+          <button type="button" className={styles.iconButton} aria-label="Notificações">
             <Bell className={styles.iconAction} />
           </button>
-          <button type="button" className={styles.iconButton} aria-label="Configuracoes">
+          <button type="button" className={styles.iconButton} aria-label="Configurações">
             <Settings2 className={styles.iconAction} />
           </button>
           <div className={styles.profileCard}>
