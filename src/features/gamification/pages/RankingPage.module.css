@@ -1,0 +1,319 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen py-12 sm:py-16;
+  background:
+    radial-gradient(circle at top, rgba(17, 24, 39, 0.06), transparent 30%),
+    #f1f2f6;
+}
+
+.container {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+}
+
+.hero {
+  @apply rounded-[2rem] border border-pink-100 bg-white text-center px-6 py-8 sm:px-8 sm:py-10 shadow-sm mb-6;
+}
+
+.heroBadge {
+  @apply inline-flex items-center justify-center rounded-2xl text-white mb-4;
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #111827, #ec4899);
+}
+
+.heroBadgeIcon {
+  @apply size-7;
+}
+
+.heroTitle {
+  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-3;
+  font-family: var(--font-display);
+}
+
+.heroText {
+  @apply text-base text-gray-600 max-w-2xl mx-auto;
+}
+
+.meCard {
+  @apply rounded-[2rem] border border-pink-100 bg-white px-6 py-6 sm:px-8 shadow-sm mb-6;
+}
+
+.meCardHeader {
+  @apply flex flex-col gap-4 md:flex-row md:items-center md:justify-between;
+}
+
+.meIdentity {
+  @apply flex items-center gap-4;
+}
+
+.avatar {
+  @apply inline-flex items-center justify-center rounded-full bg-pink-100 text-pink-700 text-lg font-semibold;
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.meName {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+.meMeta {
+  @apply text-sm text-gray-600 mt-1;
+}
+
+.levelBadge {
+  @apply border-0 px-3 py-1 text-sm;
+}
+
+.meStats {
+  @apply mt-6 grid gap-5 lg:grid-cols-[auto_minmax(0,1fr)];
+}
+
+.meStatBlock {
+  @apply rounded-3xl border border-pink-100 bg-pink-50 px-5 py-4;
+}
+
+.meStatLabel {
+  @apply block text-xs uppercase tracking-[0.18em] text-gray-500 mb-2;
+}
+
+.meStatValue {
+  @apply text-3xl font-semibold text-gray-900;
+}
+
+.meProgress {
+  @apply rounded-3xl border border-pink-100 bg-white px-5 py-4;
+}
+
+.meProgressHeader {
+  @apply flex items-center justify-between gap-3 text-sm text-gray-600 mb-3;
+}
+
+.progressBar {
+  @apply h-2;
+}
+
+.podiumSection {
+  @apply grid gap-4 md:grid-cols-3 items-end mb-6;
+}
+
+.podiumCardSecondary {
+  @apply rounded-[2rem] bg-white border border-pink-100 px-5 pt-6 text-center shadow-sm;
+}
+
+.podiumCardPrimary {
+  @apply rounded-[2rem] px-5 pt-6 text-center text-white shadow-lg;
+  background: linear-gradient(180deg, #111827, #ec4899 130%);
+}
+
+.podiumCrown {
+  @apply size-6 mx-auto mb-3 text-yellow-300;
+}
+
+.podiumAvatarPrimary,
+.podiumAvatarSecondary,
+.podiumAvatarThird {
+  @apply inline-flex items-center justify-center rounded-full text-lg font-semibold mb-3;
+  width: 4rem;
+  height: 4rem;
+}
+
+.podiumAvatarPrimary {
+  @apply bg-white/15 text-white border-4 border-yellow-300;
+}
+
+.podiumAvatarSecondary {
+  @apply bg-slate-100 text-slate-700 border-4 border-slate-300;
+}
+
+.podiumAvatarThird {
+  @apply bg-amber-100 text-amber-700 border-4 border-amber-300;
+}
+
+.podiumName {
+  @apply text-base font-semibold text-gray-900;
+}
+
+.podiumNamePrimary {
+  @apply text-lg font-semibold;
+}
+
+.podiumPoints {
+  @apply text-sm text-gray-600 mt-1;
+}
+
+.podiumPointsPrimary {
+  @apply text-sm text-pink-100 mt-1;
+}
+
+.podiumBasePrimary,
+.podiumBaseSecondary,
+.podiumBaseThird {
+  @apply mt-4 rounded-t-[1.5rem] text-lg font-semibold flex items-center justify-center;
+}
+
+.podiumBasePrimary {
+  @apply h-24 bg-white/12;
+}
+
+.podiumBaseSecondary {
+  @apply h-16 bg-slate-100 text-slate-700;
+}
+
+.podiumBaseThird {
+  @apply h-12 bg-amber-100 text-amber-700;
+}
+
+.board {
+  @apply rounded-[2rem] border border-pink-100 bg-white shadow-sm overflow-hidden mb-6;
+}
+
+.boardHeader {
+  @apply px-6 py-5 border-b border-pink-100 bg-pink-50/60;
+}
+
+.boardTitle {
+  @apply text-xl font-semibold text-gray-900 flex items-center gap-2;
+  font-family: var(--font-display);
+}
+
+.boardTitleIcon {
+  @apply size-5 text-pink-600;
+}
+
+.boardList {
+  @apply divide-y divide-pink-100;
+}
+
+.boardRow {
+  @apply flex items-center gap-4 px-6 py-4 transition-colors hover:bg-pink-50/60;
+}
+
+.boardRowCurrent {
+  @apply bg-pink-50;
+}
+
+.boardRank {
+  @apply w-10 text-center shrink-0;
+}
+
+.boardMedal {
+  @apply text-xl;
+}
+
+.boardRankNumber {
+  @apply text-sm font-semibold text-gray-500;
+}
+
+.boardIdentity {
+  @apply flex items-center gap-3 min-w-0 flex-1;
+}
+
+.boardAvatar {
+  @apply inline-flex items-center justify-center rounded-full bg-pink-100 text-pink-700 text-sm font-semibold shrink-0;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.boardNameRow {
+  @apply flex items-center gap-2;
+}
+
+.boardName {
+  @apply text-sm font-semibold text-gray-900 truncate;
+}
+
+.youBadge {
+  @apply bg-pink-600 text-white;
+}
+
+.entryLevelBadge {
+  @apply border-0 text-xs mt-1;
+}
+
+.boardPoints {
+  @apply text-right shrink-0;
+}
+
+.boardPoints strong {
+  @apply block text-base font-semibold text-gray-900;
+}
+
+.boardPoints span {
+  @apply block text-xs text-gray-500 mt-1;
+}
+
+.levelGuide {
+  @apply rounded-[2rem] border border-pink-100 bg-white px-6 py-6 shadow-sm;
+}
+
+.levelGuideHeader {
+  @apply mb-5;
+}
+
+.levelGuideTitle {
+  @apply text-2xl font-semibold text-gray-900 mb-2;
+  font-family: var(--font-display);
+}
+
+.levelGuideText {
+  @apply text-sm text-gray-600;
+}
+
+.levelGrid {
+  @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6;
+}
+
+.levelCard {
+  @apply rounded-3xl border border-pink-100 bg-pink-50/60 px-4 py-4 text-center;
+}
+
+.levelCardActive {
+  @apply border-pink-400 bg-pink-50 shadow-sm;
+}
+
+.levelIcon {
+  @apply size-5 mx-auto mb-2;
+}
+
+.levelName {
+  @apply block text-sm font-semibold text-gray-900;
+}
+
+.levelPoints {
+  @apply block text-xs text-gray-500 mt-1;
+}
+
+.loginPrompt {
+  @apply mt-6 rounded-[2rem] px-6 py-7 sm:px-8 sm:py-8 text-white grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto];
+  background: linear-gradient(135deg, #111827, #ec4899 140%);
+}
+
+.loginPromptEyebrow {
+  @apply text-xs uppercase tracking-[0.18em] text-pink-100 mb-2;
+}
+
+.loginPromptTitle {
+  @apply text-2xl sm:text-3xl font-semibold mb-3;
+  font-family: var(--font-display);
+}
+
+.loginPromptText {
+  @apply text-sm sm:text-base text-white/80 max-w-2xl;
+}
+
+.loginPromptActions {
+  @apply flex flex-col sm:flex-row gap-3 items-start lg:items-center;
+}
+
+.loginPromptPrimary {
+  @apply bg-white text-gray-900 hover:bg-pink-50;
+}
+
+.loginPromptSecondary {
+  @apply border-white/40 text-white hover:bg-white/10;
+}
+
+.loginPromptIcon {
+  @apply size-4 mr-2;
+}

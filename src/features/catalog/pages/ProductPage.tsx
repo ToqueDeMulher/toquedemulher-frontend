@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Heart, Minus, Plus, Star } from "lucide-react";
+import { Heart, Minus, Plus, Sparkles, Star } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
@@ -17,6 +17,8 @@ import {
   getRelatedProducts,
 } from "@/shared/data/catalog-products";
 import { useCart } from "@/shared/contexts/cart-context";
+import { useGamification } from "@/shared/contexts/gamification-context";
+import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
 import { routes } from "@/shared/lib/routes";
 import styles from "./ProductPage.module.css";
 
@@ -24,6 +26,7 @@ export function ProductPage() {
   const navigate = useNavigate();
   const { productId = "1" } = useParams();
   const { addItem } = useCart();
+  const { trackProductView } = useGamification();
   const product = getProductById(productId);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -34,6 +37,14 @@ export function ProductPage() {
     setQuantity(1);
     setIsWishlisted(false);
   }, [productId]);
+
+  useEffect(() => {
+    if (!product) {
+      return;
+    }
+
+    trackProductView(product.id, product.category);
+  }, [product]);
 
   if (!product) {
     return (
@@ -66,6 +77,9 @@ export function ProductPage() {
     product.image,
     ...relatedProducts.map((relatedProduct) => relatedProduct.image),
   ].slice(0, 4);
+  const rewardPoints = calculateCartRewardPoints([
+    { price: product.price, quantity },
+  ]);
   const reviews = [
     {
       id: 1,
@@ -87,7 +101,7 @@ export function ProductPage() {
 
   const handleAddToCart = () => {
     addItem(product.id, quantity);
-    toast.success("Produto adicionado ao carrinho!");
+    toast.success(`Produto adicionado ao carrinho. Compra rende +${rewardPoints} pontos.`);
   };
 
   return (
@@ -156,6 +170,13 @@ export function ProductPage() {
                       -{product.discount}%
                     </Badge>
                   )}
+                </div>
+                <div className={styles.rewardCard}>
+                  <Sparkles className={styles.rewardIcon} />
+                  <div>
+                    <p className={styles.rewardTitle}>Beauty Points nesta compra</p>
+                    <p className={styles.rewardText}>+{rewardPoints} pontos ao finalizar o pedido</p>
+                  </div>
                 </div>
               </div>
 

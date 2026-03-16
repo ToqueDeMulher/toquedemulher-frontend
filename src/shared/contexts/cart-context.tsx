@@ -3,6 +3,7 @@ import {
   getProductById,
   type CatalogProduct,
 } from "@/shared/data/catalog-products";
+import { useGamification } from "@/shared/contexts/gamification-context";
 
 type StoredCartItem = {
   productId: string;
@@ -17,7 +18,15 @@ type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
-  addItem: (productId: string, quantity?: number) => void;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
+  toggleCart: () => void;
+  addItem: (
+    productId: string,
+    quantity?: number,
+    options?: { openDrawer?: boolean },
+  ) => void;
   updateItemQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   reset: () => void;
@@ -68,7 +77,9 @@ function readInitialCart() {
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { trackCartAdd } = useGamification();
   const [items, setItems] = useState<CartItem[]>(readInitialCart);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -94,7 +105,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       items,
       itemCount,
       subtotal,
-      addItem: (productId: string, quantity: number = 1) => {
+      isCartOpen,
+      openCart: () => setIsCartOpen(true),
+      closeCart: () => setIsCartOpen(false),
+      toggleCart: () => setIsCartOpen((prev) => !prev),
+      addItem: (
+        productId: string,
+        quantity: number = 1,
+        options?: { openDrawer?: boolean },
+      ) => {
         const safeQuantity = Math.max(quantity, 1);
         const product = getProductById(productId);
         if (!product) {
@@ -119,6 +138,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             },
           ];
         });
+
+        trackCartAdd(safeQuantity);
+        if (options?.openDrawer !== false) {
+          setIsCartOpen(true);
+        }
       },
       updateItemQuantity: (productId: string, quantity: number) => {
         if (quantity < 1) {
@@ -135,9 +159,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeItem: (productId: string) => {
         setItems((prev) => prev.filter((item) => item.id !== productId));
       },
-      reset: () => setItems([]),
+      reset: () => {
+        setItems([]);
+        setIsCartOpen(false);
+      },
     }),
-    [itemCount, items, subtotal],
+    [isCartOpen, itemCount, items, subtotal, trackCartAdd],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

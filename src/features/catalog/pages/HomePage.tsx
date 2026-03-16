@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { ChevronUp, MessageCircle } from "lucide-react";
+import { ChevronUp, Crown, MessageCircle, Sparkles, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
+import { Badge } from "@/shared/ui/badge";
+import { Progress } from "@/shared/ui/progress";
 import {
   type CarouselApi,
   Carousel,
@@ -19,7 +21,9 @@ import {
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { routes } from "@/shared/lib/routes";
+import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
+import { useGamification } from "@/shared/contexts/gamification-context";
 import {
   defaultCategorySlug,
   getProductById,
@@ -129,7 +133,17 @@ const applyDominantColor = (img: HTMLImageElement) => {
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const { addItem } = useCart();
+  const {
+    completedMissionsCount,
+    levelName,
+    missions,
+    nextLevelName,
+    pointsToNextLevel,
+    progressToNextLevel,
+    totalPoints,
+  } = useGamification();
   const [heroApi, setHeroApi] = useState<CarouselApi | null>(null);
   const [productApi, setProductApi] = useState<CarouselApi | null>(null);
   const [productIndex, setProductIndex] = useState(0);
@@ -232,6 +246,7 @@ export function HomePage() {
   const recentProducts = recentIds
     .map((id) => getProductById(id))
     .filter((product): product is CatalogProduct => Boolean(product));
+  const highlightedMissions = missions.filter((mission) => !mission.completed).slice(0, 2);
 
   const recentCardStyle = {
     "--product-card-min-h": "320px",
@@ -296,6 +311,91 @@ export function HomePage() {
           <button className={styles.promoLink} type="button">
             Ver detalhes
           </button>
+        </div>
+      </section>
+
+      <section className={styles.clubSection}>
+        <div className={styles.clubCard}>
+          <div className={styles.clubIntro}>
+            <div className={styles.clubEyebrow}>
+              <Sparkles className={styles.clubEyebrowIcon} />
+              Beauty Club
+            </div>
+            <h2 className={styles.clubTitle}>Acompanhe sua evolução enquanto compra</h2>
+            <p className={styles.clubText}>
+              {isLoggedIn
+                ? "Seu progresso está salvo. Complete missões, some pontos e apareça no ranking."
+                : "Faça login para salvar seus pontos, liberar missões e entrar no ranking do clube."}
+            </p>
+
+            <div className={styles.clubActions}>
+              <Button
+                size="sm"
+                className={styles.clubPrimaryButton}
+                onClick={() => navigate(isLoggedIn ? routes.missions : routes.login)}
+              >
+                <Target className={styles.clubButtonIcon} />
+                {isLoggedIn ? "Ver missões" : "Fazer login"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className={styles.clubSecondaryButton}
+                onClick={() => navigate(routes.ranking)}
+              >
+                <Crown className={styles.clubButtonIcon} />
+                Ver ranking
+              </Button>
+            </div>
+          </div>
+
+          <div className={styles.clubPanel}>
+            <div className={styles.clubStatsGrid}>
+              <article className={styles.clubStatCard}>
+                <span className={styles.clubStatLabel}>Pontos</span>
+                <strong className={styles.clubStatValue}>
+                  {totalPoints.toLocaleString("pt-BR")}
+                </strong>
+              </article>
+              <article className={styles.clubStatCard}>
+                <span className={styles.clubStatLabel}>Nível</span>
+                <strong className={styles.clubStatValue}>{levelName}</strong>
+              </article>
+              <article className={styles.clubStatCard}>
+                <span className={styles.clubStatLabel}>Missões feitas</span>
+                <strong className={styles.clubStatValue}>{completedMissionsCount}</strong>
+              </article>
+            </div>
+
+            <div className={styles.clubProgressCard}>
+              <div className={styles.clubProgressHeader}>
+                <div>
+                  <p className={styles.clubProgressTitle}>Próximo nível</p>
+                  <p className={styles.clubProgressText}>
+                    {nextLevelName
+                      ? `${pointsToNextLevel} pontos para ${nextLevelName}`
+                      : "Você já chegou ao nível máximo"}
+                  </p>
+                </div>
+                <Badge className={styles.clubBadge}>{levelName}</Badge>
+              </div>
+              <Progress value={progressToNextLevel} className={styles.clubProgressBar} />
+            </div>
+
+            <div className={styles.clubMissionList}>
+              {highlightedMissions.map((mission) => (
+                <div key={mission.id} className={styles.clubMissionCard}>
+                  <div>
+                    <p className={styles.clubMissionTitle}>{mission.title}</p>
+                    <p className={styles.clubMissionText}>{mission.description}</p>
+                  </div>
+                  <Badge className={styles.clubMissionBadge}>
+                    {mission.progressLabel}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

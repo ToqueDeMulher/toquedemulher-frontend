@@ -18,12 +18,14 @@ import {
 } from "@/shared/data/catalog-products";
 import { routes } from "@/shared/lib/routes";
 import { useCart } from "@/shared/contexts/cart-context";
+import { useGamification } from "@/shared/contexts/gamification-context";
 import styles from "./CategoryPage.module.css";
 
 export function CategoryPage() {
   const { category } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { trackCategoryView } = useGamification();
   const [filteredCategory, setFilteredCategory] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
   const isValidCategory = isCatalogCategorySlug(category);
@@ -35,6 +37,7 @@ export function CategoryPage() {
 
     setFilteredCategory("all");
     setSortBy("featured");
+    trackCategoryView(category);
   }, [category, isValidCategory]);
 
   if (!isValidCategory) {

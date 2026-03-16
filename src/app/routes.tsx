@@ -16,6 +16,8 @@ import { HelpPage } from "@/features/institutional/pages/HelpPage";
 import { AboutPage } from "@/features/institutional/pages/AboutPage";
 import { InstitutionalPage } from "@/features/institutional/pages/InstitutionalPage";
 import { ProductCreatePage } from "@/features/admin/pages/ProductCreatePage";
+import { MissionsPage } from "@/features/gamification/pages/MissionsPage";
+import { RankingPage } from "@/features/gamification/pages/RankingPage";
 import { NotFoundPage } from "@/features/system/pages/NotFoundPage";
 
 export function AppRoutes() {
@@ -31,6 +33,8 @@ export function AppRoutes() {
           element={<Navigate to={routes.checkoutStep("address")} replace />}
         />
         <Route path={routes.checkoutStep()} element={<CheckoutPage />} />
+        <Route path={routes.missions} element={<MissionsPage />} />
+        <Route path={routes.ranking} element={<RankingPage />} />
         <Route path={routes.login} element={<LoginPage />} />
         <Route
           path={routes.profile}

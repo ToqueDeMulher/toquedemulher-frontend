@@ -228,7 +228,7 @@
 }
 
 .searchWrapper {
-  @apply relative w-full max-w-[520px] mx-auto;
+  @apply relative w-full max-w-[400px] mx-auto;
 }
 
 .searchIcon {
@@ -236,7 +236,7 @@
 }
 
 .searchInput {
-  @apply w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-4 py-1 text-sm text-black placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-0 leading-none h-[29px] md:h-[31px];
+  @apply w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-4 py-1 text-[13px] text-black placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-0 leading-none h-[27px] md:h-[29px];
 }
 
 .actionRow {

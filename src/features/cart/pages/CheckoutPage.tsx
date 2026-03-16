@@ -18,6 +18,8 @@ import {
 } from "@/features/cart/lib/checkout-flow";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
+import { useGamification } from "@/shared/contexts/gamification-context";
+import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
 import { routes } from "@/shared/lib/routes";
 import { toast } from "sonner";
 import styles from "./CheckoutPage.module.css";
@@ -152,6 +154,7 @@ export function CheckoutPage() {
   const { step } = useParams<{ step?: string }>();
   const { isLoggedIn } = useAuth();
   const { items, itemCount, subtotal, reset } = useCart();
+  const { trackOrder } = useGamification();
   const currentStep = normalizeCheckoutFlowStep(step);
 
   const [addressForm, setAddressForm] = useState<AddressFormState>({
@@ -203,6 +206,12 @@ export function CheckoutPage() {
 
   const shipping = 0;
   const total = subtotal + shipping;
+  const rewardPoints = calculateCartRewardPoints(
+    items.map((item) => ({
+      price: item.price,
+      quantity: item.quantity,
+    })),
+  );
   const estimatedDate = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "long",
@@ -251,12 +260,18 @@ export function CheckoutPage() {
 
   const handleFinishOrder = () => {
     const contactEmail = addressForm.email.trim();
+    const earnedPoints = trackOrder(
+      items.map((item) => ({
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    );
 
     reset();
     toast.success(
       !isLoggedIn && contactEmail
-        ? `Pedido confirmado! Vamos enviar as atualizações para ${contactEmail}.`
-        : "Pedido confirmado com sucesso!",
+        ? `Pedido confirmado! Você ganhou +${earnedPoints} pontos. Vamos enviar as atualizações para ${contactEmail}.`
+        : `Pedido confirmado com sucesso! Você ganhou +${earnedPoints} pontos.`,
     );
     navigate(routes.home, { replace: true });
   };
@@ -700,6 +715,17 @@ export function CheckoutPage() {
               Prazo estimado: {estimatedDate}
             </p>
           </div>
+
+          <div className={styles.confirmationPanel}>
+            <h3 className={styles.confirmationPanelTitle}>Recompensa</h3>
+            <p className={styles.confirmationReward}>
+              <ShieldCheck className={styles.confirmationRewardIcon} />
+              +{rewardPoints} Beauty Points nesta compra
+            </p>
+            <p className={styles.confirmationPanelText}>
+              Os pontos entram no seu perfil logo após a confirmação do pedido.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -786,6 +812,10 @@ export function CheckoutPage() {
                 <div className={styles.summaryTotalRow}>
                   <span>Total</span>
                   <strong>R$ {total.toFixed(2).replace(".", ",")}</strong>
+                </div>
+                <div className={styles.summaryRewardRow}>
+                  <span>Beauty Points</span>
+                  <strong>+{rewardPoints} pts</strong>
                 </div>
               </div>
 

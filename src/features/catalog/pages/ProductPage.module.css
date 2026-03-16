@@ -89,6 +89,22 @@
   @apply bg-red-500 text-white;
 }
 
+.rewardCard {
+  @apply inline-flex items-start gap-3 rounded-2xl border border-pink-100 bg-pink-50 px-4 py-3;
+}
+
+.rewardIcon {
+  @apply size-5 text-pink-600 shrink-0 mt-0.5;
+}
+
+.rewardTitle {
+  @apply text-sm font-semibold text-gray-900 mb-1;
+}
+
+.rewardText {
+  @apply text-sm text-pink-700;
+}
+
 .description {
   @apply text-gray-600 text-base leading-relaxed mb-6;
 }

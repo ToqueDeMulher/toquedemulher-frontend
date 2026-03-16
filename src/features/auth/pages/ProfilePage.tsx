@@ -13,6 +13,7 @@ import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { useAuth } from "@/shared/contexts/auth-context";
+import { useGamification } from "@/shared/contexts/gamification-context";
 import { routes } from "@/shared/lib/routes";
 import styles from "./ProfilePage.module.css";
 
@@ -69,6 +70,14 @@ const wishlist = [
 
 export function ProfilePage() {
   const { logout, user, isAdmin } = useAuth();
+  const {
+    completedMissionsCount,
+    levelName,
+    nextLevelName,
+    pointsToNextLevel,
+    progressToNextLevel,
+    totalPoints,
+  } = useGamification();
   const navigate = useNavigate();
 
   if (isAdmin) {
@@ -124,14 +133,34 @@ export function ProfilePage() {
             <div className={styles.loyaltyHeader}>
               <div>
                 <h3 className={styles.loyaltyTitle}>Programa de Fidelidade</h3>
-                <p className={styles.loyaltyText}>Você tem 850 pontos</p>
+                <div className={styles.loyaltyBadgeRow}>
+                  <Badge className={styles.loyaltyBadge}>{levelName}</Badge>
+                  <span className={styles.loyaltyText}>
+                    {completedMissionsCount} missões concluídas
+                  </span>
+                </div>
+                <p className={styles.loyaltyPoints}>
+                  Você tem {totalPoints.toLocaleString("pt-BR")} pontos
+                </p>
               </div>
               <div className={styles.textRight}>
-                <p className={styles.loyaltyHighlight}>Faltam 150 pontos</p>
-                <p className={styles.loyaltyText}>para o próximo nível</p>
+                <p className={styles.loyaltyHighlight}>
+                  {nextLevelName ? `Faltam ${pointsToNextLevel} pontos` : "Nível máximo desbloqueado"}
+                </p>
+                <p className={styles.loyaltyText}>
+                  {nextLevelName ? `para o nível ${nextLevelName}` : "Continue acumulando para se manter no topo"}
+                </p>
               </div>
             </div>
-            <Progress value={85} className={styles.progressBar} />
+            <Progress value={progressToNextLevel} className={styles.progressBar} />
+            <div className={styles.loyaltyActions}>
+              <Button variant="default" size="sm" onClick={() => navigate(routes.missions)}>
+                Ver missões
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => navigate(routes.ranking)}>
+                Ver ranking
+              </Button>
+            </div>
           </div>
         </div>
 

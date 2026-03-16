@@ -8,6 +8,8 @@ export const routes = {
   cart: "/carrinho",
   checkout: "/checkout",
   checkoutStep: (step: string = ":step") => `/checkout/${step}`,
+  missions: "/missoes",
+  ranking: "/ranking",
   help: "/ajuda",
   about: "/sobre",
   productCreate: "/admin/produtos/novo",

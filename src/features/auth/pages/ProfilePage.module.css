@@ -50,19 +50,35 @@
 }
 
 .loyaltyHeader {
-  @apply flex items-center justify-between mb-4;
+  @apply flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4;
 }
 
 .loyaltyTitle {
   @apply text-gray-900 font-semibold mb-1;
 }
 
+.loyaltyBadgeRow {
+  @apply flex items-center gap-2 mb-2;
+}
+
+.loyaltyBadge {
+  @apply bg-gray-900 text-white;
+}
+
 .loyaltyText {
   @apply text-gray-600;
 }
 
+.loyaltyPoints {
+  @apply text-gray-900 text-xl font-semibold;
+}
+
 .loyaltyHighlight {
   @apply text-pink-600;
+}
+
+.loyaltyActions {
+  @apply flex flex-col sm:flex-row gap-3 mt-4;
 }
 
 .tabsCard {

@@ -20,7 +20,7 @@ import styles from "./Header.module.css";
 export function Header() {
   const [activeCategory, setActiveCategory] = useState<string>("");
   const { isLoggedIn, isAdmin } = useAuth();
-  const { itemCount } = useCart();
+  const { itemCount, openCart } = useCart();
   const accountRoute = isLoggedIn && isAdmin ? routes.adminDashboard : routes.profile;
 
   const handleCategoryClick = (category: string) => {
@@ -250,15 +250,6 @@ export function Header() {
                     <Link to={routes.home}>Novos</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <NavigationMenuLink
-                    asChild
-                    className={styles.navLinkSimple}
-                  >
-                    <Link to={routes.home}>Marcas</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavigationMenu>
               </div>
@@ -274,17 +265,19 @@ export function Header() {
 
               <div className={styles.actionRow}>
                 <Button
-                  asChild
                   variant="ghost"
                   size="icon"
                   className={styles.cartButton}
+                  type="button"
+                  onClick={openCart}
+                  aria-label="Carrinho"
                 >
-                  <Link to={routes.cart} aria-label="Carrinho">
+                  <>
                     <ShoppingCart className={styles.iconLarge} />
                     {itemCount > 0 && (
                       <Badge className={styles.cartBadge}>{itemCount}</Badge>
                     )}
-                  </Link>
+                  </>
                 </Button>
 
                 <Button
