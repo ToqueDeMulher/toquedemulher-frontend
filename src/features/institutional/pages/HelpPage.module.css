@@ -2,7 +2,7 @@
 
 .page {
   @apply min-h-screen py-12 sm:py-16;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .container {
@@ -113,7 +113,7 @@
 
 .helpCta {
   @apply mt-12 rounded-2xl p-8 text-center;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-subtle);
 }
 
 .helpCtaTitle {
@@ -130,7 +130,7 @@
 
 .heroSection {
   @apply py-12 sm:py-16;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .heroGrid {
@@ -179,7 +179,7 @@
 
 .contactSection {
   @apply py-12 sm:py-16;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .contactBadge {
@@ -188,5 +188,64 @@
 
 .faqSection {
   @apply py-12 sm:py-16;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
+}
+
+.title,
+.faqTitle,
+.heroTitle,
+.heroCardTitle,
+.heroStatValue,
+.contactTitle {
+  color: var(--theme-text-primary);
+}
+
+.subtitle,
+.contactText,
+.accordionContent,
+.emptyState,
+.heroText,
+.heroCardText,
+.heroStatLabel,
+.helpCtaText {
+  color: var(--theme-text-secondary);
+}
+
+.contactCard,
+.faqCard,
+.heroCard {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.contactIconWrap,
+.heroBadge,
+.contactBadge {
+  background-color: var(--theme-brand-soft);
+}
+
+.contactIcon,
+.searchIcon,
+.heroBadge,
+.contactBadge {
+  color: var(--theme-brand-strong);
+}
+
+.accordionTrigger {
+  color: var(--theme-text-primary);
+}
+
+.accordionTrigger:hover,
+.contactText a:hover {
+  color: var(--theme-brand-strong);
+}
+
+.helpCtaButton {
+  border-color: var(--theme-input-border);
+  color: var(--theme-brand-strong);
+}
+
+.helpCtaButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
 }

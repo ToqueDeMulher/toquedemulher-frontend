@@ -2,7 +2,7 @@
 
 .page {
   @apply min-h-screen pb-16 font-sans;
-  background-color: var(--background);
+  background-color: var(--theme-bg-canvas);
 }
 
 .container {
@@ -412,8 +412,108 @@
 }
 
 @media (max-width: 639px) {
-  .summaryRow,
-  .summaryZipRow {
+.summaryRow,
+.summaryZipRow {
     @apply flex-col;
   }
+}
+
+.cartCard,
+.cartBody,
+.emptyWrap,
+.itemsPanel,
+.itemCard,
+.summaryCard,
+.summarySection,
+.summaryFooter {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
+}
+
+.emptyTitle,
+.sectionTitle,
+.itemTitle,
+.price,
+.quantityValue,
+.lineTotal,
+.summaryActionHeader,
+.summaryShippingTitle,
+.summarySectionTitle,
+.recommendTitle {
+  color: var(--theme-text-primary);
+}
+
+.emptyText,
+.sectionText,
+.itemStockText,
+.itemActionLink,
+.summaryShippingSub,
+.breakdownRow,
+.totalLabel,
+.summaryEta {
+  color: var(--theme-text-secondary);
+}
+
+.emptyIcon,
+.sectionIconWrap,
+.freeShippingIcon,
+.summaryChevron,
+.itemOfferLine,
+.itemActionLink:hover,
+.breakdownHighlight,
+.totalValue {
+  color: var(--theme-brand-strong);
+}
+
+.section + .section,
+.itemCardDivider,
+.summarySection,
+.breakdown,
+.summaryEta {
+  border-color: var(--theme-border-soft);
+}
+
+.sectionIconWrap,
+.itemImageWrap {
+  background-color: var(--theme-card-muted);
+}
+
+.freeShippingPending {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+}
+
+.freeShippingText,
+.freeShippingPendingText,
+.freeShippingSuccessText {
+  color: var(--theme-text-primary);
+}
+
+.itemCard:hover,
+.itemGiftRow:hover {
+  background-color: color-mix(in oklab, var(--theme-brand-soft) 80%, transparent);
+}
+
+.quantityControls,
+.summaryInput {
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-input-border);
+}
+
+.quantityButton {
+  color: var(--theme-brand-strong);
+}
+
+.quantityButton:hover,
+.itemGiftRow {
+  background-color: var(--theme-card-muted);
+}
+
+.itemGiftRow {
+  color: var(--theme-brand-strong);
+}
+
+.originalPrice,
+.itemOfferTime {
+  color: var(--theme-text-muted);
 }

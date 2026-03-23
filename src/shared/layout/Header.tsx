@@ -17,6 +17,7 @@ import { trendingProducts } from "@/shared/data/catalog-products";
 import { routes } from "@/shared/lib/routes";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
+import { ThemeSwitcher } from "@/shared/layout/ThemeSwitcher";
 import styles from "./Header.module.css";
 
 export function Header() {
@@ -319,6 +320,8 @@ export function Header() {
               </form>
 
               <div className={styles.actionRow}>
+                <ThemeSwitcher />
+
                 <Button
                   asChild
                   variant="ghost"

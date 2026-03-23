@@ -5,7 +5,8 @@
 }
 
 .topBar {
-  @apply bg-gray-100 border-t border-gray-200;
+  border-top: 1px solid var(--theme-border-soft);
+  background-color: var(--theme-bg-subtle);
 }
 
 .topContainer {
@@ -21,7 +22,8 @@
 }
 
 .socialLabel {
-  @apply text-gray-600 text-sm font-medium hidden sm:inline-block;
+  @apply text-sm font-medium hidden sm:inline-block;
+  color: var(--theme-text-secondary);
 }
 
 .socialButtons {
@@ -29,11 +31,14 @@
 }
 
 .socialButton {
-  @apply bg-white text-gray-600 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all shadow-sm;
+  @apply w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all shadow-sm;
+  background-color: var(--theme-surface-primary);
+  color: var(--theme-text-secondary);
+  border: 1px solid var(--theme-border-soft);
 }
 
 .socialButton:focus-visible {
-  outline: 2px solid #111827;
+  outline: 2px solid var(--theme-focus);
   outline-offset: 3px;
 }
 
@@ -42,8 +47,9 @@
 }
 
 .socialButton:hover {
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--theme-brand-strong);
+  border-color: var(--theme-brand-strong);
+  color: var(--theme-text-inverse);
 }
 
 .appLink {
@@ -51,20 +57,27 @@
 }
 
 .appIcon {
-  @apply size-5 text-gray-600;
+  @apply size-5;
+  color: var(--theme-text-secondary);
 }
 
 .appText {
-  @apply text-gray-600 text-sm font-medium cursor-pointer transition-colors whitespace-nowrap;
+  @apply text-sm font-medium cursor-pointer transition-colors whitespace-nowrap;
+  color: var(--theme-text-secondary);
 }
 
 .appText:hover {
-  color: var(--primary);
+  color: var(--theme-brand-strong);
 }
 
 .mainSection {
-  @apply text-white;
-  background-color: #9d174d;
+  color: var(--theme-footer-text);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--theme-footer-bg) 92%, var(--theme-brand-strong) 8%) 0%,
+      var(--theme-footer-bg) 100%
+    );
 }
 
 .mainContainer {
@@ -76,7 +89,8 @@
 }
 
 .columnTitle {
-  @apply mb-6 text-white uppercase tracking-wider font-bold text-xs md:text-sm;
+  @apply mb-6 uppercase tracking-wider font-bold text-xs md:text-sm;
+  color: var(--theme-footer-text);
 }
 
 .linkList {
@@ -84,21 +98,23 @@
 }
 
 .linkButton {
-  @apply text-white/90 transition-colors hover:underline;
+  @apply transition-colors hover:underline;
+  color: var(--theme-footer-muted);
 }
 
 .linkButton:hover {
-  color: white;
+  color: var(--theme-footer-text);
 }
 
 .linkButton:focus-visible {
-  outline: 2px solid rgb(255 255 255 / 0.9);
+  outline: 2px solid var(--theme-footer-text);
   outline-offset: 3px;
   border-radius: 0.375rem;
 }
 
 .logoSection {
-  @apply text-center py-12 md:py-16 border-t border-white/20;
+  @apply text-center py-12 md:py-16;
+  border-top: 1px solid color-mix(in oklab, var(--theme-footer-text) 18%, transparent);
 }
 
 .logoRow {
@@ -107,9 +123,10 @@
 
 .logoText {
   font-family: var(--font-display);
-  @apply text-white/90 font-bold tracking-normal transition-opacity;
+  @apply font-bold tracking-normal transition-opacity;
   font-size: calc(1.5rem + 100px);
   line-height: 1;
+  color: var(--theme-footer-text);
 }
 
 .logoText:hover {
@@ -117,7 +134,9 @@
 }
 
 .bottomBar {
-  @apply bg-black text-white py-6;
+  @apply py-6;
+  background-color: var(--theme-footer-bottom);
+  color: var(--theme-footer-text);
 }
 
 .bottomContainer {
@@ -129,5 +148,6 @@
 }
 
 .bottomCopy {
-  @apply text-gray-400 text-xs;
+  @apply text-xs;
+  color: color-mix(in oklab, var(--theme-footer-text) 68%, transparent);
 }

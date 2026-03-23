@@ -2,7 +2,7 @@
 
 .page {
   @apply min-h-screen pb-16 font-sans;
-  background-color: var(--background);
+  background-color: var(--theme-bg-canvas);
 }
 
 .container {
@@ -328,4 +328,107 @@
   .summaryCard {
     position: static;
   }
+}
+
+.checkoutCard,
+.checkoutBody,
+.noticeCard,
+.confirmationCard,
+.confirmationPanel,
+.summaryCard,
+.summaryPanel {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
+}
+
+.sectionTitle,
+.guestBannerTitle,
+.noticeTitle,
+.confirmationTitle,
+.confirmationPanelTitle,
+.summaryItemName,
+.summaryPrice,
+.summaryPanelTitle,
+.summaryEtaTitle {
+  color: var(--theme-text-primary);
+}
+
+.guestBannerText,
+.sectionText,
+.fieldLabel,
+.noticeText,
+.confirmationText,
+.confirmationPanelText,
+.summaryItemMeta,
+.summaryRow,
+.summaryPanelText,
+.summaryEtaText,
+.summaryEtaSmall {
+  color: var(--theme-text-secondary);
+}
+
+.sectionIconWrap,
+.noticeCard,
+.confirmationCard,
+.summaryPanel {
+  background-color: var(--theme-card-muted);
+}
+
+.sectionIconWrap,
+.noticeIcon,
+.confirmationIconWrap,
+.summaryEtaIcon {
+  color: var(--theme-brand-strong);
+}
+
+.fieldInput,
+.fieldTextarea {
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.methodLegend,
+.methodButton {
+  color: var(--theme-text-primary);
+}
+
+.methodButton {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-input-border);
+}
+
+.methodButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+}
+
+.methodButtonActive {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-brand-strong);
+  color: var(--theme-brand-strong);
+}
+
+.summaryList,
+.summaryTotals,
+.summaryEta {
+  border-color: var(--theme-border-soft);
+}
+
+.summaryTotalRow > strong {
+  color: var(--theme-brand-strong);
+}
+
+.guestBanner {
+  border-color: color-mix(in oklab, var(--theme-warning) 36%, transparent);
+  background-color: color-mix(in oklab, var(--theme-warning) 18%, var(--theme-surface-primary));
+}
+
+.guestBannerIcon {
+  color: var(--theme-warning);
+}
+
+.errorSummary {
+  border-color: color-mix(in oklab, var(--destructive) 35%, transparent);
+  background-color: color-mix(in oklab, var(--destructive) 16%, var(--theme-surface-primary));
 }

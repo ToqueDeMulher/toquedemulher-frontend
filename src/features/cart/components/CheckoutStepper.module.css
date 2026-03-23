@@ -38,7 +38,7 @@
 
 .stepButton:focus-visible .iconCircle {
   box-shadow:
-    0 0 0 2px color-mix(in oklab, white 90%, transparent),
+    0 0 0 2px color-mix(in oklab, var(--theme-surface-primary) 90%, transparent),
     0 0 0 5px color-mix(in oklab, var(--primary) 25%, transparent);
 }
 
@@ -47,8 +47,9 @@
   @apply inline-flex items-center justify-center rounded-full flex-shrink-0 relative;
   width: 2.2rem;
   height: 2.2rem;
-  background: #e8ebf1;
-  color: #9ca6b5;
+  background: var(--theme-surface-primary);
+  color: var(--theme-text-muted);
+  border: 1px solid var(--theme-border-soft);
   transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -59,7 +60,7 @@
 }
 
 .iconCircleCompleted {
-  background: color-mix(in oklab, var(--primary) 65%, white);
+  background: color-mix(in oklab, var(--primary) 72%, white);
   color: #ffffff;
 }
 
@@ -91,7 +92,7 @@
   height: 2px;
   margin: 0 0.6rem;
   border-radius: 999px;
-  background: #d9dee8;
+  background: var(--theme-border-soft);
 }
 
 .connectorCompleted {

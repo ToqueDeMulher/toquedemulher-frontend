@@ -2,7 +2,7 @@
 
 .page {
   @apply min-h-screen relative overflow-hidden;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .container {
@@ -192,4 +192,43 @@
 
 .newsletterButton {
   @apply w-full sm:w-auto text-white border-white/50 bg-transparent hover:bg-white/10 hover:border-white/70;
+}
+
+.breadcrumbRow,
+.headerDescription,
+.resultsRow,
+.emptyText {
+  color: var(--theme-text-secondary);
+}
+
+.breadcrumbLink:hover,
+.breadcrumbActive,
+.resultsCount,
+.clearButton {
+  color: var(--theme-brand-strong);
+}
+
+.headerTitle,
+.filterLabelText,
+.sortLabel,
+.emptyTitle {
+  color: var(--theme-text-primary);
+}
+
+.filterCard,
+.emptyCard {
+  background-color: var(--theme-card-bg);
+  border: 1px solid var(--theme-border-soft);
+}
+
+.filterIcon {
+  color: var(--theme-brand-strong);
+}
+
+.resultsRow {
+  border-top-color: var(--theme-border-soft);
+}
+
+.newsletterCard {
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
 }

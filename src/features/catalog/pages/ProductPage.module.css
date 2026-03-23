@@ -2,7 +2,7 @@
 
 .page {
   @apply min-h-screen;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .section {
@@ -156,7 +156,7 @@
 
 .reviewsSection {
   @apply py-16 sm:py-20;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .reviewHeader {
@@ -261,7 +261,7 @@
 
 .faqSection {
   @apply py-16 sm:py-20 border-t border-pink-100;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .faqContainer {
@@ -278,4 +278,79 @@
 
 .faqButton {
   @apply w-full sm:w-auto;
+}
+
+.imagePanel,
+.thumbButton,
+.summaryCard,
+.reviewCard {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.imagePanel,
+.thumbButton {
+  background-color: var(--theme-card-muted);
+}
+
+.thumbActive {
+  border-color: var(--theme-brand-strong);
+}
+
+.title,
+.quantityValue,
+.reviewTitle,
+.reviewAuthor,
+.reviewTitle,
+.relatedTitle,
+.faqTitle,
+.summaryTitle,
+.confirmationTitle {
+  color: var(--theme-text-primary);
+}
+
+.ratingText,
+.description,
+.quantityLabel,
+.accordionContent,
+.summaryCount,
+.reviewDate,
+.reviewText {
+  color: var(--theme-text-secondary);
+}
+
+.ratingSeparator,
+.originalPrice {
+  color: var(--theme-text-muted);
+}
+
+.price,
+.wishlistIcon,
+.wishlistIconActive {
+  color: var(--theme-brand-strong);
+}
+
+.quantityControls {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-input-border);
+}
+
+.wishlistButton {
+  border-color: var(--theme-input-border);
+}
+
+.wishlistActive {
+  background-color: var(--theme-brand-soft);
+}
+
+.accordionTrigger {
+  color: var(--theme-text-primary);
+}
+
+.accordionContent {
+  color: var(--theme-text-secondary);
+}
+
+.faqSection {
+  border-top-color: var(--theme-border-soft);
 }

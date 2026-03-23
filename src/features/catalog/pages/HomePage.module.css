@@ -2,12 +2,12 @@
 
 .page {
   @apply min-h-screen font-sans;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .heroSection {
   @apply relative overflow-hidden;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 
@@ -306,7 +306,7 @@
 
 .faqSection {
   @apply py-16 sm:py-20;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .faqContainer {
@@ -432,4 +432,123 @@
 
 .localDetailsButton {
   @apply w-full mt-3 md:mt-4 bg-transparent border border-pink-200 text-pink-600 hover:bg-pink-50 hover:border-pink-300 transition-colors text-xs md:text-sm h-8 md:h-10;
+}
+
+.carouselPrev,
+.carouselNext,
+.productCarouselPrev,
+.productCarouselNext,
+.scrollTopButton,
+.scrollChatButton {
+  background-color: color-mix(in oklab, var(--theme-surface-primary) 84%, transparent);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-brand-strong);
+}
+
+.carouselPrev:hover,
+.carouselNext:hover,
+.scrollTopButton:hover,
+.scrollChatButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+}
+
+.recommendedBox,
+.favoriteCard,
+.recentSection,
+.localCard {
+  background-color: var(--theme-card-bg);
+  border: 1px solid var(--theme-border-soft);
+}
+
+.trendingTitle,
+.recentTitle,
+.faqTitle,
+.localCardTitle {
+  color: var(--theme-text-primary);
+}
+
+.productCarouselDot {
+  background-color: color-mix(in oklab, var(--theme-text-muted) 35%, transparent);
+}
+
+.productCarouselDotActive {
+  background-color: var(--theme-brand-strong);
+}
+
+.trendingButton:hover {
+  background-color: var(--theme-brand-strong);
+}
+
+.recentSection {
+  background-color: var(--theme-surface-primary);
+}
+
+.scrollTopButton:focus-visible,
+.scrollChatButton:focus-visible,
+.favoriteCard:focus-visible {
+  outline-color: var(--theme-focus);
+}
+
+.faqItem {
+  border-bottom-color: var(--theme-border-soft);
+}
+
+.faqTrigger {
+  color: var(--theme-text-primary);
+}
+
+.faqTrigger:hover {
+  color: var(--theme-brand-strong);
+}
+
+.faqContent {
+  color: var(--theme-text-secondary);
+}
+
+.localCard {
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.localCardImageWrap {
+  background-color: var(--theme-card-muted);
+}
+
+.localCardIconButton {
+  background-color: var(--theme-surface-primary);
+  color: var(--theme-brand-strong);
+  border: 1px solid var(--theme-border-soft);
+}
+
+.localCardIconButton:hover {
+  background-color: var(--theme-brand-strong);
+  color: var(--theme-text-inverse);
+  border-color: var(--theme-brand-strong);
+}
+
+.localStar {
+  color: color-mix(in oklab, var(--theme-text-muted) 38%, transparent);
+}
+
+.localReviews {
+  color: var(--theme-text-secondary);
+}
+
+.localCardTitle:hover,
+.localPrice {
+  color: var(--theme-brand-strong);
+}
+
+.localOriginalPrice {
+  color: var(--theme-text-muted);
+}
+
+.localDetailsButton {
+  border-color: var(--theme-input-border);
+  color: var(--theme-brand-strong);
+}
+
+.localDetailsButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
 }
