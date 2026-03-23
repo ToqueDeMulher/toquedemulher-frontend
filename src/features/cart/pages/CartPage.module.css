@@ -236,6 +236,11 @@
   @apply bg-pink-100/70;
 }
 
+.itemGiftRow:focus-visible {
+  outline: 3px solid rgb(190 24 93 / 0.35);
+  outline-offset: -3px;
+}
+
 .itemGiftIcon {
   @apply size-4;
 }

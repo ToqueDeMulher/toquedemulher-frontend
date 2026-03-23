@@ -8,10 +8,28 @@
   border-top-right-radius: 0;
 }
 
+.card:focus-within {
+  box-shadow: 0 0 0 3px rgb(190 24 93 / 0.2);
+}
+
 @media (min-width: 640px) {
   .card {
     min-height: var(--product-card-min-h-sm, 285px);
   }
+}
+
+.cardAction {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  border-radius: inherit;
+}
+
+.cardAction:focus-visible {
+  outline: 3px solid rgb(190 24 93 / 0.55);
+  outline-offset: -3px;
 }
 
 .imageWrapper {
@@ -44,6 +62,7 @@
 
 .favButton {
   @apply absolute bottom-3 right-3 p-2 rounded-full bg-white/70 hover:bg-white/80 border border-gray-200/60 transition-colors;
+  z-index: 2;
 }
 
 .heartIcon {
@@ -100,6 +119,7 @@
 
 .addButton {
   @apply hidden;
+  z-index: 2;
 }
 
 .cartIcon {

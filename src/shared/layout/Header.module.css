@@ -48,6 +48,12 @@
   @apply no-underline;
 }
 
+.logoButton:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 4px;
+  border-radius: 0.5rem;
+}
+
 .logoImage {
   @apply h-[46px] md:h-[54px] w-auto object-contain;
 }
@@ -229,6 +235,10 @@
 
 .searchWrapper {
   @apply relative w-full max-w-[520px] mx-auto;
+}
+
+.searchWrapper:focus-within {
+  border-radius: 999px;
 }
 
 .searchIcon {

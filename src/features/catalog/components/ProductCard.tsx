@@ -48,6 +48,12 @@ export function ProductCard({
     typeof originalPrice === "number"
       ? `R$ ${originalPrice.toFixed(2).replace(".", ",")}`
       : undefined;
+  const ratingLabel =
+    typeof rating === "number"
+      ? `Avaliação ${rating.toFixed(1)} de 5 estrelas${
+          typeof reviews === "number" ? ` com ${reviews} avaliações` : ""
+        }`
+      : undefined;
 
   const handleCardClick = () => {
     if (onClick) return onClick();
@@ -55,18 +61,16 @@ export function ProductCard({
   };
 
   return (
-    <div
-      className={styles.card}
-      style={style}
-      onClick={handleCardClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          handleCardClick();
-        }
-      }}
-    >
+    <article className={styles.card} style={style}>
+      <button
+        type="button"
+        className={styles.cardAction}
+        onClick={handleCardClick}
+        aria-label={`Ver detalhes do produto ${name}`}
+      >
+        <span className="sr-only">Ver detalhes do produto {name}</span>
+      </button>
+
       <div className={styles.imageWrapper}>
         <ImageWithFallback
           src={image}
@@ -89,6 +93,7 @@ export function ProductCard({
             e.stopPropagation();
             setIsFav((v) => !v);
           }}
+          aria-pressed={isFav}
           aria-label={
             isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"
           }
@@ -98,6 +103,7 @@ export function ProductCard({
             className={`${styles.heartIcon} ${
               isFav ? styles.heartIconActive : ""
             }`}
+            aria-hidden="true"
           />
         </button>
       </div>
@@ -106,13 +112,14 @@ export function ProductCard({
         {!hideTitle && <h3 className={styles.title}>{name}</h3>}
 
         {!hideMeta && typeof rating === "number" && (
-          <div className={styles.ratingRow}>
+          <div className={styles.ratingRow} aria-label={ratingLabel}>
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
                 className={`${styles.star} ${
                   i < Math.round(rating) ? styles.starFilled : ""
                 }`}
+                aria-hidden="true"
               />
             ))}
             <span className={styles.ratingValue}>{rating.toFixed(1)}</span>
@@ -141,10 +148,10 @@ export function ProductCard({
           }}
           type="button"
         >
-          <ShoppingCart className={styles.cartIcon} />
+          <ShoppingCart className={styles.cartIcon} aria-hidden="true" />
           Adicionar ao Carrinho
         </Button>
       </div>
-    </div>
+    </article>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChevronUp, MessageCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import {
   type CarouselApi,
@@ -243,7 +243,7 @@ export function HomePage() {
 
   return (
     <div className={styles.page}>
-      <section className={styles.heroSection}>
+      <section className={styles.heroSection} aria-label="Destaques principais">
         <LotusPattern />
         <Carousel
           className={styles.carousel}
@@ -286,17 +286,19 @@ export function HomePage() {
           <span className={styles.promoCodeWrap}>
             Use o código <span className={styles.promoCode}>GIFT26</span>
           </span>
-          <span>Termina em {promoCountdown}</span>
-          <button className={styles.promoLink} type="button">
+          <span aria-live="off">Termina em {promoCountdown}</span>
+          <Link className={styles.promoLink} to={routes.help}>
             Ver detalhes
-          </button>
+          </Link>
         </div>
       </section>
 
-      <section className={styles.trendingSection}>
+      <section className={styles.trendingSection} aria-labelledby="home-novidades-title">
         <div className={styles.trendingContainer}>
           <div className={styles.trendingHeader}>
-            <h2 className={styles.trendingTitle}>Novidades</h2>
+            <h2 id="home-novidades-title" className={styles.trendingTitle}>
+              Novidades
+            </h2>
           </div>
 
           <Carousel
@@ -318,7 +320,7 @@ export function HomePage() {
             <CarouselPrevious className={styles.productCarouselPrev} />
             <CarouselNext className={styles.productCarouselNext} />
           </Carousel>
-          <div className={styles.productCarouselProgress}>
+          <div className={styles.productCarouselProgress} aria-hidden="true">
             {Array.from({ length: productCount }).map((_, index) => (
               <span
                 key={`product-dot-${index}`}
@@ -330,64 +332,54 @@ export function HomePage() {
           </div>
 
           <div className={styles.trendingSubHeader}>
-            <h2 className={styles.trendingTitle}>Favoritos da Semana</h2>
+            <h2 id="home-favorites-title" className={styles.trendingTitle}>
+              Favoritos da Semana
+            </h2>
           </div>
 
           <div className={styles.favoritesGrid}>
             {favoriteProducts.slice(0, 8).map((product) => (
-              <div
+              <Link
                 key={`favorite-${product.id}`}
                 className={styles.favoriteCard}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate(routes.category("feminino"))}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    navigate(routes.category("feminino"));
-                  }
-                }}
+                to={routes.category("feminino")}
               >
                 <ImageWithFallback
                   src={product.image}
-                  alt={product.title}
+                  alt=""
                   className={styles.favoriteImage}
                   onLoad={(event) => applyDominantColor(event.currentTarget)}
                 />
                 <div className={styles.favoriteGradient} aria-hidden="true" />
                 <span className={styles.favoriteCaption}>{product.title}</span>
-              </div>
+              </Link>
             ))}
           </div>
           {favoriteProducts.length > 8 && (
             <div className={styles.favoritesGridCompact}>
               {favoriteProducts.slice(8).map((product) => (
-                <div
+                <Link
                   key={`favorite-compact-${product.id}`}
                   className={`${styles.favoriteCard} ${styles.favoriteCardCompact}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => navigate(routes.category("feminino"))}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      navigate(routes.category("feminino"));
-                    }
-                  }}
+                  to={routes.category("feminino")}
                 >
                   <ImageWithFallback
                     src={product.image}
-                    alt={product.title}
+                    alt=""
                     className={styles.favoriteImageCompact}
                     onLoad={(event) => applyDominantColor(event.currentTarget)}
                   />
                   <div className={styles.favoriteGradient} aria-hidden="true" />
                   <span className={styles.favoriteCaption}>{product.title}</span>
-                </div>
+                </Link>
               ))}
             </div>
           )}
 
           <div className={styles.trendingSubHeader}>
-            <h2 className={styles.trendingTitle}>Recomendados</h2>
+            <h2 id="home-recommended-title" className={styles.trendingTitle}>
+              Recomendados
+            </h2>
           </div>
 
           <div className={styles.recommendedBox}>
@@ -440,7 +432,7 @@ export function HomePage() {
           )}
         </div>
       </section>
-      {showScrollTop && (
+          {showScrollTop && (
         <>
           <button
             type="button"
@@ -448,7 +440,7 @@ export function HomePage() {
             aria-label="Abrir chat"
             onClick={() => navigate(routes.help)}
           >
-            <MessageCircle className={styles.scrollTopIcon} />
+            <MessageCircle className={styles.scrollTopIcon} aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -456,7 +448,7 @@ export function HomePage() {
             aria-label="Voltar ao topo"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            <ChevronUp className={styles.scrollTopIcon} />
+            <ChevronUp className={styles.scrollTopIcon} aria-hidden="true" />
           </button>
         </>
       )}
@@ -467,7 +459,7 @@ export function HomePage() {
 
 function LotusPattern({ className = "" }: { className?: string }) {
   return (
-    <div className={`${styles.lotusPattern} ${className}`}>
+    <div className={`${styles.lotusPattern} ${className}`} aria-hidden="true">
       <svg width="400" height="400" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <path
           fill="#FF69B4"

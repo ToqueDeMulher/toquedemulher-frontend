@@ -33,6 +33,11 @@
   @apply bg-pink-50 rounded-xl overflow-hidden border-2;
 }
 
+.thumbButton:focus-visible {
+  outline: 3px solid rgb(190 24 93 / 0.45);
+  outline-offset: 2px;
+}
+
 .thumbActive {
   @apply border-pink-500;
 }
@@ -110,7 +115,7 @@
 }
 
 .quantityValue {
-  @apply flex-1 text-center;
+  @apply flex-1 text-center font-medium text-gray-900;
 }
 
 .actionRow {

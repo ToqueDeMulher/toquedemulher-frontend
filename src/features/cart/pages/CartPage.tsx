@@ -108,6 +108,8 @@ export function CartPage() {
   const [discount, setDiscount] = useState(0);
   const [zipCode, setZipCode] = useState("");
   const [shipping, setShipping] = useState(0);
+  const [couponStatus, setCouponStatus] = useState("");
+  const [shippingStatus, setShippingStatus] = useState("");
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -160,8 +162,10 @@ export function CartPage() {
   const applyCoupon = () => {
     if (coupon.toUpperCase() === "BEMVINDA10") {
       setDiscount(subtotal * 0.1);
+      setCouponStatus("Cupom BEMVINDA10 aplicado com 10% de desconto.");
       toast.success("Cupom aplicado! 10% de desconto");
     } else {
+      setCouponStatus("Não foi possível aplicar o cupom informado.");
       toast.error("Cupom invalido");
     }
   };
@@ -171,11 +175,14 @@ export function CartPage() {
       const calculatedShipping = subtotal >= freeShippingThreshold ? 0 : 15.9;
       setShipping(calculatedShipping);
       if (calculatedShipping === 0) {
+        setShippingStatus("Frete grátis aplicado para este CEP.");
         toast.success("Frete gratis aplicado!");
       } else {
+        setShippingStatus(`Frete calculado em R$ ${calculatedShipping.toFixed(2)}.`);
         toast.success(`Frete: R$ ${calculatedShipping.toFixed(2)}`);
       }
     } else {
+      setShippingStatus("Informe um CEP válido com oito dígitos.");
       toast.error("CEP invalido");
     }
   };
@@ -232,12 +239,12 @@ export function CartPage() {
                   <div
                     className={`${styles.freeShippingNotice} ${styles.freeShippingSuccess}`}
                   >
-                    <p
-                      className={`${styles.freeShippingText} ${styles.freeShippingSuccessText}`}
-                    >
-                      <Package className={styles.freeShippingIcon} aria-hidden="true" />
-                      Parabens! Voce ganhou <strong>FRETE GRATIS</strong>!
-                    </p>
+                      <p
+                        className={`${styles.freeShippingText} ${styles.freeShippingSuccessText}`}
+                      >
+                        <Package className={styles.freeShippingIcon} aria-hidden="true" />
+                        Parabens! Voce ganhou <strong>FRETE GRATIS</strong>!
+                      </p>
                   </div>
                 )}
               </div>
@@ -306,10 +313,11 @@ export function CartPage() {
                               size="icon"
                               onClick={() => updateQuantity(item.id, -1)}
                               className={styles.quantityButton}
+                              aria-label={`Diminuir quantidade de ${item.name}`}
                             >
-                              <Minus className={styles.quantityIcon} />
+                              <Minus className={styles.quantityIcon} aria-hidden="true" />
                             </Button>
-                            <span className={styles.quantityValue}>
+                            <span className={styles.quantityValue} aria-live="polite">
                               {item.quantity}
                             </span>
                             <Button
@@ -317,8 +325,9 @@ export function CartPage() {
                               size="icon"
                               onClick={() => updateQuantity(item.id, 1)}
                               className={styles.quantityButton}
+                              aria-label={`Aumentar quantidade de ${item.name}`}
                             >
-                              <Plus className={styles.quantityIcon} />
+                              <Plus className={styles.quantityIcon} aria-hidden="true" />
                             </Button>
                           </div>
                           <p className={styles.lineTotal}>
@@ -347,9 +356,15 @@ export function CartPage() {
                       </div>
                     </div>
                   ))}
-                  <button type="button" className={styles.itemGiftRow}>
+                  <button
+                    type="button"
+                    className={styles.itemGiftRow}
+                    onClick={() =>
+                      toast.success("Opção de presente registrada para revisão na próxima etapa.")
+                    }
+                  >
                     <span>Embrulho para presente por apenas R$ 12,90!</span>
-                    <ChevronRight className={styles.itemGiftIcon} />
+                    <ChevronRight className={styles.itemGiftIcon} aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -363,10 +378,10 @@ export function CartPage() {
               </div>
               <div className={styles.summaryBody}>
                 <div className={styles.summarySection}>
-                  <button type="button" className={styles.summaryActionHeader}>
+                  <div className={styles.summaryActionHeader}>
                     <span>Envio para {shippingDestination}</span>
-                    <ChevronRight className={styles.summaryChevron} />
-                  </button>
+                    <ChevronRight className={styles.summaryChevron} aria-hidden="true" />
+                  </div>
 
                   <div className={styles.summaryShippingLine}>
                     <span className={styles.summaryRadioOuter}>
@@ -382,50 +397,71 @@ export function CartPage() {
                 </div>
 
                 <div className={styles.summarySection}>
-                  <button type="button" className={styles.summaryActionHeader}>
+                  <div className={styles.summaryActionHeader}>
                     <span>Cupom ou Código de Influenciadora / Recompensas</span>
-                    <ChevronRight className={styles.summaryChevron} />
-                  </button>
+                    <ChevronRight className={styles.summaryChevron} aria-hidden="true" />
+                  </div>
 
-                  <div className={styles.summaryRow}>
+                  <form
+                    className={styles.summaryRow}
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      applyCoupon();
+                    }}
+                  >
+                    <label htmlFor="cart-coupon" className="sr-only">
+                      Digite um cupom de desconto
+                    </label>
                     <Input
+                      id="cart-coupon"
                       placeholder="Digite o cupom"
                       value={coupon}
                       onChange={(e) => setCoupon(e.target.value)}
                       className={styles.summaryInput}
+                      aria-describedby="cart-coupon-status"
                     />
-                    <Button
-                      onClick={applyCoupon}
-                      variant="outline"
-                      className={styles.summaryButton}
-                    >
+                    <Button type="submit" variant="outline" className={styles.summaryButton}>
                       Aplicar
                     </Button>
-                  </div>
+                  </form>
+                  <p id="cart-coupon-status" className="sr-only" aria-live="polite">
+                    {couponStatus}
+                  </p>
                 </div>
 
                 <div className={styles.summarySection}>
                   <h3 className={styles.summarySectionTitle}>Sumario</h3>
-                  <div className={styles.summaryZipRow}>
+                  <form
+                    className={styles.summaryZipRow}
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      calculateShipping();
+                    }}
+                  >
+                    <label htmlFor="cart-zip-code" className="sr-only">
+                      Digite o CEP para calcular frete
+                    </label>
                     <Input
+                      id="cart-zip-code"
                       placeholder="CEP"
                       value={zipCode}
                       onChange={(e) =>
                         setZipCode(e.target.value.replace(/\D/g, ""))
                       }
                       maxLength={8}
+                      inputMode="numeric"
                       className={styles.summaryInput}
+                      aria-describedby="cart-shipping-status"
                     />
-                    <Button
-                      onClick={calculateShipping}
-                      variant="outline"
-                      className={styles.summaryButton}
-                    >
+                    <Button type="submit" variant="outline" className={styles.summaryButton}>
                       OK
                     </Button>
-                  </div>
+                  </form>
+                  <p id="cart-shipping-status" className="sr-only" aria-live="polite">
+                    {shippingStatus}
+                  </p>
 
-                  <div className={styles.breakdown}>
+                  <div className={styles.breakdown} aria-live="polite">
                     <div className={styles.breakdownRow}>
                       <span>Subtotal ({itemCount} itens)</span>
                       <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>

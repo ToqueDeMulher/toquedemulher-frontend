@@ -61,6 +61,20 @@
   @apply text-gray-600 mb-4;
 }
 
+.contactText a {
+  @apply underline-offset-2 transition-colors;
+}
+
+.contactText a:hover {
+  @apply text-pink-700 underline;
+}
+
+.contactText a:focus-visible {
+  outline: 2px solid rgb(190 24 93 / 0.45);
+  outline-offset: 3px;
+  border-radius: 0.375rem;
+}
+
 .contactButton {
   @apply w-full;
 }
@@ -91,6 +105,10 @@
 
 .accordionContent {
   @apply text-gray-600;
+}
+
+.emptyState {
+  @apply text-sm text-gray-600 py-4;
 }
 
 .helpCta {

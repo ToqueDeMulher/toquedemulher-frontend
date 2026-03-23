@@ -83,6 +83,18 @@
   @apply text-sm text-gray-600;
 }
 
+.errorSummary {
+  @apply mb-6 rounded-2xl border border-red-200 bg-red-50 p-4;
+}
+
+.errorSummaryTitle {
+  @apply text-sm font-semibold text-red-800 mb-2;
+}
+
+.errorList {
+  @apply list-disc pl-5 text-sm text-red-700 space-y-1;
+}
+
 .formGrid {
   @apply grid gap-4 sm:grid-cols-2;
 }
@@ -101,6 +113,10 @@
 
 .fieldTextarea {
   @apply border-pink-200 bg-white min-h-28;
+}
+
+.fieldError {
+  @apply mt-2 text-sm text-red-700;
 }
 
 .noticeCard {
@@ -123,8 +139,20 @@
   @apply grid gap-3 sm:grid-cols-3 mb-6;
 }
 
+.methodFieldset {
+  @apply mb-2;
+}
+
+.methodLegend {
+  @apply mb-3 text-sm font-medium text-gray-700;
+}
+
 .methodButton {
   @apply rounded-2xl border border-pink-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .methodButton:hover {
@@ -133,6 +161,15 @@
 
 .methodButtonActive {
   @apply border-pink-500 bg-pink-50 text-pink-700;
+}
+
+.methodButton:focus-within {
+  outline: 3px solid rgb(190 24 93 / 0.25);
+  outline-offset: 2px;
+}
+
+.methodRadio {
+  @apply sr-only;
 }
 
 .confirmationCard {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Check, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
@@ -38,6 +38,9 @@ export function LoginPage() {
   const [animateRegister, setAnimateRegister] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loginAttempted, setLoginAttempted] = useState(false);
+  const [registerAttempted, setRegisterAttempted] = useState(false);
+  const [authAnnouncement, setAuthAnnouncement] = useState("");
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -156,6 +159,7 @@ export function LoginPage() {
 
     window.setTimeout(() => {
       setIsLoading(false);
+      setAuthAnnouncement(successMessage);
       toast.success(successMessage);
       login({
         user: authUser,
@@ -168,6 +172,23 @@ export function LoginPage() {
 
   const passwordStrength = getPasswordStrength(registerPassword);
   const passwordStrengthData = getPasswordStrengthLabel(passwordStrength);
+  const loginEmailError = validateEmail(loginEmail) ? undefined : "Digite um e-mail valido.";
+  const loginPasswordError =
+    loginPassword.length >= 6 ? undefined : "A senha deve ter pelo menos 6 caracteres.";
+  const registerNameError =
+    registerName.trim().length >= 3 ? undefined : "Nome deve ter pelo menos 3 caracteres.";
+  const registerEmailError = validateEmail(registerEmail)
+    ? undefined
+    : "Por favor, insira um e-mail valido.";
+  const registerPasswordError =
+    registerPassword.length >= 8 ? undefined : "A senha deve ter pelo menos 8 caracteres.";
+  const registerConfirmPasswordError =
+    registerPassword === registerConfirmPassword
+      ? undefined
+      : "As senhas informadas precisam coincidir.";
+  const acceptTermsError = acceptTerms
+    ? undefined
+    : "Voce precisa aceitar os termos de uso para criar a conta.";
 
   const triggerBubblyAnimation = (
     setAnimate: React.Dispatch<React.SetStateAction<boolean>>,
@@ -188,13 +209,16 @@ export function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginAttempted(true);
 
     if (!validateEmail(loginEmail)) {
+      setAuthAnnouncement("Digite um e-mail valido antes de continuar.");
       toast.error("Digite um e-mail valido.");
       return;
     }
 
     if (loginPassword.length < 6) {
+      setAuthAnnouncement("A senha precisa ter pelo menos 6 caracteres.");
       toast.error("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
@@ -230,39 +254,47 @@ export function LoginPage() {
       });
     } catch (error) {
       setIsLoading(false);
+      setAuthAnnouncement(error instanceof Error ? error.message : "Falha no login.");
       toast.error(error instanceof Error ? error.message : "Falha no login.");
     }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setRegisterAttempted(true);
 
     if (registerName.trim().length < 3) {
+      setAuthAnnouncement("Informe um nome com pelo menos 3 caracteres.");
       toast.error("Nome deve ter pelo menos 3 caracteres");
       return;
     }
 
     if (!validateEmail(registerEmail)) {
+      setAuthAnnouncement("Informe um e-mail valido para criar a conta.");
       toast.error("Por favor, insira um e-mail valido");
       return;
     }
 
     if (registerPassword.length < 8) {
+      setAuthAnnouncement("A senha precisa ter pelo menos 8 caracteres.");
       toast.error("A senha deve ter pelo menos 8 caracteres");
       return;
     }
 
     if (passwordStrength < 2) {
+      setAuthAnnouncement("Escolha uma senha mais forte para concluir o cadastro.");
       toast.error("Escolha uma senha mais forte");
       return;
     }
 
     if (registerPassword !== registerConfirmPassword) {
+      setAuthAnnouncement("As senhas informadas nao coincidem.");
       toast.error("As senhas nao coincidem");
       return;
     }
 
     if (!acceptTerms) {
+      setAuthAnnouncement("Voce precisa aceitar os termos de uso para continuar.");
       toast.error("Voce precisa aceitar os termos de uso");
       return;
     }
@@ -296,6 +328,7 @@ export function LoginPage() {
       });
     } catch (error) {
       setIsLoading(false);
+      setAuthAnnouncement(error instanceof Error ? error.message : "Falha no cadastro.");
       toast.error(error instanceof Error ? error.message : "Falha no cadastro.");
     }
   };
@@ -306,19 +339,23 @@ export function LoginPage() {
 
   const handleForgotPassword = async () => {
     if (!loginEmail) {
+      setAuthAnnouncement("Digite o e-mail antes de solicitar a recuperacao de senha.");
       toast.error("Digite seu e-mail primeiro");
       return;
     }
 
     if (!validateEmail(loginEmail) && loginRole !== "admin") {
+      setAuthAnnouncement("Digite um e-mail valido para recuperar a senha.");
       toast.error("Digite um e-mail valido");
       return;
     }
 
     try {
       const response = await forgotPasswordRequest(loginEmail.trim());
+      setAuthAnnouncement(response.message);
       toast.success(response.message);
     } catch (error) {
+      setAuthAnnouncement(error instanceof Error ? error.message : "Falha ao enviar email.");
       toast.error(error instanceof Error ? error.message : "Falha ao enviar email.");
     }
   };
@@ -338,6 +375,9 @@ export function LoginPage() {
             Entre como cliente ou admin para acessar a area certa da conta.
           </p>
         </div>
+        <p className="sr-only" aria-live="polite">
+          {authAnnouncement}
+        </p>
 
         <div className={styles.card}>
           <Tabs defaultValue="login" className={styles.tabsRoot}>
@@ -364,6 +404,7 @@ export function LoginPage() {
                         loginRole === "customer" ? styles.roleButtonActive : ""
                       }`}
                       onClick={() => setLoginRole("customer")}
+                      aria-pressed={loginRole === "customer"}
                     >
                       Cliente
                     </button>
@@ -373,6 +414,7 @@ export function LoginPage() {
                         loginRole === "admin" ? styles.roleButtonActive : ""
                       }`}
                       onClick={() => setLoginRole("admin")}
+                      aria-pressed={loginRole === "admin"}
                     >
                       Admin
                     </button>
@@ -400,7 +442,15 @@ export function LoginPage() {
                     onChange={(e) => setLoginEmail(e.target.value)}
                     required
                     className={styles.input}
+                    autoComplete="email"
+                    aria-invalid={loginAttempted && !!loginEmailError}
+                    aria-describedby={loginAttempted && loginEmailError ? "login-email-error" : undefined}
                   />
+                  {loginAttempted && loginEmailError && (
+                    <p id="login-email-error" className={styles.passwordHint}>
+                      <X className={styles.iconTiny} aria-hidden="true" /> {loginEmailError}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -416,19 +466,31 @@ export function LoginPage() {
                       onChange={(e) => setLoginPassword(e.target.value)}
                       required
                       className={styles.inputWithIcon}
+                      autoComplete="current-password"
+                      aria-invalid={loginAttempted && !!loginPasswordError}
+                      aria-describedby={
+                        loginAttempted && loginPasswordError ? "login-password-error" : undefined
+                      }
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className={styles.toggleButton}
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      aria-pressed={showPassword}
                     >
                       {showPassword ? (
-                        <EyeOff className={styles.iconMedium} />
+                        <EyeOff className={styles.iconMedium} aria-hidden="true" />
                       ) : (
-                        <Eye className={styles.iconMedium} />
+                        <Eye className={styles.iconMedium} aria-hidden="true" />
                       )}
                     </button>
                   </div>
+                  {loginAttempted && loginPasswordError && (
+                    <p id="login-password-error" className={styles.passwordHint}>
+                      <X className={styles.iconTiny} aria-hidden="true" /> {loginPasswordError}
+                    </p>
+                  )}
                 </div>
 
                 <div className={styles.metaRow}>
@@ -558,10 +620,20 @@ export function LoginPage() {
                     onChange={(e) => setRegisterName(e.target.value)}
                     required
                     className={styles.input}
+                    autoComplete="name"
+                    aria-invalid={registerAttempted && !!registerNameError}
+                    aria-describedby={
+                      registerAttempted && registerNameError ? "register-name-error" : undefined
+                    }
                   />
+                  {registerAttempted && registerNameError && (
+                    <p id="register-name-error" className={styles.passwordHint}>
+                      <X className={styles.iconTiny} aria-hidden="true" /> {registerNameError}
+                    </p>
+                  )}
                   {registerName && registerName.length < 3 && (
                     <p className={styles.passwordHint}>
-                      <X className={styles.iconTiny} /> Minimo 3 caracteres
+                      <X className={styles.iconTiny} aria-hidden="true" /> Minimo 3 caracteres
                     </p>
                   )}
                 </div>
@@ -578,10 +650,20 @@ export function LoginPage() {
                     onChange={(e) => setRegisterEmail(e.target.value)}
                     required
                     className={styles.input}
+                    autoComplete="email"
+                    aria-invalid={registerAttempted && !!registerEmailError}
+                    aria-describedby={
+                      registerAttempted && registerEmailError ? "register-email-error" : undefined
+                    }
                   />
+                  {registerAttempted && registerEmailError && (
+                    <p id="register-email-error" className={styles.passwordHint}>
+                      <X className={styles.iconTiny} aria-hidden="true" /> {registerEmailError}
+                    </p>
+                  )}
                   {registerEmail && !validateEmail(registerEmail) && (
                     <p className={styles.passwordHint}>
-                      <X className={styles.iconTiny} /> E-mail invalido
+                      <X className={styles.iconTiny} aria-hidden="true" /> E-mail invalido
                     </p>
                   )}
                 </div>
@@ -599,19 +681,33 @@ export function LoginPage() {
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       required
                       className={styles.inputWithIcon}
+                      autoComplete="new-password"
+                      aria-invalid={registerAttempted && !!registerPasswordError}
+                      aria-describedby={
+                        registerAttempted && registerPasswordError
+                          ? "register-password-error"
+                          : undefined
+                      }
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className={styles.toggleButton}
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      aria-pressed={showPassword}
                     >
                       {showPassword ? (
-                        <EyeOff className={styles.iconMedium} />
+                        <EyeOff className={styles.iconMedium} aria-hidden="true" />
                       ) : (
-                        <Eye className={styles.iconMedium} />
+                        <Eye className={styles.iconMedium} aria-hidden="true" />
                       )}
                     </button>
                   </div>
+                  {registerAttempted && registerPasswordError && (
+                    <p id="register-password-error" className={styles.passwordHint}>
+                      <X className={styles.iconTiny} aria-hidden="true" /> {registerPasswordError}
+                    </p>
+                  )}
 
                   {registerPassword && (
                     <div className={styles.passwordStrengthWrap}>
@@ -628,9 +724,9 @@ export function LoginPage() {
                         ))}
                       </div>
                       <p
-                        className={`${styles.strengthLabel} ${passwordStrengthData.colorClass}`}
-                      >
-                        Forca da senha: {passwordStrengthData.label}
+                      className={`${styles.strengthLabel} ${passwordStrengthData.colorClass}`}
+                    >
+                      Forca da senha: {passwordStrengthData.label}
                       </p>
                       <div className={styles.strengthRules}>
                         <div
@@ -639,9 +735,9 @@ export function LoginPage() {
                           }`}
                         >
                           {registerPassword.length >= 8 ? (
-                            <Check className={styles.iconTiny} />
+                            <Check className={styles.iconTiny} aria-hidden="true" />
                           ) : (
-                            <X className={styles.iconTinyMuted} />
+                            <X className={styles.iconTinyMuted} aria-hidden="true" />
                           )}
                           Minimo 8 caracteres
                         </div>
@@ -655,9 +751,9 @@ export function LoginPage() {
                         >
                           {/[a-z]/.test(registerPassword) &&
                           /[A-Z]/.test(registerPassword) ? (
-                            <Check className={styles.iconTiny} />
+                            <Check className={styles.iconTiny} aria-hidden="true" />
                           ) : (
-                            <X className={styles.iconTinyMuted} />
+                            <X className={styles.iconTinyMuted} aria-hidden="true" />
                           )}
                           Maiusculas e minusculas
                         </div>
@@ -669,9 +765,9 @@ export function LoginPage() {
                           }`}
                         >
                           {/[0-9]/.test(registerPassword) ? (
-                            <Check className={styles.iconTiny} />
+                            <Check className={styles.iconTiny} aria-hidden="true" />
                           ) : (
-                            <X className={styles.iconTinyMuted} />
+                            <X className={styles.iconTinyMuted} aria-hidden="true" />
                           )}
                           Pelo menos um numero
                         </div>
@@ -696,19 +792,39 @@ export function LoginPage() {
                       onChange={(e) => setRegisterConfirmPassword(e.target.value)}
                       required
                       className={styles.inputWithIcon}
+                      autoComplete="new-password"
+                      aria-invalid={registerAttempted && !!registerConfirmPasswordError}
+                      aria-describedby={
+                        registerAttempted && registerConfirmPasswordError
+                          ? "register-confirm-password-error"
+                          : undefined
+                      }
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className={styles.toggleButton}
+                      aria-label={
+                        showConfirmPassword ? "Ocultar confirmação de senha" : "Mostrar confirmação de senha"
+                      }
+                      aria-pressed={showConfirmPassword}
                     >
                       {showConfirmPassword ? (
-                        <EyeOff className={styles.iconMedium} />
+                        <EyeOff className={styles.iconMedium} aria-hidden="true" />
                       ) : (
-                        <Eye className={styles.iconMedium} />
+                        <Eye className={styles.iconMedium} aria-hidden="true" />
                       )}
                     </button>
                   </div>
+                  {registerAttempted && registerConfirmPasswordError && (
+                    <p
+                      id="register-confirm-password-error"
+                      className={styles.confirmHintBad}
+                    >
+                      <X className={styles.iconTiny} aria-hidden="true" />
+                      {registerConfirmPasswordError}
+                    </p>
+                  )}
                   {registerConfirmPassword && (
                     <p
                       className={
@@ -718,9 +834,9 @@ export function LoginPage() {
                       }
                     >
                       {registerPassword === registerConfirmPassword ? (
-                        <Check className={styles.iconTiny} />
+                        <Check className={styles.iconTiny} aria-hidden="true" />
                       ) : (
-                        <X className={styles.iconTiny} />
+                        <X className={styles.iconTiny} aria-hidden="true" />
                       )}
                       {registerPassword === registerConfirmPassword
                         ? "As senhas coincidem"
@@ -730,21 +846,39 @@ export function LoginPage() {
                 </div>
 
                 <div className={styles.termsRow}>
-                  <label className={styles.termsLabel}>
+                  <div className={styles.termsLabel}>
                     <input
+                      id="accept-terms"
                       type="checkbox"
                       checked={acceptTerms}
                       onChange={(e) => setAcceptTerms(e.target.checked)}
                       className={styles.termsCheckbox}
+                      aria-labelledby="accept-terms-copy"
+                      aria-invalid={registerAttempted && !!acceptTermsError}
+                      aria-describedby={
+                        registerAttempted && acceptTermsError ? "accept-terms-error" : undefined
+                      }
                     />
-                    <span className={styles.termsText}>
+                    <span id="accept-terms-copy" className={styles.termsText}>
                       Eu concordo com os{" "}
-                      <button type="button" className={styles.termsButton}>
+                      <Link to={routes.institutional("termos")} className={styles.termsButton}>
                         termos de uso
-                      </button>{" "}
-                      e a politica de privacidade.
+                      </Link>{" "}
+                      e a{" "}
+                      <Link
+                        to={routes.institutional("privacidade")}
+                        className={styles.termsButton}
+                      >
+                        politica de privacidade
+                      </Link>
+                      .
                     </span>
-                  </label>
+                  </div>
+                  {registerAttempted && acceptTermsError && (
+                    <p id="accept-terms-error" className={styles.passwordHint}>
+                      <X className={styles.iconTiny} aria-hidden="true" /> {acceptTermsError}
+                    </p>
+                  )}
                 </div>
 
                 <Button

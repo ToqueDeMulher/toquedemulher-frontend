@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { Button } from "@/shared/ui/button";
 import {
@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { ChevronRight, SlidersHorizontal } from "lucide-react";
+import { toast } from "sonner";
 import { routes } from "@/shared/lib/routes";
 import { useCart } from "@/shared/contexts/cart-context";
 import styles from "./CategoryPage.module.css";
@@ -123,8 +124,8 @@ type CategoryKey = keyof typeof categoryData;
 
 export function CategoryPage() {
   const { category } = useParams();
-  const navigate = useNavigate();
   const { addItem } = useCart();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
 
   const categoryKey =
     (category as CategoryKey | undefined) ?? ("feminino" as CategoryKey);
@@ -136,6 +137,18 @@ export function CategoryPage() {
   ];
   const [filteredCategory, setFilteredCategory] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
+
+  const handleNewsletterSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newsletterEmail.trim())) {
+      toast.error("Digite um e-mail válido para assinar a newsletter.");
+      return;
+    }
+
+    toast.success("Cadastro recebido! Você passará a receber novidades por e-mail.");
+    setNewsletterEmail("");
+  };
 
   const filteredProducts = data.products.filter((product) =>
     filteredCategory === "all"
@@ -162,12 +175,9 @@ export function CategoryPage() {
     <div className={styles.page}>
       <div className={`${styles.container} ${styles.breadcrumb}`}>
         <div className={styles.breadcrumbRow}>
-          <button
-            onClick={() => navigate(routes.home)}
-            className={styles.breadcrumbLink}
-          >
+          <Link to={routes.home} className={styles.breadcrumbLink}>
             Home
-          </button>
+          </Link>
           <ChevronRight className={styles.breadcrumbIcon} />
           <span className={styles.breadcrumbActive}>{data.title}</span>
         </div>
@@ -210,7 +220,10 @@ export function CategoryPage() {
             <div className={styles.sortRow}>
               <span className={styles.sortLabel}>Ordenar por:</span>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className={styles.sortTrigger}>
+                <SelectTrigger
+                  className={styles.sortTrigger}
+                  aria-label="Ordenar produtos da categoria"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -224,7 +237,7 @@ export function CategoryPage() {
             </div>
           </div>
 
-          <div className={styles.resultsRow}>
+          <div className={styles.resultsRow} aria-live="polite">
             Mostrando <span className={styles.resultsCount}>{sortedProducts.length}</span>{" "}
             produtos
           </div>
@@ -288,20 +301,28 @@ export function CategoryPage() {
             <p className={styles.newsletterText}>
               Assine nossa newsletter e receba ofertas exclusivas no seu e-mail.
             </p>
-            <div className={styles.newsletterForm}>
+            <form className={styles.newsletterForm} onSubmit={handleNewsletterSubmit}>
+              <label htmlFor="newsletter-email" className="sr-only">
+                Digite seu e-mail para receber novidades
+              </label>
               <input
+                id="newsletter-email"
                 type="email"
                 placeholder="Seu melhor e-mail"
                 className={styles.newsletterInput}
+                value={newsletterEmail}
+                onChange={(event) => setNewsletterEmail(event.target.value)}
+                autoComplete="email"
               />
               <Button
+                type="submit"
                 size="lg"
                 variant="outline"
                 className={styles.newsletterButton}
               >
                 Quero receber
               </Button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

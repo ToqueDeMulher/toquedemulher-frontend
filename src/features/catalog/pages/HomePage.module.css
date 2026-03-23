@@ -48,7 +48,7 @@
 
 .promoStrip {
   @apply w-full;
-  background-color: #ec4899;
+  background-color: #be185d;
 }
 
 .promoStripInner {
@@ -75,6 +75,12 @@
   border: none;
   padding: 0;
   cursor: pointer;
+}
+
+.promoLink:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 4px;
+  border-radius: 0.375rem;
 }
 
 .trendingSection {
@@ -120,6 +126,7 @@
 .favoriteCard {
   @apply relative bg-white shadow-sm overflow-hidden transition-all hover:shadow-lg cursor-pointer;
   border-radius: 0;
+  text-decoration: none;
 }
 
 .favoriteGradient {
@@ -133,6 +140,12 @@
 }
 
 .favoriteCard:hover {
+  border-radius: 1.5rem;
+}
+
+.favoriteCard:focus-visible {
+  outline: 3px solid rgb(190 24 93 / 0.45);
+  outline-offset: 4px;
   border-radius: 1.5rem;
 }
 
@@ -279,6 +292,12 @@
 
 .scrollChatButton:hover {
   @apply bg-pink-50 shadow-xl -translate-y-0.5;
+}
+
+.scrollTopButton:focus-visible,
+.scrollChatButton:focus-visible {
+  outline: 3px solid rgb(190 24 93 / 0.35);
+  outline-offset: 3px;
 }
 
 .scrollTopIcon {

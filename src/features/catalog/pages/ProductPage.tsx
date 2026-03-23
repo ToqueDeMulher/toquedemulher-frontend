@@ -106,6 +106,7 @@ export function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const productName = "Batom Matte Nude Luxo";
 
   const handleAddToCart = () => {
     addItem(quantity);
@@ -123,7 +124,7 @@ export function ProductPage() {
               <div className={styles.imagePanel}>
                 <ImageWithFallback
                   src={productImages[selectedImage]}
-                  alt="Product"
+                  alt={`Imagem principal do produto ${productName}`}
                   className={styles.mainImage}
                 />
               </div>
@@ -131,16 +132,19 @@ export function ProductPage() {
                 {productImages.map((image, index) => (
                   <button
                     key={index}
+                    type="button"
                     onClick={() => setSelectedImage(index)}
                     className={`${styles.thumbButton} ${
                       selectedImage === index
                         ? styles.thumbActive
                         : styles.thumbInactive
                     }`}
+                    aria-label={`Selecionar imagem ${index + 1} de ${productImages.length}`}
+                    aria-pressed={selectedImage === index}
                   >
                     <ImageWithFallback
                       src={image}
-                      alt={`Thumbnail ${index + 1}`}
+                      alt={`Miniatura ${index + 1} do produto ${productName}`}
                       className={styles.thumbImage}
                     />
                   </button>
@@ -150,13 +154,13 @@ export function ProductPage() {
 
             {/* Product Info */}
             <div>
-              <h1 className={styles.title}>Batom Matte Nude Luxo</h1>
+              <h1 className={styles.title}>{productName}</h1>
 
               {/* Rating */}
               <div className={styles.ratingRow}>
                 <div className={styles.ratingStars}>
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={styles.ratingStar} />
+                    <Star key={i} className={styles.ratingStar} aria-hidden="true" />
                   ))}
                 </div>
                 <span className={styles.ratingText}>5.0</span>
@@ -182,22 +186,32 @@ export function ProductPage() {
 
               {/* Quantity */}
               <div className={styles.quantityBlock}>
-                <label className={styles.quantityLabel}>Quantidade</label>
-                <div className={styles.quantityControls}>
+                <p id="product-quantity-label" className={styles.quantityLabel}>
+                  Quantidade
+                </p>
+                <div
+                  className={styles.quantityControls}
+                  role="group"
+                  aria-labelledby="product-quantity-label"
+                >
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    aria-label="Diminuir quantidade"
                   >
-                    <Minus className={styles.quantityIcon} />
+                    <Minus className={styles.quantityIcon} aria-hidden="true" />
                   </Button>
-                  <span className={styles.quantityValue}>{quantity}</span>
+                  <span className={styles.quantityValue} aria-live="polite">
+                    {quantity}
+                  </span>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(quantity + 1)}
+                    aria-label="Aumentar quantidade"
                   >
-                    <Plus className={styles.quantityIcon} />
+                    <Plus className={styles.quantityIcon} aria-hidden="true" />
                   </Button>
                 </div>
               </div>
@@ -226,11 +240,18 @@ export function ProductPage() {
                         : "Adicionado à wishlist",
                     );
                   }}
+                  aria-pressed={isWishlisted}
+                  aria-label={
+                    isWishlisted
+                      ? `Remover ${productName} da wishlist`
+                      : `Adicionar ${productName} à wishlist`
+                  }
                 >
                   <Heart
                     className={`${styles.wishlistIcon} ${
                       isWishlisted ? styles.wishlistIconActive : ""
                     }`}
+                    aria-hidden="true"
                   />
                 </Button>
               </div>
@@ -282,12 +303,14 @@ export function ProductPage() {
                 <div className={styles.summaryRating}>5.0</div>
                 <div className={styles.summaryStars}>
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={styles.summaryStar} />
+                    <Star key={i} className={styles.summaryStar} aria-hidden="true" />
                   ))}
                 </div>
                 <p className={styles.summaryCount}>124 avaliações</p>
-                <Button size="lg" variant="outline" className={styles.summaryButton}>
-                  Escrever avaliação
+                <Button size="lg" variant="outline" className={styles.summaryButton} asChild>
+                  <a href="mailto:contato@toquedemulher.com?subject=Quero%20avaliar%20um%20produto">
+                    Escrever avaliação
+                  </a>
                 </Button>
               </div>
             </div>
@@ -302,12 +325,13 @@ export function ProductPage() {
                     <p className={styles.reviewAuthor}>{review.author}</p>
                     <div className={styles.reviewStars}>
                       {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`${styles.reviewStar} ${
-                            i < review.rating ? styles.reviewStarActive : ""
-                          }`}
-                        />
+                      <Star
+                        key={i}
+                        className={`${styles.reviewStar} ${
+                          i < review.rating ? styles.reviewStarActive : ""
+                        }`}
+                        aria-hidden="true"
+                      />
                       ))}
                     </div>
                   </div>
@@ -320,7 +344,7 @@ export function ProductPage() {
                       <ImageWithFallback
                         key={idx}
                         src={img}
-                        alt="Review"
+                        alt={`Imagem ${idx + 1} enviada por ${review.author} na avaliação`}
                         className={styles.reviewImage}
                       />
                     ))}
@@ -346,8 +370,8 @@ export function ProductPage() {
             ))}
           </div>
           <div className={styles.relatedButtonWrap}>
-            <Button size="lg" variant="outline" className={styles.relatedButton}>
-              VER TUDO &gt;
+            <Button size="lg" variant="outline" className={styles.relatedButton} asChild>
+              <Link to={routes.category("feminino")}>VER TUDO &gt;</Link>
             </Button>
           </div>
         </div>

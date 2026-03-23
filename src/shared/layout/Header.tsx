@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, ShoppingCart, User, Heart, LayoutDashboard } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Input } from "@/shared/ui/input";
@@ -12,14 +13,16 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/shared/ui/navigation-menu";
+import { trendingProducts } from "@/shared/data/catalog-products";
 import { routes } from "@/shared/lib/routes";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
-import logoImage from "@/shared/assets/logo_tm.png";
 import styles from "./Header.module.css";
 
 export function Header() {
   const [activeCategory, setActiveCategory] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
   const { isLoggedIn, isAdmin } = useAuth();
   const { itemCount } = useCart();
   const accountRoute = isLoggedIn && isAdmin ? routes.adminDashboard : routes.profile;
@@ -28,9 +31,32 @@ export function Header() {
     setActiveCategory(category);
   };
 
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) {
+      toast.error("Digite o nome de um produto para buscar.");
+      return;
+    }
+
+    const product = trendingProducts.find((item) =>
+      item.name.toLowerCase().includes(query),
+    );
+
+    if (!product) {
+      toast.error("Nenhum produto local corresponde a essa busca.");
+      return;
+    }
+
+    navigate(routes.product(product.id));
+    setSearchQuery("");
+  };
+
   return (
     <>
-      <div className={styles.promoBar}>
+      <div className={styles.promoBar} role="region" aria-label="Avisos promocionais">
         <div className={styles.promoRow}>
           {[1, 2, 3, 4].map((i) => (
             <span key={i} className={styles.promoText}>
@@ -52,12 +78,16 @@ export function Header() {
           <div className={styles.mainContainer}>
             <div className={styles.mainRow}>
               <div className={styles.logoWrapper}>
-                <Link to={routes.home} className={styles.logoButton}>
+                <Link
+                  to={routes.home}
+                  className={styles.logoButton}
+                  aria-label="Ir para a página inicial da Toque de Mulher"
+                >
                   <span className={styles.logoText}>toque de mulher</span>
                 </Link>
               </div>
 
-              <div className={styles.navWrapper}>
+              <nav className={styles.navWrapper} aria-label="Navegação principal">
                 <NavigationMenu className={styles.navMenu} viewport={false}>
                   <NavigationMenuList className={styles.navList}>
                 <NavigationMenuItem>
@@ -262,16 +292,31 @@ export function Header() {
                 </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavigationMenu>
-              </div>
+              </nav>
 
-              <div className={styles.searchWrapper}>
-                <Search className={styles.searchIcon} />
+              <form
+                className={styles.searchWrapper}
+                role="search"
+                aria-label="Buscar produtos"
+                onSubmit={handleSearchSubmit}
+              >
+                <label htmlFor="header-search" className="sr-only">
+                  Buscar produtos por nome
+                </label>
+                <Search className={styles.searchIcon} aria-hidden="true" />
                 <Input
+                  id="header-search"
+                  type="search"
                   className={styles.searchInput}
                   placeholder="Buscar produtos..."
-                  aria-label="Buscar produtos"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  autoComplete="off"
                 />
-              </div>
+                <button type="submit" className="sr-only">
+                  Buscar
+                </button>
+              </form>
 
               <div className={styles.actionRow}>
                 <Button
@@ -280,10 +325,24 @@ export function Header() {
                   size="icon"
                   className={styles.cartButton}
                 >
-                  <Link to={routes.cart} aria-label="Carrinho">
-                    <ShoppingCart className={styles.iconLarge} />
+                  <Link
+                    to={routes.cart}
+                    aria-label={
+                      itemCount > 0
+                        ? `Carrinho com ${itemCount} ${itemCount === 1 ? "item" : "itens"}`
+                        : "Carrinho"
+                    }
+                  >
+                    <ShoppingCart className={styles.iconLarge} aria-hidden="true" />
                     {itemCount > 0 && (
-                      <Badge className={styles.cartBadge}>{itemCount}</Badge>
+                      <span className="sr-only">
+                        {itemCount} {itemCount === 1 ? "item no carrinho" : "itens no carrinho"}
+                      </span>
+                    )}
+                    {itemCount > 0 && (
+                      <Badge className={styles.cartBadge} aria-hidden="true">
+                        {itemCount}
+                      </Badge>
                     )}
                   </Link>
                 </Button>
@@ -298,7 +357,7 @@ export function Header() {
                     to={accountRoute}
                     aria-label="Perfil"
                   >
-                    <User className={styles.iconLarge} />
+                    <User className={styles.iconLarge} aria-hidden="true" />
                   </Link>
                 </Button>
 
@@ -314,9 +373,9 @@ export function Header() {
                       aria-label={isAdmin ? "Painel administrativo" : "Favoritos"}
                     >
                       {isAdmin ? (
-                        <LayoutDashboard className={styles.iconLarge} />
+                        <LayoutDashboard className={styles.iconLarge} aria-hidden="true" />
                       ) : (
-                        <Heart className={styles.iconLarge} />
+                        <Heart className={styles.iconLarge} aria-hidden="true" />
                       )}
                     </Link>
                   </Button>
