@@ -229,6 +229,8 @@
 
 .searchWrapper {
   @apply relative w-full max-w-[520px] mx-auto;
+  display: flex;
+  align-items: center;
 }
 
 .searchIcon {
