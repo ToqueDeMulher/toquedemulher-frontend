@@ -17,6 +17,7 @@ import { AboutPage } from "@/features/institutional/pages/AboutPage";
 import { InstitutionalPage } from "@/features/institutional/pages/InstitutionalPage";
 import { ProductCreatePage } from "@/features/admin/pages/ProductCreatePage";
 import { NotFoundPage } from "@/features/system/pages/NotFoundPage";
+import { SearchResultsPage } from "@/features/catalog/pages/SearchResultsPage";
 
 export function AppRoutes() {
   return (
@@ -43,6 +44,7 @@ export function AppRoutes() {
         <Route path={routes.help} element={<HelpPage />} />
         <Route path={routes.about} element={<AboutPage />} />
         <Route path={routes.institutional()} element={<InstitutionalPage />} />
+        <Route path={routes.search()} element={<SearchResultsPage />} />
       </Route>
       <Route
         element={
