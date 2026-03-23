@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, ShoppingCart, User, Heart, LayoutDashboard } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
@@ -20,12 +20,21 @@ import styles from "./Header.module.css";
 
 export function Header() {
   const [activeCategory, setActiveCategory] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
   const { isLoggedIn, isAdmin } = useAuth();
   const { itemCount } = useCart();
   const accountRoute = isLoggedIn && isAdmin ? routes.adminDashboard : routes.profile;
 
   const handleCategoryClick = (category: string) => {
     setActiveCategory(category);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(routes.search(searchTerm));
+    }
   };
 
   return (
@@ -264,14 +273,16 @@ export function Header() {
                 </NavigationMenu>
               </div>
 
-              <div className={styles.searchWrapper}>
+              <form onSubmit={handleSearchSubmit} className={styles.searchWrapper}>
                 <Search className={styles.searchIcon} />
                 <Input
                   className={styles.searchInput}
                   placeholder="Buscar produtos..."
                   aria-label="Buscar produtos"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
-              </div>
+              </form>
 
               <div className={styles.actionRow}>
                 <Button
