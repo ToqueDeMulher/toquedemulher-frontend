@@ -118,26 +118,39 @@
 }
 
 .favoriteCard {
-  @apply relative bg-white shadow-sm overflow-hidden transition-all hover:shadow-lg cursor-pointer;
+  @apply relative bg-white shadow-sm overflow-hidden cursor-pointer;
   border-radius: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .favoriteGradient {
-  @apply absolute inset-x-0 bottom-0 h-28;
+  @apply absolute inset-x-0 bottom-0 h-32;
   background: linear-gradient(
     180deg,
     rgba(var(--favorite-dominant, 236, 72, 153), 0) 0%,
     rgba(var(--favorite-dominant, 236, 72, 153), 0.78) 52%,
     rgba(var(--favorite-dominant, 236, 72, 153), 0.98) 100%
   );
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .favoriteCard:hover {
   border-radius: 1.5rem;
+  transform: translateY(-6px);
+  @apply shadow-xl shadow-pink-200/50;
+}
+
+.favoriteCard:hover .favoriteGradient {
+  transform: translateY(4px);
 }
 
 .favoriteImage {
   @apply w-full h-64 sm:h-72 lg:h-[22rem] object-cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.favoriteCard:hover .favoriteImage {
+  transform: scale(1.06);
 }
 
 .favoriteCardCompact {
@@ -146,17 +159,28 @@
 
 .favoriteImageCompact {
   @apply w-full h-44 sm:h-52 lg:h-56 object-cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.favoriteCard:hover .favoriteImageCompact {
+  transform: scale(1.06);
 }
 
 .favoriteCaption {
-  @apply absolute bottom-4 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-semibold px-3 py-1.5;
+  @apply absolute bottom-3 inset-x-0 text-sm sm:text-base font-semibold px-4 py-2 text-center;
   color: var(--favorite-text, rgba(255, 255, 255, 0.95));
   font-family: var(--font-display);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.02em;
 }
 
 .favoriteCard:hover .favoriteCaption {
   @apply text-white;
+  transform: translateY(-4px);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .trendingTitle {
