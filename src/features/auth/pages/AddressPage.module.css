@@ -1,0 +1,166 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-screen py-12 sm:py-16;
+  background-color: #f1f2f6;
+}
+
+.container {
+  @apply mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8;
+}
+
+/* Header com botão voltar */
+.headerRow {
+  @apply mb-6;
+}
+
+.backButton {
+  @apply inline-flex items-center gap-2 text-gray-600 hover:text-pink-600 transition-colors text-sm font-medium cursor-pointer bg-transparent border-none;
+}
+
+.backIcon {
+  @apply size-4;
+}
+
+/* Card principal */
+.card {
+  @apply bg-white rounded-2xl shadow-sm border border-pink-100 p-8;
+}
+
+.cardHeader {
+  @apply flex items-center gap-4 mb-8;
+}
+
+.iconWrap {
+  @apply w-12 h-12 bg-gradient-to-br from-pink-300 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0;
+}
+
+.headerIcon {
+  @apply size-6 text-white;
+}
+
+.cardTitle {
+  @apply text-2xl font-semibold text-gray-900;
+}
+
+.cardSubtitle {
+  @apply text-gray-500 text-sm mt-0.5;
+}
+
+/* Alertas */
+.alertSuccess {
+  @apply flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-2xl mb-6 text-green-800 text-sm font-medium;
+}
+
+.alertError {
+  @apply flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl mb-6 text-red-700 text-sm font-medium;
+}
+
+.alertIcon {
+  @apply size-5 flex-shrink-0;
+}
+
+/* Formulário */
+.form {
+  @apply flex flex-col gap-5;
+}
+
+.fieldGroup {
+  @apply flex flex-col gap-1.5;
+}
+
+.label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.required {
+  @apply text-pink-500 ml-0.5;
+}
+
+.optional {
+  @apply text-gray-400 font-normal text-xs ml-1;
+}
+
+.input {
+  @apply w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-900 text-sm outline-none transition-all;
+  @apply focus:border-pink-400 focus:ring-2 focus:ring-pink-100;
+  @apply placeholder:text-gray-400;
+}
+
+.inputError {
+  @apply border-red-400 focus:border-red-400 focus:ring-red-100;
+}
+
+.inputWrap {
+  @apply relative;
+}
+
+.inputSpinner {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 size-4 text-pink-400 animate-spin;
+}
+
+.fieldError {
+  @apply text-xs text-red-500 mt-0.5;
+}
+
+/* Row de campos lado a lado */
+.row {
+  @apply flex gap-4 flex-wrap sm:flex-nowrap;
+}
+
+.flex1 {
+  flex: 1;
+  min-width: 80px;
+}
+
+.flex2 {
+  flex: 2;
+  min-width: 120px;
+}
+
+.flex3 {
+  flex: 3;
+  min-width: 160px;
+}
+
+/* Seção de checkboxes */
+.checkboxSection {
+  @apply p-5 bg-pink-50 rounded-2xl border border-pink-100 mt-2;
+}
+
+.checkboxSectionTitle {
+  @apply text-sm font-semibold text-gray-700 mb-3;
+}
+
+.checkboxRow {
+  @apply flex flex-col sm:flex-row gap-3;
+}
+
+.checkboxLabel {
+  @apply flex items-center gap-3 cursor-pointer;
+}
+
+.checkbox {
+  @apply w-4 h-4 accent-pink-500 cursor-pointer;
+}
+
+.checkboxText {
+  @apply text-sm text-gray-700;
+}
+
+/* Footer do formulário */
+.formFooter {
+  @apply pt-2;
+}
+
+.submitButton {
+  @apply w-full sm:w-auto bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white border-none flex items-center justify-center gap-2 transition-all;
+}
+
+.submitIcon {
+  @apply size-4;
+}
+
+.spinnerIcon {
+  @apply size-4 animate-spin;
+}

@@ -309,6 +309,14 @@ export function ProfilePage() {
                       SQN 303 Bloco D - Brasilia, DF - 01234-567
                     </p>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={styles.orderButton}
+                    onClick={() => navigate(routes.addressCreate)}
+                  >
+                    Cadastrar novo endereço
+                  </Button>
                 </div>
 
                 <div>
