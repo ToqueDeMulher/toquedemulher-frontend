@@ -613,6 +613,87 @@
   background-color: var(--theme-surface-primary);
 }
 
+.clubCard {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+}
+
+.clubIntro {
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in oklab, var(--theme-brand-strong) 22%, transparent),
+      transparent 38%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--theme-surface-primary) 96%, transparent),
+      color-mix(in oklab, var(--theme-card-muted) 88%, transparent)
+    );
+}
+
+.clubEyebrow {
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
+}
+
+.clubTitle,
+.clubProgressTitle,
+.clubMissionTitle,
+.clubStatValue {
+  color: var(--theme-text-primary);
+}
+
+.clubText,
+.clubProgressText,
+.clubMissionText {
+  color: var(--theme-text-secondary);
+}
+
+.clubStatLabel {
+  color: var(--theme-text-muted);
+}
+
+.clubSecondaryButton {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.clubSecondaryButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+  color: var(--theme-brand-strong);
+}
+
+.clubPanel,
+.clubProgressCard {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
+}
+
+.clubStatCard,
+.clubMissionCard {
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
+}
+
+.clubBadge {
+  background-color: var(--theme-text-primary);
+  color: var(--theme-header-solid);
+}
+
+.clubMissionBadge {
+  background-color: var(--theme-surface-primary);
+  color: var(--theme-brand-strong);
+  border-color: var(--theme-border-soft);
+}
+
+.favoriteCard:hover {
+  box-shadow: 0 24px 52px rgba(15, 23, 42, 0.18);
+}
+
 .scrollTopButton:focus-visible,
 .scrollChatButton:focus-visible,
 .favoriteCard:focus-visible {

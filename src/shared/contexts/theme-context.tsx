@@ -17,16 +17,6 @@ type ThemeContextValue = {
 const STORAGE_KEY = "tdm-theme";
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-function getSystemTheme(): ThemeMode {
-  if (typeof window === "undefined") {
-    return "light";
-  }
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-}
-
 function applyTheme(theme: ThemeMode) {
   if (typeof document === "undefined") {
     return;
@@ -57,74 +47,32 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    return "light";
+    return getStoredTheme() ?? "light";
   });
-  const [preference, setPreference] = useState<ThemeMode | null>(() => getStoredTheme());
 
   useEffect(() => {
-    const storedTheme = getStoredTheme();
-    const initialTheme = storedTheme ?? getSystemTheme();
-    setPreference(storedTheme);
+    const initialTheme = getStoredTheme() ?? "light";
     setThemeState(initialTheme);
     applyTheme(initialTheme);
   }, []);
 
   useEffect(() => {
     applyTheme(theme);
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    if (preference) {
-      window.localStorage.setItem(STORAGE_KEY, preference);
-      return;
-    }
-
-    window.localStorage.removeItem(STORAGE_KEY);
-  }, [preference]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return undefined;
-    }
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const handleChange = () => {
-      if (!preference) {
-        setThemeState(getSystemTheme());
-      }
-    };
-
-    if ("addEventListener" in mediaQuery) {
-      mediaQuery.addEventListener("change", handleChange);
-    } else {
-      mediaQuery.addListener(handleChange);
-    }
-
-    return () => {
-      if ("removeEventListener" in mediaQuery) {
-        mediaQuery.removeEventListener("change", handleChange);
-      } else {
-        mediaQuery.removeListener(handleChange);
-      }
-    };
-  }, [preference]);
 
   const value = useMemo(
     () => ({
       theme,
       setTheme: (nextTheme: ThemeMode) => {
-        setPreference(nextTheme);
         setThemeState(nextTheme);
       },
       toggleTheme: () => {
-        const nextTheme = theme === "light" ? "dark" : "light";
-        setPreference(nextTheme);
-        setThemeState(nextTheme);
+        setThemeState((currentTheme) => (currentTheme === "light" ? "dark" : "light"));
       },
     }),
     [theme],

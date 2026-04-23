@@ -16,6 +16,7 @@ import { trendingProducts } from "@/shared/data/catalog-products";
 import { routes } from "@/shared/lib/routes";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
+import { ThemeSwitcher } from "@/shared/layout/ThemeSwitcher";
 import styles from "./Header.module.css";
 
 const ALL_CATEGORIES = [
@@ -467,6 +468,8 @@ export function Header() {
               </div>
 
               <div className={styles.actionRow}>
+                <ThemeSwitcher />
+
                 <Button asChild variant="ghost" size="icon" className={styles.cartButton}>
                   <Link to={routes.cart} aria-label="Carrinho">
                     <ShoppingCart className={styles.iconLarge} />

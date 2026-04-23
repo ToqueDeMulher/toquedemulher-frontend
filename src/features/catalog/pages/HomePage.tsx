@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChevronUp, Crown, MessageCircle, Sparkles, Target } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
@@ -445,14 +445,7 @@ export function HomePage() {
               <Link
                 key={`favorite-${product.id}`}
                 className={styles.favoriteCard}
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate(routes.category(defaultCategorySlug))}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    navigate(routes.category(defaultCategorySlug));
-                  }
-                }}
+                to={routes.category(defaultCategorySlug)}
               >
                 <ImageWithFallback
                   src={product.image}
@@ -471,14 +464,7 @@ export function HomePage() {
                 <Link
                   key={`favorite-compact-${product.id}`}
                   className={`${styles.favoriteCard} ${styles.favoriteCardCompact}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => navigate(routes.category(defaultCategorySlug))}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      navigate(routes.category(defaultCategorySlug));
-                    }
-                  }}
+                  to={routes.category(defaultCategorySlug)}
                 >
                   <ImageWithFallback
                     src={product.image}
