@@ -1,0 +1,44 @@
+@reference "tailwindcss";
+
+.switcher {
+  @apply h-10 rounded-full px-3;
+  min-width: 7.5rem;
+  background-color: var(--theme-surface-secondary);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-text-primary);
+}
+
+.switcher:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+}
+
+.iconTrack {
+  @apply inline-flex items-center gap-1 rounded-full p-1;
+  background-color: var(--theme-switch-track);
+}
+
+.icon {
+  @apply size-4 transition-all;
+  color: var(--theme-text-muted);
+}
+
+.iconActive {
+  color: var(--theme-brand-strong);
+}
+
+.label {
+  @apply text-xs font-semibold;
+  color: var(--theme-text-primary);
+}
+
+@media (max-width: 1180px) {
+  .switcher {
+    min-width: 0;
+    padding-inline: 0.75rem;
+  }
+
+  .label {
+    @apply sr-only;
+  }
+}

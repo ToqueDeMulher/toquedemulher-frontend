@@ -23,7 +23,6 @@ import styles from "./CategoryPage.module.css";
 
 export function CategoryPage() {
   const { category } = useParams();
-  const navigate = useNavigate();
   const { addItem } = useCart();
   const { trackCategoryView } = useGamification();
   const [filteredCategory, setFilteredCategory] = useState("all");
@@ -84,7 +83,7 @@ export function CategoryPage() {
             className={styles.breadcrumbLink}
           >
             Home
-          </button>
+          </Link>
           <ChevronRight className={styles.breadcrumbIcon} />
           <span className={styles.breadcrumbActive}>{categoryConfig.title}</span>
         </div>
@@ -127,7 +126,10 @@ export function CategoryPage() {
             <div className={styles.sortRow}>
               <span className={styles.sortLabel}>Ordenar por:</span>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className={styles.sortTrigger}>
+                <SelectTrigger
+                  className={styles.sortTrigger}
+                  aria-label="Ordenar produtos da categoria"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -141,7 +143,7 @@ export function CategoryPage() {
             </div>
           </div>
 
-          <div className={styles.resultsRow}>
+          <div className={styles.resultsRow} aria-live="polite">
             Mostrando <span className={styles.resultsCount}>{sortedProducts.length}</span>{" "}
             produtos
           </div>
@@ -201,20 +203,28 @@ export function CategoryPage() {
             <p className={styles.newsletterText}>
               Assine nossa newsletter e receba ofertas exclusivas no seu e-mail.
             </p>
-            <div className={styles.newsletterForm}>
+            <form className={styles.newsletterForm} onSubmit={handleNewsletterSubmit}>
+              <label htmlFor="newsletter-email" className="sr-only">
+                Digite seu e-mail para receber novidades
+              </label>
               <input
+                id="newsletter-email"
                 type="email"
                 placeholder="Seu melhor e-mail"
                 className={styles.newsletterInput}
+                value={newsletterEmail}
+                onChange={(event) => setNewsletterEmail(event.target.value)}
+                autoComplete="email"
               />
               <Button
+                type="submit"
                 size="lg"
                 variant="outline"
                 className={styles.newsletterButton}
               >
                 Quero receber
               </Button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

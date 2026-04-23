@@ -103,23 +103,76 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function hasMissingAddressField(addressForm: AddressFormState) {
-  return REQUIRED_ADDRESS_FIELDS.some((field) => {
-    if (field === "email") return !isValidEmail(addressForm.email.trim());
-    if (field === "zipCode") return addressForm.zipCode.length !== 8;
-    if (field === "phone") return addressForm.phone.length < 10;
-    return addressForm[field].trim().length === 0;
-  });
+function getAddressErrors(addressForm: AddressFormState) {
+  const errors: Partial<Record<keyof AddressFormState, string>> = {};
+
+  if (addressForm.fullName.trim().length < 3) {
+    errors.fullName = "Informe o nome completo da destinatária.";
+  }
+
+  if (!isValidEmail(addressForm.email.trim())) {
+    errors.email = "Digite um e-mail válido para contato.";
+  }
+
+  if (addressForm.zipCode.length !== 8) {
+    errors.zipCode = "Digite um CEP com 8 dígitos.";
+  }
+
+  if (addressForm.phone.length < 10) {
+    errors.phone = "Digite um telefone com DDD.";
+  }
+
+  if (addressForm.street.trim().length === 0) {
+    errors.street = "Informe a rua ou avenida de entrega.";
+  }
+
+  if (addressForm.number.trim().length === 0) {
+    errors.number = "Informe o número do endereço.";
+  }
+
+  if (addressForm.neighborhood.trim().length === 0) {
+    errors.neighborhood = "Informe o bairro.";
+  }
+
+  if (addressForm.city.trim().length === 0) {
+    errors.city = "Informe a cidade.";
+  }
+
+  if (addressForm.state.trim().length === 0) {
+    errors.state = "Informe o estado.";
+  }
+
+  return errors;
 }
 
-function isCardPaymentValid(paymentForm: PaymentFormState) {
-  return !(
-    paymentForm.cardName.trim().length === 0 ||
-    paymentForm.cardNumber.replace(/\D/g, "").length !== 16 ||
-    paymentForm.expiry.replace(/\D/g, "").length !== 4 ||
-    paymentForm.cvv.replace(/\D/g, "").length < 3 ||
-    paymentForm.cpf.replace(/\D/g, "").length !== 11
-  );
+function getPaymentErrors(paymentForm: PaymentFormState) {
+  const errors: Partial<Record<keyof PaymentFormState, string>> = {};
+
+  if (paymentForm.method !== "card") {
+    return errors;
+  }
+
+  if (paymentForm.cardName.trim().length === 0) {
+    errors.cardName = "Informe o nome impresso no cartão.";
+  }
+
+  if (paymentForm.cardNumber.replace(/\D/g, "").length !== 16) {
+    errors.cardNumber = "Digite os 16 números do cartão.";
+  }
+
+  if (paymentForm.expiry.replace(/\D/g, "").length !== 4) {
+    errors.expiry = "Digite a validade no formato MM/AA.";
+  }
+
+  if (paymentForm.cvv.replace(/\D/g, "").length < 3) {
+    errors.cvv = "Digite o código de segurança do cartão.";
+  }
+
+  if (paymentForm.cpf.replace(/\D/g, "").length !== 11) {
+    errors.cpf = "Digite o CPF do titular com 11 dígitos.";
+  }
+
+  return errors;
 }
 
 function createOrderNumber() {
@@ -179,10 +232,16 @@ export function CheckoutPage() {
     cpf: "",
     installments: "1x sem juros",
   });
+  const [addressAttempted, setAddressAttempted] = useState(false);
+  const [paymentAttempted, setPaymentAttempted] = useState(false);
   const [orderNumber] = useState(createOrderNumber);
-  const isAddressComplete = !hasMissingAddressField(addressForm);
+  const addressErrors = getAddressErrors(addressForm);
+  const paymentErrors = getPaymentErrors(paymentForm);
+  const isAddressComplete = Object.keys(addressErrors).length === 0;
   const isPaymentComplete =
-    paymentForm.method === "card" ? isCardPaymentValid(paymentForm) : true;
+    paymentForm.method === "card"
+      ? Object.keys(paymentErrors).length === 0
+      : true;
 
   if (step !== undefined && step !== currentStep) {
     return <Navigate to={routes.checkoutStep(currentStep)} replace />;
@@ -236,6 +295,7 @@ export function CheckoutPage() {
 
   const handleAddressSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setAddressAttempted(true);
 
     if (hasMissingAddressField(addressForm)) {
       toast.error("Preencha os campos obrigatórios com dados válidos.");
@@ -248,6 +308,7 @@ export function CheckoutPage() {
 
   const handlePaymentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setPaymentAttempted(true);
 
     if (paymentForm.method === "card" && !isCardPaymentValid(paymentForm)) {
       toast.error("Preencha os dados do cartão corretamente.");
@@ -277,7 +338,7 @@ export function CheckoutPage() {
   };
 
   const renderAddressStep = () => (
-    <form className={styles.checkoutBody} onSubmit={handleAddressSubmit}>
+    <form className={styles.checkoutBody} onSubmit={handleAddressSubmit} noValidate>
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
           <span className={styles.sectionIconWrap}>
@@ -292,6 +353,19 @@ export function CheckoutPage() {
           </div>
         </div>
 
+        {addressAttempted && Object.keys(addressErrors).length > 0 && (
+          <div className={styles.errorSummary} role="alert">
+            <p className={styles.errorSummaryTitle}>
+              Revise os campos obrigatórios do endereço antes de continuar.
+            </p>
+            <ul className={styles.errorList}>
+              {Object.values(addressErrors).map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className={styles.formGrid}>
           <div className={styles.fullField}>
             <Label htmlFor="fullName" className={styles.fieldLabel}>
@@ -305,7 +379,18 @@ export function CheckoutPage() {
               }
               className={styles.fieldInput}
               placeholder="Como deve aparecer na entrega"
+              autoComplete="name"
+              required
+              aria-invalid={addressAttempted && !!addressErrors.fullName}
+              aria-describedby={
+                addressAttempted && addressErrors.fullName ? "fullName-error" : undefined
+              }
             />
+            {addressAttempted && addressErrors.fullName && (
+              <p id="fullName-error" className={styles.fieldError}>
+                {addressErrors.fullName}
+              </p>
+            )}
           </div>
 
           <div className={styles.fullField}>
@@ -322,6 +407,11 @@ export function CheckoutPage() {
               className={styles.fieldInput}
               placeholder="seu@exemplo.com"
             />
+            {addressAttempted && addressErrors.email && (
+              <p id="checkout-email-error" className={styles.fieldError}>
+                {addressErrors.email}
+              </p>
+            )}
           </div>
 
           <div>
@@ -339,7 +429,19 @@ export function CheckoutPage() {
               }
               className={styles.fieldInput}
               placeholder="00000-000"
+              autoComplete="postal-code"
+              inputMode="numeric"
+              required
+              aria-invalid={addressAttempted && !!addressErrors.zipCode}
+              aria-describedby={
+                addressAttempted && addressErrors.zipCode ? "zipCode-error" : undefined
+              }
             />
+            {addressAttempted && addressErrors.zipCode && (
+              <p id="zipCode-error" className={styles.fieldError}>
+                {addressErrors.zipCode}
+              </p>
+            )}
           </div>
 
           <div>
@@ -357,7 +459,19 @@ export function CheckoutPage() {
               }
               className={styles.fieldInput}
               placeholder="(00) 00000-0000"
+              autoComplete="tel"
+              inputMode="tel"
+              required
+              aria-invalid={addressAttempted && !!addressErrors.phone}
+              aria-describedby={
+                addressAttempted && addressErrors.phone ? "phone-error" : undefined
+              }
             />
+            {addressAttempted && addressErrors.phone && (
+              <p id="phone-error" className={styles.fieldError}>
+                {addressErrors.phone}
+              </p>
+            )}
           </div>
 
           <div className={styles.fullField}>
@@ -372,7 +486,18 @@ export function CheckoutPage() {
               }
               className={styles.fieldInput}
               placeholder="Rua, avenida ou logradouro"
+              autoComplete="address-line1"
+              required
+              aria-invalid={addressAttempted && !!addressErrors.street}
+              aria-describedby={
+                addressAttempted && addressErrors.street ? "street-error" : undefined
+              }
             />
+            {addressAttempted && addressErrors.street && (
+              <p id="street-error" className={styles.fieldError}>
+                {addressErrors.street}
+              </p>
+            )}
           </div>
 
           <div>
@@ -387,7 +512,19 @@ export function CheckoutPage() {
               }
               className={styles.fieldInput}
               placeholder="123"
+              autoComplete="address-line2"
+              inputMode="numeric"
+              required
+              aria-invalid={addressAttempted && !!addressErrors.number}
+              aria-describedby={
+                addressAttempted && addressErrors.number ? "number-error" : undefined
+              }
             />
+            {addressAttempted && addressErrors.number && (
+              <p id="number-error" className={styles.fieldError}>
+                {addressErrors.number}
+              </p>
+            )}
           </div>
 
           <div>
@@ -402,6 +539,7 @@ export function CheckoutPage() {
               }
               className={styles.fieldInput}
               placeholder="Apto 302, Bloco B"
+              autoComplete="address-line2"
             />
           </div>
 
@@ -417,7 +555,20 @@ export function CheckoutPage() {
               }
               className={styles.fieldInput}
               placeholder="Seu bairro"
+              autoComplete="address-level3"
+              required
+              aria-invalid={addressAttempted && !!addressErrors.neighborhood}
+              aria-describedby={
+                addressAttempted && addressErrors.neighborhood
+                  ? "neighborhood-error"
+                  : undefined
+              }
             />
+            {addressAttempted && addressErrors.neighborhood && (
+              <p id="neighborhood-error" className={styles.fieldError}>
+                {addressErrors.neighborhood}
+              </p>
+            )}
           </div>
 
           <div>
@@ -430,7 +581,16 @@ export function CheckoutPage() {
               onChange={(event) => updateAddressField("city", event.target.value)}
               className={styles.fieldInput}
               placeholder="Sua cidade"
+              autoComplete="address-level2"
+              required
+              aria-invalid={addressAttempted && !!addressErrors.city}
+              aria-describedby={addressAttempted && addressErrors.city ? "city-error" : undefined}
             />
+            {addressAttempted && addressErrors.city && (
+              <p id="city-error" className={styles.fieldError}>
+                {addressErrors.city}
+              </p>
+            )}
           </div>
 
           <div className={styles.fullField}>
@@ -443,7 +603,16 @@ export function CheckoutPage() {
               onChange={(event) => updateAddressField("state", event.target.value)}
               className={styles.fieldInput}
               placeholder="Ex.: DF, SP, RJ"
+              autoComplete="address-level1"
+              required
+              aria-invalid={addressAttempted && !!addressErrors.state}
+              aria-describedby={addressAttempted && addressErrors.state ? "state-error" : undefined}
             />
+            {addressAttempted && addressErrors.state && (
+              <p id="state-error" className={styles.fieldError}>
+                {addressErrors.state}
+              </p>
+            )}
           </div>
 
           <div className={styles.fullField}>
@@ -491,7 +660,7 @@ export function CheckoutPage() {
   );
 
   const renderPaymentStep = () => (
-    <form className={styles.checkoutBody} onSubmit={handlePaymentSubmit}>
+    <form className={styles.checkoutBody} onSubmit={handlePaymentSubmit} noValidate>
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
           <span className={styles.sectionIconWrap}>
@@ -542,6 +711,11 @@ export function CheckoutPage() {
                 className={styles.fieldInput}
                 placeholder="Como aparece no cartão"
               />
+              {paymentAttempted && paymentErrors.cardName && (
+                <p id="cardName-error" className={styles.fieldError}>
+                  {paymentErrors.cardName}
+                </p>
+              )}
             </div>
 
             <div className={styles.fullField}>
@@ -559,7 +733,21 @@ export function CheckoutPage() {
                 }
                 className={styles.fieldInput}
                 placeholder="0000 0000 0000 0000"
+                autoComplete="cc-number"
+                inputMode="numeric"
+                required
+                aria-invalid={paymentAttempted && !!paymentErrors.cardNumber}
+                aria-describedby={
+                  paymentAttempted && paymentErrors.cardNumber
+                    ? "cardNumber-error"
+                    : undefined
+                }
               />
+              {paymentAttempted && paymentErrors.cardNumber && (
+                <p id="cardNumber-error" className={styles.fieldError}>
+                  {paymentErrors.cardNumber}
+                </p>
+              )}
             </div>
 
             <div>
@@ -574,7 +762,17 @@ export function CheckoutPage() {
                 }
                 className={styles.fieldInput}
                 placeholder="MM/AA"
+                autoComplete="cc-exp"
+                inputMode="numeric"
+                required
+                aria-invalid={paymentAttempted && !!paymentErrors.expiry}
+                aria-describedby={paymentAttempted && paymentErrors.expiry ? "expiry-error" : undefined}
               />
+              {paymentAttempted && paymentErrors.expiry && (
+                <p id="expiry-error" className={styles.fieldError}>
+                  {paymentErrors.expiry}
+                </p>
+              )}
             </div>
 
             <div>
@@ -592,7 +790,17 @@ export function CheckoutPage() {
                 }
                 className={styles.fieldInput}
                 placeholder="123"
+                autoComplete="cc-csc"
+                inputMode="numeric"
+                required
+                aria-invalid={paymentAttempted && !!paymentErrors.cvv}
+                aria-describedby={paymentAttempted && paymentErrors.cvv ? "cvv-error" : undefined}
               />
+              {paymentAttempted && paymentErrors.cvv && (
+                <p id="cvv-error" className={styles.fieldError}>
+                  {paymentErrors.cvv}
+                </p>
+              )}
             </div>
 
             <div>
@@ -610,7 +818,16 @@ export function CheckoutPage() {
                 }
                 className={styles.fieldInput}
                 placeholder="00000000000"
+                inputMode="numeric"
+                required
+                aria-invalid={paymentAttempted && !!paymentErrors.cpf}
+                aria-describedby={paymentAttempted && paymentErrors.cpf ? "cpf-error" : undefined}
               />
+              {paymentAttempted && paymentErrors.cpf && (
+                <p id="cpf-error" className={styles.fieldError}>
+                  {paymentErrors.cpf}
+                </p>
+              )}
             </div>
 
             <div>

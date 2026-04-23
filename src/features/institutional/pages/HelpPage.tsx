@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Search, Mail, Phone, MessageCircle } from "lucide-react";
 import { Input } from "@/shared/ui/input";
 import { Button } from "@/shared/ui/button";
@@ -93,6 +94,23 @@ const faqs = {
 };
 
 export function HelpPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const faqEntries = Object.entries(faqs).map(([key, questions]) => ({
+    key,
+    questions: normalizedSearch
+      ? questions.filter(
+          (faq) =>
+            faq.question.toLowerCase().includes(normalizedSearch) ||
+            faq.answer.toLowerCase().includes(normalizedSearch),
+        )
+      : questions,
+  }));
+  const totalResults = faqEntries.reduce(
+    (total, group) => total + group.questions.length,
+    0,
+  );
+
   return (
     <div className={styles.page}>
       <section className={styles.heroSection}>
@@ -105,13 +123,28 @@ export function HelpPage() {
                 Encontre respostas rápidas para suas dúvidas sobre compras,
                 pagamentos, entregas e muito mais.
               </p>
-              <div className={styles.searchBox}>
-                <Search className={styles.searchIcon} />
+              <div className={styles.searchBox} role="search">
+                <label htmlFor="help-search" className="sr-only">
+                  Buscar dúvidas frequentes por palavra-chave
+                </label>
+                <Search className={styles.searchIcon} aria-hidden="true" />
                 <Input
+                  id="help-search"
                   placeholder="Busque por palavras-chave..."
                   className={styles.searchInput}
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  aria-describedby="help-search-results"
                 />
               </div>
+              <p id="help-search-results" className="sr-only" aria-live="polite">
+                {normalizedSearch
+                  ? `${totalResults} resultado${totalResults === 1 ? "" : "s"} encontrado${
+                      totalResults === 1 ? "" : "s"
+                    } para a busca atual`
+                  : "Digite uma palavra-chave para filtrar as perguntas frequentes"}
+              </p>
             </div>
             <div className={styles.heroCard}>
               <div className={styles.heroCardTitle}>Atendimento rápido</div>
@@ -138,23 +171,31 @@ export function HelpPage() {
         <div className={styles.container}>
           <div className={styles.contactGrid}>
             <div className={styles.contactCard}>
-              <Mail className={styles.contactIcon} />
+              <Mail className={styles.contactIcon} aria-hidden="true" />
               <h3 className={styles.contactTitle}>E-mail</h3>
-              <p className={styles.contactText}>contato@toquedemulher.com</p>
+              <p className={styles.contactText}>
+                <a href="mailto:contato@toquedemulher.com">
+                  contato@toquedemulher.com
+                </a>
+              </p>
               <Badge className={styles.contactBadge}>Resposta em 24h</Badge>
             </div>
             <div className={styles.contactCard}>
-              <Phone className={styles.contactIcon} />
+              <Phone className={styles.contactIcon} aria-hidden="true" />
               <h3 className={styles.contactTitle}>Telefone</h3>
-              <p className={styles.contactText}>(11) 3333-3333</p>
+              <p className={styles.contactText}>
+                <a href="tel:1133333333">(11) 3333-3333</a>
+              </p>
               <Badge className={styles.contactBadge}>Seg a Sex 9h-18h</Badge>
             </div>
             <div className={styles.contactCard}>
-              <MessageCircle className={styles.contactIcon} />
+              <MessageCircle className={styles.contactIcon} aria-hidden="true" />
               <h3 className={styles.contactTitle}>Chat ao vivo</h3>
               <p className={styles.contactText}>Inicie uma conversa agora</p>
-              <Button size="lg" variant="default" className={styles.contactButton}>
-                Iniciar chat
+              <Button size="lg" variant="default" className={styles.contactButton} asChild>
+                <a href="mailto:contato@toquedemulher.com?subject=Atendimento%20via%20chat">
+                  Iniciar chat
+                </a>
               </Button>
             </div>
           </div>
@@ -173,19 +214,25 @@ export function HelpPage() {
                 <TabsTrigger value="support">Suporte</TabsTrigger>
               </TabsList>
 
-              {Object.entries(faqs).map(([key, questions]) => (
+              {faqEntries.map(({ key, questions }) => (
                 <TabsContent key={key} value={key}>
                   <Accordion type="single" collapsible className={styles.accordion}>
-                    {questions.map((faq, index) => (
-                      <AccordionItem key={index} value={`${key}-${index}`}>
-                        <AccordionTrigger className={styles.accordionTrigger}>
-                          {faq.question}
-                        </AccordionTrigger>
-                        <AccordionContent className={styles.accordionContent}>
-                          {faq.answer}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
+                    {questions.length > 0 ? (
+                      questions.map((faq, index) => (
+                        <AccordionItem key={index} value={`${key}-${index}`}>
+                          <AccordionTrigger className={styles.accordionTrigger}>
+                            {faq.question}
+                          </AccordionTrigger>
+                          <AccordionContent className={styles.accordionContent}>
+                            {faq.answer}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))
+                    ) : (
+                      <p className={styles.emptyState}>
+                        Nenhum resultado encontrado nesta categoria.
+                      </p>
+                    )}
                   </Accordion>
                 </TabsContent>
               ))}
@@ -200,8 +247,10 @@ export function HelpPage() {
           <p className={styles.helpCtaText}>
             Nossa equipe está pronta para te ajudar a qualquer momento.
           </p>
-          <Button size="lg" variant="outline" className={styles.helpCtaButton}>
-            Falar com atendimento
+          <Button size="lg" variant="outline" className={styles.helpCtaButton} asChild>
+            <a href="mailto:contato@toquedemulher.com?subject=Preciso%20de%20ajuda">
+              Falar com atendimento
+            </a>
           </Button>
         </div>
       </section>

@@ -2,7 +2,7 @@
 
 .page {
   @apply min-h-[80vh] flex flex-col items-center justify-center py-12 px-6 relative overflow-hidden;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .decorLayer {
@@ -115,6 +115,12 @@
 
 .toggleButton {
   @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600;
+}
+
+.toggleButton:focus-visible {
+  outline: 2px solid rgb(190 24 93 / 0.45);
+  outline-offset: 3px;
+  border-radius: 0.375rem;
 }
 
 .metaRow {
@@ -401,6 +407,12 @@
   @apply text-pink-600 hover:underline;
 }
 
+.termsButton:focus-visible {
+  outline: 2px solid rgb(190 24 93 / 0.45);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
 .registerButton {
   @apply w-full;
 }
@@ -412,6 +424,92 @@
 
 .footerMeta {
   @apply text-center text-sm text-gray-600;
+}
+
+.title,
+.roleButton,
+.input,
+.inputWithIcon {
+  color: var(--theme-text-primary);
+}
+
+.subtitle,
+.roleHint,
+.checkboxText,
+.strengthRules,
+.termsText,
+.registerMeta,
+.footerMeta {
+  color: var(--theme-text-secondary);
+}
+
+.card {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+}
+
+.tabsList,
+.roleSection {
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
+}
+
+.roleButton {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-input-border);
+}
+
+.roleButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+}
+
+.roleButtonActive {
+  background-color: var(--theme-brand-strong);
+  border-color: var(--theme-brand-strong);
+  color: var(--theme-text-inverse);
+}
+
+.fieldLabel {
+  color: var(--theme-text-secondary);
+}
+
+.input,
+.inputWithIcon {
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.toggleButton {
+  color: var(--theme-text-muted);
+}
+
+.toggleButton:hover {
+  color: var(--theme-brand-strong);
+}
+
+.forgotButton,
+.termsButton {
+  color: var(--theme-brand-strong);
+}
+
+.dividerLineInner {
+  border-top-color: var(--theme-border-soft);
+}
+
+.dividerText {
+  background-color: var(--theme-card-bg);
+  color: var(--theme-text-muted);
+}
+
+.iconTinyMuted {
+  color: var(--theme-text-muted);
+}
+
+.strengthBarInactive {
+  background-color: color-mix(in oklab, var(--theme-text-muted) 20%, transparent);
 }
 
 @keyframes topBubbles {

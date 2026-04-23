@@ -2,7 +2,7 @@
 
 .page {
   @apply min-h-screen py-12 sm:py-16;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .container {
@@ -283,4 +283,52 @@
 
 .passwordButton {
   @apply w-full sm:w-auto;
+}
+
+.profileCard,
+.tabsCard,
+.wishlistCard,
+.reviewCard,
+.settingsRow,
+.addressCard {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.name,
+.loyaltyTitle,
+.sectionTitle,
+.orderId,
+.wishlistTitle,
+.reviewTitle,
+.settingsGroupTitle,
+.settingsValue,
+.addressTitle {
+  color: var(--theme-text-primary);
+}
+
+.email,
+.memberSince,
+.loyaltyText,
+.orderMeta,
+.reviewDate,
+.reviewText,
+.settingsLabel,
+.addressText {
+  color: var(--theme-text-secondary);
+}
+
+.loyaltyCard,
+.wishlistImageWrap {
+  background-color: var(--theme-card-muted);
+}
+
+.loyaltyHighlight,
+.orderTotal,
+.wishlistPrice {
+  color: var(--theme-brand-strong);
+}
+
+.orderCard:hover {
+  background-color: var(--theme-brand-soft);
 }

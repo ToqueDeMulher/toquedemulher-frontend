@@ -31,6 +31,7 @@ export function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const productName = "Batom Matte Nude Luxo";
 
   useEffect(() => {
     setSelectedImage(0);
@@ -128,6 +129,8 @@ export function ProductPage() {
                         ? styles.thumbActive
                         : styles.thumbInactive
                     }`}
+                    aria-label={`Selecionar imagem ${index + 1} de ${productImages.length}`}
+                    aria-pressed={selectedImage === index}
                   >
                     <ImageWithFallback
                       src={image}
@@ -145,7 +148,7 @@ export function ProductPage() {
               <div className={styles.ratingRow}>
                 <div className={styles.ratingStars}>
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={styles.ratingStar} />
+                    <Star key={i} className={styles.ratingStar} aria-hidden="true" />
                   ))}
                 </div>
                 <span className={styles.ratingText}>{product.rating.toFixed(1)}</span>
@@ -183,22 +186,32 @@ export function ProductPage() {
               <p className={styles.description}>{product.description}</p>
 
               <div className={styles.quantityBlock}>
-                <label className={styles.quantityLabel}>Quantidade</label>
-                <div className={styles.quantityControls}>
+                <p id="product-quantity-label" className={styles.quantityLabel}>
+                  Quantidade
+                </p>
+                <div
+                  className={styles.quantityControls}
+                  role="group"
+                  aria-labelledby="product-quantity-label"
+                >
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    aria-label="Diminuir quantidade"
                   >
-                    <Minus className={styles.quantityIcon} />
+                    <Minus className={styles.quantityIcon} aria-hidden="true" />
                   </Button>
-                  <span className={styles.quantityValue}>{quantity}</span>
+                  <span className={styles.quantityValue} aria-live="polite">
+                    {quantity}
+                  </span>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(quantity + 1)}
+                    aria-label="Aumentar quantidade"
                   >
-                    <Plus className={styles.quantityIcon} />
+                    <Plus className={styles.quantityIcon} aria-hidden="true" />
                   </Button>
                 </div>
               </div>
@@ -226,11 +239,18 @@ export function ProductPage() {
                         : "Adicionado à wishlist",
                     );
                   }}
+                  aria-pressed={isWishlisted}
+                  aria-label={
+                    isWishlisted
+                      ? `Remover ${productName} da wishlist`
+                      : `Adicionar ${productName} à wishlist`
+                  }
                 >
                   <Heart
                     className={`${styles.wishlistIcon} ${
                       isWishlisted ? styles.wishlistIconActive : ""
                     }`}
+                    aria-hidden="true"
                   />
                 </Button>
               </div>
@@ -276,7 +296,7 @@ export function ProductPage() {
                 <div className={styles.summaryRating}>{product.rating.toFixed(1)}</div>
                 <div className={styles.summaryStars}>
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={styles.summaryStar} />
+                    <Star key={i} className={styles.summaryStar} aria-hidden="true" />
                   ))}
                 </div>
                 <p className={styles.summaryCount}>{product.reviews} avaliações</p>
@@ -295,12 +315,13 @@ export function ProductPage() {
                     <p className={styles.reviewAuthor}>{review.author}</p>
                     <div className={styles.reviewStars}>
                       {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`${styles.reviewStar} ${
-                            i < review.rating ? styles.reviewStarActive : ""
-                          }`}
-                        />
+                      <Star
+                        key={i}
+                        className={`${styles.reviewStar} ${
+                          i < review.rating ? styles.reviewStarActive : ""
+                        }`}
+                        aria-hidden="true"
+                      />
                       ))}
                     </div>
                   </div>

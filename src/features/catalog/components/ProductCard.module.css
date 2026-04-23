@@ -2,10 +2,14 @@
 
 .card {
   @apply relative rounded-3xl overflow-hidden transition-all cursor-pointer;
-  background-color: var(--product-card-bg, #ffffff);
-  border: var(--product-card-border, 1px solid #f3f4f6);
+  background-color: var(--product-card-bg, var(--theme-card-bg));
+  border: var(--product-card-border, 1px solid var(--theme-border-soft));
   min-height: var(--product-card-min-h, 265px);
   border-top-right-radius: 0;
+}
+
+.card:focus-within {
+  box-shadow: 0 0 0 3px var(--theme-focus);
 }
 
 @media (min-width: 640px) {
@@ -14,8 +18,23 @@
   }
 }
 
+.cardAction {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  border-radius: inherit;
+}
+
+.cardAction:focus-visible {
+  outline: 3px solid var(--theme-focus);
+  outline-offset: -3px;
+}
+
 .imageWrapper {
-  @apply relative bg-gray-50;
+  @apply relative;
+  background-color: var(--theme-card-muted);
   padding: 0;
 }
 
@@ -43,11 +62,15 @@
 }
 
 .favButton {
-  @apply absolute bottom-3 right-3 p-2 rounded-full bg-white/70 hover:bg-white/80 border border-gray-200/60 transition-colors;
+  @apply absolute bottom-3 right-3 p-2 rounded-full transition-colors;
+  z-index: 2;
+  background-color: color-mix(in oklab, var(--theme-surface-primary) 78%, transparent);
+  border: 1px solid var(--theme-border-soft);
 }
 
 .heartIcon {
-  @apply h-4 w-4 text-gray-500/70;
+  @apply h-4 w-4;
+  color: color-mix(in oklab, var(--theme-text-muted) 78%, transparent);
 }
 
 .heartIconActive {
@@ -59,15 +82,18 @@
 }
 
 .title {
-  @apply font-medium text-gray-800 text-[11px] sm:text-xs line-clamp-2 min-h-[2.2rem];
+  @apply font-medium text-[11px] sm:text-xs line-clamp-2 min-h-[2.2rem];
+  color: var(--theme-text-primary);
 }
 
 .ratingRow {
-  @apply flex items-center gap-1 mt-1 text-[11px] text-gray-600;
+  @apply flex items-center gap-1 mt-1 text-[11px];
+  color: var(--theme-text-secondary);
 }
 
 .star {
-  @apply h-4 w-4 text-gray-300;
+  @apply h-4 w-4;
+  color: color-mix(in oklab, var(--theme-text-muted) 38%, transparent);
 }
 
 .starFilled {
@@ -79,7 +105,9 @@
 }
 
 .reviewCount {
-  @apply ml-2 text-gray-600 bg-gray-100 rounded-md px-1.5 py-0.5 text-xs;
+  @apply ml-2 rounded-md px-1.5 py-0.5 text-xs;
+  color: var(--theme-text-secondary);
+  background-color: var(--theme-card-muted);
 }
 
 .priceRow {
@@ -91,17 +119,25 @@
 }
 
 .price {
-  @apply text-gray-900 font-semibold text-sm sm:text-base;
+  @apply font-semibold text-sm sm:text-base;
+  color: var(--theme-text-primary);
 }
 
 .originalPrice {
-  @apply text-[10px] text-gray-400 line-through;
+  @apply text-[10px] line-through;
+  color: var(--theme-text-muted);
 }
 
 .addButton {
   @apply hidden;
+  z-index: 2;
 }
 
 .cartIcon {
   @apply size-4 mr-2;
+}
+
+.favButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
 }

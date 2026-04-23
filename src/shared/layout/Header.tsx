@@ -12,6 +12,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/shared/ui/navigation-menu";
+import { trendingProducts } from "@/shared/data/catalog-products";
 import { routes } from "@/shared/lib/routes";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
@@ -123,7 +124,7 @@ export function Header() {
 
   return (
     <>
-      <div className={styles.promoBar}>
+      <div className={styles.promoBar} role="region" aria-label="Avisos promocionais">
         <div className={styles.promoRow}>
           {[1, 2, 3, 4].map((i) => (
             <span key={i} className={styles.promoText}>
@@ -145,12 +146,16 @@ export function Header() {
           <div className={styles.mainContainer}>
             <div className={styles.mainRow}>
               <div className={styles.logoWrapper}>
-                <Link to={routes.home} className={styles.logoButton}>
+                <Link
+                  to={routes.home}
+                  className={styles.logoButton}
+                  aria-label="Ir para a página inicial da Toque de Mulher"
+                >
                   <span className={styles.logoText}>toque de mulher</span>
                 </Link>
               </div>
 
-              <div className={styles.navWrapper}>
+              <nav className={styles.navWrapper} aria-label="Navegação principal">
                 <NavigationMenu className={styles.navMenu} viewport={false}>
                   <NavigationMenuList className={styles.navList}>
                 <NavigationMenuItem>
@@ -352,7 +357,7 @@ export function Header() {
                 </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavigationMenu>
-              </div>
+              </nav>
 
               <div ref={searchRef} className={styles.searchWrapper}>
                 <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
@@ -467,7 +472,14 @@ export function Header() {
                   <Link to={routes.cart} aria-label="Carrinho">
                     <ShoppingCart className={styles.iconLarge} />
                     {itemCount > 0 && (
-                      <Badge className={styles.cartBadge}>{itemCount}</Badge>
+                      <span className="sr-only">
+                        {itemCount} {itemCount === 1 ? "item no carrinho" : "itens no carrinho"}
+                      </span>
+                    )}
+                    {itemCount > 0 && (
+                      <Badge className={styles.cartBadge} aria-hidden="true">
+                        {itemCount}
+                      </Badge>
                     )}
                   </Link>
                 </Button>
@@ -482,7 +494,7 @@ export function Header() {
                     to={accountRoute}
                     aria-label="Perfil"
                   >
-                    <User className={styles.iconLarge} />
+                    <User className={styles.iconLarge} aria-hidden="true" />
                   </Link>
                 </Button>
 
@@ -498,9 +510,9 @@ export function Header() {
                       aria-label={isAdmin ? "Painel administrativo" : "Favoritos"}
                     >
                       {isAdmin ? (
-                        <LayoutDashboard className={styles.iconLarge} />
+                        <LayoutDashboard className={styles.iconLarge} aria-hidden="true" />
                       ) : (
-                        <Heart className={styles.iconLarge} />
+                        <Heart className={styles.iconLarge} aria-hidden="true" />
                       )}
                     </Link>
                   </Button>

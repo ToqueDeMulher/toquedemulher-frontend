@@ -1,16 +1,18 @@
 @reference "tailwindcss";
 
 .header {
-  background-color: color-mix(in oklab, white 70%, transparent);
+  background-color: var(--theme-header-bg);
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
-  border-bottom: 1px solid color-mix(in oklab, white 30%, transparent);
+  border-bottom: 1px solid var(--theme-header-border);
   @apply w-full sticky top-0 z-50 shadow-md;
 }
 
 .promoBar {
   font-family: var(--font-sans, "Satoshi Variable", "Poppins", ui-sans-serif, system-ui, sans-serif);
-  @apply bg-black text-white py-3 overflow-hidden flex select-none relative font-normal;
+  @apply py-3 overflow-hidden flex select-none relative font-normal;
+  background-color: var(--theme-footer-bottom);
+  color: var(--theme-footer-text);
 }
 
 .promoRow {
@@ -27,7 +29,7 @@
 }
 
 .mainHeader {
-  @apply bg-white;
+  background-color: var(--theme-header-solid);
 }
 
 .mainContainer {
@@ -48,17 +50,24 @@
   @apply no-underline;
 }
 
+.logoButton:focus-visible {
+  outline: 2px solid var(--theme-focus);
+  outline-offset: 4px;
+  border-radius: 0.5rem;
+}
+
 .logoImage {
   @apply h-[46px] md:h-[54px] w-auto object-contain;
 }
 
 .logoText {
   font-family: var(--font-display);
-  @apply text-xl md:text-2xl font-bold tracking-normal text-gray-900 whitespace-nowrap leading-none transition-colors;
+  @apply text-xl md:text-2xl font-bold tracking-normal whitespace-nowrap leading-none transition-colors;
+  color: var(--theme-text-primary);
 }
 
 .logoButton:hover .logoText {
-  @apply text-pink-600;
+  color: var(--theme-brand-strong);
 }
 
 .navWrapper {
@@ -74,16 +83,17 @@
 }
 
 .navTrigger {
-  @apply relative px-2 py-1 text-[13px] md:text-[14px] font-normal text-black transition-colors data-[state=open]:text-black;
+  @apply relative px-2 py-1 text-[13px] md:text-[14px] font-normal transition-colors;
   background-color: transparent;
+  color: var(--theme-text-primary);
 }
 
 .navTriggerActive {
-  @apply text-black;
+  color: var(--theme-text-primary);
 }
 
 .navTriggerInactive {
-  @apply text-black;
+  color: var(--theme-text-primary);
 }
 
 .navContent {
@@ -94,13 +104,13 @@
   width: 100vw;
   top: 64px;
   margin-top: 0;
-  background-color: #ffffff;
-  border-top: 1px solid #e6e7eb;
-  border-bottom: 1px solid #e6e7eb;
+  background-color: var(--theme-surface-primary);
+  border-top: 1px solid var(--theme-border-soft);
+  border-bottom: 1px solid var(--theme-border-soft);
   border-left: 0;
   border-right: 0;
   border-radius: 0;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.18);
   overflow: hidden;
   padding: 28px 0 32px;
 }
@@ -119,7 +129,7 @@
 }
 
 .navColumnFeatured {
-  background: #f3f4f6;
+  background: var(--theme-card-muted);
   padding: 14px 16px;
   border-radius: 6px;
 }
@@ -129,18 +139,20 @@
 }
 
 .navSectionTitleLink {
-  @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-black transition-colors;
+  @apply text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors;
   margin-bottom: 4px;
+  color: var(--theme-text-primary);
 }
 
 .navSectionLink {
-  @apply text-sm text-black/80 transition-colors font-normal;
+  @apply text-sm transition-colors font-normal;
   line-height: 1.45;
+  color: var(--theme-text-secondary);
 }
 
 .navSectionTitleLink:hover,
 .navSectionLink:hover {
-  @apply text-pink-600;
+  color: var(--theme-brand-strong);
 }
 
 .navCards {
@@ -148,19 +160,23 @@
 }
 
 .navCard {
-  @apply block rounded-md border border-[#e6e7eb] bg-[#f7f7f8] px-3 py-2 transition-colors;
+  @apply block rounded-md px-3 py-2 transition-colors;
+  border: 1px solid var(--theme-border-soft);
+  background-color: var(--theme-card-muted);
 }
 
 .navCard:hover {
-  @apply bg-white;
+  background-color: var(--theme-surface-primary);
 }
 
 .navCardTitle {
-  @apply block text-sm font-semibold text-black;
+  @apply block text-sm font-semibold;
+  color: var(--theme-text-primary);
 }
 
 .navCardSub {
-  @apply block text-xs text-black/70;
+  @apply block text-xs;
+  color: var(--theme-text-secondary);
 }
 
 .navLink {
@@ -171,41 +187,45 @@
 }
 
 .navTitle {
-  @apply font-semibold text-black uppercase;
+  @apply font-semibold uppercase;
   font-size: 12px;
   letter-spacing: 0.08em;
   margin-bottom: 10px;
+  color: var(--theme-text-primary);
 }
 
 .navText {
-  @apply text-sm text-black/80 leading-relaxed;
+  @apply text-sm leading-relaxed;
   margin-top: 6px;
+  color: var(--theme-text-secondary);
 }
 
 .navLink:hover {
-  color: #000000;
+  color: var(--theme-text-primary);
   background: transparent;
   box-shadow: none;
   transform: none;
 }
 
 .navLink:focus-visible {
-  outline: 2px solid #111111;
+  outline: 2px solid var(--theme-focus);
   outline-offset: 2px;
 }
 
 .navLinkSimple {
-  @apply font-normal inline-flex h-9 w-max items-center justify-center rounded-md px-2 py-1 text-[13px] md:text-[14px] cursor-pointer transition-colors text-black;
+  @apply font-normal inline-flex h-9 w-max items-center justify-center rounded-md px-2 py-1 text-[13px] md:text-[14px] cursor-pointer transition-colors;
   background-color: transparent;
+  color: var(--theme-text-primary);
 }
 
 .navTrigger:hover,
 .navLinkSimple:hover {
   background-color: transparent;
+  color: var(--theme-brand-strong);
 }
 
 .navLinkPromo {
-  @apply text-pink-600;
+  color: var(--theme-brand-strong);
 }
 
 .navTrigger::after,
@@ -216,7 +236,7 @@
   right: 0;
   bottom: -2px;
   height: 2px;
-  background: var(--color-pink-600);
+  background: var(--theme-brand-strong);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.2s ease;
@@ -237,8 +257,13 @@
   position: relative;
 }
 
+.searchWrapper:focus-within {
+  border-radius: 999px;
+}
+
 .searchIcon {
-  @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 size-4 md:size-5;
+  @apply absolute left-3 top-1/2 -translate-y-1/2 size-4 md:size-5;
+  color: var(--theme-text-muted);
 }
 
 .searchInput {
@@ -250,7 +275,8 @@
 }
 
 .iconButton {
-  @apply text-black hover:text-black hover:bg-gray-100 rounded-full transition-all;
+  @apply rounded-full transition-all;
+  color: var(--theme-text-primary);
 }
 
 .iconLarge {
@@ -258,11 +284,15 @@
 }
 
 .cartButton {
-  @apply text-black hover:text-black hover:bg-gray-100 rounded-full relative transition-all;
+  @apply rounded-full relative transition-all;
+  color: var(--theme-text-primary);
 }
 
 .cartBadge {
-  @apply absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 bg-gray-900 text-white border-2 border-white rounded-full text-[10px];
+  @apply absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 rounded-full text-[10px];
+  background-color: var(--theme-text-primary);
+  color: var(--theme-text-inverse);
+  border: 2px solid var(--theme-header-solid);
 }
 
 .iconButtonHidden {

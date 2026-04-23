@@ -279,10 +279,11 @@ export function CartPage() {
                                 updateItemQuantity(item.id, item.quantity - 1)
                               }
                               className={styles.quantityButton}
+                              aria-label={`Diminuir quantidade de ${item.name}`}
                             >
-                              <Minus className={styles.quantityIcon} />
+                              <Minus className={styles.quantityIcon} aria-hidden="true" />
                             </Button>
-                            <span className={styles.quantityValue}>
+                            <span className={styles.quantityValue} aria-live="polite">
                               {item.quantity}
                             </span>
                             <Button
@@ -292,8 +293,9 @@ export function CartPage() {
                                 updateItemQuantity(item.id, item.quantity + 1)
                               }
                               className={styles.quantityButton}
+                              aria-label={`Aumentar quantidade de ${item.name}`}
                             >
-                              <Plus className={styles.quantityIcon} />
+                              <Plus className={styles.quantityIcon} aria-hidden="true" />
                             </Button>
                           </div>
                           <p className={styles.lineTotal}>
@@ -322,9 +324,15 @@ export function CartPage() {
                       </div>
                     </div>
                   ))}
-                  <button type="button" className={styles.itemGiftRow}>
+                  <button
+                    type="button"
+                    className={styles.itemGiftRow}
+                    onClick={() =>
+                      toast.success("Opção de presente registrada para revisão na próxima etapa.")
+                    }
+                  >
                     <span>Embrulho para presente por apenas R$ 12,90!</span>
-                    <ChevronRight className={styles.itemGiftIcon} />
+                    <ChevronRight className={styles.itemGiftIcon} aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -338,10 +346,10 @@ export function CartPage() {
               </div>
               <div className={styles.summaryBody}>
                 <div className={styles.summarySection}>
-                  <button type="button" className={styles.summaryActionHeader}>
+                  <div className={styles.summaryActionHeader}>
                     <span>Envio para {shippingDestination}</span>
-                    <ChevronRight className={styles.summaryChevron} />
-                  </button>
+                    <ChevronRight className={styles.summaryChevron} aria-hidden="true" />
+                  </div>
 
                   <div className={styles.summaryShippingLine}>
                     <span className={styles.summaryRadioOuter}>
@@ -357,50 +365,62 @@ export function CartPage() {
                 </div>
 
                 <div className={styles.summarySection}>
-                  <button type="button" className={styles.summaryActionHeader}>
+                  <div className={styles.summaryActionHeader}>
                     <span>Cupom ou Código de Influenciadora / Recompensas</span>
-                    <ChevronRight className={styles.summaryChevron} />
-                  </button>
+                    <ChevronRight className={styles.summaryChevron} aria-hidden="true" />
+                  </div>
 
-                  <div className={styles.summaryRow}>
+                  <form
+                    className={styles.summaryRow}
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      applyCoupon();
+                    }}
+                  >
+                    <label htmlFor="cart-coupon" className="sr-only">
+                      Digite um cupom de desconto
+                    </label>
                     <Input
+                      id="cart-coupon"
                       placeholder="Digite o cupom"
                       value={coupon}
                       onChange={(e) => setCoupon(e.target.value)}
                       className={styles.summaryInput}
+                      aria-describedby="cart-coupon-status"
                     />
-                    <Button
-                      onClick={applyCoupon}
-                      variant="outline"
-                      className={styles.summaryButton}
-                    >
+                    <Button type="submit" variant="outline" className={styles.summaryButton}>
                       Aplicar
                     </Button>
-                  </div>
+                  </form>
+                  <p id="cart-coupon-status" className="sr-only" aria-live="polite">
+                    {couponStatus}
+                  </p>
                 </div>
 
                 <div className={styles.summarySection}>
                   <h3 className={styles.summarySectionTitle}>Sumário</h3>
                   <div className={styles.summaryZipRow}>
                     <Input
+                      id="cart-zip-code"
                       placeholder="CEP"
                       value={zipCode}
                       onChange={(e) =>
                         setZipCode(e.target.value.replace(/\D/g, "").slice(0, 8))
                       }
                       maxLength={8}
+                      inputMode="numeric"
                       className={styles.summaryInput}
+                      aria-describedby="cart-shipping-status"
                     />
-                    <Button
-                      onClick={calculateShipping}
-                      variant="outline"
-                      className={styles.summaryButton}
-                    >
+                    <Button type="submit" variant="outline" className={styles.summaryButton}>
                       OK
                     </Button>
-                  </div>
+                  </form>
+                  <p id="cart-shipping-status" className="sr-only" aria-live="polite">
+                    {shippingStatus}
+                  </p>
 
-                  <div className={styles.breakdown}>
+                  <div className={styles.breakdown} aria-live="polite">
                     <div className={styles.breakdownRow}>
                       <span>Subtotal ({itemCount} itens)</span>
                       <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>
