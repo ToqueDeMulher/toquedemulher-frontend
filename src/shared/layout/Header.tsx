@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User, Heart, LayoutDashboard } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Search, ShoppingCart, User, Heart, LayoutDashboard, Tag } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Input } from "@/shared/ui/input";
@@ -15,16 +15,110 @@ import {
 import { routes } from "@/shared/lib/routes";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
+import { trendingProducts } from "@/shared/data/catalog-products";
 import styles from "./Header.module.css";
+
+const ALL_CATEGORIES = [
+  { slug: "maquiagem", label: "Maquiagem" },
+  { slug: "skincare", label: "Skin Care" },
+  { slug: "corpo", label: "Corpo" },
+  { slug: "cabelos", label: "Cabelos" },
+  { slug: "perfumes", label: "Perfumes" },
+];
+
+const MAX_PRODUCT_SUGGESTIONS = 4;
+const MAX_CATEGORY_SUGGESTIONS = 3;
 
 export function Header() {
   const [activeCategory, setActiveCategory] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const navigate = useNavigate();
   const { isLoggedIn, isAdmin } = useAuth();
-  const { itemCount, openCart } = useCart();
+  const { itemCount } = useCart();
   const accountRoute = isLoggedIn && isAdmin ? routes.adminDashboard : routes.profile;
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Sugestões calculadas em tempo real
+  const normalized = searchTerm.toLowerCase().trim();
+  const suggestedProducts = normalized.length >= 1
+    ? trendingProducts
+        .filter((p) => p.name.toLowerCase().includes(normalized))
+        .slice(0, MAX_PRODUCT_SUGGESTIONS)
+    : [];
+  const suggestedCategories = normalized.length >= 1
+    ? ALL_CATEGORIES.filter(
+        (c) => c.label.toLowerCase().includes(normalized) || c.slug.includes(normalized)
+      ).slice(0, MAX_CATEGORY_SUGGESTIONS)
+    : [];
+  const hasResults = suggestedProducts.length > 0 || suggestedCategories.length > 0;
+
+  // Lista flat para navegação por teclado
+  type SuggestionItem =
+    | { kind: "product"; id: string; name: string }
+    | { kind: "category"; slug: string; label: string }
+    | { kind: "search"; term: string };
+
+  const flatItems: SuggestionItem[] = [
+    ...suggestedCategories.map((c) => ({ kind: "category" as const, ...c })),
+    ...suggestedProducts.map((p) => ({ kind: "product" as const, id: p.id, name: p.name })),
+    ...(normalized.length >= 1 ? [{ kind: "search" as const, term: searchTerm }] : []),
+  ];
 
   const handleCategoryClick = (category: string) => {
     setActiveCategory(category);
+  };
+
+  const closeDropdown = useCallback(() => {
+    setShowDropdown(false);
+    setActiveIndex(-1);
+  }, []);
+
+  // Fechar ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        closeDropdown();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [closeDropdown]);
+
+  const navigateToItem = (item: SuggestionItem) => {
+    closeDropdown();
+    setSearchTerm("");
+    if (item.kind === "product") navigate(routes.product(item.id));
+    else if (item.kind === "category") navigate(routes.category(item.slug));
+    else navigate(routes.search(item.term));
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      closeDropdown();
+      navigate(routes.search(searchTerm));
+      setSearchTerm("");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDropdown || flatItems.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, flatItems.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, -1));
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
+      navigateToItem(flatItems[activeIndex]);
+    } else if (e.key === "Escape") {
+      closeDropdown();
+      inputRef.current?.blur();
+    }
   };
 
   return (
@@ -250,34 +344,132 @@ export function Header() {
                     <Link to={routes.home}>Novos</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={styles.navLinkSimple}>
+                    <Link to={routes.home}>Marcas</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavigationMenu>
               </div>
 
-              <div className={styles.searchWrapper}>
-                <Search className={styles.searchIcon} />
-                <Input
-                  className={styles.searchInput}
-                  placeholder="Buscar produtos..."
-                  aria-label="Buscar produtos"
-                />
+              <div ref={searchRef} className={styles.searchWrapper}>
+                <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
+                  <Search className={styles.searchIcon} />
+                  <Input
+                    ref={inputRef}
+                    className={styles.searchInput}
+                    placeholder="Buscar produtos..."
+                    aria-label="Buscar produtos"
+                    aria-autocomplete="list"
+                    aria-expanded={showDropdown}
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setShowDropdown(true);
+                      setActiveIndex(-1);
+                    }}
+                    onFocus={() => searchTerm.trim() && setShowDropdown(true)}
+                    onKeyDown={handleKeyDown}
+                    autoComplete="off"
+                  />
+                </form>
+
+                {/* Dropdown de sugestões */}
+                {showDropdown && normalized.length >= 1 && (
+                  <div className={styles.dropdown} role="listbox">
+                    {!hasResults && (
+                      <div className={styles.dropdownEmpty}>
+                        Nenhum resultado para &ldquo;{searchTerm}&rdquo;
+                      </div>
+                    )}
+
+                    {suggestedCategories.length > 0 && (
+                      <div className={styles.dropdownGroup}>
+                        <span className={styles.dropdownGroupLabel}>Categorias</span>
+                        {suggestedCategories.map((cat) => {
+                          const idx = flatItems.findIndex(
+                            (it) => it.kind === "category" && it.slug === cat.slug
+                          );
+                          return (
+                            <button
+                              key={cat.slug}
+                              role="option"
+                              aria-selected={activeIndex === idx}
+                              className={`${styles.dropdownItem} ${
+                                activeIndex === idx ? styles.dropdownItemActive : ""
+                              }`}
+                              onMouseDown={() => navigateToItem({ kind: "category", ...cat })}
+                              onMouseEnter={() => setActiveIndex(idx)}
+                            >
+                              <Tag className={styles.dropdownItemIcon} />
+                              <span>{cat.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {suggestedProducts.length > 0 && (
+                      <div className={styles.dropdownGroup}>
+                        <span className={styles.dropdownGroupLabel}>Produtos</span>
+                        {suggestedProducts.map((product) => {
+                          const idx = flatItems.findIndex(
+                            (it) => it.kind === "product" && it.id === product.id
+                          );
+                          return (
+                            <button
+                              key={product.id}
+                              role="option"
+                              aria-selected={activeIndex === idx}
+                              className={`${styles.dropdownItem} ${
+                                activeIndex === idx ? styles.dropdownItemActive : ""
+                              }`}
+                              onMouseDown={() =>
+                                navigateToItem({ kind: "product", id: product.id, name: product.name })
+                              }
+                              onMouseEnter={() => setActiveIndex(idx)}
+                            >
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className={styles.dropdownItemThumb}
+                              />
+                              <span className={styles.dropdownItemName}>{product.name}</span>
+                              <span className={styles.dropdownItemPrice}>
+                                R$ {product.price.toFixed(2).replace(".", ",")}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {normalized.length >= 1 && (
+                      <button
+                        className={`${styles.dropdownSearchAll} ${
+                          activeIndex === flatItems.length - 1 ? styles.dropdownItemActive : ""
+                        }`}
+                        onMouseDown={handleSearchSubmit as unknown as React.MouseEventHandler}
+                        onMouseEnter={() => setActiveIndex(flatItems.length - 1)}
+                      >
+                        <Search className={styles.dropdownItemIcon} />
+                        Ver todos os resultados para &ldquo;{searchTerm}&rdquo;
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.actionRow}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={styles.cartButton}
-                  type="button"
-                  onClick={openCart}
-                  aria-label="Carrinho"
-                >
-                  <>
+                <Button asChild variant="ghost" size="icon" className={styles.cartButton}>
+                  <Link to={routes.cart} aria-label="Carrinho">
                     <ShoppingCart className={styles.iconLarge} />
                     {itemCount > 0 && (
                       <Badge className={styles.cartBadge}>{itemCount}</Badge>
                     )}
-                  </>
+                  </Link>
                 </Button>
 
                 <Button

@@ -14,4 +14,6 @@ export const routes = {
   about: "/sobre",
   productCreate: "/admin/produtos/novo",
   institutional: (slug: string = ":slug") => `/institucional/${slug}`,
+  search: (query?: string) => `/busca${query ? `?q=${encodeURIComponent(query)}` : ""}`,
+  addressCreate: "/meu-endereco/novo",
 } as const;

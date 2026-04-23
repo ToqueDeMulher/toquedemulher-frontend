@@ -121,13 +121,11 @@ const applyDominantColor = (img: HTMLImageElement) => {
     const avgB = Math.round(b / count);
     card.style.setProperty("--favorite-dominant", `${avgR}, ${avgG}, ${avgB}`);
 
-    // Decide text color based on perceived brightness.
     const luminance = (0.2126 * avgR + 0.7152 * avgG + 0.0722 * avgB) / 255;
     const textColor =
       luminance > 0.62 ? "rgba(17, 24, 39, 0.9)" : "rgba(255, 255, 255, 0.95)";
     card.style.setProperty("--favorite-text", textColor);
   } catch {
-    // Ignore CORS/canvas errors and keep default gradient.
   }
 };
 
@@ -169,7 +167,6 @@ export function HomePage() {
     try {
       window.localStorage.setItem(recentKey, JSON.stringify(ids));
     } catch {
-      // ignore storage errors
     }
   };
 

@@ -231,6 +231,12 @@
   @apply relative w-full max-w-[400px] mx-auto;
 }
 
+.searchForm {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
 .searchIcon {
   @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 size-4 md:size-5;
 }
@@ -262,6 +268,127 @@
 .iconButtonHidden {
   @apply hidden md:inline-flex;
 }
+
+/* ===== Dropdown de Sugestões ===== */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #ffffff;
+  border: 1px solid #f0e6ec;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(180, 40, 100, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownGroup {
+  padding: 8px 0 4px;
+  border-bottom: 1px solid #fce7f3;
+}
+
+.dropdownGroup:last-of-type {
+  border-bottom: none;
+}
+
+.dropdownGroupLabel {
+  display: block;
+  padding: 0 14px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #be185d;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  color: #1f2937;
+  transition: background 0.12s;
+}
+
+.dropdownItem:hover,
+.dropdownItemActive {
+  background: #fdf2f8;
+}
+
+.dropdownItemIcon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  color: #be185d;
+}
+
+.dropdownItemThumb {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #fce7f3;
+}
+
+.dropdownItemName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #111827;
+}
+
+.dropdownItemPrice {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #be185d;
+}
+
+.dropdownSearchAll {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: #fdf2f8;
+  border: none;
+  border-top: 1px solid #fce7f3;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  color: #9d174d;
+  font-weight: 500;
+  transition: background 0.12s;
+}
+
+.dropdownSearchAll:hover,
+.dropdownSearchAll.dropdownItemActive {
+  background: #fce7f3;
+}
+
+.dropdownEmpty {
+  padding: 16px 14px;
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+/* ===== Fim Dropdown ===== */
 
 @keyframes marquee {
   from {
