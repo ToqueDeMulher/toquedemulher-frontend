@@ -386,15 +386,11 @@ export function CartPage() {
                       value={coupon}
                       onChange={(e) => setCoupon(e.target.value)}
                       className={styles.summaryInput}
-                      aria-describedby="cart-coupon-status"
                     />
                     <Button type="submit" variant="outline" className={styles.summaryButton}>
                       Aplicar
                     </Button>
                   </form>
-                  <p id="cart-coupon-status" className="sr-only" aria-live="polite">
-                    {couponStatus}
-                  </p>
                 </div>
 
                 <div className={styles.summarySection}>
@@ -410,15 +406,16 @@ export function CartPage() {
                       maxLength={8}
                       inputMode="numeric"
                       className={styles.summaryInput}
-                      aria-describedby="cart-shipping-status"
                     />
-                    <Button type="submit" variant="outline" className={styles.summaryButton}>
+                    <Button
+                      type="button"
+                      onClick={calculateShipping}
+                      variant="outline"
+                      className={styles.summaryButton}
+                    >
                       OK
                     </Button>
-                  </form>
-                  <p id="cart-shipping-status" className="sr-only" aria-live="polite">
-                    {shippingStatus}
-                  </p>
+                  </div>
 
                   <div className={styles.breakdown} aria-live="polite">
                     <div className={styles.breakdownRow}>

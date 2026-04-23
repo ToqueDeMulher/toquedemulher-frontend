@@ -16,7 +16,6 @@ import { trendingProducts } from "@/shared/data/catalog-products";
 import { routes } from "@/shared/lib/routes";
 import { useAuth } from "@/shared/contexts/auth-context";
 import { useCart } from "@/shared/contexts/cart-context";
-import { trendingProducts } from "@/shared/data/catalog-products";
 import styles from "./Header.module.css";
 
 const ALL_CATEGORIES = [

@@ -83,7 +83,7 @@ export function CategoryPage() {
             className={styles.breadcrumbLink}
           >
             Home
-          </Link>
+          </button>
           <ChevronRight className={styles.breadcrumbIcon} />
           <span className={styles.breadcrumbActive}>{categoryConfig.title}</span>
         </div>
@@ -203,28 +203,20 @@ export function CategoryPage() {
             <p className={styles.newsletterText}>
               Assine nossa newsletter e receba ofertas exclusivas no seu e-mail.
             </p>
-            <form className={styles.newsletterForm} onSubmit={handleNewsletterSubmit}>
-              <label htmlFor="newsletter-email" className="sr-only">
-                Digite seu e-mail para receber novidades
-              </label>
+            <div className={styles.newsletterForm}>
               <input
-                id="newsletter-email"
                 type="email"
                 placeholder="Seu melhor e-mail"
                 className={styles.newsletterInput}
-                value={newsletterEmail}
-                onChange={(event) => setNewsletterEmail(event.target.value)}
-                autoComplete="email"
               />
               <Button
-                type="submit"
                 size="lg"
                 variant="outline"
                 className={styles.newsletterButton}
               >
                 Quero receber
               </Button>
-            </form>
+            </div>
           </div>
         </div>
       </div>

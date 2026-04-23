@@ -857,8 +857,15 @@ export function LoginPage() {
                       Eu concordo com os{" "}
                       <Link to={routes.institutional("termos")} className={styles.termsButton}>
                         termos de uso
-                      </button>{" "}
-                      e a política de privacidade.
+                      </Link>{" "}
+                      e a{" "}
+                      <Link
+                        to={routes.institutional("privacidade")}
+                        className={styles.termsButton}
+                      >
+                        política de privacidade
+                      </Link>
+                      .
                     </span>
                   </div>
                   {registerAttempted && acceptTermsError && (
