@@ -118,7 +118,7 @@
 }
 
 .toggleButton:focus-visible {
-  outline: 2px solid rgb(190 24 93 / 0.45);
+  outline: 2px solid rgb(247 57 134 / 0.45);
   outline-offset: 3px;
   border-radius: 0.375rem;
 }
@@ -408,7 +408,7 @@
 }
 
 .termsButton:focus-visible {
-  outline: 2px solid rgb(190 24 93 / 0.45);
+  outline: 2px solid rgb(247 57 134 / 0.45);
   outline-offset: 2px;
   border-radius: 0.25rem;
 }

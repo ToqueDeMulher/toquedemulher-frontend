@@ -7,7 +7,7 @@
 .header {
   @apply px-6 py-6 border-b border-pink-100 gap-4;
   background:
-    radial-gradient(circle at top left, rgba(244, 114, 182, 0.14), transparent 45%),
+    radial-gradient(circle at top left, rgba(247, 57, 134, 0.14), transparent 45%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 1));
 }
 

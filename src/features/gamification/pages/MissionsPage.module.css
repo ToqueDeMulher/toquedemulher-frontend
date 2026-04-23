@@ -3,7 +3,7 @@
 .page {
   @apply min-h-screen py-12 sm:py-16;
   background:
-    radial-gradient(circle at top, rgba(244, 114, 182, 0.14), transparent 30%),
+    radial-gradient(circle at top, rgba(247, 57, 134, 0.14), transparent 30%),
     #f1f2f6;
 }
 
@@ -156,7 +156,7 @@
 
 .ctaCard {
   @apply mt-8 rounded-[2rem] px-6 py-7 sm:px-8 sm:py-8 text-white grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto];
-  background: linear-gradient(135deg, #111827, #ec4899 140%);
+  background: linear-gradient(135deg, #111827, #f73986 140%);
 }
 
 .ctaEyebrow {

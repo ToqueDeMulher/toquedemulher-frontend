@@ -237,7 +237,7 @@
 }
 
 .itemGiftRow:focus-visible {
-  outline: 3px solid rgb(190 24 93 / 0.35);
+  outline: 3px solid rgb(247 57 134 / 0.35);
   outline-offset: -3px;
 }
 

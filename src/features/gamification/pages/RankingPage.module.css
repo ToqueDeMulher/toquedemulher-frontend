@@ -19,7 +19,7 @@
   @apply inline-flex items-center justify-center rounded-2xl text-white mb-4;
   width: 4rem;
   height: 4rem;
-  background: linear-gradient(135deg, #111827, #ec4899);
+  background: linear-gradient(135deg, #111827, #f73986);
 }
 
 .heroBadgeIcon {
@@ -103,7 +103,7 @@
 
 .podiumCardPrimary {
   @apply rounded-[2rem] px-5 pt-6 text-center text-white shadow-lg;
-  background: linear-gradient(180deg, #111827, #ec4899 130%);
+  background: linear-gradient(180deg, #111827, #f73986 130%);
 }
 
 .podiumCrown {
@@ -286,7 +286,7 @@
 
 .loginPrompt {
   @apply mt-6 rounded-[2rem] px-6 py-7 sm:px-8 sm:py-8 text-white grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto];
-  background: linear-gradient(135deg, #111827, #ec4899 140%);
+  background: linear-gradient(135deg, #111827, #f73986 140%);
 }
 
 .loginPromptEyebrow {

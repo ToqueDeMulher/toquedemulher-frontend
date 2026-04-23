@@ -11,8 +11,13 @@
 .promoBar {
   font-family: var(--font-sans, "Satoshi Variable", "Poppins", ui-sans-serif, system-ui, sans-serif);
   @apply py-3 overflow-hidden flex select-none relative font-normal;
-  background-color: var(--theme-footer-bottom);
-  color: var(--theme-footer-text);
+  background-color: #111111;
+  color: #ffffff;
+}
+
+.dark .promoBar {
+  background-color: #ffffff;
+  color: #111111;
 }
 
 .promoRow {
