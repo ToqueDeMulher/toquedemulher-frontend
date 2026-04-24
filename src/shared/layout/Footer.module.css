@@ -10,7 +10,8 @@
 }
 
 .topContainer {
-  @apply container mx-auto px-4 py-4;
+  @apply mx-auto w-full px-7 md:px-9 xl:px-14 2xl:px-20 py-5;
+  max-width: 1680px;
 }
 
 .topRow {
@@ -81,11 +82,12 @@
 }
 
 .mainContainer {
-  @apply container mx-auto px-4 pt-16 pb-8;
+  @apply mx-auto w-full px-7 md:px-9 xl:px-14 2xl:px-20 pt-20 pb-10;
+  max-width: 1680px;
 }
 
 .linksGrid {
-  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-12 text-sm;
+  @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8 xl:gap-12 mb-16 text-sm;
 }
 
 .columnTitle {
@@ -113,7 +115,7 @@
 }
 
 .logoSection {
-  @apply text-center py-12 md:py-16;
+  @apply text-center py-14 md:py-20;
   border-top: 1px solid color-mix(in oklab, var(--theme-footer-text) 18%, transparent);
 }
 
@@ -124,7 +126,7 @@
 .logoText {
   font-family: var(--font-display);
   @apply font-bold tracking-normal transition-opacity;
-  font-size: calc(1.5rem + 100px);
+  font-size: clamp(4.5rem, 8vw, 8.5rem);
   line-height: 1;
   color: var(--theme-footer-text);
 }
@@ -140,7 +142,8 @@
 }
 
 .bottomContainer {
-  @apply container mx-auto px-4;
+  @apply mx-auto w-full px-7 md:px-9 xl:px-14 2xl:px-20;
+  max-width: 1680px;
 }
 
 .bottomText {

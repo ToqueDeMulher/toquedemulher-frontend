@@ -2,7 +2,7 @@
 
 .page {
   @apply min-h-screen py-12 sm:py-16;
-  background-color: #f1f2f6;
+  background-color: var(--theme-bg-canvas);
 }
 
 .container {
@@ -163,4 +163,41 @@
 
 .spinnerIcon {
   @apply size-4 animate-spin;
+}
+
+.card {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.cardTitle,
+.label,
+.checkboxSectionTitle,
+.checkboxText {
+  color: var(--theme-text-primary);
+}
+
+.cardSubtitle,
+.backButton,
+.optional {
+  color: var(--theme-text-secondary);
+}
+
+.backButton:hover {
+  color: var(--theme-brand-strong);
+}
+
+.input {
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.input::placeholder {
+  color: var(--theme-text-muted);
+}
+
+.checkboxSection {
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
 }

@@ -61,7 +61,7 @@
 
 .iconCircleCompleted {
   background: color-mix(in oklab, var(--primary) 72%, white);
-  color: #ffffff;
+  color: var(--theme-text-inverse);
 }
 
 /* Checkmark overlay for completed */
@@ -97,6 +97,15 @@
 
 .connectorCompleted {
   background: color-mix(in oklab, var(--primary) 65%, white);
+}
+
+.dark .iconCircleCompleted {
+  background: color-mix(in oklab, var(--theme-brand-strong) 70%, var(--theme-surface-primary));
+  color: var(--theme-text-inverse);
+}
+
+.dark .connectorCompleted {
+  background: color-mix(in oklab, var(--theme-brand-strong) 54%, var(--theme-surface-secondary));
 }
 
 /* ── Responsive ──────────────────────────────────────── */

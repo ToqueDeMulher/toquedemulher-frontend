@@ -128,14 +128,14 @@ export function Header() {
         <div className={styles.promoRow}>
           {[1, 2, 3, 4].map((i) => (
             <span key={i} className={styles.promoText}>
-              Frete Grátis acima de R$ 150,00 • Até 50% OFF em selecionados
+              Frete grátis acima de R$ 150,00 • Até 50% OFF em selecionados
             </span>
           ))}
         </div>
         <div className={styles.promoRow} aria-hidden="true">
           {[1, 2, 3, 4].map((i) => (
             <span key={`clone-${i}`} className={styles.promoText}>
-              Frete Grátis acima de R$ 150,00 • Até 50% OFF em selecionados
+              Frete grátis acima de R$ 150,00 • Até 50% OFF em selecionados
             </span>
           ))}
         </div>
@@ -527,3 +527,4 @@ export function Header() {
     </>
   );
 }
+

@@ -12,6 +12,13 @@
   box-shadow: 0 0 0 3px var(--theme-focus);
 }
 
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+  }
+}
+
 @media (min-width: 640px) {
   .card {
     min-height: var(--product-card-min-h-sm, 285px);
@@ -79,6 +86,8 @@
 
 .content {
   @apply px-2.5 pb-3 pt-2;
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
@@ -129,12 +138,35 @@
 }
 
 .addButton {
-  @apply hidden;
+  @apply w-full mt-3;
   z-index: 2;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
 }
 
 .cartIcon {
   @apply size-4 mr-2;
+}
+
+@media (hover: hover) {
+  .card:hover .addButton,
+  .card:focus-within .addButton {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+@media (hover: none) {
+  .addButton {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
 }
 
 .favButton:hover {

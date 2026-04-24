@@ -1,11 +1,12 @@
 @reference "tailwindcss";
 
 .switcher {
-  @apply h-10 rounded-full px-3;
-  min-width: 7.5rem;
+  @apply h-11 rounded-full px-2.5;
+  min-width: 0;
   background-color: var(--theme-surface-secondary);
   border-color: var(--theme-border-soft);
   color: var(--theme-text-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .switcher:hover {
@@ -25,20 +26,5 @@
 
 .iconActive {
   color: var(--theme-brand-strong);
-}
-
-.label {
-  @apply text-xs font-semibold;
-  color: var(--theme-text-primary);
-}
-
-@media (max-width: 1180px) {
-  .switcher {
-    min-width: 0;
-    padding-inline: 0.75rem;
-  }
-
-  .label {
-    @apply sr-only;
-  }
+  transform: scale(1.08);
 }

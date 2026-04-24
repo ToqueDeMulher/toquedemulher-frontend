@@ -6,7 +6,8 @@
 }
 
 .container {
-  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10;
+  @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20;
+  max-width: 1680px;
 }
 
 .stepper {
@@ -454,6 +455,17 @@
   color: var(--theme-text-secondary);
 }
 
+.emptyText,
+.sectionText,
+.itemStockText,
+.itemActionLink,
+.summaryShippingSub,
+.breakdownRow,
+.totalLabel,
+.summaryEta {
+  color: color-mix(in oklab, var(--theme-text-primary) 86%, var(--theme-text-secondary));
+}
+
 .emptyIcon,
 .sectionIconWrap,
 .freeShippingIcon,
@@ -479,14 +491,37 @@
 }
 
 .freeShippingPending {
-  background-color: var(--theme-brand-soft);
-  border-color: var(--theme-border-strong);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--theme-brand-soft) 78%, var(--theme-surface-primary)) 0%,
+      color-mix(in oklab, var(--theme-surface-primary) 90%, black) 100%
+    );
+  border-color: color-mix(in oklab, var(--theme-brand-strong) 46%, var(--theme-border-soft));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.freeShippingSuccess {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--theme-brand-soft) 64%, var(--theme-surface-primary)) 0%,
+      color-mix(in oklab, var(--theme-surface-primary) 92%, black) 100%
+    );
+  border-color: color-mix(in oklab, var(--theme-brand-strong) 42%, var(--theme-border-soft));
 }
 
 .freeShippingText,
 .freeShippingPendingText,
 .freeShippingSuccessText {
   color: var(--theme-text-primary);
+  font-weight: 600;
+}
+
+.freeShippingText strong,
+.freeShippingPendingText strong,
+.freeShippingSuccessText strong {
+  color: var(--theme-brand-strong);
 }
 
 .itemCard:hover,
@@ -498,6 +533,30 @@
 .summaryInput {
   background-color: var(--theme-input-bg);
   border-color: var(--theme-input-border);
+}
+
+.summaryButton {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.summaryButton:hover {
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-strong);
+}
+
+.summaryActionHeader,
+.summaryShippingTitle,
+.summarySectionTitle,
+.breakdownRow span,
+.totalLabel {
+  color: color-mix(in oklab, var(--theme-text-primary) 96%, white);
+}
+
+.summaryShippingSub,
+.summaryEta {
+  color: color-mix(in oklab, var(--theme-text-primary) 82%, var(--theme-text-secondary));
 }
 
 .quantityButton {
@@ -516,4 +575,9 @@
 .originalPrice,
 .itemOfferTime {
   color: var(--theme-text-muted);
+}
+
+.originalPrice,
+.itemOfferTime {
+  color: color-mix(in oklab, var(--theme-text-primary) 50%, transparent);
 }

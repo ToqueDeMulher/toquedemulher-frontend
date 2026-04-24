@@ -2,6 +2,8 @@
 
 .content {
   @apply w-full gap-0 p-0 sm:max-w-md;
+  background-color: var(--theme-surface-primary);
+  color: var(--theme-text-primary);
 }
 
 .header {
@@ -221,4 +223,116 @@
 
 .ctaIcon {
   @apply size-4 ml-2;
+}
+
+.header,
+.shippingCard,
+.itemCard,
+.footer,
+.summaryCard,
+.quantityControls {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
+}
+
+.header {
+  background:
+    radial-gradient(circle at top left, color-mix(in oklab, var(--theme-brand-strong) 14%, transparent), transparent 45%),
+    linear-gradient(180deg, color-mix(in oklab, var(--theme-surface-primary) 98%, transparent), var(--theme-surface-primary));
+}
+
+.iconWrap,
+.emptyIconWrap,
+.itemMedia,
+.itemReward,
+.summaryCard {
+  background-color: var(--theme-card-muted);
+}
+
+.title,
+.shippingTitle,
+.emptyTitle,
+.itemName,
+.quantityValue,
+.itemPrice,
+.summaryTotal,
+.summaryTotal strong {
+  color: var(--theme-text-primary);
+}
+
+.description,
+.shippingText,
+.emptyText,
+.itemOriginalPrice,
+.summaryRow,
+.ghostButton {
+  color: var(--theme-text-secondary);
+}
+
+.description,
+.shippingText,
+.emptyText,
+.summaryRow,
+.ghostButton {
+  color: color-mix(in oklab, var(--theme-text-primary) 78%, var(--theme-text-secondary));
+}
+
+.itemOriginalPrice,
+.removeButton {
+  color: color-mix(in oklab, var(--theme-text-primary) 52%, transparent);
+}
+
+.shippingValue,
+.itemReward,
+.rewardRow,
+.secondaryButton,
+.iconWrap,
+.emptyIconWrap,
+.rewardSummaryIcon {
+  color: var(--theme-brand-strong);
+}
+
+.countBadge {
+  background-color: var(--theme-brand-strong);
+  color: var(--theme-text-inverse);
+}
+
+.quantityButton {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-text-primary);
+}
+
+.quantityButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+}
+
+.footer,
+.summaryTotal {
+  border-color: var(--theme-border-soft);
+}
+
+.secondaryButton {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.secondaryButton:hover {
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-strong);
+}
+
+.ghostButton:hover {
+  background-color: var(--theme-card-muted);
+  color: var(--theme-text-primary);
+}
+
+.removeButton {
+  color: color-mix(in oklab, var(--theme-text-primary) 52%, transparent);
+}
+
+.removeButton:hover {
+  color: var(--destructive);
 }

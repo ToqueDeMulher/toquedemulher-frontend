@@ -312,11 +312,15 @@ export function HomePage() {
       </section>
 
       <section className={styles.clubSection}>
-        <div className={styles.clubCard}>
+        <div className={styles.trendingContainer}>
+          <div className={styles.clubCard}>
           <div className={styles.clubIntro}>
-            <div className={styles.clubEyebrow}>
-              <Sparkles className={styles.clubEyebrowIcon} />
-              Beauty Club
+            <div className={styles.clubIntroTop}>
+              <div className={styles.clubEyebrow}>
+                <Sparkles className={styles.clubEyebrowIcon} />
+                Beauty Club
+              </div>
+              <div className={styles.clubHeroGlow} aria-hidden="true" />
             </div>
             <h2 className={styles.clubTitle}>Acompanhe sua evolução enquanto compra</h2>
             <p className={styles.clubText}>
@@ -366,7 +370,7 @@ export function HomePage() {
 
             <div className={styles.clubProgressCard}>
               <div className={styles.clubProgressHeader}>
-                <div>
+                <div className={styles.clubProgressInfo}>
                   <p className={styles.clubProgressTitle}>Próximo nível</p>
                   <p className={styles.clubProgressText}>
                     {nextLevelName
@@ -376,23 +380,32 @@ export function HomePage() {
                 </div>
                 <Badge className={styles.clubBadge}>{levelName}</Badge>
               </div>
+              <div className={styles.clubProgressMeta}>
+                <span className={styles.clubProgressMetaItem}>
+                  {Math.round(progressToNextLevel)}% concluído
+                </span>
+                <span className={styles.clubProgressMetaItem}>
+                  {nextLevelName ? `${nextLevelName} a seguir` : "Meta concluída"}
+                </span>
+              </div>
               <Progress value={progressToNextLevel} className={styles.clubProgressBar} />
             </div>
 
             <div className={styles.clubMissionList}>
-              {highlightedMissions.map((mission) => (
+              {highlightedMissions.slice(0, 1).map((mission) => (
                 <div key={mission.id} className={styles.clubMissionCard}>
-                  <div>
+                  <div className={styles.clubMissionContent}>
                     <p className={styles.clubMissionTitle}>{mission.title}</p>
-                    <p className={styles.clubMissionText}>{mission.description}</p>
+                    <p className={styles.clubMissionText}>{mission.progressLabel}</p>
                   </div>
                   <Badge className={styles.clubMissionBadge}>
-                    {mission.progressLabel}
+                    Missão ativa
                   </Badge>
                 </div>
               ))}
             </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -573,3 +586,4 @@ function LotusPattern({ className = "" }: { className?: string }) {
     </div>
   );
 }
+

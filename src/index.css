@@ -3384,18 +3384,18 @@ body {
 :root {
   --font-size: 16px;
   --font-display: "all-round-gothic", "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --background: #f1f2f6;
-  --foreground: #111827;
+  --background: #fcf7fb;
+  --foreground: #101828;
   --card: #ffffff;
   --card-foreground: #111827;
   --popover: #ffffff;
   --popover-foreground: #111827;
   --primary: #f73986;
   --primary-foreground: #ffffff;
-  --secondary: #fce7f3;
+  --secondary: #ffe8f3;
   --secondary-foreground: #111827;
-  --muted: #f8e7ef;
-  --muted-foreground: #4b5563;
+  --muted: #fff0f6;
+  --muted-foreground: #526072;
   --accent: #fce7f3;
   --accent-foreground: #111827;
   --destructive: #dc2626;
@@ -3426,60 +3426,60 @@ body {
   --text-lg: 1.125rem;
   --text-xl: 1.5rem;
   --text-2xl: 2rem;
-  --theme-bg-canvas: #f1f2f6;
-  --theme-bg-subtle: #f8f1f5;
+  --theme-bg-canvas: #fcf7fb;
+  --theme-bg-subtle: #fff1f7;
   --theme-surface-primary: #ffffff;
-  --theme-surface-secondary: #fce7f3;
-  --theme-surface-elevated: rgba(255, 255, 255, 0.82);
+  --theme-surface-secondary: #ffeaf4;
+  --theme-surface-elevated: rgba(255, 255, 255, 0.84);
   --theme-card-bg: #ffffff;
-  --theme-card-muted: #fff5fa;
-  --theme-text-primary: #111827;
-  --theme-text-secondary: #4b5563;
-  --theme-text-muted: #6b7280;
+  --theme-card-muted: #fff3f8;
+  --theme-text-primary: #101828;
+  --theme-text-secondary: #526072;
+  --theme-text-muted: #748092;
   --theme-text-inverse: #ffffff;
-  --theme-border-soft: rgba(247, 57, 134, 0.12);
+  --theme-border-soft: rgba(247, 57, 134, 0.14);
   --theme-border-strong: rgba(247, 57, 134, 0.3);
-  --theme-input-bg: #ffffff;
-  --theme-input-border: rgba(247, 57, 134, 0.18);
-  --theme-header-bg: rgba(255, 255, 255, 0.78);
-  --theme-header-solid: #ffffff;
-  --theme-header-border: rgba(255, 255, 255, 0.36);
+  --theme-input-bg: rgba(255, 248, 252, 0.96);
+  --theme-input-border: rgba(247, 57, 134, 0.2);
+  --theme-header-bg: rgba(255, 248, 252, 0.86);
+  --theme-header-solid: rgba(255, 251, 253, 0.94);
+  --theme-header-border: rgba(247, 57, 134, 0.1);
   --theme-footer-bg: #f73986;
-  --theme-footer-bottom: #f73986;
+  --theme-footer-bottom: #e51f77;
   --theme-footer-text: rgba(255, 255, 255, 0.96);
   --theme-footer-muted: rgba(255, 255, 255, 0.82);
   --theme-brand: #f73986;
   --theme-brand-strong: #f73986;
-  --theme-brand-soft: rgba(247, 57, 134, 0.1);
-  --theme-focus: rgba(247, 57, 134, 0.42);
-  --theme-switch-track: rgba(247, 57, 134, 0.08);
+  --theme-brand-soft: rgba(247, 57, 134, 0.14);
+  --theme-focus: rgba(247, 57, 134, 0.3);
+  --theme-switch-track: rgba(247, 57, 134, 0.12);
   --theme-success: #15803d;
   --theme-warning: #b45309;
   --theme-info: #2563eb;
 }
 
 .dark {
-  --background: #0f131b;
-  --foreground: #f5f7fb;
-  --card: #171b24;
-  --card-foreground: #f5f7fb;
-  --popover: #171b24;
-  --popover-foreground: #f5f7fb;
-  --primary: #f29bc3;
-  --primary-foreground: #1a1020;
-  --secondary: #1c2431;
-  --secondary-foreground: #f5f7fb;
-  --muted: #1a2230;
-  --muted-foreground: #a9b1c7;
-  --accent: #251828;
-  --accent-foreground: #fff3fb;
+  --background: #121212;
+  --foreground: #f8f7fb;
+  --card: #1a1d24;
+  --card-foreground: #f8f7fb;
+  --popover: #1a1d24;
+  --popover-foreground: #f8f7fb;
+  --primary: #f3a6ca;
+  --primary-foreground: #1a1524;
+  --secondary: #20242d;
+  --secondary-foreground: #f8f7fb;
+  --muted: #191c23;
+  --muted-foreground: #d8dfec;
+  --accent: #252933;
+  --accent-foreground: #fff6fc;
   --destructive: #f87171;
   --destructive-foreground: #2c0f16;
   --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.12);
-  --input-background: #151925;
-  --switch-background: #475569;
-  --ring: rgba(242, 155, 195, 0.5);
+  --input: rgba(255, 255, 255, 0.1);
+  --input-background: #1a1d24;
+  --switch-background: #343844;
+  --ring: rgba(243, 166, 202, 0.38);
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --chart-1: oklch(0.488 0.243 264.376);
@@ -3495,33 +3495,33 @@ body {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --theme-bg-canvas: #0f131b;
-  --theme-bg-subtle: #151925;
-  --theme-surface-primary: #171b24;
-  --theme-surface-secondary: #1d2533;
-  --theme-surface-elevated: rgba(15, 19, 27, 0.82);
-  --theme-card-bg: #171b24;
-  --theme-card-muted: #1e2534;
-  --theme-text-primary: #f5f7fb;
-  --theme-text-secondary: #d7dcef;
-  --theme-text-muted: #a9b1c7;
+  --theme-bg-canvas: #121212;
+  --theme-bg-subtle: #17181b;
+  --theme-surface-primary: #1a1d24;
+  --theme-surface-secondary: #20242d;
+  --theme-surface-elevated: rgba(18, 18, 18, 0.94);
+  --theme-card-bg: #1a1d24;
+  --theme-card-muted: #232730;
+  --theme-text-primary: #f8f7fb;
+  --theme-text-secondary: #dadce5;
+  --theme-text-muted: #a8acb8;
   --theme-text-inverse: #0f131b;
-  --theme-border-soft: rgba(242, 155, 195, 0.14);
-  --theme-border-strong: rgba(242, 155, 195, 0.36);
-  --theme-input-bg: #151925;
-  --theme-input-border: rgba(242, 155, 195, 0.2);
-  --theme-header-bg: rgba(15, 19, 27, 0.82);
-  --theme-header-solid: #11161f;
-  --theme-header-border: rgba(255, 255, 255, 0.06);
-  --theme-footer-bg: #0b0f17;
-  --theme-footer-bottom: #070a10;
-  --theme-footer-text: #f5f7fb;
-  --theme-footer-muted: #d7dcef;
-  --theme-brand: #f29bc3;
-  --theme-brand-strong: #f472b6;
-  --theme-brand-soft: rgba(247, 57, 134, 0.14);
-  --theme-focus: rgba(247, 57, 134, 0.4);
-  --theme-switch-track: rgba(242, 155, 195, 0.1);
+  --theme-border-soft: rgba(255, 255, 255, 0.1);
+  --theme-border-strong: rgba(243, 166, 202, 0.32);
+  --theme-input-bg: rgba(26, 29, 36, 0.98);
+  --theme-input-border: rgba(255, 255, 255, 0.12);
+  --theme-header-bg: rgba(18, 18, 18, 0.9);
+  --theme-header-solid: rgba(22, 22, 22, 0.98);
+  --theme-header-border: rgba(255, 255, 255, 0.08);
+  --theme-footer-bg: #171717;
+  --theme-footer-bottom: #101010;
+  --theme-footer-text: #f8f7fb;
+  --theme-footer-muted: #dadce5;
+  --theme-brand: #f3a6ca;
+  --theme-brand-strong: #f3a6ca;
+  --theme-brand-soft: rgba(243, 166, 202, 0.16);
+  --theme-focus: rgba(243, 166, 202, 0.28);
+  --theme-switch-track: rgba(243, 166, 202, 0.14);
   --theme-success: #4ade80;
   --theme-warning: #fbbf24;
   --theme-info: #60a5fa;
@@ -4029,4 +4029,119 @@ html {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.dark .bg-white {
+  background-color: var(--theme-card-bg) !important;
+}
+
+.dark .bg-pink-50,
+.dark .bg-pink-50\/50,
+.dark .bg-pink-50\/60,
+.dark .bg-pink-50\/70,
+.dark .bg-pink-100 {
+  background-color: var(--theme-card-muted) !important;
+}
+
+.dark .bg-pink-600,
+.dark .bg-pink-700 {
+  background-color: var(--theme-brand-strong) !important;
+}
+
+.dark .hover\:bg-pink-600:hover,
+.dark .hover\:bg-pink-700:hover {
+  background-color: color-mix(in oklab, var(--theme-brand-strong) 88%, black) !important;
+}
+
+.dark .border-pink-100,
+.dark .border-pink-200,
+.dark .border-pink-300,
+.dark .border-gray-200 {
+  border-color: var(--theme-border-soft) !important;
+}
+
+.dark .border-pink-500 {
+  border-color: var(--theme-brand-strong) !important;
+}
+
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700 {
+  color: var(--theme-text-primary) !important;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: var(--theme-text-secondary) !important;
+}
+
+.dark .text-pink-600,
+.dark .text-pink-700,
+.dark .text-pink-500,
+.dark .text-pink-400,
+.dark .text-pink-300 {
+  color: var(--theme-brand-strong) !important;
+}
+
+.dark .fill-pink-500,
+.dark .fill-pink-400,
+.dark .fill-pink-300 {
+  fill: var(--theme-brand-strong) !important;
+}
+
+.dark .from-white {
+  --tw-gradient-from: color-mix(in oklab, var(--theme-surface-primary) 96%, transparent) !important;
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)) !important;
+}
+
+.dark .via-white {
+  --tw-gradient-via: color-mix(in oklab, var(--theme-surface-secondary) 94%, transparent) !important;
+  --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-via-stops) !important;
+}
+
+.dark .to-white {
+  --tw-gradient-to: color-mix(in oklab, var(--theme-surface-primary) 92%, transparent) !important;
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)) !important;
+}
+
+.dark .from-pink-50,
+.dark .from-pink-100,
+.dark .from-pink-300 {
+  --tw-gradient-from: color-mix(in oklab, var(--theme-brand-soft) 72%, var(--theme-surface-primary)) !important;
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)) !important;
+}
+
+.dark .via-pink-50,
+.dark .via-pink-100,
+.dark .via-pink-400 {
+  --tw-gradient-via: color-mix(in oklab, var(--theme-brand-soft) 46%, var(--theme-surface-secondary)) !important;
+  --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-via-stops) !important;
+}
+
+.dark .to-pink-50,
+.dark .to-pink-100,
+.dark .to-pink-400,
+.dark .to-pink-500,
+.dark .to-pink-600 {
+  --tw-gradient-to: color-mix(in oklab, var(--theme-brand-soft) 30%, var(--theme-surface-primary)) !important;
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)) !important;
+}
+
+.dark .hover\:bg-pink-50:hover,
+.dark .hover\:bg-pink-50\/60:hover,
+.dark .hover\:bg-pink-50\/70:hover,
+.dark .hover\:bg-pink-100:hover {
+  background-color: var(--theme-brand-soft) !important;
+}
+
+.dark .hover\:text-pink-600:hover,
+.dark .hover\:text-pink-700:hover {
+  color: var(--theme-brand-strong) !important;
+}
+
+.dark .placeholder\:text-gray-400::placeholder {
+  color: var(--theme-text-muted) !important;
 }

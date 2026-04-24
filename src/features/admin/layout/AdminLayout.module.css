@@ -178,3 +178,46 @@
     display: initial;
   }
 }
+
+.dark .shell {
+  background:
+    radial-gradient(circle at top left, color-mix(in oklab, var(--theme-brand-strong) 16%, transparent), transparent 22%),
+    linear-gradient(180deg, color-mix(in oklab, var(--theme-bg-subtle) 96%, transparent) 0%, var(--theme-bg-canvas) 100%);
+}
+
+.dark .sidebar,
+.dark .brandBlock,
+.dark .accountCard,
+.dark .statusBar {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.dark .sidebarToggle,
+.dark .mainToggle,
+.dark .statusTextWrap,
+.dark .brandText,
+.dark .accountEmail,
+.dark .navLink,
+.dark .logoutButton {
+  color: var(--theme-text-secondary);
+}
+
+.dark .brandTitle,
+.dark .accountName {
+  color: var(--theme-text-primary);
+}
+
+.dark .brandBadge,
+.dark .navLink:hover,
+.dark .storeButton {
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
+  border-color: var(--theme-border-soft);
+}
+
+.dark .navLinkActive {
+  background-color: var(--theme-brand-strong);
+  color: var(--theme-text-inverse);
+  border-color: var(--theme-brand-strong);
+}

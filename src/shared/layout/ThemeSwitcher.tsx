@@ -5,7 +5,7 @@ import styles from "./ThemeSwitcher.module.css";
 
 export function ThemeSwitcher() {
   const { theme, toggleTheme } = useTheme();
-  const nextThemeLabel = theme === "dark" ? "claro" : "noturno";
+  const nextThemeLabel = theme === "dark" ? "modo claro" : "modo escuro";
 
   return (
     <Button
@@ -22,7 +22,6 @@ export function ThemeSwitcher() {
         <Sun className={`${styles.icon} ${theme === "light" ? styles.iconActive : ""}`} />
         <Moon className={`${styles.icon} ${theme === "dark" ? styles.iconActive : ""}`} />
       </span>
-      <span className={styles.label}>{theme === "dark" ? "Noturno" : "Claro"}</span>
     </Button>
   );
 }

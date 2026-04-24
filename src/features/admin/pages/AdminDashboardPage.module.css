@@ -297,3 +297,56 @@
     grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
   }
 }
+
+.dark .page,
+.dark .panel,
+.dark .kpiCard,
+.dark .profileCard,
+.dark .iconButton,
+.dark .searchInput,
+.dark .lineChartWrap,
+.dark .barChart,
+.dark .table tbody td {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.dark .topTitle,
+.dark .profileName,
+.dark .kpiValue,
+.dark .panelTitle,
+.dark .table tbody td {
+  color: var(--theme-text-primary);
+}
+
+.dark .topEyebrow,
+.dark .searchIcon,
+.dark .iconButton,
+.dark .profileRole,
+.dark .kpiTitle,
+.dark .kpiDetail,
+.dark .legendRow,
+.dark .barLabel,
+.dark .table thead th,
+.dark .footerHint {
+  color: var(--theme-text-secondary);
+}
+
+.dark .profileAvatar,
+.dark .legendCurrent,
+.dark .barCurrent {
+  background: var(--theme-brand-strong);
+}
+
+.dark .legendPrevious,
+.dark .barPrevious {
+  background: color-mix(in oklab, var(--theme-brand-strong) 76%, white);
+}
+
+.dark .topTrack {
+  background: color-mix(in oklab, var(--theme-border-soft) 85%, transparent);
+}
+
+.dark .topFill {
+  background: linear-gradient(90deg, var(--theme-brand-strong) 0%, color-mix(in oklab, var(--theme-brand-strong) 42%, white) 100%);
+}
