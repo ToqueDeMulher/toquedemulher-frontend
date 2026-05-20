@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { Search, X, ChevronRight } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { routes } from "@/shared/lib/routes";
 import { useCart } from "@/shared/contexts/cart-context";
 import { trendingProducts } from "@/shared/data/catalog-products";
@@ -131,21 +131,6 @@ export function SearchResultsPage() {
 
   return (
     <div className={styles.page}>
-      <div className={`${styles.container} ${styles.breadcrumb}`}>
-        <div className={styles.breadcrumbRow}>
-          <button
-            onClick={() => navigate(routes.home)}
-            className={styles.breadcrumbLink}
-          >
-            Home
-          </button>
-          <ChevronRight className={styles.breadcrumbIcon} />
-          <span className={styles.breadcrumbActive}>
-            {query ? `Busca: "${query}"` : "Busca"}
-          </span>
-        </div>
-      </div>
-
       <div className={`${styles.container} ${styles.searchSection}`}>
         <div className={styles.searchBox}>
           <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
@@ -197,7 +182,7 @@ export function SearchResultsPage() {
                   isNew={product.isNew}
                   discount={product.discount}
                   onClick={() => handleProductClick(product.id)}
-                  onAddToCart={() => addItem(1)}
+                  onAddToCart={() => addItem(product.id, 1)}
                 />
               </div>
             ))}

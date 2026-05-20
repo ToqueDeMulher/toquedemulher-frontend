@@ -486,19 +486,20 @@ export function Header() {
                   </Link>
                 </Button>
 
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon"
-                  className={styles.iconButton}
-                >
-                  <Link
-                    to={accountRoute}
-                    aria-label="Perfil"
-                  >
-                    <User className={styles.iconLarge} aria-hidden="true" />
-                  </Link>
-                </Button>
+                {isLoggedIn ? (
+                  <Button asChild variant="ghost" size="icon" className={styles.iconButton}>
+                    <Link to={accountRoute} aria-label="Meu perfil">
+                      <User className={styles.iconLarge} aria-hidden="true" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button asChild variant="default" size="sm" className={styles.loginButton}>
+                    <Link to={routes.login}>
+                      <User className={styles.loginButtonIcon} aria-hidden="true" />
+                      <span className={styles.loginButtonText}>Entrar</span>
+                    </Link>
+                  </Button>
+                )}
 
                 {isLoggedIn && (
                   <Button

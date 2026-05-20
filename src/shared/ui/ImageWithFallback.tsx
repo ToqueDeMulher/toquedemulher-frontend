@@ -8,12 +8,19 @@ export function ImageWithFallback(
   props: React.ImgHTMLAttributes<HTMLImageElement>,
 ) {
   const [didError, setDidError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const handleError = () => {
     setDidError(true);
+    setIsLoaded(true);
   };
 
-  const { src, alt, style, className, ...rest } = props;
+  const handleLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    setIsLoaded(true);
+    props.onLoad?.(event);
+  };
+
+  const { src, alt, style, className, onLoad, ...rest } = props;
 
   return didError ? (
     <div
@@ -33,9 +40,10 @@ export function ImageWithFallback(
     <img
       src={src}
       alt={alt}
-      className={className}
+      className={`${styles.image} ${isLoaded ? styles.imageLoaded : styles.imageLoading} ${className ?? ""}`}
       style={style}
       {...rest}
+      onLoad={handleLoad}
       onError={handleError}
     />
   );

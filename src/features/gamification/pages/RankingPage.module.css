@@ -12,7 +12,7 @@
 }
 
 .hero {
-  @apply rounded-[2rem] border border-pink-100 bg-white text-center px-6 py-8 sm:px-8 sm:py-10 shadow-sm mb-6;
+  @apply rounded-[2rem] border border-pink-100 bg-white text-center px-6 py-8 sm:px-8 sm:py-10 mb-6;
 }
 
 .heroBadge {
@@ -36,7 +36,7 @@
 }
 
 .meCard {
-  @apply rounded-[2rem] border border-pink-100 bg-white px-6 py-6 sm:px-8 shadow-sm mb-6;
+  @apply rounded-[2rem] border border-pink-100 bg-white px-6 py-6 sm:px-8 mb-6;
 }
 
 .meCardHeader {
@@ -98,11 +98,11 @@
 }
 
 .podiumCardSecondary {
-  @apply rounded-[2rem] bg-white border border-pink-100 px-5 pt-6 text-center shadow-sm;
+  @apply rounded-[2rem] bg-white border border-pink-100 px-5 pt-6 text-center;
 }
 
 .podiumCardPrimary {
-  @apply rounded-[2rem] px-5 pt-6 text-center text-white shadow-lg;
+  @apply rounded-[2rem] px-5 pt-6 text-center text-white;
   background: linear-gradient(180deg, #111827, #f73986 130%);
 }
 
@@ -165,7 +165,7 @@
 }
 
 .board {
-  @apply rounded-[2rem] border border-pink-100 bg-white shadow-sm overflow-hidden mb-6;
+  @apply rounded-[2rem] border border-pink-100 bg-white overflow-hidden mb-6;
 }
 
 .boardHeader {
@@ -244,7 +244,7 @@
 }
 
 .levelGuide {
-  @apply rounded-[2rem] border border-pink-100 bg-white px-6 py-6 shadow-sm;
+  @apply rounded-[2rem] border border-pink-100 bg-white px-6 py-6;
 }
 
 .levelGuideHeader {
@@ -269,7 +269,7 @@
 }
 
 .levelCardActive {
-  @apply border-pink-400 bg-pink-50 shadow-sm;
+  @apply border-pink-400 bg-pink-50;
 }
 
 .levelIcon {

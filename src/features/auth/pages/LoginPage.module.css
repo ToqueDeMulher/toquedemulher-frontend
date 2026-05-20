@@ -6,7 +6,7 @@
 }
 
 .decorLayer {
-  @apply absolute inset-0 opacity-10 pointer-events-none;
+  display: none;
 }
 
 .decorOrb {
@@ -42,7 +42,8 @@
 }
 
 .card {
-  @apply bg-white rounded-2xl shadow-xl p-8 border border-pink-100 backdrop-blur-sm;
+  @apply bg-white p-8 border border-pink-100;
+  border-radius: 12px;
 }
 
 .tabsRoot {
@@ -51,6 +52,7 @@
 
 .tabsList {
   @apply grid w-full grid-cols-2 mb-8 bg-pink-50;
+  border-radius: 10px;
 }
 
 .tabTriggerLogin {
@@ -66,7 +68,8 @@
 }
 
 .roleSection {
-  @apply rounded-2xl border border-pink-100 bg-pink-50/70 p-4 space-y-3;
+  @apply border border-pink-100 bg-pink-50/70 p-4 space-y-3;
+  border-radius: 12px;
 }
 
 .roleLabel {
@@ -78,7 +81,8 @@
 }
 
 .roleButton {
-  @apply rounded-xl border border-pink-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors;
+  @apply border border-pink-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors;
+  border-radius: 10px;
 }
 
 .roleButton:hover {
@@ -163,16 +167,7 @@
 
 .bubblyButton::before,
 .bubblyButton::after {
-  position: absolute;
-  content: "";
-  display: block;
-  width: 140%;
-  height: 100%;
-  left: -20%;
-  z-index: -1;
-  transition: all 0.5s ease-in-out;
-  background-repeat: no-repeat;
-  pointer-events: none;
+  display: none;
 }
 
 .bubblyButton::before {
@@ -237,7 +232,7 @@
 }
 
 .bubblyButton:active {
-  transform: scale(0.9);
+  transform: translateY(1px);
   box-shadow: none;
 }
 
@@ -446,7 +441,7 @@
 .card {
   background-color: var(--theme-card-bg);
   border-color: var(--theme-border-soft);
-  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+  box-shadow: none;
 }
 
 .tabsList,

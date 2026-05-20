@@ -185,7 +185,7 @@
 }
 
 .summaryCard {
-  @apply bg-white rounded-2xl p-8 max-w-md mx-auto mb-8 border border-pink-100 shadow-sm;
+  @apply bg-white rounded-2xl p-8 max-w-md mx-auto mb-8 border border-pink-100;
 }
 
 .summaryInner {

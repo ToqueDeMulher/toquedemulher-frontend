@@ -1,0 +1,528 @@
+@reference "tailwindcss";
+
+/* ─── Layout base ──────────────────────────────────────────── */
+.page {
+  @apply min-h-screen;
+  background-color: var(--theme-bg-canvas);
+}
+
+.container {
+  @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16;
+  max-width: 1100px;
+}
+
+/* ─── Hero ──────────────────────────────────────────────────── */
+.hero {
+  @apply py-14 sm:py-20;
+  background-color: var(--theme-bg-subtle);
+  border-bottom: 1px solid var(--theme-border-soft);
+}
+
+.heroInner {
+  @apply flex items-start gap-6;
+}
+
+.heroIconWrap {
+  @apply flex-shrink-0 w-14 h-14 flex items-center justify-center;
+  border-radius: 12px;
+  background-color: var(--theme-brand-soft);
+}
+
+.heroIcon {
+  @apply size-7;
+  color: var(--theme-brand-strong);
+}
+
+.heroMeta {
+  @apply flex flex-col gap-1;
+}
+
+.heroEyebrow {
+  @apply text-xs font-semibold uppercase tracking-[0.25em];
+  color: var(--theme-brand-strong);
+}
+
+.heroTitle {
+  @apply text-3xl sm:text-4xl font-bold leading-tight mt-1;
+  color: var(--theme-text-primary);
+}
+
+.heroSubtitle {
+  @apply text-base sm:text-lg leading-relaxed mt-3;
+  color: var(--theme-text-secondary);
+}
+
+/* ─── Seções de conteúdo ────────────────────────────────────── */
+.section {
+  @apply py-10 sm:py-14;
+}
+
+.sectionTitle {
+  @apply text-xl sm:text-2xl font-bold mb-4;
+  color: var(--theme-text-primary);
+}
+
+.sectionText {
+  @apply text-base leading-relaxed;
+  color: var(--theme-text-secondary);
+}
+
+/* ─── Cards de política / tópico ────────────────────────────── */
+.policyGrid {
+  @apply grid sm:grid-cols-2 gap-5 mt-6;
+}
+
+.policyCard {
+  @apply p-6 border;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.policyCardTitle {
+  @apply text-base font-bold mb-3 flex items-center gap-2;
+  color: var(--theme-text-primary);
+}
+
+.policyCardIcon {
+  @apply size-5;
+  color: var(--theme-brand-strong);
+}
+
+.policyList {
+  @apply space-y-2 text-sm;
+  color: var(--theme-text-secondary);
+}
+
+.policyListItem {
+  @apply flex items-start gap-2;
+}
+
+.policyListDot {
+  @apply mt-1.5 size-1.5 rounded-full flex-shrink-0;
+  background-color: var(--theme-brand-strong);
+}
+
+/* ─── Seção de artigos numerados ────────────────────────────── */
+.articleList {
+  @apply mt-6 space-y-8;
+}
+
+.articleSection {
+  @apply pb-8;
+  border-bottom: 1px solid var(--theme-border-soft);
+}
+
+.articleSection:last-child {
+  border-bottom: none;
+}
+
+.articleTitle {
+  @apply text-base font-bold mb-2 flex items-center gap-3;
+  color: var(--theme-text-primary);
+}
+
+.articleNumber {
+  @apply flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
+}
+
+.articleText {
+  @apply text-sm leading-relaxed pl-10;
+  color: var(--theme-text-secondary);
+}
+
+/* ─── CTA banner ────────────────────────────────────────────── */
+.ctaBanner {
+  @apply p-8 sm:p-10 text-center mt-8;
+  background-color: var(--theme-brand-strong);
+  border-radius: 14px;
+}
+
+.ctaBannerTitle {
+  @apply text-xl sm:text-2xl font-bold text-white mb-2;
+}
+
+.ctaBannerText {
+  @apply text-sm text-white/80 mb-6;
+}
+
+.ctaBannerActions {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-3;
+}
+
+.ctaBannerPrimary {
+  @apply bg-white font-semibold px-6 py-3 transition-all hover:bg-gray-100;
+  border-radius: 10px;
+  color: var(--theme-brand-strong);
+}
+
+.ctaBannerSecondary {
+  @apply border border-white/50 text-white px-6 py-3 transition-all hover:bg-white/10;
+  border-radius: 10px;
+}
+
+/* ─── Blog ──────────────────────────────────────────────────── */
+.blogGrid {
+  @apply grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6;
+}
+
+.blogCard {
+  @apply overflow-hidden border transition-colors;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.blogImage {
+  @apply w-full h-44 object-cover;
+}
+
+.blogBody {
+  @apply p-5;
+}
+
+.blogCategory {
+  @apply inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full mb-3;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
+}
+
+.blogTitle {
+  @apply text-base font-bold leading-snug mb-2;
+  color: var(--theme-text-primary);
+}
+
+.blogExcerpt {
+  @apply text-sm leading-relaxed;
+  color: var(--theme-text-secondary);
+}
+
+.blogMeta {
+  @apply flex items-center justify-between mt-4 pt-4 text-xs;
+  border-top: 1px solid var(--theme-border-soft);
+  color: var(--theme-text-muted);
+}
+
+.blogReadMore {
+  @apply font-semibold transition-colors;
+  color: var(--theme-brand-strong);
+}
+
+/* ─── Contato ───────────────────────────────────────────────── */
+.contactGrid {
+  @apply grid lg:grid-cols-5 gap-8 mt-6;
+}
+
+.contactForm {
+  @apply lg:col-span-3 p-6 sm:p-8 border;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.contactFormTitle {
+  @apply text-lg font-bold mb-6;
+  color: var(--theme-text-primary);
+}
+
+.formGroup {
+  @apply mb-4;
+}
+
+.formLabel {
+  @apply block text-sm font-medium mb-1.5;
+  color: var(--theme-text-primary);
+}
+
+.formInput {
+  @apply w-full px-4 py-2.5 border text-sm transition-colors;
+  border-radius: 10px;
+  background-color: var(--theme-bg-canvas);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-text-primary);
+}
+
+.formInput:focus {
+  outline: 2px solid var(--theme-focus);
+  outline-offset: 1px;
+  border-color: var(--theme-brand-strong);
+}
+
+.formTextarea {
+  @apply w-full px-4 py-2.5 border text-sm transition-colors resize-none;
+  border-radius: 10px;
+  background-color: var(--theme-bg-canvas);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-text-primary);
+  min-height: 130px;
+}
+
+.formTextarea:focus {
+  outline: 2px solid var(--theme-focus);
+  outline-offset: 1px;
+  border-color: var(--theme-brand-strong);
+}
+
+.formSelect {
+  @apply w-full px-4 py-2.5 border text-sm transition-colors;
+  border-radius: 10px;
+  background-color: var(--theme-bg-canvas);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-text-primary);
+}
+
+.formSubmit {
+  @apply w-full py-3 font-semibold text-sm transition-all mt-2;
+  border-radius: 10px;
+  background-color: var(--theme-brand-strong);
+  color: white;
+}
+
+.formSubmit:hover {
+  filter: brightness(0.93);
+}
+
+.contactInfo {
+  @apply lg:col-span-2 flex flex-col gap-4;
+}
+
+.contactInfoCard {
+  @apply p-5 border;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.contactInfoIcon {
+  @apply size-5 mb-3;
+  color: var(--theme-brand-strong);
+}
+
+.contactInfoTitle {
+  @apply text-sm font-bold mb-1;
+  color: var(--theme-text-primary);
+}
+
+.contactInfoText {
+  @apply text-sm;
+  color: var(--theme-text-secondary);
+}
+
+.contactInfoLink {
+  @apply underline-offset-2 hover:underline transition-colors;
+  color: var(--theme-brand-strong);
+}
+
+/* ─── Trabalhe conosco ──────────────────────────────────────── */
+.cultureGrid {
+  @apply grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6;
+}
+
+.cultureCard {
+  @apply p-6 border text-center;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.cultureIconWrap {
+  @apply w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4;
+  background-color: var(--theme-brand-soft);
+}
+
+.cultureIcon {
+  @apply size-6;
+  color: var(--theme-brand-strong);
+}
+
+.cultureTitle {
+  @apply text-sm font-bold mb-1;
+  color: var(--theme-text-primary);
+}
+
+.cultureText {
+  @apply text-xs leading-relaxed;
+  color: var(--theme-text-secondary);
+}
+
+.jobList {
+  @apply mt-6 space-y-4;
+}
+
+.jobCard {
+  @apply p-5 sm:p-6 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.jobInfo {
+  @apply flex flex-col gap-1;
+}
+
+.jobTitle {
+  @apply text-base font-bold;
+  color: var(--theme-text-primary);
+}
+
+.jobMeta {
+  @apply flex flex-wrap gap-2 mt-1;
+}
+
+.jobTag {
+  @apply inline-flex items-center text-xs px-2.5 py-0.5 rounded-full font-medium;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
+}
+
+.jobTagSecondary {
+  @apply inline-flex items-center text-xs px-2.5 py-0.5 rounded-full font-medium;
+  background-color: var(--theme-bg-subtle);
+  color: var(--theme-text-secondary);
+}
+
+.jobApply {
+  @apply flex-shrink-0 px-5 py-2.5 text-sm font-semibold transition-all border;
+  border-radius: 10px;
+  border-color: var(--theme-brand-strong);
+  color: var(--theme-brand-strong);
+}
+
+.jobApply:hover {
+  background-color: var(--theme-brand-strong);
+  color: white;
+}
+
+/* ─── Rastreamento / Pedidos / Desejos (em breve) ───────────── */
+.comingSoonCard {
+  @apply p-10 sm:p-14 text-center border mt-6;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.comingSoonIcon {
+  @apply size-12 mx-auto mb-5;
+  color: var(--theme-brand-strong);
+}
+
+.comingSoonTitle {
+  @apply text-xl font-bold mb-3;
+  color: var(--theme-text-primary);
+}
+
+.comingSoonText {
+  @apply text-sm leading-relaxed max-w-md mx-auto mb-7;
+  color: var(--theme-text-secondary);
+}
+
+.comingSoonActions {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-3;
+}
+
+.comingSoonPrimary {
+  @apply px-6 py-3 font-semibold text-sm transition-all;
+  border-radius: 10px;
+  background-color: var(--theme-brand-strong);
+  color: white;
+}
+
+.comingSoonPrimary:hover {
+  filter: brightness(0.93);
+}
+
+.comingSoonSecondary {
+  @apply px-6 py-3 font-semibold text-sm border transition-all;
+  border-radius: 10px;
+  border-color: var(--theme-border-strong);
+  color: var(--theme-text-secondary);
+}
+
+.comingSoonSecondary:hover {
+  background-color: var(--theme-bg-subtle);
+}
+
+/* ─── Sumário de navegação (index) ─────────────────────────── */
+.toc {
+  @apply hidden lg:block sticky top-24 self-start p-5 border;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+  width: 220px;
+}
+
+.tocTitle {
+  @apply text-xs font-bold uppercase tracking-wider mb-3;
+  color: var(--theme-text-muted);
+}
+
+.tocList {
+  @apply space-y-2;
+}
+
+.tocItem {
+  @apply text-xs transition-colors cursor-pointer;
+  color: var(--theme-text-secondary);
+}
+
+.tocItem:hover {
+  color: var(--theme-brand-strong);
+}
+
+/* ─── Layout com sidebar ────────────────────────────────────── */
+.withToc {
+  @apply flex gap-8 items-start;
+}
+
+.mainContent {
+  @apply flex-1 min-w-0;
+}
+
+/* ─── Highlight box ─────────────────────────────────────────── */
+.highlight {
+  @apply rounded-xl p-4 border-l-4 my-6;
+  background-color: var(--theme-brand-soft);
+  border-left-color: var(--theme-brand-strong);
+}
+
+.highlightText {
+  @apply text-sm;
+  color: var(--theme-text-primary);
+}
+
+/* ─── Divider ───────────────────────────────────────────────── */
+.divider {
+  @apply my-8 border-0 h-px;
+  background-color: var(--theme-border-soft);
+}
+
+/* ─── Rastreamento feature card ─────────────────────────────── */
+.stepsGrid {
+  @apply grid sm:grid-cols-3 gap-5 mt-6;
+}
+
+.stepCard {
+  @apply p-5 border text-center;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.stepNumber {
+  @apply w-10 h-10 flex items-center justify-center text-lg font-bold mx-auto mb-3;
+  background-color: var(--theme-brand-strong);
+  border-radius: 10px;
+  color: white;
+}
+
+.stepTitle {
+  @apply text-sm font-bold mb-1;
+  color: var(--theme-text-primary);
+}
+
+.stepText {
+  @apply text-xs leading-relaxed;
+  color: var(--theme-text-secondary);
+}

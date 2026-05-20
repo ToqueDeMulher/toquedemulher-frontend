@@ -4,6 +4,7 @@
   @apply mt-20 font-sans;
 }
 
+/* ─── Barra social / app ───────────────────────────────────── */
 .topBar {
   border-top: 1px solid var(--theme-border-soft);
   background-color: var(--theme-bg-subtle);
@@ -32,10 +33,17 @@
 }
 
 .socialButton {
-  @apply w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all shadow-sm;
+  @apply w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center transition-colors;
+  border-radius: 10px;
   background-color: var(--theme-surface-primary);
   color: var(--theme-text-secondary);
   border: 1px solid var(--theme-border-soft);
+}
+
+.socialButton:hover {
+  background-color: var(--theme-brand-strong);
+  border-color: var(--theme-brand-strong);
+  color: var(--theme-text-inverse);
 }
 
 .socialButton:focus-visible {
@@ -47,14 +55,8 @@
   @apply size-4;
 }
 
-.socialButton:hover {
-  background-color: var(--theme-brand-strong);
-  border-color: var(--theme-brand-strong);
-  color: var(--theme-text-inverse);
-}
-
 .appLink {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-2 cursor-pointer;
 }
 
 .appIcon {
@@ -63,7 +65,7 @@
 }
 
 .appText {
-  @apply text-sm font-medium cursor-pointer transition-colors whitespace-nowrap;
+  @apply text-sm font-medium transition-colors whitespace-nowrap;
   color: var(--theme-text-secondary);
 }
 
@@ -71,27 +73,133 @@
   color: var(--theme-brand-strong);
 }
 
+/* ─── Newsletter ────────────────────────────────────────────── */
+.newsletterSection {
+  @apply py-4 sm:py-5;
+  background-color: var(--theme-brand-strong);
+}
+
+.newsletterInner {
+  @apply flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-6;
+}
+
+.newsletterCopy {
+  @apply flex-shrink-0;
+}
+
+.newsletterEyebrow {
+  @apply hidden;
+}
+
+.newsletterTitle {
+  @apply text-sm font-bold text-white leading-tight;
+}
+
+.newsletterSubtitle {
+  @apply text-xs text-white/70 hidden sm:block;
+}
+
+.newsletterForm {
+  @apply flex w-full sm:w-auto flex-row gap-2;
+  min-width: min(100%, 340px);
+}
+
+.newsletterInput {
+  @apply flex-1 px-3 py-2 text-sm transition-colors;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.18);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  min-width: 0;
+}
+
+.newsletterInput::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.newsletterInput:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 1px;
+  background-color: rgba(255, 255, 255, 0.22);
+}
+
+.newsletterButton {
+  @apply px-4 py-2 text-xs font-bold transition-all whitespace-nowrap flex-shrink-0;
+  border-radius: 8px;
+  background-color: white;
+  color: var(--theme-brand-strong);
+}
+
+.newsletterButton:hover {
+  background-color: #f5f5f5;
+}
+
+.newsletterButton:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 3px;
+}
+
+.newsletterSuccess {
+  @apply flex items-center gap-2 flex-shrink-0;
+}
+
+.newsletterSuccessIcon {
+  @apply w-7 h-7 flex items-center justify-center text-sm font-bold flex-shrink-0;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.newsletterSuccessTitle {
+  @apply text-sm font-bold text-white;
+}
+
+.newsletterSuccessText {
+  @apply text-xs text-white/75;
+}
+
+/* ─── Trust badges ──────────────────────────────────────────── */
+.trustBar {
+  @apply py-4 sm:py-5;
+  background-color: var(--theme-bg-canvas);
+  border-bottom: 1px solid var(--theme-border-soft);
+}
+
+.trustGrid {
+  @apply flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-10;
+}
+
+.trustBadge {
+  @apply flex items-center gap-2;
+}
+
+.trustIcon {
+  @apply size-4 flex-shrink-0;
+  color: var(--theme-brand-strong);
+}
+
+.trustLabel {
+  @apply text-xs font-medium whitespace-nowrap;
+  color: var(--theme-text-secondary);
+}
+
+/* ─── Links principais ──────────────────────────────────────── */
 .mainSection {
   color: var(--theme-footer-text);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--theme-footer-bg) 92%, var(--theme-brand-strong) 8%) 0%,
-      var(--theme-footer-bg) 100%
-    );
+  background-color: var(--theme-footer-bg);
 }
 
 .mainContainer {
-  @apply mx-auto w-full px-7 md:px-9 xl:px-14 2xl:px-20 pt-20 pb-10;
+  @apply mx-auto w-full px-7 md:px-9 xl:px-14 2xl:px-20 pt-16 pb-10;
   max-width: 1680px;
 }
 
 .linksGrid {
-  @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8 xl:gap-12 mb-16 text-sm;
+  @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8 xl:gap-12 mb-12 text-sm;
 }
 
 .columnTitle {
-  @apply mb-6 uppercase tracking-wider font-bold text-xs md:text-sm;
+  @apply mb-5 uppercase tracking-wider font-bold text-xs;
   color: var(--theme-footer-text);
 }
 
@@ -114,29 +222,27 @@
   border-radius: 0.375rem;
 }
 
+/* ─── Logo ──────────────────────────────────────────────────── */
 .logoSection {
-  @apply text-center py-14 md:py-20;
+  @apply text-center py-12 md:py-16;
   border-top: 1px solid color-mix(in oklab, var(--theme-footer-text) 18%, transparent);
 }
 
 .logoRow {
-  @apply flex items-center justify-center mb-1;
+  @apply flex items-center justify-center;
 }
 
 .logoText {
   font-family: var(--font-display);
   @apply font-bold tracking-normal transition-opacity;
-  font-size: clamp(4.5rem, 8vw, 8.5rem);
+  font-size: clamp(3.5rem, 7vw, 7rem);
   line-height: 1;
   color: var(--theme-footer-text);
 }
 
-.logoText:hover {
-  @apply opacity-100;
-}
-
+/* ─── Bottom bar ────────────────────────────────────────────── */
 .bottomBar {
-  @apply py-6;
+  @apply py-5;
   background-color: var(--theme-footer-bottom);
   color: var(--theme-footer-text);
 }

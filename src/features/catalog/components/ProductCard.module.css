@@ -1,11 +1,11 @@
 @reference "tailwindcss";
 
 .card {
-  @apply relative rounded-3xl overflow-hidden transition-all cursor-pointer;
+  @apply relative overflow-hidden transition-all cursor-pointer;
+  border-radius: 12px;
   background-color: var(--product-card-bg, var(--theme-card-bg));
   border: var(--product-card-border, 1px solid var(--theme-border-soft));
-  min-height: var(--product-card-min-h, 265px);
-  border-top-right-radius: 0;
+  min-height: var(--product-card-min-h, 222px);
 }
 
 .card:focus-within {
@@ -14,14 +14,14 @@
 
 @media (hover: hover) {
   .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
   }
 }
 
 @media (min-width: 640px) {
   .card {
-    min-height: var(--product-card-min-h-sm, 285px);
+    min-height: var(--product-card-min-h-sm, 238px);
   }
 }
 
@@ -41,18 +41,19 @@
 
 .imageWrapper {
   @apply relative;
-  background-color: var(--theme-card-muted);
-  padding: 0;
+  background-color: var(--theme-surface-primary);
+  padding: 0.65rem 0.65rem 0.25rem;
 }
 
 .productImage {
-  @apply w-full object-cover;
-  height: var(--product-card-image-h, 9rem);
+  @apply w-full object-contain;
+  height: var(--product-card-image-h, 8.25rem);
+  background-color: var(--theme-surface-primary);
 }
 
 @media (min-width: 640px) {
   .productImage {
-    height: var(--product-card-image-h-sm, 10rem);
+    height: var(--product-card-image-h-sm, 9.25rem);
   }
 }
 
@@ -61,17 +62,20 @@
 }
 
 .badgeNew {
-  @apply bg-pink-600 text-white;
+  @apply text-white;
+  background-color: var(--theme-brand-strong);
 }
 
 .badgeDiscount {
-  @apply bg-pink-100 text-pink-700;
+  background-color: var(--theme-complement-soft);
+  color: var(--theme-complement-text);
 }
 
 .favButton {
-  @apply absolute bottom-3 right-3 p-2 rounded-full transition-colors;
+  @apply absolute bottom-3 right-3 p-2 transition-colors;
+  border-radius: 10px;
   z-index: 2;
-  background-color: color-mix(in oklab, var(--theme-surface-primary) 78%, transparent);
+  background-color: color-mix(in oklab, var(--theme-surface-primary) 88%, transparent);
   border: 1px solid var(--theme-border-soft);
 }
 
@@ -81,7 +85,8 @@
 }
 
 .heartIconActive {
-  @apply fill-pink-500/80 text-pink-500/80;
+  fill: var(--theme-brand-strong);
+  color: var(--theme-brand-strong);
 }
 
 .content {
@@ -91,7 +96,7 @@
 }
 
 .title {
-  @apply font-medium text-[11px] sm:text-xs line-clamp-2 min-h-[2.2rem];
+  @apply font-medium text-[11px] line-clamp-2 min-h-[2rem];
   color: var(--theme-text-primary);
 }
 
@@ -106,7 +111,8 @@
 }
 
 .starFilled {
-  @apply text-yellow-400 fill-yellow-400;
+  color: var(--theme-brand-strong);
+  fill: var(--theme-brand-strong);
 }
 
 .ratingValue {
@@ -116,7 +122,7 @@
 .reviewCount {
   @apply ml-2 rounded-md px-1.5 py-0.5 text-xs;
   color: var(--theme-text-secondary);
-  background-color: var(--theme-card-muted);
+  background-color: var(--theme-bg-subtle);
 }
 
 .priceRow {
