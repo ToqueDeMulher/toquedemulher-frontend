@@ -2,12 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ChevronUp,
   Crown,
-  Droplets,
-  Flower2,
-  Leaf,
   MessageCircle,
-  Palette,
-  Scissors,
   Sparkles,
   Target,
 } from "lucide-react";
@@ -292,32 +287,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ─── Category Strip ──────────────────────────────────────── */}
-      <nav className={styles.categoryStrip} aria-label="Categorias principais">
-        <div className={styles.categoryStripInner}>
-          <div className={styles.categoryStripGrid}>
-            {([
-              { slug: "maquiagem", label: "Maquiagem", icon: Palette },
-              { slug: "skincare", label: "Skincare", icon: Leaf },
-              { slug: "cabelos", label: "Cabelos", icon: Scissors },
-              { slug: "corpo", label: "Corpo", icon: Droplets },
-              { slug: "perfumes", label: "Perfumes", icon: Flower2 },
-            ] as const).map(({ slug, label, icon: Icon }) => (
-              <Link
-                key={slug}
-                to={routes.category(slug)}
-                className={styles.categoryStripCard}
-                aria-label={`Ver categoria ${label}`}
-              >
-                <span className={styles.categoryStripIconWrap} aria-hidden="true">
-                  <Icon className={styles.categoryStripIcon} />
-                </span>
-                <span className={styles.categoryStripLabel}>{label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </nav>
 
       <section className={styles.clubSection}>
         <div className={styles.trendingContainer}>

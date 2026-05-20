@@ -3462,20 +3462,14 @@ body {
   --theme-ink: #111111;
   --theme-ink-soft: rgba(17, 17, 17, 0.08);
 
-  --theme-accent-gold: #08c679;
-  --theme-accent-gold-soft: rgba(8, 198, 121, 0.12);
-  --theme-accent-gold-text: #057a4f;
-  --theme-accent-lavender: #111111;
-  --theme-accent-lavender-soft: rgba(17, 17, 17, 0.06);
-  --theme-accent-lavender-text: #111111;
-  --theme-accent-sage: #08c679;
-  --theme-accent-sage-soft: rgba(8, 198, 121, 0.12);
-  --theme-accent-sage-text: #057a4f;
-  --theme-accent-berry: #111111;
-  --theme-accent-berry-soft: rgba(17, 17, 17, 0.08);
-  --theme-accent-coral: #f73986;
-  --theme-accent-coral-soft: rgba(247, 57, 134, 0.1);
-  --theme-accent-coral-text: #f73986;
+  /* Triadic complementary colors for brand pink #F2388F */
+  --theme-accent-cyan: #38D8F2;
+  --theme-accent-cyan-soft: rgba(56, 216, 242, 0.12);
+  --theme-accent-cyan-text: #0a8fa3;
+
+  --theme-accent-yellow: #F2DE38;
+  --theme-accent-yellow-soft: rgba(242, 222, 56, 0.14);
+  --theme-accent-yellow-text: #7a6d00;
 }
 
 .dark {
@@ -3551,20 +3545,14 @@ body {
   --theme-ink: #f8f7fb;
   --theme-ink-soft: rgba(248, 247, 251, 0.1);
 
-  --theme-accent-gold: #08c679;
-  --theme-accent-gold-soft: rgba(8, 198, 121, 0.18);
-  --theme-accent-gold-text: #4ee0a5;
-  --theme-accent-lavender: #f8f7fb;
-  --theme-accent-lavender-soft: rgba(255, 255, 255, 0.08);
-  --theme-accent-lavender-text: #f8f7fb;
-  --theme-accent-sage: #08c679;
-  --theme-accent-sage-soft: rgba(8, 198, 121, 0.18);
-  --theme-accent-sage-text: #4ee0a5;
-  --theme-accent-berry: #f8f7fb;
-  --theme-accent-berry-soft: rgba(255, 255, 255, 0.08);
-  --theme-accent-coral: #f3a6ca;
-  --theme-accent-coral-soft: rgba(243, 166, 202, 0.16);
-  --theme-accent-coral-text: #f3a6ca;
+  /* Triadic complementary colors for brand pink #F2388F */
+  --theme-accent-cyan: #38D8F2;
+  --theme-accent-cyan-soft: rgba(56, 216, 242, 0.15);
+  --theme-accent-cyan-text: #38D8F2;
+
+  --theme-accent-yellow: #F2DE38;
+  --theme-accent-yellow-soft: rgba(242, 222, 56, 0.15);
+  --theme-accent-yellow-text: #F2DE38;
 }
 
 html {
@@ -3574,17 +3562,20 @@ html {
 .text-yellow-300,
 .text-yellow-400,
 .text-yellow-600,
-.text-yellow-700,
-.fill-yellow-400,
-.bg-yellow-100,
-.bg-yellow-500 {
-  color: var(--theme-brand-strong) !important;
-  fill: var(--theme-brand-strong) !important;
+.text-yellow-700 {
+  color: var(--theme-accent-yellow-text) !important;
 }
 
-.bg-yellow-100,
+.fill-yellow-400 {
+  fill: var(--theme-accent-yellow) !important;
+}
+
+.bg-yellow-100 {
+  background-color: var(--theme-accent-yellow-soft) !important;
+}
+
 .bg-yellow-500 {
-  background-color: var(--theme-brand-soft) !important;
+  background-color: var(--theme-accent-yellow) !important;
 }
 
 .text-green-600,

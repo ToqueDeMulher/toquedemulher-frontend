@@ -775,95 +775,6 @@
   border-color: var(--theme-border-strong);
 }
 
-/* ─── Category Strip ────────────────────────────────────────── */
-.categoryStrip {
-  @apply py-6 sm:py-8;
-  background-color: var(--theme-bg-canvas);
-  border-bottom: 1px solid var(--theme-border-soft);
-}
-
-.categoryStripInner {
-  @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20;
-  max-width: 1680px;
-}
-
-.categoryStripGrid {
-  @apply grid gap-3 sm:gap-5;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-.categoryStripCard {
-  @apply flex flex-col items-center gap-2 sm:gap-3 cursor-pointer transition-all;
-}
-
-.categoryStripIconWrap {
-  @apply w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center transition-all group-hover:scale-105;
-  border-radius: 12px;
-  background-color: var(--theme-card-muted);
-}
-
-.categoryStripIcon {
-  @apply size-5 sm:size-6;
-  color: var(--theme-brand-strong);
-}
-
-.categoryStripLabel {
-  @apply text-[10px] sm:text-xs font-semibold text-center leading-tight transition-colors;
-  color: var(--theme-text-secondary);
-}
-
-.categoryStripCard:hover .categoryStripLabel {
-  color: var(--theme-brand-strong);
-}
-
-.categoryStripCard:hover .categoryStripIconWrap {
-  background-color: var(--theme-text-primary);
-}
-
-.categoryStripCard:hover .categoryStripIcon {
-  color: var(--theme-text-inverse);
-}
-
-.categoryStripCard:nth-child(2) .categoryStripIcon {
-  color: var(--theme-brand-strong);
-}
-
-.categoryStripCard:nth-child(3) .categoryStripIcon {
-  color: var(--theme-brand-strong);
-}
-
-.categoryStripCard:nth-child(4) .categoryStripIcon {
-  color: var(--theme-brand-strong);
-}
-
-.categoryStripCard:nth-child(5) .categoryStripIcon {
-  color: var(--theme-brand-strong);
-}
-
-/* ─── FAQ (theme-aware) ─────────────────────────────────────── */
-/* ─── Section separator / banner ───────────────────────────── */
-.midBanner {
-  @apply py-3;
-  background-color: #111111;
-}
-
-.midBannerInner {
-  @apply mx-auto flex w-full flex-col items-center justify-center gap-2 px-5 text-center sm:flex-row sm:gap-4 sm:px-8;
-  max-width: 1680px;
-}
-
-.midBannerTitle {
-  @apply text-sm font-semibold text-white;
-}
-
-.midBannerText {
-  @apply text-xs sm:text-sm text-white/75;
-}
-
-.midBannerLink {
-  @apply text-xs font-semibold underline underline-offset-4 sm:text-sm;
-  color: var(--theme-complement);
-}
 
 @media (min-width: 1280px) {
   .carousel {
@@ -881,16 +792,6 @@
     display: none;
   }
 
-  .categoryStripGrid {
-    grid-template-columns: repeat(5, minmax(74px, 1fr));
-    overflow-x: auto;
-    padding-bottom: 0.25rem;
-    scrollbar-width: none;
-  }
-
-  .categoryStripGrid::-webkit-scrollbar {
-    display: none;
-  }
 
   .clubActions {
     align-items: stretch;
