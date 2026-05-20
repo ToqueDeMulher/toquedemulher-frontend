@@ -1,5 +1,16 @@
 import { useEffect, useState } from "react";
-import { ChevronUp, Crown, MessageCircle, Sparkles, Target } from "lucide-react";
+import {
+  ChevronUp,
+  Crown,
+  Droplets,
+  Flower2,
+  Leaf,
+  MessageCircle,
+  Palette,
+  Scissors,
+  Sparkles,
+  Target,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
@@ -12,12 +23,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/shared/ui/carousel";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/shared/ui/accordion";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { routes } from "@/shared/lib/routes";
@@ -47,29 +52,6 @@ import downloadFiveImage from "@/shared/assets/favorites-cards/download (5).jpg"
 import beVelvetImage from "@/shared/assets/favorites-cards/download (6).jpg";
 import downloadSevenImage from "@/shared/assets/favorites-cards/download (7).jpg";
 import glamOnImage from "@/shared/assets/favorites-cards/Game_on_Glam_on.jpg";
-const faqs = [
-  {
-    question: "Qual o prazo de entrega?",
-    answer:
-      "O prazo de entrega varia de acordo com sua região. Para compras acima de R$ 150, o frete é grátis! Geralmente, entregamos em 5 a 10 dias úteis.",
-  },
-  {
-    question: "Como funciona a política de trocas?",
-    answer:
-      "Você tem até 30 dias para trocar ou devolver produtos não utilizados. Basta entrar em contato com nossa central de atendimento.",
-  },
-  {
-    question: "Os produtos são originais?",
-    answer:
-      "Sim! Todos os nossos produtos são 100% originais e adquiridos diretamente das marcas ou distribuidores autorizados.",
-  },
-  {
-    question: "Posso parcelar minhas compras?",
-    answer:
-      "Sim! Aceitamos parcelamento em até 6x sem juros no cartão de crédito para compras acima de R$ 100.",
-  },
-];
-
 const favoriteProducts = [
   { id: "fav-1", image: byomaImage, title: "byoma" },
   { id: "fav-2", image: instagramImage, title: "dior" },
@@ -262,7 +244,6 @@ export function HomePage() {
   return (
     <div className={styles.page}>
       <section className={styles.heroSection} aria-label="Destaques principais">
-        <LotusPattern />
         <Carousel
           className={styles.carousel}
           opts={{ loop: true, align: "start" }}
@@ -310,6 +291,33 @@ export function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* ─── Category Strip ──────────────────────────────────────── */}
+      <nav className={styles.categoryStrip} aria-label="Categorias principais">
+        <div className={styles.categoryStripInner}>
+          <div className={styles.categoryStripGrid}>
+            {([
+              { slug: "maquiagem", label: "Maquiagem", icon: Palette },
+              { slug: "skincare", label: "Skincare", icon: Leaf },
+              { slug: "cabelos", label: "Cabelos", icon: Scissors },
+              { slug: "corpo", label: "Corpo", icon: Droplets },
+              { slug: "perfumes", label: "Perfumes", icon: Flower2 },
+            ] as const).map(({ slug, label, icon: Icon }) => (
+              <Link
+                key={slug}
+                to={routes.category(slug)}
+                className={styles.categoryStripCard}
+                aria-label={`Ver categoria ${label}`}
+              >
+                <span className={styles.categoryStripIconWrap} aria-hidden="true">
+                  <Icon className={styles.categoryStripIcon} />
+                </span>
+                <span className={styles.categoryStripLabel}>{label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </nav>
 
       <section className={styles.clubSection}>
         <div className={styles.trendingContainer}>
@@ -423,7 +431,7 @@ export function HomePage() {
             setApi={setProductApi}
           >
             <CarouselContent className={styles.productCarouselContent}>
-              {trendingProducts.slice(0, 12).map((product) => (
+              {trendingProducts.slice(0, 10).map((product) => (
                 <CarouselItem key={product.id} className={styles.productCarouselItem}>
                   <ProductCard
                     {...product}
@@ -454,7 +462,7 @@ export function HomePage() {
           </div>
 
           <div className={styles.favoritesGrid}>
-            {favoriteProducts.slice(0, 8).map((product) => (
+            {favoriteProducts.slice(0, 4).map((product) => (
               <Link
                 key={`favorite-${product.id}`}
                 className={styles.favoriteCard}
@@ -471,27 +479,6 @@ export function HomePage() {
               </Link>
             ))}
           </div>
-          {favoriteProducts.length > 8 && (
-            <div className={styles.favoritesGridCompact}>
-              {favoriteProducts.slice(8).map((product) => (
-                <Link
-                  key={`favorite-compact-${product.id}`}
-                  className={`${styles.favoriteCard} ${styles.favoriteCardCompact}`}
-                  to={routes.category(defaultCategorySlug)}
-                >
-                  <ImageWithFallback
-                    src={product.image}
-                    alt=""
-                    className={styles.favoriteImageCompact}
-                    onLoad={(event) => applyDominantColor(event.currentTarget)}
-                  />
-                  <div className={styles.favoriteGradient} aria-hidden="true" />
-                  <span className={styles.favoriteCaption}>{product.title}</span>
-                </Link>
-              ))}
-            </div>
-          )}
-
           <div className={styles.trendingSubHeader}>
             <h2 id="home-recommended-title" className={styles.trendingTitle}>
               Recomendados
@@ -500,7 +487,7 @@ export function HomePage() {
 
           <div className={styles.recommendedBox}>
             <div className={styles.recommendedGrid}>
-              {Array.from({ length: 18 }).map((_, index) => {
+              {Array.from({ length: 12 }).map((_, index) => {
                 const product = trendingProducts[index % trendingProducts.length];
                 return (
                   <div key={`recommended-${index}`} className={styles.recommendedItem}>
@@ -548,7 +535,8 @@ export function HomePage() {
           )}
         </div>
       </section>
-          {showScrollTop && (
+
+      {showScrollTop && (
         <>
           <button
             type="button"
@@ -572,18 +560,3 @@ export function HomePage() {
     </div>
   );
 }
-
-function LotusPattern({ className = "" }: { className?: string }) {
-  return (
-    <div className={`${styles.lotusPattern} ${className}`} aria-hidden="true">
-      <svg width="400" height="400" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <path
-          fill="#f73986"
-          d="M45.7,-76.3C58.9,-69.3,69.1,-58.3,76.5,-46.3C83.9,-34.3,88.5,-21.3,87.3,-8.7C86.1,3.9,79.1,16.1,71.1,27.2C63.1,38.3,54.1,48.3,43.5,56.8C32.9,65.3,20.7,72.3,7.9,73.6C-4.9,74.9,-18.3,70.5,-30.9,63.4C-43.5,56.3,-55.3,46.5,-64.3,34.5C-73.3,22.5,-79.5,8.3,-78.9,-5.6C-78.3,-19.5,-70.9,-33.1,-60.7,-43.3C-50.5,-53.5,-37.5,-60.3,-24.8,-67.6C-12.1,-74.9,0.3,-82.7,13.2,-80.7C26.1,-78.7,39.5,-66.9,45.7,-76.3Z"
-          transform="translate(100 100)"
-        />
-      </svg>
-    </div>
-  );
-}
-

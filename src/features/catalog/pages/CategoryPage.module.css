@@ -11,7 +11,7 @@
 }
 
 .breadcrumb {
-  @apply py-4 sm:py-6;
+  @apply py-3 sm:py-4;
 }
 
 .breadcrumbRow {
@@ -37,7 +37,7 @@
 }
 
 .headerSection {
-  @apply pb-6 sm:pb-8;
+  @apply pb-4 sm:pb-5;
 }
 
 .headerInner {
@@ -45,20 +45,21 @@
 }
 
 .headerTitle {
-  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-3;
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 mb-3;
   animation: fade-in 0.8s ease-out;
 }
 
 .headerDescription {
-  @apply text-gray-600 text-base sm:text-lg leading-relaxed;
+  @apply text-gray-600 text-sm sm:text-base leading-relaxed;
 }
 
 .filterSection {
-  @apply pb-8;
+  @apply pb-6;
 }
 
 .filterCard {
-  @apply bg-white rounded-2xl shadow-sm p-4 sm:p-6 border border-pink-100;
+  @apply bg-white p-3 sm:p-4 border border-pink-100;
+  border-radius: 12px;
 }
 
 .filterRow {
@@ -74,7 +75,8 @@
 }
 
 .filterIcon {
-  @apply size-5 text-pink-600;
+  @apply size-5;
+  color: var(--theme-brand-strong);
 }
 
 .filterLabelText {
@@ -119,11 +121,11 @@
 }
 
 .productsSection {
-  @apply pb-16;
+  @apply pb-10;
 }
 
 .productsGrid {
-  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6;
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4;
 }
 
 .emptyState {
@@ -131,11 +133,13 @@
 }
 
 .emptyCard {
-  @apply bg-white rounded-2xl shadow-sm p-10 sm:p-12 inline-block border border-pink-100;
+  @apply bg-white p-10 sm:p-12 inline-block border border-pink-100;
+  border-radius: 12px;
 }
 
 .emptyIcon {
-  @apply text-pink-300 mb-4;
+  @apply mb-4;
+  color: var(--theme-text-muted);
 }
 
 .emptySvg {
@@ -155,15 +159,17 @@
 }
 
 .newsletterSection {
-  @apply pb-16;
+  @apply pb-10;
 }
 
 .newsletterCard {
-  @apply bg-gradient-to-r from-pink-700 to-pink-600 rounded-3xl shadow-xl p-8 sm:p-12 text-center text-white relative overflow-hidden;
+  @apply p-5 sm:p-6 text-center text-white relative overflow-hidden;
+  background-color: var(--theme-ink);
+  border-radius: 14px;
 }
 
 .newsletterPattern {
-  @apply absolute inset-0 opacity-20;
+  display: none;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4xIi8+PC9zdmc+");
 }
 
@@ -172,11 +178,11 @@
 }
 
 .newsletterTitle {
-  @apply text-2xl sm:text-3xl font-semibold mb-4;
+  @apply text-lg sm:text-xl font-semibold mb-2;
 }
 
 .newsletterText {
-  @apply text-white mb-8 max-w-xl mx-auto text-base sm:text-lg;
+  @apply text-white mb-4 max-w-xl mx-auto text-xs sm:text-sm;
 }
 
 .newsletterForm {
@@ -184,7 +190,8 @@
 }
 
 .newsletterInput {
-  @apply flex-1 px-4 h-11 rounded-2xl text-gray-800 bg-white/95 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all placeholder:text-gray-400 text-sm;
+  @apply flex-1 px-4 h-11 text-gray-800 bg-white/95 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all placeholder:text-gray-400 text-sm;
+  border-radius: 10px;
 }
 
 .newsletterInput:focus-visible {
@@ -231,5 +238,5 @@
 }
 
 .newsletterCard {
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+  box-shadow: none;
 }

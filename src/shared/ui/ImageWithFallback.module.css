@@ -1,9 +1,44 @@
 @reference "tailwindcss";
 
+.image {
+  transition: opacity 0.22s ease, filter 0.22s ease;
+}
+
+.imageLoading {
+  background:
+    linear-gradient(
+      90deg,
+      var(--theme-card-muted) 0%,
+      color-mix(in oklab, var(--theme-card-muted) 70%, white) 48%,
+      var(--theme-card-muted) 100%
+    );
+  background-size: 220% 100%;
+  animation: imageSkeleton 1.1s ease-in-out infinite;
+  opacity: 0.92;
+  filter: saturate(0.86);
+}
+
+.imageLoaded {
+  animation: none;
+  background: transparent;
+  opacity: 1;
+  filter: none;
+}
+
 .fallbackWrapper {
   @apply inline-block bg-gray-100 text-center align-middle;
 }
 
 .fallbackInner {
   @apply flex items-center justify-center w-full h-full;
+}
+
+@keyframes imageSkeleton {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
 }

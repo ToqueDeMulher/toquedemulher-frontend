@@ -7,35 +7,85 @@
 
 .container {
   @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20;
-  max-width: 1680px;
+  max-width: 1100px;
 }
 
-.header {
-  @apply text-center mb-12;
+/* ─── Hero ─────────────────────────────────────────────────── */
+.heroSection {
+  @apply py-12 sm:py-16;
+  background-color: var(--theme-bg-canvas);
 }
 
-.title {
-  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mb-3;
+.heroGrid {
+  @apply grid lg:grid-cols-2 gap-10 items-center;
 }
 
-.subtitle {
-  @apply text-gray-600 mb-8 text-base sm:text-lg;
+.heroBadge {
+  @apply inline-flex items-center text-xs font-semibold px-3 py-1;
+  border-radius: 8px;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
 }
 
-.searchWrap {
-  @apply max-w-2xl mx-auto;
+.heroTitle {
+  @apply text-3xl sm:text-4xl font-bold mt-4 leading-tight;
+  color: var(--theme-text-primary);
 }
 
-.searchInner {
-  @apply relative;
+.heroText {
+  @apply text-base sm:text-lg leading-relaxed mt-3;
+  color: var(--theme-text-secondary);
+}
+
+.searchBox {
+  @apply relative mt-6;
 }
 
 .searchIcon {
-  @apply absolute left-4 top-1/2 transform -translate-y-1/2 text-pink-400 size-5;
+  @apply absolute left-4 top-1/2 -translate-y-1/2 size-5;
+  color: var(--theme-brand-strong);
 }
 
 .searchInput {
   @apply pl-12;
+}
+
+/* ─── Hero card de stats ────────────────────────────────────── */
+.heroCard {
+  @apply p-6 border;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.heroCardTitle {
+  @apply text-lg font-bold mb-2;
+  color: var(--theme-text-primary);
+}
+
+.heroCardText {
+  @apply text-sm sm:text-base leading-relaxed mb-6;
+  color: var(--theme-text-secondary);
+}
+
+.heroStats {
+  @apply grid grid-cols-2 gap-6;
+}
+
+.heroStatValue {
+  @apply text-2xl font-bold;
+  color: var(--theme-brand-strong);
+}
+
+.heroStatLabel {
+  @apply text-xs sm:text-sm mt-0.5;
+  color: var(--theme-text-muted);
+}
+
+/* ─── Contato ───────────────────────────────────────────────── */
+.contactSection {
+  @apply py-12 sm:py-16;
+  background-color: var(--theme-bg-canvas);
 }
 
 .contactGrid {
@@ -43,49 +93,68 @@
 }
 
 .contactCard {
-  @apply bg-white rounded-2xl p-6 border border-pink-100 text-center hover:shadow-lg transition-shadow;
-}
-
-.contactIconWrap {
-  @apply w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4;
+  @apply p-6 border text-center transition-colors;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
 }
 
 .contactIcon {
-  @apply size-6 text-pink-600;
+  @apply size-6 mx-auto mb-3;
+  color: var(--theme-brand-strong);
 }
 
 .contactTitle {
-  @apply text-gray-900 font-semibold mb-2;
+  @apply text-base font-bold mb-2;
+  color: var(--theme-text-primary);
 }
 
 .contactText {
-  @apply text-gray-600 mb-4;
+  @apply text-sm mb-4;
+  color: var(--theme-text-secondary);
 }
 
 .contactText a {
   @apply underline-offset-2 transition-colors;
+  color: var(--theme-brand-strong);
 }
 
 .contactText a:hover {
-  @apply text-pink-700 underline;
+  text-decoration: underline;
 }
 
 .contactText a:focus-visible {
-  outline: 2px solid rgb(247 57 134 / 0.45);
+  outline: 2px solid var(--theme-focus);
   outline-offset: 3px;
   border-radius: 0.375rem;
+}
+
+.contactBadge {
+  border-color: transparent;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
 }
 
 .contactButton {
   @apply w-full;
 }
 
+/* ─── FAQ ───────────────────────────────────────────────────── */
+.faqSection {
+  @apply py-12 sm:py-16;
+  background-color: var(--theme-bg-canvas);
+}
+
 .faqCard {
-  @apply bg-white rounded-2xl p-8 border border-pink-100 shadow-sm;
+  @apply p-8 border;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
 }
 
 .faqTitle {
-  @apply text-2xl sm:text-3xl font-semibold text-gray-900 mb-6;
+  @apply text-2xl sm:text-3xl font-bold mb-6;
+  color: var(--theme-text-primary);
 }
 
 .tabsRoot {
@@ -101,152 +170,64 @@
 }
 
 .accordionTrigger {
-  @apply text-left text-gray-800 hover:text-pink-600;
+  @apply text-left font-medium;
+  color: var(--theme-text-primary);
+}
+
+.accordionTrigger:hover {
+  color: var(--theme-brand-strong);
 }
 
 .accordionContent {
-  @apply text-gray-600;
-}
-
-.emptyState {
-  @apply text-sm text-gray-600 py-4;
-}
-
-.helpCta {
-  @apply mt-12 rounded-2xl p-8 text-center;
-  background-color: var(--theme-bg-subtle);
-}
-
-.helpCtaTitle {
-  @apply text-2xl sm:text-3xl font-semibold mb-4;
-}
-
-.helpCtaText {
-  @apply mb-6 text-sm sm:text-base;
-}
-
-.helpCtaButton {
-  @apply w-full sm:w-auto text-pink-600 border-pink-200 bg-transparent hover:bg-pink-50 hover:border-pink-300;
-}
-
-.heroSection {
-  @apply py-12 sm:py-16;
-  background-color: var(--theme-bg-canvas);
-}
-
-.heroGrid {
-  @apply grid lg:grid-cols-2 gap-10 items-center;
-}
-
-.heroBadge {
-  @apply inline-flex items-center rounded-full bg-pink-100 text-pink-700 text-xs font-semibold px-3 py-1;
-}
-
-.heroTitle {
-  @apply text-3xl sm:text-4xl font-semibold text-gray-900 mt-4;
-}
-
-.heroText {
-  @apply text-gray-600 text-base sm:text-lg leading-relaxed mt-3;
-}
-
-.searchBox {
-  @apply relative mt-6;
-}
-
-.heroCard {
-  @apply bg-white rounded-2xl p-6 border border-pink-100 shadow-sm;
-}
-
-.heroCardTitle {
-  @apply text-lg font-semibold text-gray-900 mb-2;
-}
-
-.heroCardText {
-  @apply text-gray-600 text-sm sm:text-base mb-6;
-}
-
-.heroStats {
-  @apply grid grid-cols-2 gap-6;
-}
-
-.heroStatValue {
-  @apply text-2xl font-semibold text-gray-900;
-}
-
-.heroStatLabel {
-  @apply text-xs sm:text-sm text-gray-500;
-}
-
-.contactSection {
-  @apply py-12 sm:py-16;
-  background-color: var(--theme-bg-canvas);
-}
-
-.contactBadge {
-  @apply bg-pink-100 text-pink-700 border-transparent;
-}
-
-.faqSection {
-  @apply py-12 sm:py-16;
-  background-color: var(--theme-bg-canvas);
-}
-
-.title,
-.faqTitle,
-.heroTitle,
-.heroCardTitle,
-.heroStatValue,
-.contactTitle {
-  color: var(--theme-text-primary);
-}
-
-.subtitle,
-.contactText,
-.accordionContent,
-.emptyState,
-.heroText,
-.heroCardText,
-.heroStatLabel,
-.helpCtaText {
+  @apply text-sm leading-relaxed;
   color: var(--theme-text-secondary);
 }
 
-.contactCard,
-.faqCard,
-.heroCard {
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
+.emptyState {
+  @apply text-sm py-4;
+  color: var(--theme-text-muted);
 }
 
-.contactIconWrap,
-.heroBadge,
-.contactBadge {
-  background-color: var(--theme-brand-soft);
+/* ─── CTA final ─────────────────────────────────────────────── */
+.helpCta {
+  @apply mt-12 p-10 sm:p-12 text-center;
+  background-color: var(--theme-brand-strong);
+  border-radius: 14px;
 }
 
-.contactIcon,
-.searchIcon,
-.heroBadge,
-.contactBadge {
-  color: var(--theme-brand-strong);
+.helpCtaTitle {
+  @apply text-2xl sm:text-3xl font-bold text-white mb-3;
 }
 
-.accordionTrigger {
-  color: var(--theme-text-primary);
-}
-
-.accordionTrigger:hover,
-.contactText a:hover {
-  color: var(--theme-brand-strong);
+.helpCtaText {
+  @apply text-sm sm:text-base text-white/80 mb-6;
 }
 
 .helpCtaButton {
-  border-color: var(--theme-input-border);
+  @apply w-full sm:w-auto bg-white font-semibold px-7 py-3 transition-all hover:bg-gray-100;
+  border-radius: 10px;
   color: var(--theme-brand-strong);
 }
 
-.helpCtaButton:hover {
-  background-color: var(--theme-brand-soft);
-  border-color: var(--theme-border-strong);
+/* ─── Header (visão legacy, se ainda usado) ─────────────────── */
+.header {
+  @apply text-center mb-12;
+}
+
+.title {
+  @apply text-3xl sm:text-4xl font-bold mb-3;
+  color: var(--theme-text-primary);
+}
+
+.subtitle {
+  @apply text-base sm:text-lg mb-8;
+  color: var(--theme-text-secondary);
+}
+
+.searchWrap {
+  @apply max-w-2xl mx-auto;
+}
+
+.searchInner {
+  @apply relative;
 }

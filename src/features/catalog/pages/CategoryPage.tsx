@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { Button } from "@/shared/ui/button";
 import {
@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
-import { ChevronRight, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import {
   catalogCategories,
   defaultCategorySlug,
@@ -75,20 +75,6 @@ export function CategoryPage() {
 
   return (
     <div className={styles.page}>
-      <div className={`${styles.container} ${styles.breadcrumb}`}>
-        <div className={styles.breadcrumbRow}>
-          <button
-            type="button"
-            onClick={() => navigate(routes.home)}
-            className={styles.breadcrumbLink}
-          >
-            Home
-          </button>
-          <ChevronRight className={styles.breadcrumbIcon} />
-          <span className={styles.breadcrumbActive}>{categoryConfig.title}</span>
-        </div>
-      </div>
-
       <div className={`${styles.container} ${styles.headerSection}`}>
         <div className={styles.headerInner}>
           <h1 className={styles.headerTitle}>{categoryConfig.title}</h1>

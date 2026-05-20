@@ -145,6 +145,18 @@ function getAddressErrors(addressForm: AddressFormState) {
   return errors;
 }
 
+function hasMissingAddressField(addressForm: AddressFormState) {
+  return REQUIRED_ADDRESS_FIELDS.some((field) => {
+    const value = addressForm[field].trim();
+
+    if (field === "email") return !isValidEmail(value);
+    if (field === "zipCode") return value.length !== 8;
+    if (field === "phone") return value.length < 10;
+
+    return value.length === 0;
+  });
+}
+
 function getPaymentErrors(paymentForm: PaymentFormState) {
   const errors: Partial<Record<keyof PaymentFormState, string>> = {};
 
@@ -173,6 +185,10 @@ function getPaymentErrors(paymentForm: PaymentFormState) {
   }
 
   return errors;
+}
+
+function isCardPaymentValid(paymentForm: PaymentFormState) {
+  return Object.keys(getPaymentErrors(paymentForm)).length === 0;
 }
 
 function createOrderNumber() {

@@ -247,11 +247,12 @@ export function HelpPage() {
           <p className={styles.helpCtaText}>
             Nossa equipe está pronta para te ajudar a qualquer momento.
           </p>
-          <Button size="lg" variant="outline" className={styles.helpCtaButton} asChild>
-            <a href="mailto:contato@toquedemulher.com?subject=Preciso%20de%20ajuda">
-              Falar com atendimento
-            </a>
-          </Button>
+          <a
+            href="mailto:contato@toquedemulher.com?subject=Preciso%20de%20ajuda"
+            className={styles.helpCtaButton}
+          >
+            Falar com atendimento
+          </a>
         </div>
       </section>
     </div>

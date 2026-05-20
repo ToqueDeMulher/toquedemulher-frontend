@@ -1,38 +1,80 @@
 @reference "tailwindcss";
 
+/* ─── Layout ─────────────────────────────────────────────────── */
 .page {
   @apply min-h-screen;
   background-color: var(--theme-bg-canvas);
 }
 
-.heroSection {
-  @apply relative py-20;
-  background-image: linear-gradient(
-    135deg,
-    var(--theme-bg-canvas) 0%,
-    var(--theme-bg-canvas) 60%,
-    var(--theme-bg-subtle) 100%
-  );
+.container {
+  @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16;
+  max-width: 1100px;
 }
 
-.container {
-  @apply container mx-auto px-4;
+/* ─── Hero ──────────────────────────────────────────────────── */
+.heroSection {
+  @apply relative py-16 sm:py-24 text-center;
+  background-color: var(--theme-bg-subtle);
+  border-bottom: 1px solid var(--theme-border-soft);
 }
 
 .heroContent {
-  @apply max-w-3xl mx-auto text-center;
+  @apply max-w-2xl mx-auto;
+}
+
+.heroEyebrow {
+  @apply text-xs font-semibold uppercase tracking-[0.25em] mb-3;
+  color: var(--theme-brand-strong);
 }
 
 .heroTitle {
-  @apply text-pink-600 mb-6;
+  @apply text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5;
+  color: var(--theme-text-primary);
 }
 
 .textBody {
-  @apply text-gray-700;
+  @apply text-base sm:text-lg leading-relaxed;
+  color: var(--theme-text-secondary);
 }
 
+/* ─── Stats ─────────────────────────────────────────────────── */
+.statsSection {
+  @apply py-10 sm:py-14;
+  background-color: var(--theme-bg-subtle);
+  border-bottom: 1px solid var(--theme-border-soft);
+}
+
+.statsGrid {
+  @apply grid grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+.statCard {
+  @apply flex flex-col items-center text-center gap-2 p-4;
+}
+
+.statIconWrap {
+  @apply w-10 h-10 rounded-xl flex items-center justify-center mb-1;
+  background-color: var(--theme-brand-soft);
+}
+
+.statIcon {
+  @apply size-5;
+  color: var(--theme-brand-strong);
+}
+
+.statValue {
+  @apply text-2xl sm:text-3xl font-bold;
+  color: var(--theme-text-primary);
+}
+
+.statLabel {
+  @apply text-xs sm:text-sm;
+  color: var(--theme-text-secondary);
+}
+
+/* ─── Seções gerais ─────────────────────────────────────────── */
 .section {
-  @apply py-16;
+  @apply py-14 sm:py-20;
 }
 
 .storyWrapper {
@@ -40,140 +82,217 @@
 }
 
 .storyGrid {
-  @apply grid md:grid-cols-2 gap-12 items-center mb-16;
+  @apply grid md:grid-cols-2 gap-12 items-center;
 }
 
 .sectionTitle {
-  @apply text-pink-600 mb-4;
+  @apply text-2xl sm:text-3xl font-bold mb-5;
+  color: var(--theme-brand-strong);
 }
 
 .textSpacing {
-  @apply text-gray-700 mb-4;
+  @apply text-base leading-relaxed mb-4;
+  color: var(--theme-text-secondary);
 }
 
 .imageFrame {
-  @apply relative h-80 bg-pink-100 rounded-2xl overflow-hidden;
+  @apply relative h-80 overflow-hidden;
+  border-radius: 12px;
+  background-color: var(--theme-card-muted);
 }
 
 .imageCover {
   @apply w-full h-full object-cover;
 }
 
-.valuesSection {
-  @apply py-16;
-  background-color: var(--theme-bg-canvas);
+/* ─── Missão / Visão / Valores ──────────────────────────────── */
+.missionSection {
+  @apply py-14 sm:py-20;
+  background-color: var(--theme-bg-subtle);
 }
 
+.missionGrid {
+  @apply grid sm:grid-cols-3 gap-6;
+}
+
+.missionCard {
+  @apply p-6 sm:p-8 border;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+}
+
+.missionIconWrap {
+  @apply w-11 h-11 rounded-xl flex items-center justify-center mb-4;
+  background-color: var(--theme-brand-soft);
+}
+
+.missionIcon {
+  @apply size-5;
+  color: var(--theme-brand-strong);
+}
+
+.missionTitle {
+  @apply text-base font-bold mb-2;
+  color: var(--theme-text-primary);
+}
+
+.missionText {
+  @apply text-sm leading-relaxed;
+  color: var(--theme-text-secondary);
+}
+
+/* ─── Timeline ──────────────────────────────────────────────── */
 .centerTitle {
-  @apply text-pink-600 text-center mb-12;
+  @apply text-2xl sm:text-3xl font-bold text-center mb-10;
+  color: var(--theme-brand-strong);
+}
+
+.timeline {
+  @apply relative pl-6 sm:pl-10;
+  border-left: 2px solid var(--theme-border-soft);
+}
+
+.timelineItem {
+  @apply relative mb-10 last:mb-0;
+}
+
+.timelineMarker {
+  @apply absolute -left-[2.6rem] sm:-left-[2.8rem] flex items-center gap-2;
+  top: 0.15rem;
+}
+
+.timelineYear {
+  @apply text-xs font-bold px-2 py-0.5 rounded-full;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
+}
+
+.timelineDot {
+  @apply absolute -right-[0.45rem] w-3.5 h-3.5 rounded-full border-2;
+  background-color: var(--theme-brand-strong);
+  border-color: var(--theme-bg-canvas);
+  top: 0.2rem;
+  right: -2.65rem;
+}
+
+.timelineContent {
+  @apply pl-2;
+}
+
+.timelineTitle {
+  @apply text-base font-bold mb-1;
+  color: var(--theme-text-primary);
+}
+
+.timelineText {
+  @apply text-sm leading-relaxed;
+  color: var(--theme-text-secondary);
+}
+
+/* ─── Valores ───────────────────────────────────────────────── */
+.valuesSection {
+  @apply py-14 sm:py-20;
+  background-color: var(--theme-bg-canvas);
 }
 
 .valuesGrid {
-  @apply grid md:grid-cols-4 gap-8 max-w-5xl mx-auto;
+  @apply grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto;
 }
 
 .valueCard {
-  @apply text-center;
+  @apply p-6 border text-center;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
 }
 
 .valueIconWrap {
-  @apply w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4;
+  @apply w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4;
+  background-color: var(--theme-brand-soft);
 }
 
 .valueIcon {
-  @apply size-8 text-pink-600;
+  @apply size-7;
+  color: var(--theme-brand-strong);
 }
 
 .valueTitle {
-  @apply text-gray-800 mb-2;
+  @apply text-sm font-bold mb-2;
+  color: var(--theme-text-primary);
 }
 
 .valueText {
-  @apply text-gray-600;
+  @apply text-xs leading-relaxed;
+  color: var(--theme-text-secondary);
 }
 
+/* ─── Políticas ─────────────────────────────────────────────── */
 .policiesSection {
-  @apply py-16;
-  background-color: var(--theme-bg-canvas);
+  @apply py-14 sm:py-20;
+  background-color: var(--theme-bg-subtle);
 }
 
 .policiesTitle {
-  @apply text-pink-600 mb-8;
+  @apply text-2xl sm:text-3xl font-bold mb-8;
+  color: var(--theme-brand-strong);
 }
 
 .policiesStack {
-  @apply space-y-6;
+  @apply grid sm:grid-cols-2 gap-5;
 }
 
 .policyCard {
-  @apply bg-white rounded-lg p-6 border border-pink-100;
+  @apply p-6 border;
+  border-radius: 12px;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
 }
 
 .policyTitle {
-  @apply text-gray-800 mb-3;
+  @apply text-sm font-bold mb-3;
+  color: var(--theme-text-primary);
 }
 
 .policyList {
-  @apply text-gray-600 space-y-2;
+  @apply space-y-2 text-sm;
+  color: var(--theme-text-secondary);
 }
 
+/* ─── CTA ───────────────────────────────────────────────────── */
 .ctaSection {
-  @apply py-16;
+  @apply py-14 sm:py-20;
 }
 
 .ctaCard {
-  @apply max-w-3xl mx-auto bg-gradient-to-r from-pink-500 to-pink-400 rounded-2xl p-12 text-white text-center;
+  @apply max-w-3xl mx-auto p-10 sm:p-14 text-center text-white;
+  background-color: var(--theme-brand-strong);
+  border-radius: 14px;
+}
+
+.ctaEyebrow {
+  @apply text-xs font-semibold uppercase tracking-[0.2em] mb-2 text-white/70;
 }
 
 .ctaTitle {
-  @apply mb-4;
+  @apply text-2xl sm:text-3xl font-bold mb-3;
 }
 
 .ctaText {
-  @apply mb-6;
+  @apply text-base text-white/80 mb-8;
 }
 
 .ctaActions {
   @apply flex flex-col sm:flex-row gap-4 justify-center;
 }
 
-.ctaLink {
-  @apply bg-white text-pink-600 px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors;
-}
-
-.heroTitle,
-.sectionTitle,
-.centerTitle,
-.policiesTitle {
+.ctaPrimary {
+  @apply bg-white font-semibold px-7 py-3 transition-all hover:bg-gray-100 text-sm;
+  border-radius: 10px;
   color: var(--theme-brand-strong);
 }
 
-.textBody,
-.textSpacing,
-.valueText,
-.policyList {
-  color: var(--theme-text-secondary);
-}
-
-.imageFrame,
-.valueIconWrap {
-  background-color: var(--theme-card-muted);
-}
-
-.valueIcon {
-  color: var(--theme-brand-strong);
-}
-
-.valueTitle,
-.policyTitle {
-  color: var(--theme-text-primary);
-}
-
-.policyCard {
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
-}
-
-.ctaLink {
-  color: var(--theme-brand-strong);
+.ctaSecondary {
+  @apply border border-white/50 text-white px-7 py-3 transition-all hover:bg-white/10 text-sm;
+  border-radius: 10px;
 }

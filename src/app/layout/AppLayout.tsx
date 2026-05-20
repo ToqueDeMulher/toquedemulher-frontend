@@ -1,10 +1,25 @@
-import { Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "@/shared/layout/Header";
 import { Footer } from "@/shared/layout/Footer";
+import { PageNavigation } from "@/shared/layout/PageNavigation";
+import { PageSkeleton } from "@/shared/layout/PageSkeleton";
 import { CartDrawer } from "@/features/cart/components/CartDrawer";
 import { Toaster } from "@/shared/ui/sonner";
 
 export function AppLayout() {
+  const location = useLocation();
+  const [isRouteLoading, setIsRouteLoading] = useState(true);
+
+  useEffect(() => {
+    setIsRouteLoading(true);
+    const timeoutId = window.setTimeout(() => {
+      setIsRouteLoading(false);
+    }, 240);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [location.key]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <a
@@ -17,7 +32,8 @@ export function AppLayout() {
       <Header />
 
       <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
-        <Outlet />
+        <PageNavigation />
+        {isRouteLoading ? <PageSkeleton /> : <Outlet />}
       </main>
 
       <CartDrawer />
