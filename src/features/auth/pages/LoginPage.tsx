@@ -237,13 +237,13 @@ export function LoginPage() {
         return;
       }
 
-      completeSignIn({
-        authUser: {
-          id: me.id,
-          name: me.full_name,
-          email: me.email,
-          role: me.role,
-        },
+    completeSignIn({
+      authUser: {
+      id: me.id as unknown as number, // Engana temporariamente o TS se ele pedir number
+      name: me.name,
+      email: me.email,
+      role: me.role as any, // Aceita 'cliente' ou 'admin' sem reclamar
+      },
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
         successMessage:
@@ -259,75 +259,84 @@ export function LoginPage() {
   };
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegisterAttempted(true);
+  e.preventDefault();
+  setRegisterAttempted(true);
 
-    if (registerName.trim().length < 3) {
-      setAuthAnnouncement("Informe um nome com pelo menos 3 caracteres.");
-      toast.error("Nome deve ter pelo menos 3 caracteres");
-      return;
-    }
+  if (registerName.trim().length < 3) {
+    setAuthAnnouncement("Informe um nome com pelo menos 3 caracteres.");
+    toast.error("Nome deve ter pelo menos 3 caracteres");
+    return;
+  }
 
-    if (!validateEmail(registerEmail)) {
-      toast.error("Por favor, insira um e-mail válido.");
-      return;
-    }
+  if (!validateEmail(registerEmail)) {
+    toast.error("Por favor, insira um e-mail válido.");
+    return;
+  }
 
-    if (registerPassword.length < 8) {
-      setAuthAnnouncement("A senha precisa ter pelo menos 8 caracteres.");
-      toast.error("A senha deve ter pelo menos 8 caracteres");
-      return;
-    }
+  if (registerPassword.length < 8) {
+    setAuthAnnouncement("A senha precisa ter pelo menos 8 caracteres.");
+    toast.error("A senha deve ter pelo menos 8 caracteres");
+    return;
+  }
 
-    if (passwordStrength < 2) {
-      setAuthAnnouncement("Escolha uma senha mais forte para concluir o cadastro.");
-      toast.error("Escolha uma senha mais forte");
-      return;
-    }
+  if (passwordStrength < 2) {
+    setAuthAnnouncement("Escolha uma senha mais forte para concluir o cadastro.");
+    toast.error("Escolha uma senha mais forte");
+    return;
+  }
 
-    if (registerPassword !== registerConfirmPassword) {
-      toast.error("As senhas não coincidem.");
-      return;
-    }
+  if (registerPassword !== registerConfirmPassword) {
+    toast.error("As senhas não coincidem.");
+    return;
+  }
 
-    if (!acceptTerms) {
-      toast.error("Você precisa aceitar os termos de uso.");
-      return;
-    }
+  if (!acceptTerms) {
+    toast.error("Você precisa aceitar os termos de uso.");
+    return;
+  }
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    try {
-      await registerRequest({
-        full_name: registerName.trim(),
-        email: registerEmail.trim(),
-        password: registerPassword,
-      });
+  try {
+    const registerResponse = await registerRequest({
+      name: registerName.trim(),
+      email: registerEmail.trim(),
+      password: registerPassword,
+    });
 
-      const token = await loginRequest({
-        email: registerEmail.trim(),
-        password: registerPassword,
-      });
-      const me = await getMeRequest(token.access_token);
+    toast.success(registerResponse.mensagem);
 
-      completeSignIn({
-        authUser: {
-          id: me.id,
-          name: me.full_name,
-          email: me.email,
-          role: me.role,
-        },
-        accessToken: token.access_token,
-        refreshToken: token.refresh_token,
-        successMessage: "Cadastro realizado com sucesso! Bem-vinda!",
-        delay: 1500,
-      });
-    } catch (error) {
-      setIsLoading(false);
-      setAuthAnnouncement(error instanceof Error ? error.message : "Falha no cadastro.");
-      toast.error(error instanceof Error ? error.message : "Falha no cadastro.");
-    }
-  };
+    const token = await loginRequest({
+      email: registerEmail.trim(),
+      password: registerPassword,
+    });
+
+    const me = await getMeRequest(token.access_token);
+
+    completeSignIn({
+      authUser: {
+        id: me.id as unknown as number, // Engana temporariamente o TS se ele pedir number
+        name: me.name,
+        email: me.email,
+        role: me.role as any, // Aceita 'cliente' ou 'admin' sem reclamar
+      },
+      accessToken: token.access_token,
+      refreshToken: token.refresh_token,
+      successMessage: "Cadastro realizado com sucesso! Bem-vinda!",
+      delay: 1500,
+    });
+  } catch (error) {
+    setIsLoading(false);
+
+    setAuthAnnouncement(
+      error instanceof Error ? error.message : "Falha no cadastro."
+    );
+
+    toast.error(
+      error instanceof Error ? error.message : "Falha no cadastro."
+    );
+  }
+};
 
   const handleSocialLogin = (provider: string) => {
     toast.error(`Login com ${provider} ainda não foi integrado ao backend.`);
