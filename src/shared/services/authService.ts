@@ -6,12 +6,9 @@ export type LoginPayload = {
 };
 
 export type RegisterPayload = {
-  full_name: string;
+  name: string;
   email: string;
   password: string;
-  phone?: string | null;
-  cpf?: string | null;
-  birth_date?: string | null;
 };
 
 export type AuthTokenResponse = {
@@ -20,36 +17,43 @@ export type AuthTokenResponse = {
   token_type: string;
 };
 
+export type RegisterResponse = {
+  mensagem: string;
+};
+
+// AJUSTADO: Mudou de full_name para name para bater com o UserInDB do seu backend Python
 export type AuthUserResponse = {
-  id: number;
-  full_name: string;
+  id: string; // Como você usa UUID no Python, o ideal aqui é string em vez de number
+  name: string; 
   email: string;
-  role: "customer" | "admin";
+  role: "cliente" | "admin"; // Ajustado para 'cliente' em minúsculo, que é o valor real do seu banco
 };
 
 export function loginRequest(payload: LoginPayload) {
-  return apiRequest<AuthTokenResponse>("/auth/login", {
+  return apiRequest<AuthTokenResponse>("/user/login", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export function registerRequest(payload: RegisterPayload) {
-  return apiRequest<AuthUserResponse>("/auth/register", {
+  return apiRequest<RegisterResponse>("/user/register", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export function forgotPasswordRequest(email: string) {
-  return apiRequest<{ message: string }>("/auth/forgot-password", {
+  return apiRequest<{ message: string }>("/user/forgot-password", {
     method: "POST",
     body: JSON.stringify({ email }),
   });
 }
 
+// CORRIGIDO: Forçando o método GET explicitamente e aplicando os headers de autenticação
 export function getMeRequest(accessToken?: string) {
-  return apiRequest<AuthUserResponse>("/users/me", {
+  return apiRequest<AuthUserResponse>("/user/me", {
+    method: "GET",
     headers: accessToken
       ? {
           Authorization: `Bearer ${accessToken}`,
