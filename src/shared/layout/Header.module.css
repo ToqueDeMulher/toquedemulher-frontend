@@ -80,15 +80,15 @@
 }
 
 .navWrapper {
-  @apply w-full overflow-visible pl-6 xl:pl-10 pr-5 xl:pr-8;
+  @apply w-full overflow-visible px-6 xl:px-10;
 }
 
 .navMenu {
-  @apply max-w-full justify-start;
+  @apply w-full max-w-full justify-center;
 }
 
 .navList {
-  @apply gap-6 xl:gap-9;
+  @apply w-full justify-between gap-6 xl:gap-9;
 }
 
 .navTrigger {
@@ -258,7 +258,7 @@
 }
 
 .searchWrapper {
-  @apply relative w-full mx-auto;
+  @apply relative w-full;
   max-width: 620px;
   margin-left: 0;
 }
@@ -365,9 +365,6 @@
     gap: 3rem;
   }
 
-  .searchWrapper {
-    margin-left: 1.75rem;
-  }
 }
 
 @media (max-width: 1320px) {

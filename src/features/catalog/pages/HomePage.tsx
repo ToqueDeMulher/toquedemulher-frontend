@@ -123,7 +123,6 @@ export function HomePage() {
   const [productApi, setProductApi] = useState<CarouselApi | null>(null);
   const [productIndex, setProductIndex] = useState(0);
   const [productCount, setProductCount] = useState(0);
-  const [promoCountdown, setPromoCountdown] = useState("06h 00m 00s");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
@@ -186,23 +185,6 @@ export function HomePage() {
       productApi.off("reInit", updateProgress);
     };
   }, [productApi]);
-
-  useEffect(() => {
-    const endsAt = Date.now() + 6 * 60 * 60 * 1000;
-
-    const tick = () => {
-      const remaining = Math.max(0, endsAt - Date.now());
-      const totalSeconds = Math.floor(remaining / 1000);
-      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-      const seconds = String(totalSeconds % 60).padStart(2, "0");
-      setPromoCountdown(`${hours}h ${minutes}m ${seconds}s`);
-    };
-
-    tick();
-    const intervalId = window.setInterval(tick, 1000);
-    return () => window.clearInterval(intervalId);
-  }, []);
 
   useEffect(() => {
     setRecentIds(loadRecentIds());
@@ -270,22 +252,7 @@ export function HomePage() {
         </Carousel>
       </section>
 
-      <section className={styles.promoStrip} aria-label="Cupom promocional">
-        <div className={styles.promoStripInner}>
-          <span>8% OFF em compras acima de R$ 79</span>
-          <span className={styles.promoSep}>|</span>
-          <span>10% OFF em compras acima de R$ 149</span>
-          <span className={styles.promoSep}>|</span>
-          <span>15% OFF em compras acima de R$ 199</span>
-          <span className={styles.promoCodeWrap}>
-            Use o código <span className={styles.promoCode}>GIFT26</span>
-          </span>
-          <span aria-live="off">Termina em {promoCountdown}</span>
-          <Link className={styles.promoLink} to={routes.help}>
-            Ver detalhes
-          </Link>
-        </div>
-      </section>
+      <div className={styles.patternStrip} aria-hidden="true" />
 
 
       <section className={styles.clubSection}>

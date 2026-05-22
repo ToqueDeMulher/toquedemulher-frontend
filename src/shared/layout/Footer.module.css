@@ -158,31 +158,6 @@
   @apply text-xs text-white/75;
 }
 
-/* ─── Trust badges ──────────────────────────────────────────── */
-.trustBar {
-  @apply py-4 sm:py-5;
-  background-color: var(--theme-bg-canvas);
-  border-bottom: 1px solid var(--theme-border-soft);
-}
-
-.trustGrid {
-  @apply flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-10;
-}
-
-.trustBadge {
-  @apply flex items-center gap-2;
-}
-
-.trustIcon {
-  @apply size-4 flex-shrink-0;
-  color: var(--theme-brand-strong);
-}
-
-.trustLabel {
-  @apply text-xs font-medium whitespace-nowrap;
-  color: var(--theme-text-secondary);
-}
-
 /* ─── Links principais ──────────────────────────────────────── */
 .mainSection {
   color: var(--theme-footer-text);

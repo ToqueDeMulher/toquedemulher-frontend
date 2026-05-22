@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube, Smartphone, Lock, RefreshCcw, Truck, CreditCard, Shield } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Smartphone } from "lucide-react";
 import { routes } from "@/shared/lib/routes";
 import styles from "./Footer.module.css";
 
@@ -9,14 +9,6 @@ const socialLinks = [
   { label: "Instagram", href: "https://www.instagram.com/", icon: Instagram },
   { label: "Twitter", href: "https://x.com/", icon: Twitter },
   { label: "YouTube", href: "https://www.youtube.com/", icon: Youtube },
-] as const;
-
-const trustBadges = [
-  { icon: Lock, label: "Site Seguro SSL" },
-  { icon: Shield, label: "Dados protegidos LGPD" },
-  { icon: RefreshCcw, label: "30 dias para troca" },
-  { icon: Truck, label: "Frete grátis acima de R$ 150" },
-  { icon: CreditCard, label: "Parcelamento em até 6x" },
 ] as const;
 
 export function Footer() {
@@ -110,20 +102,6 @@ export function Footer() {
                 </button>
               </form>
             )}
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Trust badges ───────────────────────────────────────── */}
-      <div className={styles.trustBar}>
-        <div className={styles.topContainer}>
-          <div className={styles.trustGrid}>
-            {trustBadges.map(({ icon: Icon, label }) => (
-              <div key={label} className={styles.trustBadge}>
-                <Icon className={styles.trustIcon} aria-hidden="true" />
-                <span className={styles.trustLabel}>{label}</span>
-              </div>
-            ))}
           </div>
         </div>
       </div>

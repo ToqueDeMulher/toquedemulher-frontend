@@ -8,13 +8,13 @@
 .heroSection {
   @apply relative overflow-hidden;
   background-color: #111111;
-  padding: clamp(0.75rem, 1.8vw, 2rem) clamp(0.75rem, 2vw, 2rem) 0;
+  padding: 0;
 }
 
 
 .carousel {
   @apply w-full mx-auto overflow-hidden;
-  max-width: 1680px;
+  max-width: 2400px;
 }
 
 .slide {
@@ -52,36 +52,37 @@
   @apply bg-white border-pink-300;
 }
 
-.promoStrip {
-  @apply w-full;
-  background-color: #111111;
+.patternStrip {
+  width: 100%;
+  height: clamp(0.55rem, 0.9vw, 0.8rem);
+  opacity: 1;
+  background-color: #38f27b;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      #f2388f 25%,
+      transparent 25%,
+      transparent 75%,
+      #f2388f 75%,
+      #f2388f
+    ),
+    repeating-linear-gradient(
+      45deg,
+      #f2388f 25%,
+      #0D0D0D 25%,
+      #0D0D0D 75%,
+      #f2388f 75%,
+      #f2388f
+    );
+  background-position: 0 0, 40px 40px;
+  background-size: 80px 80px;
+  animation: patternStripLoop 4.5s linear infinite;
 }
 
-.promoStripInner {
-  @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-3 text-center text-white text-sm sm:text-base flex flex-wrap items-center justify-center gap-3;
-  max-width: 1680px;
-}
-
-.promoSep {
-  @apply opacity-60 font-light;
-}
-
-.promoCodeWrap {
-  @apply inline-flex items-center gap-2;
-}
-
-.promoCode {
-  @apply font-semibold px-2 py-0.5 rounded-sm;
-  background-color: var(--theme-complement);
-  color: #111111;
-}
-
-.promoLink {
-  @apply underline underline-offset-2 text-white;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+@keyframes patternStripLoop {
+  to {
+    background-position: -80px 0, -40px 40px;
+  }
 }
 
 .clubSection {
@@ -281,7 +282,7 @@
 
 .favoritesGrid {
   @apply grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4;
-  max-width: 1440px;
+  max-width: 1240px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -293,26 +294,36 @@
 
 .favoriteCard {
   @apply relative bg-white overflow-hidden cursor-pointer;
+  --favorite-dominant: 242, 56, 143;
   border-radius: 0;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  isolation: isolate;
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.4s ease;
 }
 
 .favoriteGradient {
-  @apply absolute inset-x-0 bottom-0 h-32;
-  background: linear-gradient(
-    180deg,
-    rgba(16, 24, 40, 0) 0%,
-    rgba(16, 24, 40, 0.64) 100%
-  );
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  @apply absolute inset-x-0 bottom-0;
+  height: min(58%, 9rem);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--favorite-dominant), 0) 0%,
+      rgba(var(--favorite-dominant), 0.18) 30%,
+      rgba(var(--favorite-dominant), 0.7) 100%
+    ),
+    linear-gradient(180deg, transparent 25%, rgba(17, 24, 39, 0.14) 100%);
+  transition:
+    height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .favoriteCard:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
 }
 
 .favoriteCard:hover .favoriteGradient {
+  height: min(62%, 9.5rem);
   transform: translateY(4px);
 }
 
@@ -323,7 +334,8 @@
 }
 
 .favoriteImage {
-  @apply w-full h-40 sm:h-48 lg:h-56 object-cover;
+  @apply w-full object-cover;
+  height: clamp(9.5rem, 15vw, 12.75rem);
   background-color: var(--theme-card-muted);
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -358,9 +370,8 @@
 }
 
 .favoriteCard:hover .favoriteCaption {
-  @apply text-white;
   transform: translateY(-4px);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.18);
 }
 
 .trendingTitle {
@@ -718,10 +729,6 @@
   border-color: var(--theme-border-soft);
 }
 
-.favoriteCard:hover {
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
-}
-
 .scrollTopButton:focus-visible,
 .scrollChatButton:focus-visible,
 .favoriteCard:focus-visible {
@@ -776,29 +783,13 @@
 }
 
 
-@media (min-width: 1280px) {
-  .carousel {
-    border-radius: 16px;
-  }
-}
-
 @media (max-width: 639px) {
-  .promoStripInner {
-    @apply justify-start overflow-x-auto flex-nowrap text-sm;
-    scrollbar-width: none;
-  }
-
-  .promoStripInner::-webkit-scrollbar {
-    display: none;
-  }
-
-
   .clubActions {
     align-items: stretch;
   }
 
   .favoriteImage {
-    height: 11rem;
+    height: 10rem;
   }
 
   .scrollTopButton,
