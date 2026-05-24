@@ -1,20 +1,41 @@
 @reference "tailwindcss";
 
 .page {
+  position: relative;
+  overflow: hidden;
   @apply min-h-screen font-sans;
-  background-color: var(--theme-bg-canvas);
+  background:
+    linear-gradient(90deg, transparent 0 5.5rem, color-mix(in oklab, var(--theme-brand-strong) 6%, transparent) 5.5rem 5.62rem, transparent 5.62rem 11rem),
+    linear-gradient(0deg, transparent 0 6.5rem, color-mix(in oklab, var(--theme-accent-cyan) 7%, transparent) 6.5rem 6.62rem, transparent 6.62rem 13rem),
+    linear-gradient(180deg, var(--theme-bg-canvas) 0%, var(--theme-bg-canvas) 62%, var(--theme-brand-soft) 100%),
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 18px,
+      color-mix(in oklab, var(--theme-brand-strong) 8%, transparent) 18px 19px
+    );
+  background-size: 11rem 11rem, 13rem 13rem, auto, auto;
+}
+
+.page > * {
+  position: relative;
+  z-index: 1;
 }
 
 .heroSection {
   @apply relative overflow-hidden;
-  background-color: #111111;
   padding: 0;
+  background-color: #111111;
 }
 
 
 .carousel {
   @apply w-full mx-auto overflow-hidden;
   max-width: 2400px;
+  position: relative;
+  z-index: 1;
+  border-radius: 0;
+  box-shadow: none;
+  background-color: #111111;
 }
 
 .slide {
@@ -38,12 +59,12 @@
 }
 
 .carouselPrev {
-  @apply left-8 bg-white/85 border border-white/80 transition-colors w-8 h-8 text-pink-600;
+  @apply left-4 sm:left-6 bg-white/85 border border-white/80 transition-colors w-8 h-8 text-pink-600;
   backdrop-filter: blur(6px);
 }
 
 .carouselNext {
-  @apply right-8 bg-white/85 border border-white/80 transition-colors w-8 h-8 text-pink-600;
+  @apply right-4 sm:right-6 bg-white/85 border border-white/80 transition-colors w-8 h-8 text-pink-600;
   backdrop-filter: blur(6px);
 }
 
@@ -54,50 +75,60 @@
 
 .patternStrip {
   width: 100%;
-  height: clamp(0.55rem, 0.9vw, 0.8rem);
+  height: 0.7rem;
   opacity: 1;
-  background-color: #38f27b;
-  background-image:
+  background:
     repeating-linear-gradient(
-      45deg,
-      #f2388f 25%,
-      transparent 25%,
-      transparent 75%,
-      #f2388f 75%,
-      #f2388f
-    ),
-    repeating-linear-gradient(
-      45deg,
-      #f2388f 25%,
-      #0D0D0D 25%,
-      #0D0D0D 75%,
-      #f2388f 75%,
-      #f2388f
+      90deg,
+      #ff9ac7 0 1.65rem,
+      #fff2a6 1.65rem 3.3rem,
+      #9eeeff 3.3rem 4.95rem,
+      #ffffff 4.95rem 6.6rem
     );
-  background-position: 0 0, 40px 40px;
-  background-size: 80px 80px;
-  animation: patternStripLoop 4.5s linear infinite;
+  background-size: 6.6rem 100%;
+  transform-origin: center;
+  animation:
+    colorLineSlide 2.8s linear infinite,
+    colorLineRotate 42s ease-in-out infinite alternate;
 }
 
-@keyframes patternStripLoop {
+@keyframes colorLineSlide {
   to {
-    background-position: -80px 0, -40px 40px;
+    background-position: 6.6rem 0;
+  }
+}
+
+@keyframes colorLineRotate {
+  from {
+    transform: rotate(-0.18deg);
+  }
+
+  to {
+    transform: rotate(0.18deg);
   }
 }
 
 .clubSection {
-  @apply pt-5;
+  @apply pt-6 relative;
+  z-index: 1;
 }
 
 .clubCard {
-  @apply mx-auto w-full overflow-hidden border border-pink-100 bg-white grid gap-0 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)];
-  border-radius: 14px;
+  @apply mx-auto w-full overflow-hidden border border-pink-100 bg-white grid gap-0 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] relative;
+  border-radius: 18px;
   max-width: 1680px;
+  box-shadow: 0 18px 45px rgba(247, 57, 134, 0.08);
+}
+
+.clubCard::before {
+  content: none;
 }
 
 .clubIntro {
   @apply relative flex flex-col justify-between px-4 py-4 sm:px-5 sm:py-4 lg:px-6 lg:py-5;
-  background-color: var(--theme-bg-subtle);
+  background:
+    linear-gradient(135deg, var(--theme-brand-soft), var(--theme-accent-cyan-soft)),
+    var(--theme-bg-subtle);
 }
 
 .clubIntroTop {
@@ -106,7 +137,7 @@
 
 .clubEyebrow {
   @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium mb-2.5;
-  border-radius: 8px;
+  border-radius: 999px;
   background-color: var(--theme-ink-soft);
   color: var(--theme-text-primary);
 }
@@ -137,10 +168,13 @@
 .clubPrimaryButton {
   @apply text-white;
   background-color: var(--theme-brand-strong);
+  box-shadow: 0 10px 22px color-mix(in oklab, var(--theme-brand-strong) 24%, transparent);
 }
 
 .clubPrimaryButton:hover {
   background-color: color-mix(in oklab, var(--theme-brand-strong) 88%, black);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 16px 30px color-mix(in oklab, var(--theme-brand-strong) 34%, transparent);
 }
 
 .clubSecondaryButton {
@@ -161,10 +195,11 @@
 
 .clubStatCard {
   @apply border px-3 py-2.5 lg:px-3.5 lg:py-3;
-  border-radius: 12px;
+  border-radius: 14px;
   background-color: var(--theme-surface-primary);
   border-color: var(--theme-border-soft);
   min-height: 5.2rem;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--theme-brand-strong) 5%, transparent);
 }
 
 .clubStatLabel {
@@ -177,7 +212,7 @@
 
 .clubProgressCard {
   @apply mt-2.5 border border-pink-100 bg-white px-3 py-2.5 lg:px-3.5 lg:py-3;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 .clubProgressHeader {
@@ -227,7 +262,7 @@
 
 .clubMissionCard {
   @apply flex items-center justify-between gap-3 border px-3 py-2.5 lg:px-3.5 lg:py-3;
-  border-radius: 12px;
+  border-radius: 14px;
   background-color: var(--theme-bg-subtle);
   border-color: var(--theme-border-soft);
 }
@@ -249,31 +284,60 @@
 }
 
 .trendingSection {
-  @apply pt-8 pb-10 sm:pt-10 sm:pb-12 relative;
+  @apply pt-8 pb-10 sm:pt-10 sm:pb-12 relative overflow-hidden;
+  z-index: 1;
 }
 
 .trendingContainer {
-  @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20;
+  @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 relative;
   max-width: 1680px;
+  z-index: 1;
 }
 
 .trendingHeader {
-  @apply text-center mb-7;
+  @apply text-center mb-8 relative;
   animation: fade-in 0.8s ease-out;
 }
 
 .trendingSubHeader {
-  @apply text-center mt-12 mb-5;
+  @apply text-center mt-12 mb-6 relative;
   animation: fade-in 0.8s ease-out;
 }
 
 .recommendedGrid {
   @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4;
+  position: relative;
+  z-index: 1;
 }
 
 .recommendedBox {
-  @apply bg-white p-3 sm:p-4 lg:p-5;
-  border-radius: 14px;
+  @apply bg-white p-3 sm:p-4 lg:p-5 relative;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.05);
+}
+
+.recommendedBox::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.7rem;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #ff9ac7 0 1.65rem,
+      #fff2a6 1.65rem 3.3rem,
+      #9eeeff 3.3rem 4.95rem,
+      #ffffff 4.95rem 6.6rem
+    );
+  background-size: 6.6rem 100%;
+  transform-origin: center;
+  animation:
+    colorLineSlide 2.8s linear infinite,
+    colorLineRotate 42s ease-in-out infinite alternate;
+}
+
+.recommendedBox::after {
+  content: none;
 }
 
 .recommendedItem {
@@ -281,7 +345,7 @@
 }
 
 .favoritesGrid {
-  @apply grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4;
+  @apply grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 relative;
   max-width: 1240px;
   margin-left: auto;
   margin-right: auto;
@@ -295,11 +359,14 @@
 .favoriteCard {
   @apply relative bg-white overflow-hidden cursor-pointer;
   --favorite-dominant: 242, 56, 143;
-  border-radius: 0;
+  border-radius: 18px;
+  aspect-ratio: 1 / 0.72;
   isolation: isolate;
   transition:
     transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.4s ease;
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
 }
 
 .favoriteGradient {
@@ -319,7 +386,8 @@
 }
 
 .favoriteCard:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px) rotate(-0.4deg);
+  box-shadow: 0 18px 38px rgba(247, 57, 134, 0.16);
 }
 
 .favoriteCard:hover .favoriteGradient {
@@ -335,7 +403,7 @@
 
 .favoriteImage {
   @apply w-full object-cover;
-  height: clamp(9.5rem, 15vw, 12.75rem);
+  height: 100%;
   background-color: var(--theme-card-muted);
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -349,7 +417,8 @@
 }
 
 .favoriteImageCompact {
-  @apply w-full h-40 sm:h-48 lg:h-52 object-cover;
+  @apply w-full object-cover;
+  height: 100%;
   background-color: var(--theme-card-muted);
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -359,14 +428,17 @@
 }
 
 .favoriteCaption {
-  @apply absolute bottom-3 inset-x-0 text-sm sm:text-base font-semibold px-4 py-2 text-center;
+  @apply absolute bottom-3 left-3 right-3 text-sm sm:text-base font-semibold px-4 py-2 text-center;
   color: var(--favorite-text, rgba(255, 255, 255, 0.95));
   font-family: var(--font-display);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
+  border-radius: 999px;
+  background-color: color-mix(in oklab, rgba(255, 255, 255, 0.44) 60%, transparent);
+  backdrop-filter: blur(8px);
 }
 
 .favoriteCard:hover .favoriteCaption {
@@ -375,8 +447,10 @@
 }
 
 .trendingTitle {
-  @apply text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight;
+  @apply text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight inline-flex items-center justify-center;
   font-family: var(--font-display, "Satoshi Variable", "Poppins", ui-sans-serif, system-ui, sans-serif);
+  position: relative;
+  line-height: 1.12;
 }
 
 .trendingLogoWrap {
@@ -396,12 +470,13 @@
 }
 
 .productCarouselContent {
-  @apply -ml-3 pb-3 sm:pb-4;
+  @apply -ml-3 pb-5 sm:pb-6;
 }
 
 .productCarouselItem {
   @apply pl-3;
   flex: 0 0 48%;
+  display: flex;
 }
 
 @media (min-width: 640px) {
@@ -417,11 +492,13 @@
 }
 
 .productCarouselPrev {
-  @apply -left-10 top-1/2 -translate-y-1/2 size-7 bg-white border border-gray-200 text-pink-600;
+  @apply -left-10 top-1/2 -translate-y-1/2 size-9 bg-white border border-gray-200 text-pink-600;
+  border-radius: 999px;
 }
 
 .productCarouselNext {
-  @apply -right-10 top-1/2 -translate-y-1/2 size-7 bg-white border border-gray-200 text-pink-600;
+  @apply -right-10 top-1/2 -translate-y-1/2 size-9 bg-white border border-gray-200 text-pink-600;
+  border-radius: 999px;
 }
 
 .productCarouselProgress {
@@ -434,7 +511,8 @@
 
 .productCarouselDotActive {
   @apply bg-pink-600;
-  transform: scale(1.15);
+  width: 1.25rem;
+  transform: scale(1.05);
 }
 
 .trendingButtonWrap {
@@ -453,12 +531,15 @@
 
 .trendingButton:hover {
   @apply bg-pink-600;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 14px 28px color-mix(in oklab, var(--theme-brand-strong) 30%, transparent);
 }
 
 .recentSection {
   @apply mt-14 sm:mt-16 py-6 sm:py-8 px-4 sm:px-6 lg:px-10;
   background-color: #ffffff;
-  border-radius: 14px;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.05);
 }
 
 .recentHeader {
@@ -478,23 +559,25 @@
   @apply fixed bottom-6 right-6 z-40 bg-white/80 text-pink-600 border border-pink-200/70 transition-colors backdrop-blur-sm flex items-center justify-center;
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 999px;
 }
 
 .scrollChatButton {
   @apply fixed right-6 z-40 bg-white/80 text-pink-600 border border-pink-200/70 transition-colors backdrop-blur-sm flex items-center justify-center;
   width: 56px;
   height: 56px;
-  border-radius: 12px;
+  border-radius: 999px;
   bottom: 5.75rem;
 }
 
 .scrollTopButton:hover {
   @apply bg-pink-50;
+  transform: translateY(-3px) scale(1.06);
 }
 
 .scrollChatButton:hover {
   @apply bg-pink-50;
+  transform: translateY(-3px) scale(1.06);
 }
 
 .scrollTopButton:focus-visible,
@@ -640,6 +723,8 @@
 
 .trendingButton:hover {
   background-color: var(--theme-brand-strong);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 14px 28px color-mix(in oklab, var(--theme-brand-strong) 30%, transparent);
 }
 
 .recentSection {
@@ -696,6 +781,7 @@
   background-color: var(--theme-brand-soft);
   border-color: var(--theme-border-strong);
   color: var(--theme-brand-strong);
+  transform: translateY(-2px) scale(1.03);
 }
 
 .clubPanel,
@@ -753,6 +839,7 @@
   background-color: var(--theme-brand-strong);
   color: var(--theme-text-inverse);
   border-color: var(--theme-brand-strong);
+  transform: translateY(-2px) scale(1.08);
 }
 
 .localStar {
@@ -780,6 +867,7 @@
 .localDetailsButton:hover {
   background-color: var(--theme-brand-soft);
   border-color: var(--theme-border-strong);
+  transform: translateY(-2px);
 }
 
 

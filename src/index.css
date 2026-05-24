@@ -10,6 +10,38 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "all-round-gothic";
+  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-text.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "all-round-gothic";
+  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "all-round-gothic";
+  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-demi.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "all-round-gothic";
+  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @layer properties {
@@ -228,6 +260,7 @@ body {
   h4,
   h5,
   h6 {
+    font-family: var(--font-display);
     font-size: inherit;
     font-weight: inherit;
   }
@@ -329,6 +362,56 @@ body {
     opacity: 1;
     background-color: #0000;
     border-radius: 0;
+  }
+
+  button,
+  [role="button"],
+  a[data-slot="button"] {
+    transition:
+      background-color 0.28s ease,
+      border-color 0.28s ease,
+      color 0.28s ease,
+      box-shadow 0.28s ease,
+      opacity 0.28s ease,
+      transform 0.28s ease;
+  }
+
+  button:not(:disabled),
+  [role="button"],
+  a[data-slot="button"] {
+    cursor: pointer;
+  }
+
+  button:not(:disabled):active,
+  [role="button"]:active,
+  a[data-slot="button"]:active {
+    transform: translateY(1px) scale(0.98);
+  }
+
+  [data-slot="button"] {
+    position: relative;
+    overflow: hidden;
+  }
+
+  [data-slot="button"]::after {
+    content: "";
+    position: absolute;
+    inset: -40% auto -40% -65%;
+    width: 45%;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.46),
+      transparent
+    );
+    transform: translateX(-120%) skewX(-18deg);
+    transition: transform 0.58s ease;
+  }
+
+  [data-slot="button"]:hover::after,
+  [data-slot="button"]:focus-visible::after {
+    transform: translateX(430%) skewX(-18deg);
   }
 
   ::file-selector-button {
@@ -3557,6 +3640,16 @@ body {
 
 html {
   font-size: var(--font-size);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+:where([class*="Title"]:not([class*="Subtitle"]), [class*="title"]:not([class*="subtitle"])) {
+  font-family: var(--font-display);
 }
 
 .text-yellow-300,

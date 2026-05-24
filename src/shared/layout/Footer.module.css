@@ -1,7 +1,9 @@
 @reference "tailwindcss";
 
 .footer {
-  @apply mt-20 font-sans;
+  @apply mt-0 font-sans;
+  position: relative;
+  z-index: 2;
 }
 
 /* ─── Barra social / app ───────────────────────────────────── */

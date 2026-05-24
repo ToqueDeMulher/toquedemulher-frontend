@@ -252,9 +252,6 @@ export function HomePage() {
         </Carousel>
       </section>
 
-      <div className={styles.patternStrip} aria-hidden="true" />
-
-
       <section className={styles.clubSection}>
         <div className={styles.trendingContainer}>
           <div className={styles.clubCard}>

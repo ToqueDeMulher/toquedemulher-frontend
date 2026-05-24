@@ -1,11 +1,29 @@
 @reference "tailwindcss";
 
 .card {
-  @apply relative overflow-hidden transition-all cursor-pointer;
-  border-radius: 12px;
+  @apply relative overflow-hidden transition-all cursor-pointer h-full w-full;
+  border-radius: 14px;
   background-color: var(--product-card-bg, var(--theme-card-bg));
   border: var(--product-card-border, 1px solid var(--theme-border-soft));
-  min-height: var(--product-card-min-h, 222px);
+  min-height: var(--product-card-min-h, 18.75rem);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.28rem;
+  background: linear-gradient(
+    90deg,
+    var(--theme-brand-strong),
+    var(--theme-accent-yellow),
+    var(--theme-accent-cyan)
+  );
+  opacity: 0;
+  transition: opacity 0.22s ease;
 }
 
 .card:focus-within {
@@ -14,14 +32,19 @@
 
 @media (hover: hover) {
   .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    transform: translateY(-4px) rotate(-0.35deg);
+    box-shadow: 0 16px 34px rgba(247, 57, 134, 0.14);
+    border-color: var(--theme-border-strong);
+  }
+
+  .card:hover::before {
+    opacity: 1;
   }
 }
 
 @media (min-width: 640px) {
   .card {
-    min-height: var(--product-card-min-h-sm, 238px);
+    min-height: var(--product-card-min-h-sm, 20.5rem);
   }
 }
 
@@ -42,38 +65,60 @@
 .imageWrapper {
   @apply relative;
   background-color: var(--theme-surface-primary);
-  padding: 0.65rem 0.65rem 0.25rem;
+  padding: 1rem 1rem 0.5rem;
+  flex: 0 0 auto;
+  min-height: var(--product-card-media-h, 13.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .productImage {
-  @apply w-full object-contain;
-  height: var(--product-card-image-h, 8.25rem);
-  background-color: var(--theme-surface-primary);
+  @apply object-contain;
+  width: min(74%, 12rem);
+  height: var(--product-card-image-h, 10.25rem);
+  max-height: 10.25rem;
+  background-color: transparent;
+  transition: transform 0.3s ease;
 }
 
 @media (min-width: 640px) {
+  .imageWrapper {
+    min-height: var(--product-card-media-h-sm, 13.75rem);
+  }
+
   .productImage {
-    height: var(--product-card-image-h-sm, 9.25rem);
+    height: var(--product-card-image-h-sm, 10.75rem);
+    max-height: 10.75rem;
+  }
+}
+
+@media (hover: hover) {
+  .card:hover .productImage {
+    transform: scale(1.04) rotate(1deg);
   }
 }
 
 .badgeRow {
   @apply absolute top-3 left-3 flex gap-2;
+  z-index: 2;
 }
 
 .badgeNew {
   @apply text-white;
   background-color: var(--theme-brand-strong);
+  border-radius: 999px;
 }
 
 .badgeDiscount {
   background-color: var(--theme-complement-soft);
   color: var(--theme-complement-text);
+  border-radius: 999px;
 }
 
 .favButton {
-  @apply absolute bottom-3 right-3 p-2 transition-colors;
-  border-radius: 10px;
+  @apply absolute bottom-3 right-3 p-2 transition-all;
+  border-radius: 999px;
   z-index: 2;
   background-color: color-mix(in oklab, var(--theme-surface-primary) 88%, transparent);
   border: 1px solid var(--theme-border-soft);
@@ -90,23 +135,25 @@
 }
 
 .content {
-  @apply px-2.5 pb-3 pt-2;
+  @apply px-3.5 pb-4 pt-3.5;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  border-top: 1px solid color-mix(in oklab, var(--theme-border-soft) 70%, transparent);
 }
 
 .title {
-  @apply font-medium text-[11px] line-clamp-2 min-h-[2rem];
+  @apply font-medium text-[12px] sm:text-[13px] line-clamp-2 min-h-[2.45rem] leading-snug;
   color: var(--theme-text-primary);
 }
 
 .ratingRow {
-  @apply flex items-center gap-1 mt-1 text-[11px];
+  @apply flex items-center gap-0.5 mt-2 text-[11px];
   color: var(--theme-text-secondary);
 }
 
 .star {
-  @apply h-4 w-4;
+  @apply h-3.5 w-3.5;
   color: color-mix(in oklab, var(--theme-text-muted) 38%, transparent);
 }
 
@@ -120,17 +167,17 @@
 }
 
 .reviewCount {
-  @apply ml-2 rounded-md px-1.5 py-0.5 text-xs;
+  @apply ml-1.5 rounded-full px-1.5 py-0.5 text-xs;
   color: var(--theme-text-secondary);
   background-color: var(--theme-bg-subtle);
 }
 
 .priceRow {
-  @apply mt-3 flex items-end gap-2;
+  @apply mt-auto pt-3 flex items-end gap-2;
 }
 
 .priceRowCompact {
-  @apply mt-1;
+  @apply mt-auto pt-2;
 }
 
 .price {
@@ -178,4 +225,5 @@
 .favButton:hover {
   background-color: var(--theme-brand-soft);
   border-color: var(--theme-border-strong);
+  transform: scale(1.08);
 }
