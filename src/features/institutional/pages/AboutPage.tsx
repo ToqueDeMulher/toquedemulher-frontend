@@ -1,7 +1,7 @@
 import { Heart, Shield, Truck, Award, Sparkles, Users, Package, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
 import styles from "./AboutPage.module.css";
 
 const values = [

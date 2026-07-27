@@ -1,4 +1,4 @@
-import { apiRequest } from "./apiClient";
+import { apiRequest } from "@/shared/api/api-client";
 
 export interface AddressRequest {
   label: string;

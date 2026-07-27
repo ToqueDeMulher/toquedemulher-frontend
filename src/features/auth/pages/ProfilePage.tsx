@@ -7,14 +7,14 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { routes } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useGamification } from "@/features/gamification/context/gamification-context";
 import { Button } from "@/shared/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { useGamification } from "@/shared/contexts/gamification-context";
-import { routes } from "@/shared/lib/routes";
 import styles from "./ProfilePage.module.css";
 
 const orders = [

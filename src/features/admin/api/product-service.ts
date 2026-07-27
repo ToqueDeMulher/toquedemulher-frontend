@@ -2,8 +2,8 @@ import {
   CreateProductPayload,
   ProductImageResponse,
   UploadProductImageOptions,
-} from "@/shared/types/product";
-import { apiRequest } from "@/shared/services/apiClient";
+} from "@/features/admin/types/product";
+import { apiRequest } from "@/shared/api/api-client";
 
 export async function createProduct(payload: CreateProductPayload) {
   return apiRequest("/products/", {

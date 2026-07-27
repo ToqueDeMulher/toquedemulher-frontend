@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/auth-context";
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth();

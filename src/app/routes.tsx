@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
 import { AppLayout } from "@/app/layout/AppLayout";
 import { RequireAuth } from "@/app/components/RequireAuth";
 import { RequireAdmin } from "@/app/components/RequireAdmin";

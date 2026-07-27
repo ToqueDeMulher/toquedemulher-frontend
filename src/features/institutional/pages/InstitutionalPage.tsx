@@ -17,7 +17,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
 import styles from "./InstitutionalPage.module.css";
 
 /* ─── Página: Política de Privacidade ────────────────────────────────────────── */

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Youtube, Smartphone } from "lucide-react";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
 import styles from "./Footer.module.css";
 
 const socialLinks = [

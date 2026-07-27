@@ -4,7 +4,7 @@ import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
 import styles from "./ProductCard.module.css";
 
 interface ProductCardProps {

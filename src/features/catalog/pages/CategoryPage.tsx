@@ -15,10 +15,10 @@ import {
   defaultCategorySlug,
   getProductsByCategory,
   isCatalogCategorySlug,
-} from "@/shared/data/catalog-products";
-import { routes } from "@/shared/lib/routes";
-import { useCart } from "@/shared/contexts/cart-context";
-import { useGamification } from "@/shared/contexts/gamification-context";
+} from "@/features/catalog/data/catalog-products";
+import { routes } from "@/app/router/paths";
+import { useCart } from "@/features/cart/context/cart-context";
+import { useGamification } from "@/features/gamification/context/gamification-context";
 import styles from "./CategoryPage.module.css";
 
 export function CategoryPage() {

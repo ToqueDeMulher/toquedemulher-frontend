@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/auth-context";
 import styles from "./AdminDashboardPage.module.css";
 
 const kpis = [

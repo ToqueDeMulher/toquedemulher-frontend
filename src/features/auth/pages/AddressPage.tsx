@@ -1,15 +1,15 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, CheckCircle2, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
-import { Button } from "@/shared/ui/button";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
 import {
   createAddress,
   fetchAddressByCep,
   getRegiaoByUF,
   type AddressRequest,
-} from "@/shared/services/addressService";
+} from "@/features/auth/api/address-service";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { Button } from "@/shared/ui/button";
 import styles from "./AddressPage.module.css";
 
 type FormState = {

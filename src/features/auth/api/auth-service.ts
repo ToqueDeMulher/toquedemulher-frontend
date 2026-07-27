@@ -1,4 +1,4 @@
-import { apiRequest } from "@/shared/services/apiClient";
+import { apiRequest } from "@/shared/api/api-client";
 
 export type LoginPayload = {
   email: string;

@@ -13,8 +13,8 @@ import {
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Toaster } from "@/shared/ui/sonner";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/auth-context";
 import { useIsMobile } from "@/shared/ui/use-mobile";
 import styles from "./AdminLayout.module.css";
 

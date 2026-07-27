@@ -32,10 +32,10 @@ import styles from "./ProductCreatePage.module.css";
 
 import {
   CreateProductPayload,
-} from "@/shared/types/product";
+} from "@/features/admin/types/product";
 
-import { createProduct, uploadProductImage } from "@/shared/services/productService";
-import { routes } from "@/shared/lib/routes";
+import { createProduct, uploadProductImage } from "@/features/admin/api/product-service";
+import { routes } from "@/app/router/paths";
 
 type ProductImageField = {
   url: string;

@@ -2,8 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   getProductById,
   type CatalogProduct,
-} from "@/shared/data/catalog-products";
-import { useGamification } from "@/shared/contexts/gamification-context";
+} from "@/features/catalog/data/catalog-products";
+import { useGamification } from "@/features/gamification/context/gamification-context";
 
 type StoredCartItem = {
   productId: string;

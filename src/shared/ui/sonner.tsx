@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "@/shared/contexts/theme-context";
+import { useTheme } from "@/app/providers/theme/theme-context";
 import { Toaster as Sonner, ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {

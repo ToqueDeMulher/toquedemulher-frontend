@@ -3,7 +3,7 @@ import {
   AUTH_TOKEN_KEY,
   AUTH_USER_KEY,
   REFRESH_TOKEN_KEY,
-} from "@/shared/services/apiClient";
+} from "@/shared/api/api-client";
 
 export type AuthRole = "customer" | "admin";
 

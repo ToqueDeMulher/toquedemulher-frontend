@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { CatalogCategorySlug } from "@/shared/data/catalog-products";
-import { useAuth } from "@/shared/contexts/auth-context";
+import { useAuth } from "@/features/auth/context/auth-context";
+import type { CatalogCategorySlug } from "@/features/catalog/data/catalog-products";
 import {
   COMMUNITY_LEADERBOARD,
   MISSION_DEFINITIONS,

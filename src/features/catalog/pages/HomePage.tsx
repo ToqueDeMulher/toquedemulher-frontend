@@ -20,16 +20,16 @@ import {
 } from "@/shared/ui/carousel";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
-import { routes } from "@/shared/lib/routes";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { useCart } from "@/shared/contexts/cart-context";
-import { useGamification } from "@/shared/contexts/gamification-context";
+import { routes } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCart } from "@/features/cart/context/cart-context";
 import {
   defaultCategorySlug,
   getProductById,
   trendingProducts,
   type CatalogProduct,
-} from "@/shared/data/catalog-products";
+} from "@/features/catalog/data/catalog-products";
+import { useGamification } from "@/features/gamification/context/gamification-context";
 import styles from "./HomePage.module.css";
 
 import offSeasonSale from "@/shared/assets/banner-off-season/Sale.png";

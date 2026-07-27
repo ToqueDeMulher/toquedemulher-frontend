@@ -1,5 +1,5 @@
-import type { CatalogCategorySlug } from "@/shared/data/catalog-products";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
+import type { CatalogCategorySlug } from "@/features/catalog/data/catalog-products";
 
 export type MissionType = "daily" | "weekly" | "special";
 

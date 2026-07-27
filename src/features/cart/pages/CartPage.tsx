@@ -6,8 +6,8 @@ import { Input } from "@/shared/ui/input";
 import { CheckoutStepper } from "@/features/cart/components/CheckoutStepper";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { toast } from "sonner";
-import { routes } from "@/shared/lib/routes";
-import { useCart } from "@/shared/contexts/cart-context";
+import { routes } from "@/app/router/paths";
+import { useCart } from "@/features/cart/context/cart-context";
 import styles from "./CartPage.module.css";
 
 const CEP_STATE_RANGES = [

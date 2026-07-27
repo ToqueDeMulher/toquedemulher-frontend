@@ -19,9 +19,9 @@ import {
   SheetTitle,
 } from "@/shared/ui/sheet";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
-import { useCart } from "@/shared/contexts/cart-context";
+import { routes } from "@/app/router/paths";
+import { useCart } from "@/features/cart/context/cart-context";
 import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
-import { routes } from "@/shared/lib/routes";
 import styles from "./CartDrawer.module.css";
 
 const FREE_SHIPPING_THRESHOLD = 150;

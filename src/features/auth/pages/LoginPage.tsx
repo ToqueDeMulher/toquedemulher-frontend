@@ -6,17 +6,17 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import {
-  useAuth,
-  type AuthRole,
-} from "@/shared/contexts/auth-context";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
 import {
   forgotPasswordRequest,
   getMeRequest,
   loginRequest,
   registerRequest,
-} from "@/shared/services/authService";
+} from "@/features/auth/api/auth-service";
+import {
+  useAuth,
+  type AuthRole,
+} from "@/features/auth/context/auth-context";
 import styles from "./LoginPage.module.css";
 
 function getDefaultRouteForRole(role: AuthRole) {

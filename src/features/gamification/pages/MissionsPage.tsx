@@ -15,9 +15,12 @@ import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { useGamification, type GamificationMission } from "@/shared/contexts/gamification-context";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/auth-context";
+import {
+  useGamification,
+  type GamificationMission,
+} from "@/features/gamification/context/gamification-context";
 import styles from "./MissionsPage.module.css";
 
 const ICON_MAP: Record<string, React.ReactNode> = {

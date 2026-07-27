@@ -4,8 +4,8 @@ import {
   catalogCategories,
   getProductById,
   isCatalogCategorySlug,
-} from "@/shared/data/catalog-products";
-import { routes } from "@/shared/lib/routes";
+} from "@/features/catalog/data/catalog-products";
+import { routes } from "@/app/router/paths";
 import styles from "./PageNavigation.module.css";
 
 type BreadcrumbItem = {

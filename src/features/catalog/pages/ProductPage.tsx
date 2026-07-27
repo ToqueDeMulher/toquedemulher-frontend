@@ -15,11 +15,11 @@ import { toast } from "sonner";
 import {
   getProductById,
   getRelatedProducts,
-} from "@/shared/data/catalog-products";
-import { useCart } from "@/shared/contexts/cart-context";
-import { useGamification } from "@/shared/contexts/gamification-context";
+} from "@/features/catalog/data/catalog-products";
+import { useCart } from "@/features/cart/context/cart-context";
+import { useGamification } from "@/features/gamification/context/gamification-context";
 import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
-import { routes } from "@/shared/lib/routes";
+import { routes } from "@/app/router/paths";
 import styles from "./ProductPage.module.css";
 
 export function ProductPage() {

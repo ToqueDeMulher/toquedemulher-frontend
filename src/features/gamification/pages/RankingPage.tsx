@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Progress } from "@/shared/ui/progress";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { useGamification } from "@/shared/contexts/gamification-context";
+import { routes } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useGamification } from "@/features/gamification/context/gamification-context";
 import {
   LEVELS,
   getLevelByPoints,
 } from "@/features/gamification/lib/gamification-config";
-import { routes } from "@/shared/lib/routes";
 import styles from "./RankingPage.module.css";
 
 export function RankingPage() {

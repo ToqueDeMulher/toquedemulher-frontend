@@ -4,9 +4,9 @@ import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Search, X } from "lucide-react";
-import { routes } from "@/shared/lib/routes";
-import { useCart } from "@/shared/contexts/cart-context";
-import { trendingProducts } from "@/shared/data/catalog-products";
+import { routes } from "@/app/router/paths";
+import { useCart } from "@/features/cart/context/cart-context";
+import { trendingProducts } from "@/features/catalog/data/catalog-products";
 import styles from "./SearchResultsPage.module.css";
 
 const categories = [

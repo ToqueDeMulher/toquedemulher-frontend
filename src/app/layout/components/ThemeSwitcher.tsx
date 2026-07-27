@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/shared/ui/button";
-import { useTheme } from "@/shared/contexts/theme-context";
+import { useTheme } from "@/app/providers/theme/theme-context";
 import styles from "./ThemeSwitcher.module.css";
 
 export function ThemeSwitcher() {

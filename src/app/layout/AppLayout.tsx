@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { Header } from "@/shared/layout/Header";
-import { Footer } from "@/shared/layout/Footer";
-import { PageNavigation } from "@/shared/layout/PageNavigation";
-import { PageSkeleton } from "@/shared/layout/PageSkeleton";
+import { Footer } from "@/app/layout/components/Footer";
+import { Header } from "@/app/layout/components/Header";
+import { PageNavigation } from "@/app/layout/components/PageNavigation";
+import { PageSkeleton } from "@/app/layout/components/PageSkeleton";
 import { CartDrawer } from "@/features/cart/components/CartDrawer";
 import { Toaster } from "@/shared/ui/sonner";
 

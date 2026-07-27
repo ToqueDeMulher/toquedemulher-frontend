@@ -16,11 +16,11 @@ import {
   getCheckoutStepIndex,
   normalizeCheckoutFlowStep,
 } from "@/features/cart/lib/checkout-flow";
-import { useAuth } from "@/shared/contexts/auth-context";
-import { useCart } from "@/shared/contexts/cart-context";
-import { useGamification } from "@/shared/contexts/gamification-context";
+import { routes } from "@/app/router/paths";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { useCart } from "@/features/cart/context/cart-context";
+import { useGamification } from "@/features/gamification/context/gamification-context";
 import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
-import { routes } from "@/shared/lib/routes";
 import { toast } from "sonner";
 import styles from "./CheckoutPage.module.css";
 
