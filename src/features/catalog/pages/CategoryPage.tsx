@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
+import { ArrowRight, SlidersHorizontal, Sparkles } from "lucide-react";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { Button } from "@/shared/ui/button";
+import { Badge } from "@/shared/ui/badge";
 import {
   Select,
   SelectContent,
@@ -9,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
-import { SlidersHorizontal } from "lucide-react";
 import {
   catalogCategories,
   defaultCategorySlug,
@@ -19,7 +20,16 @@ import {
 import { routes } from "@/app/router/paths";
 import { useCart } from "@/features/cart/context/cart-context";
 import { useGamification } from "@/features/gamification/context/gamification-context";
+import { Reveal } from "@/shared/animation/Reveal";
 import styles from "./CategoryPage.module.css";
+
+const categoryDescriptions = {
+  maquiagem: "Bases, blushes, batons e kits para looks do dia a dia ou produções completas.",
+  skincare: "Limpeza, hidratação e tratamento para uma rotina de cuidado consistente.",
+  corpo: "Cremes, loções e autocuidado corporal para manter a pele nutrida e perfumada.",
+  cabelos: "Tratamentos e finalizadores para rotina capilar com brilho, força e reparação.",
+  perfumes: "Fragrâncias femininas marcantes, do floral delicado ao amadeirado sofisticado.",
+} as const;
 
 export function CategoryPage() {
   const { category } = useParams();
@@ -37,7 +47,7 @@ export function CategoryPage() {
     setFilteredCategory("all");
     setSortBy("featured");
     trackCategoryView(category);
-  }, [category, isValidCategory]);
+  }, [category, isValidCategory, trackCategoryView]);
 
   if (!isValidCategory) {
     return <Navigate to={routes.category(defaultCategorySlug)} replace />;
@@ -45,12 +55,15 @@ export function CategoryPage() {
 
   const categoryConfig = catalogCategories[category];
   const categoryProducts = getProductsByCategory(category);
-  const subcategories = [
-    "all",
-    ...new Set(
-      categoryProducts.map((product) => product.subcategory.toLowerCase()),
-    ),
-  ];
+  const subcategories = useMemo(
+    () => [
+      "all",
+      ...new Set(
+        categoryProducts.map((product) => product.subcategory.toLowerCase()),
+      ),
+    ],
+    [categoryProducts],
+  );
 
   const filteredProducts = categoryProducts.filter((product) =>
     filteredCategory === "all"
@@ -73,23 +86,71 @@ export function CategoryPage() {
     }
   });
 
+  const featuredSubcategories = subcategories
+    .filter((item) => item !== "all")
+    .slice(0, 3);
+
   return (
     <div className={styles.page}>
-      <div className={`${styles.container} ${styles.headerSection}`}>
-        <div className={styles.headerInner}>
-          <h1 className={styles.headerTitle}>{categoryConfig.title}</h1>
-          <p className={styles.headerDescription}>{categoryConfig.description}</p>
-        </div>
-      </div>
+      <section className={`${styles.container} ${styles.heroSection}`}>
+        <Reveal className={styles.heroCard} delayMs={60}>
+          <div className={styles.heroContent}>
+            <div className={styles.heroEyebrow}>
+              <Sparkles className={styles.heroEyebrowIcon} />
+              Categoria em destaque
+            </div>
+
+            <h1 className={styles.headerTitle}>{categoryConfig.title}</h1>
+            <p className={styles.headerDescription}>{categoryDescriptions[category]}</p>
+
+            <div className={styles.heroMeta}>
+              <div className={styles.heroMetric}>
+                <span className={styles.heroMetricLabel}>Produtos</span>
+                <strong className={styles.heroMetricValue}>{categoryProducts.length}</strong>
+              </div>
+              <div className={styles.heroMetric}>
+                <span className={styles.heroMetricLabel}>Subcategorias</span>
+                <strong className={styles.heroMetricValue}>{subcategories.length - 1}</strong>
+              </div>
+              <div className={styles.heroMetric}>
+                <span className={styles.heroMetricLabel}>Seleção</span>
+                <strong className={styles.heroMetricValue}>Atualizada</strong>
+              </div>
+            </div>
+
+            <div className={styles.heroChips}>
+              {featuredSubcategories.map((subcategory) => (
+                <Badge key={subcategory} className={styles.heroChip}>
+                  {subcategory}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.heroAside}>
+            <div className={styles.heroAsideCard}>
+              <p className={styles.heroAsideTitle}>A mesma atmosfera elegante da home.</p>
+              <p className={styles.heroAsideText}>
+                Navegue pela categoria com mais ritmo visual, filtros claros e vitrine mais refinada.
+              </p>
+              <div className={styles.heroAsideLink}>
+                Ver destaques
+                <ArrowRight className={styles.heroAsideIcon} />
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </section>
 
       <div className={`${styles.container} ${styles.filterSection}`}>
-        <div className={styles.filterCard}>
+        <Reveal className={styles.filterCard} delayMs={100}>
           <div className={styles.filterRow}>
             <div className={styles.filterGroup}>
               <div className={styles.filterLabel}>
                 <SlidersHorizontal className={styles.filterIcon} />
-                <span className={styles.filterLabelText}>Filtrar:</span>
+                <span className={styles.filterLabelText}>Filtrar</span>
               </div>
+
               <div className={styles.filterButtons}>
                 {subcategories.map((subcategory) => (
                   <Button
@@ -130,14 +191,13 @@ export function CategoryPage() {
           </div>
 
           <div className={styles.resultsRow} aria-live="polite">
-            Mostrando <span className={styles.resultsCount}>{sortedProducts.length}</span>{" "}
-            produtos
+            Mostrando <span className={styles.resultsCount}>{sortedProducts.length}</span> produtos
           </div>
-        </div>
+        </Reveal>
       </div>
 
       <div className={`${styles.container} ${styles.productsSection}`}>
-        <div className={styles.productsGrid}>
+        <Reveal className={styles.productsGrid} delayMs={130}>
           {sortedProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -145,10 +205,10 @@ export function CategoryPage() {
               onAddToCart={() => addItem(product.id, 1)}
             />
           ))}
-        </div>
+        </Reveal>
 
         {sortedProducts.length === 0 && (
-          <div className={styles.emptyState}>
+          <Reveal className={styles.emptyState} delayMs={160}>
             <div className={styles.emptyCard}>
               <div className={styles.emptyIcon}>
                 <svg
@@ -177,12 +237,12 @@ export function CategoryPage() {
                 Limpar filtros
               </Button>
             </div>
-          </div>
+          </Reveal>
         )}
       </div>
 
       <div className={`${styles.container} ${styles.newsletterSection}`}>
-        <div className={styles.newsletterCard}>
+        <Reveal className={styles.newsletterCard} delayMs={180}>
           <div className={styles.newsletterPattern} />
           <div className={styles.newsletterContent}>
             <h2 className={styles.newsletterTitle}>Receba novidades</h2>
@@ -195,16 +255,12 @@ export function CategoryPage() {
                 placeholder="Seu melhor e-mail"
                 className={styles.newsletterInput}
               />
-              <Button
-                size="lg"
-                variant="outline"
-                className={styles.newsletterButton}
-              >
+              <Button size="lg" variant="outline" className={styles.newsletterButton}>
                 Quero receber
               </Button>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </div>
   );

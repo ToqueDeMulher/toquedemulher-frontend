@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
+import { ThemeSwitcher } from "@/app/layout/components/ThemeSwitcher";
 import styles from "./ProfilePage.module.css";
 
 const orders = [
@@ -353,6 +354,18 @@ export function ProfilePage() {
                   <Button size="lg" variant="default" className={styles.passwordButton}>
                     Alterar Senha
                   </Button>
+                </div>
+                <div>
+                  <h3 className={styles.settingsGroupTitle}>Aparência</h3>
+                  <div className={styles.themeCard}>
+                    <div>
+                      <p className={styles.themeTitle}>Tema do site</p>
+                      <p className={styles.themeText}>
+                        Altere entre modo claro e escuro nas configurações da sua conta.
+                      </p>
+                    </div>
+                    <ThemeSwitcher />
+                  </div>
                 </div>
               </div>
             </TabsContent>

@@ -12,7 +12,6 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/shared/ui/navigation-menu";
-import { ThemeSwitcher } from "@/app/layout/components/ThemeSwitcher";
 import { routes } from "@/app/router/paths";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
@@ -42,29 +41,33 @@ export function Header() {
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sugestões calculadas em tempo real
   const normalized = searchTerm.toLowerCase().trim();
   const suggestedProducts = normalized.length >= 1
     ? trendingProducts
-        .filter((p) => p.name.toLowerCase().includes(normalized))
+        .filter((product) => product.name.toLowerCase().includes(normalized))
         .slice(0, MAX_PRODUCT_SUGGESTIONS)
     : [];
   const suggestedCategories = normalized.length >= 1
     ? ALL_CATEGORIES.filter(
-        (c) => c.label.toLowerCase().includes(normalized) || c.slug.includes(normalized)
+        (category) =>
+          category.label.toLowerCase().includes(normalized) ||
+          category.slug.includes(normalized),
       ).slice(0, MAX_CATEGORY_SUGGESTIONS)
     : [];
   const hasResults = suggestedProducts.length > 0 || suggestedCategories.length > 0;
 
-  // Lista flat para navegação por teclado
   type SuggestionItem =
     | { kind: "product"; id: string; name: string }
     | { kind: "category"; slug: string; label: string }
     | { kind: "search"; term: string };
 
   const flatItems: SuggestionItem[] = [
-    ...suggestedCategories.map((c) => ({ kind: "category" as const, ...c })),
-    ...suggestedProducts.map((p) => ({ kind: "product" as const, id: p.id, name: p.name })),
+    ...suggestedCategories.map((category) => ({ kind: "category" as const, ...category })),
+    ...suggestedProducts.map((product) => ({
+      kind: "product" as const,
+      id: product.id,
+      name: product.name,
+    })),
     ...(normalized.length >= 1 ? [{ kind: "search" as const, term: searchTerm }] : []),
   ];
 
@@ -77,13 +80,13 @@ export function Header() {
     setActiveIndex(-1);
   }, []);
 
-  // Fechar ao clicar fora
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         closeDropdown();
       }
-    }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [closeDropdown]);
@@ -91,13 +94,14 @@ export function Header() {
   const navigateToItem = (item: SuggestionItem) => {
     closeDropdown();
     setSearchTerm("");
+
     if (item.kind === "product") navigate(routes.product(item.id));
     else if (item.kind === "category") navigate(routes.category(item.slug));
     else navigate(routes.search(item.term));
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearchSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     if (searchTerm.trim()) {
       closeDropdown();
       navigate(routes.search(searchTerm));
@@ -105,18 +109,18 @@ export function Header() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showDropdown || flatItems.length === 0) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.min(i + 1, flatItems.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.max(i - 1, -1));
-    } else if (e.key === "Enter" && activeIndex >= 0) {
-      e.preventDefault();
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveIndex((index) => Math.min(index + 1, flatItems.length - 1));
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveIndex((index) => Math.max(index - 1, -1));
+    } else if (event.key === "Enter" && activeIndex >= 0) {
+      event.preventDefault();
       navigateToItem(flatItems[activeIndex]);
-    } else if (e.key === "Escape") {
+    } else if (event.key === "Escape") {
       closeDropdown();
       inputRef.current?.blur();
     }
@@ -126,15 +130,15 @@ export function Header() {
     <>
       <div className={styles.promoBar} role="region" aria-label="Avisos promocionais">
         <div className={styles.promoRow}>
-          {[1, 2, 3, 4].map((i) => (
-            <span key={i} className={styles.promoText}>
+          {[1, 2, 3, 4].map((item) => (
+            <span key={item} className={styles.promoText}>
               Frete grátis acima de R$ 150,00 • Até 50% OFF em selecionados
             </span>
           ))}
         </div>
         <div className={styles.promoRow} aria-hidden="true">
-          {[1, 2, 3, 4].map((i) => (
-            <span key={`clone-${i}`} className={styles.promoText}>
+          {[1, 2, 3, 4].map((item) => (
+            <span key={`clone-${item}`} className={styles.promoText}>
               Frete grátis acima de R$ 150,00 • Até 50% OFF em selecionados
             </span>
           ))}
@@ -158,18 +162,18 @@ export function Header() {
               <nav className={styles.navWrapper} aria-label="Navegação principal">
                 <NavigationMenu className={styles.navMenu} viewport={false}>
                   <NavigationMenuList className={styles.navList}>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger
-                    onClick={() => handleCategoryClick("comprar")}
-                    className={`${styles.navTrigger} ${
-                      activeCategory === "comprar"
-                        ? styles.navTriggerActive
-                        : styles.navTriggerInactive
-                    }`}
-                  >
-                    Comprar
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent className={styles.navContent}>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger
+                        onClick={() => handleCategoryClick("comprar")}
+                        className={`${styles.navTrigger} ${
+                          activeCategory === "comprar"
+                            ? styles.navTriggerActive
+                            : styles.navTriggerInactive
+                        }`}
+                      >
+                        Comprar
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent className={styles.navContent}>
                         <div className={styles.navPanel}>
                           <div className={`${styles.navColumn} ${styles.navColumnFeatured}`}>
                             <div className={styles.navSection}>
@@ -333,28 +337,28 @@ export function Header() {
                           </div>
                         </div>
                       </NavigationMenuContent>
-                </NavigationMenuItem>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <NavigationMenuLink
-                    asChild
-                    className={`${styles.navLinkSimple} ${styles.navLinkPromo}`}
-                  >
-                    <Link to={routes.home}>Promoções</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink
+                        asChild
+                        className={`${styles.navLinkSimple} ${styles.navLinkPromo}`}
+                      >
+                        <Link to={routes.home}>Promoções</Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild className={styles.navLinkSimple}>
-                    <Link to={routes.home}>Novos</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink asChild className={styles.navLinkSimple}>
+                        <Link to={routes.home}>Novos</Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild className={styles.navLinkSimple}>
-                    <Link to={routes.home}>Marcas</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink asChild className={styles.navLinkSimple}>
+                        <Link to={routes.home}>Marcas</Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavigationMenu>
               </nav>
@@ -370,8 +374,8 @@ export function Header() {
                     aria-autocomplete="list"
                     aria-expanded={showDropdown}
                     value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
+                    onChange={(event) => {
+                      setSearchTerm(event.target.value);
                       setShowDropdown(true);
                       setActiveIndex(-1);
                     }}
@@ -381,7 +385,6 @@ export function Header() {
                   />
                 </form>
 
-                {/* Dropdown de sugestões */}
                 {showDropdown && normalized.length >= 1 && (
                   <div className={styles.dropdown} role="listbox">
                     {!hasResults && (
@@ -393,23 +396,24 @@ export function Header() {
                     {suggestedCategories.length > 0 && (
                       <div className={styles.dropdownGroup}>
                         <span className={styles.dropdownGroupLabel}>Categorias</span>
-                        {suggestedCategories.map((cat) => {
-                          const idx = flatItems.findIndex(
-                            (it) => it.kind === "category" && it.slug === cat.slug
+                        {suggestedCategories.map((category) => {
+                          const index = flatItems.findIndex(
+                            (item) => item.kind === "category" && item.slug === category.slug,
                           );
+
                           return (
                             <button
-                              key={cat.slug}
+                              key={category.slug}
                               role="option"
-                              aria-selected={activeIndex === idx}
+                              aria-selected={activeIndex === index}
                               className={`${styles.dropdownItem} ${
-                                activeIndex === idx ? styles.dropdownItemActive : ""
+                                activeIndex === index ? styles.dropdownItemActive : ""
                               }`}
-                              onMouseDown={() => navigateToItem({ kind: "category", ...cat })}
-                              onMouseEnter={() => setActiveIndex(idx)}
+                              onMouseDown={() => navigateToItem({ kind: "category", ...category })}
+                              onMouseEnter={() => setActiveIndex(index)}
                             >
                               <Tag className={styles.dropdownItemIcon} />
-                              <span>{cat.label}</span>
+                              <span>{category.label}</span>
                             </button>
                           );
                         })}
@@ -420,21 +424,26 @@ export function Header() {
                       <div className={styles.dropdownGroup}>
                         <span className={styles.dropdownGroupLabel}>Produtos</span>
                         {suggestedProducts.map((product) => {
-                          const idx = flatItems.findIndex(
-                            (it) => it.kind === "product" && it.id === product.id
+                          const index = flatItems.findIndex(
+                            (item) => item.kind === "product" && item.id === product.id,
                           );
+
                           return (
                             <button
                               key={product.id}
                               role="option"
-                              aria-selected={activeIndex === idx}
+                              aria-selected={activeIndex === index}
                               className={`${styles.dropdownItem} ${
-                                activeIndex === idx ? styles.dropdownItemActive : ""
+                                activeIndex === index ? styles.dropdownItemActive : ""
                               }`}
                               onMouseDown={() =>
-                                navigateToItem({ kind: "product", id: product.id, name: product.name })
+                                navigateToItem({
+                                  kind: "product",
+                                  id: product.id,
+                                  name: product.name,
+                                })
                               }
-                              onMouseEnter={() => setActiveIndex(idx)}
+                              onMouseEnter={() => setActiveIndex(index)}
                             >
                               <img
                                 src={product.image}
@@ -468,8 +477,6 @@ export function Header() {
               </div>
 
               <div className={styles.actionRow}>
-                <ThemeSwitcher />
-
                 <Button asChild variant="ghost" size="icon" className={styles.cartButton}>
                   <Link to={routes.cart} aria-label="Carrinho">
                     <ShoppingCart className={styles.iconLarge} />
@@ -528,4 +535,3 @@ export function Header() {
     </>
   );
 }
-

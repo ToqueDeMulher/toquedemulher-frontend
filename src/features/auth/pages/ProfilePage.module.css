@@ -286,12 +286,25 @@
   @apply w-full sm:w-auto;
 }
 
+.themeCard {
+  @apply flex items-center justify-between gap-4 p-4 border rounded-2xl;
+}
+
+.themeTitle {
+  @apply font-medium mb-1;
+}
+
+.themeText {
+  @apply text-sm;
+}
+
 .profileCard,
 .tabsCard,
 .wishlistCard,
 .reviewCard,
 .settingsRow,
-.addressCard {
+.addressCard,
+.themeCard {
   background-color: var(--theme-card-bg);
   border-color: var(--theme-border-soft);
 }
@@ -315,8 +328,13 @@
 .reviewDate,
 .reviewText,
 .settingsLabel,
-.addressText {
+.addressText,
+.themeText {
   color: var(--theme-text-secondary);
+}
+
+.themeTitle {
+  color: var(--theme-text-primary);
 }
 
 .loyaltyCard,
