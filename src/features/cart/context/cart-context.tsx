@@ -92,9 +92,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         quantity: item.quantity,
       }));
       window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextValue));
-    } catch {
-      // ignore persistence errors
-    }
+    } catch {}
   }, [items]);
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);

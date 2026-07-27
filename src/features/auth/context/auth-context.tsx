@@ -8,7 +8,7 @@ import {
 export type AuthRole = "customer" | "admin";
 
 export type AuthUser = {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: AuthRole;

@@ -11,6 +11,7 @@ import {
   forgotPasswordRequest,
   getMeRequest,
   loginRequest,
+  normalizeAuthUser,
   registerRequest,
 } from "@/features/auth/api/auth-service";
 import {
@@ -148,7 +149,7 @@ export function LoginPage() {
   };
 
   const completeSignIn = (params: {
-    authUser: { id: number; name: string; email: string; role: AuthRole };
+    authUser: { id: string; name: string; email: string; role: AuthRole };
     accessToken: string;
     refreshToken: string;
     successMessage: string;
@@ -237,13 +238,8 @@ export function LoginPage() {
         return;
       }
 
-    completeSignIn({
-      authUser: {
-      id: me.id as unknown as number, // Engana temporariamente o TS se ele pedir number
-      name: me.name,
-      email: me.email,
-      role: me.role as any, // Aceita 'cliente' ou 'admin' sem reclamar
-      },
+      completeSignIn({
+        authUser: normalizeAuthUser(me),
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
         successMessage:
@@ -314,12 +310,7 @@ export function LoginPage() {
     const me = await getMeRequest(token.access_token);
 
     completeSignIn({
-      authUser: {
-        id: me.id as unknown as number, // Engana temporariamente o TS se ele pedir number
-        name: me.name,
-        email: me.email,
-        role: me.role as any, // Aceita 'cliente' ou 'admin' sem reclamar
-      },
+      authUser: normalizeAuthUser(me),
       accessToken: token.access_token,
       refreshToken: token.refresh_token,
       successMessage: "Cadastro realizado com sucesso! Bem-vinda!",

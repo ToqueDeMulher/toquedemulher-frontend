@@ -92,7 +92,7 @@ function createDefaultState(): PersistedGamificationState {
   };
 }
 
-function getStorageKey(userId?: number) {
+function getStorageKey(userId?: string) {
   return userId
     ? `${STORAGE_KEY_PREFIX}_user_${userId}`
     : `${STORAGE_KEY_PREFIX}_guest`;
@@ -232,9 +232,7 @@ export function GamificationProvider({
 
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(state));
-    } catch {
-      // ignore persistence errors
-    }
+    } catch {}
   }, [hydratedStorageKey, state, storageKey]);
 
   const value = useMemo(() => {

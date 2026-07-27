@@ -1,3 +1,4 @@
+import type { AuthRole, AuthUser } from "@/features/auth/context/auth-context";
 import { apiRequest } from "@/shared/api/api-client";
 
 export type LoginPayload = {
@@ -21,13 +22,27 @@ export type RegisterResponse = {
   mensagem: string;
 };
 
-// AJUSTADO: Mudou de full_name para name para bater com o UserInDB do seu backend Python
+export type BackendAuthRole = "cliente" | "admin";
+
 export type AuthUserResponse = {
-  id: string; // Como você usa UUID no Python, o ideal aqui é string em vez de number
-  name: string; 
+  id: string;
+  name: string;
   email: string;
-  role: "cliente" | "admin"; // Ajustado para 'cliente' em minúsculo, que é o valor real do seu banco
+  role: BackendAuthRole;
 };
+
+function mapBackendRole(role: BackendAuthRole): AuthRole {
+  return role === "admin" ? "admin" : "customer";
+}
+
+export function normalizeAuthUser(response: AuthUserResponse): AuthUser {
+  return {
+    id: response.id,
+    name: response.name,
+    email: response.email,
+    role: mapBackendRole(response.role),
+  };
+}
 
 export function loginRequest(payload: LoginPayload) {
   return apiRequest<AuthTokenResponse>("/user/login", {
@@ -50,7 +65,6 @@ export function forgotPasswordRequest(email: string) {
   });
 }
 
-// CORRIGIDO: Forçando o método GET explicitamente e aplicando os headers de autenticação
 export function getMeRequest(accessToken?: string) {
   return apiRequest<AuthUserResponse>("/user/me", {
     method: "GET",
