@@ -238,6 +238,12 @@
   @apply w-full sm:flex-1;
 }
 
+.confettiButtonWrap {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+}
+
 .summaryCard {
   @apply sticky top-24 bg-white border border-pink-100 overflow-hidden;
   border-radius: 14px;

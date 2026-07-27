@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import {
   MapPin,
@@ -21,6 +21,7 @@ import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
 import { useGamification } from "@/features/gamification/context/gamification-context";
 import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
+import { Confetti, type ConfettiHandle } from "@/components/motion-ui/confetti";
 import { toast } from "sonner";
 import styles from "./CheckoutPage.module.css";
 
@@ -225,6 +226,7 @@ export function CheckoutPage() {
   const { items, itemCount, subtotal, reset } = useCart();
   const { trackOrder } = useGamification();
   const currentStep = normalizeCheckoutFlowStep(step);
+  const finishOrderConfettiRef = useRef<ConfettiHandle>(null);
 
   const [addressForm, setAddressForm] = useState<AddressFormState>({
     fullName: "",
@@ -336,6 +338,8 @@ export function CheckoutPage() {
   };
 
   const handleFinishOrder = () => {
+    finishOrderConfettiRef.current?.burst();
+
     const contactEmail = addressForm.email.trim();
     const earnedPoints = trackOrder(
       items.map((item) => ({
@@ -972,9 +976,17 @@ export function CheckoutPage() {
         >
           Voltar ao pagamento
         </Button>
-        <Button size="lg" className={styles.primaryButton} onClick={handleFinishOrder}>
-          Finalizar pedido
-        </Button>
+        <div className={styles.confettiButtonWrap}>
+          <Confetti
+            ref={finishOrderConfettiRef}
+            particleCount={40}
+            spread={110}
+            startVelocity={24}
+          />
+          <Button size="lg" className={styles.primaryButton} onClick={handleFinishOrder}>
+            Finalizar pedido
+          </Button>
+        </div>
       </div>
     </div>
   );

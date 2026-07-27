@@ -9,6 +9,10 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 280ms ease,
+    border-color 280ms ease;
 }
 
 .card::before {
@@ -26,6 +30,25 @@
   transition: opacity 0.22s ease;
 }
 
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      115deg,
+      transparent 28%,
+      color-mix(in oklab, var(--theme-surface-primary) 62%, transparent) 46%,
+      transparent 64%
+    );
+  transform: translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 620ms ease,
+    opacity 280ms ease;
+}
+
 .card:focus-within {
   box-shadow: 0 0 0 3px var(--theme-focus);
 }
@@ -39,6 +62,11 @@
 
   .card:hover::before {
     opacity: 1;
+  }
+
+  .card:hover::after {
+    opacity: 0.7;
+    transform: translateX(120%);
   }
 }
 
@@ -79,7 +107,7 @@
   height: var(--product-card-image-h, 10.25rem);
   max-height: 10.25rem;
   background-color: transparent;
-  transition: transform 0.3s ease;
+  transition: transform 0.32s ease;
 }
 
 @media (min-width: 640px) {
@@ -122,6 +150,10 @@
   z-index: 2;
   background-color: color-mix(in oklab, var(--theme-surface-primary) 88%, transparent);
   border: 1px solid var(--theme-border-soft);
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease;
 }
 
 .heartIcon {
@@ -198,7 +230,8 @@
   pointer-events: none;
   transition:
     opacity 0.22s ease,
-    transform 0.22s ease;
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .cartIcon {
@@ -226,4 +259,8 @@
   background-color: var(--theme-brand-soft);
   border-color: var(--theme-border-strong);
   transform: scale(1.08);
+}
+
+.addButton:hover {
+  box-shadow: 0 12px 24px color-mix(in oklab, var(--theme-brand-strong) 22%, transparent);
 }

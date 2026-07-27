@@ -23,6 +23,7 @@ import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { routes } from "@/app/router/paths";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
+import { Reveal } from "@/shared/animation/Reveal";
 import {
   defaultCategorySlug,
   getProductById,
@@ -254,7 +255,7 @@ export function HomePage() {
 
       <section className={styles.clubSection}>
         <div className={styles.trendingContainer}>
-          <div className={styles.clubCard}>
+          <Reveal className={styles.clubCard} delayMs={60}>
           <div className={styles.clubIntro}>
             <div className={styles.clubIntroTop}>
               <div className={styles.clubEyebrow}>
@@ -346,37 +347,39 @@ export function HomePage() {
               ))}
             </div>
           </div>
-        </div>
+        </Reveal>
         </div>
       </section>
 
       <section className={styles.trendingSection}>
         <div className={styles.trendingContainer}>
-          <div className={styles.trendingHeader}>
+          <Reveal className={styles.trendingHeader} delayMs={40}>
             <h2 id="home-novidades-title" className={styles.trendingTitle}>
               Novidades
             </h2>
-          </div>
+          </Reveal>
 
-          <Carousel
-            className={styles.productCarousel}
-            opts={{ align: "start", loop: true }}
-            setApi={setProductApi}
-          >
-            <CarouselContent className={styles.productCarouselContent}>
-              {trendingProducts.slice(0, 10).map((product) => (
-                <CarouselItem key={product.id} className={styles.productCarouselItem}>
-                  <ProductCard
-                    {...product}
-                    onAddToCart={() => addItem(product.id, 1)}
-                    onClick={() => handleRecentClick(product.id)}
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className={styles.productCarouselPrev} />
-            <CarouselNext className={styles.productCarouselNext} />
-          </Carousel>
+          <Reveal delayMs={120}>
+            <Carousel
+              className={styles.productCarousel}
+              opts={{ align: "start", loop: true }}
+              setApi={setProductApi}
+            >
+              <CarouselContent className={styles.productCarouselContent}>
+                {trendingProducts.slice(0, 10).map((product) => (
+                  <CarouselItem key={product.id} className={styles.productCarouselItem}>
+                    <ProductCard
+                      {...product}
+                      onAddToCart={() => addItem(product.id, 1)}
+                      onClick={() => handleRecentClick(product.id)}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className={styles.productCarouselPrev} />
+              <CarouselNext className={styles.productCarouselNext} />
+            </Carousel>
+          </Reveal>
           <div className={styles.productCarouselProgress} aria-hidden="true">
             {Array.from({ length: productCount }).map((_, index) => (
               <span
@@ -388,13 +391,13 @@ export function HomePage() {
             ))}
           </div>
 
-          <div className={styles.trendingSubHeader}>
+          <Reveal className={styles.trendingSubHeader} delayMs={90}>
             <h2 id="home-favorites-title" className={styles.trendingTitle}>
               Favoritos da Semana
             </h2>
-          </div>
+          </Reveal>
 
-          <div className={styles.favoritesGrid}>
+          <Reveal className={styles.favoritesGrid} delayMs={130}>
             {favoriteProducts.slice(0, 4).map((product) => (
               <Link
                 key={`favorite-${product.id}`}
@@ -411,14 +414,14 @@ export function HomePage() {
                 <span className={styles.favoriteCaption}>{product.title}</span>
               </Link>
             ))}
-          </div>
-          <div className={styles.trendingSubHeader}>
+          </Reveal>
+          <Reveal className={styles.trendingSubHeader} delayMs={110}>
             <h2 id="home-recommended-title" className={styles.trendingTitle}>
               Recomendados
             </h2>
-          </div>
+          </Reveal>
 
-          <div className={styles.recommendedBox}>
+          <Reveal className={styles.recommendedBox} delayMs={150}>
             <div className={styles.recommendedGrid}>
               {Array.from({ length: 12 }).map((_, index) => {
                 const product = trendingProducts[index % trendingProducts.length];
@@ -434,9 +437,9 @@ export function HomePage() {
                 );
               })}
             </div>
-          </div>
+          </Reveal>
 
-          <div className={styles.trendingButtonWrap}>
+          <Reveal className={styles.trendingButtonWrap} delayMs={160}>
             <Button
               size="sm"
               variant="default"
@@ -445,9 +448,10 @@ export function HomePage() {
             >
               Ver tudo
             </Button>
-          </div>
+          </Reveal>
 
           {recentProducts.length > 0 && (
+            <Reveal delayMs={180}>
             <section className={styles.recentSection} aria-label="Visto recentemente">
               <div className={styles.recentHeader}>
                 <h2 className={styles.recentTitle}>Visto recentemente</h2>
@@ -465,6 +469,7 @@ export function HomePage() {
                 ))}
               </div>
             </section>
+            </Reveal>
           )}
         </div>
       </section>

@@ -6,7 +6,6 @@
   z-index: 2;
 }
 
-/* ─── Barra social / app ───────────────────────────────────── */
 .topBar {
   border-top: 1px solid var(--theme-border-soft);
   background-color: var(--theme-bg-subtle);
@@ -35,17 +34,23 @@
 }
 
 .socialButton {
-  @apply w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center transition-colors;
+  @apply w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center;
   border-radius: 10px;
   background-color: var(--theme-surface-primary);
   color: var(--theme-text-secondary);
   border: 1px solid var(--theme-border-soft);
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease;
 }
 
 .socialButton:hover {
   background-color: var(--theme-brand-strong);
   border-color: var(--theme-brand-strong);
   color: var(--theme-text-inverse);
+  transform: translateY(-2px);
 }
 
 .socialButton:focus-visible {
@@ -59,6 +64,21 @@
 
 .appLink {
   @apply flex items-center gap-2 cursor-pointer;
+  min-height: 2.5rem;
+  padding: 0.25rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--theme-border-soft);
+  background-color: var(--theme-surface-primary);
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease;
+}
+
+.appLink:hover {
+  transform: translateY(-2px);
+  border-color: var(--theme-border-strong);
+  background-color: var(--theme-brand-soft);
 }
 
 .appIcon {
@@ -75,14 +95,15 @@
   color: var(--theme-brand-strong);
 }
 
-/* ─── Newsletter ────────────────────────────────────────────── */
 .newsletterSection {
-  @apply py-4 sm:py-5;
-  background-color: var(--theme-brand-strong);
+  @apply py-5 sm:py-6;
+  background:
+    radial-gradient(circle at top right, color-mix(in oklab, var(--theme-accent-cyan) 16%, transparent), transparent 34%),
+    linear-gradient(135deg, var(--theme-brand-strong), color-mix(in oklab, var(--theme-brand-strong) 76%, black));
 }
 
 .newsletterInner {
-  @apply flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-6;
+  @apply flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 xl:gap-8;
 }
 
 .newsletterCopy {
@@ -90,29 +111,33 @@
 }
 
 .newsletterEyebrow {
-  @apply hidden;
+  @apply inline-flex items-center text-xs font-semibold uppercase tracking-[0.16em] mb-2;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .newsletterTitle {
-  @apply text-sm font-bold text-white leading-tight;
+  @apply text-lg sm:text-xl font-bold text-white leading-tight;
+  font-family: var(--font-display);
 }
 
 .newsletterSubtitle {
-  @apply text-xs text-white/70 hidden sm:block;
+  @apply text-sm block max-w-2xl;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .newsletterForm {
-  @apply flex w-full sm:w-auto flex-row gap-2;
-  min-width: min(100%, 340px);
+  @apply flex w-full xl:w-auto flex-col sm:flex-row gap-2.5;
+  min-width: min(100%, 31rem);
 }
 
 .newsletterInput {
-  @apply flex-1 px-3 py-2 text-sm transition-colors;
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.18);
+  @apply flex-1 px-4 py-3 text-sm;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.16);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   min-width: 0;
+  backdrop-filter: blur(10px);
 }
 
 .newsletterInput::placeholder {
@@ -126,14 +151,19 @@
 }
 
 .newsletterButton {
-  @apply px-4 py-2 text-xs font-bold transition-all whitespace-nowrap flex-shrink-0;
-  border-radius: 8px;
+  @apply px-5 py-3 text-sm font-bold whitespace-nowrap flex-shrink-0;
+  border-radius: 999px;
   background-color: white;
   color: var(--theme-brand-strong);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease;
 }
 
 .newsletterButton:hover {
   background-color: #f5f5f5;
+  transform: translateY(-2px);
 }
 
 .newsletterButton:focus-visible {
@@ -142,7 +172,11 @@
 }
 
 .newsletterSuccess {
-  @apply flex items-center gap-2 flex-shrink-0;
+  @apply flex items-center gap-3 flex-shrink-0;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .newsletterSuccessIcon {
@@ -157,22 +191,155 @@
 }
 
 .newsletterSuccessText {
-  @apply text-xs text-white/75;
+  @apply text-xs;
+  color: rgba(255, 255, 255, 0.75);
 }
 
-/* ─── Links principais ──────────────────────────────────────── */
 .mainSection {
   color: var(--theme-footer-text);
-  background-color: var(--theme-footer-bg);
+  background:
+    radial-gradient(circle at top left, color-mix(in oklab, var(--theme-brand-strong) 10%, transparent), transparent 24%),
+    radial-gradient(circle at bottom right, color-mix(in oklab, var(--theme-accent-cyan) 8%, transparent), transparent 20%),
+    linear-gradient(180deg, var(--theme-footer-bg), color-mix(in oklab, var(--theme-footer-bg) 88%, black));
 }
 
 .mainContainer {
-  @apply mx-auto w-full px-7 md:px-9 xl:px-14 2xl:px-20 pt-16 pb-10;
+  @apply mx-auto w-full px-7 md:px-9 xl:px-14 2xl:px-20 pt-14 pb-10;
   max-width: 1680px;
 }
 
+.footerIntro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 28rem);
+  gap: 2rem;
+  align-items: start;
+  margin-bottom: 3.25rem;
+}
+
+.brandColumn {
+  max-width: 44rem;
+}
+
+.brandBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+  color: var(--theme-footer-text);
+  background-color: color-mix(in oklab, var(--theme-footer-text) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--theme-footer-text) 12%, transparent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.brandBadgeIcon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.logoRow {
+  @apply flex items-center;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  @apply font-bold tracking-normal;
+  font-size: clamp(2.5rem, 5.8vw, 5.5rem);
+  line-height: 0.95;
+  color: var(--theme-footer-text);
+}
+
+.brandText {
+  max-width: 40rem;
+  margin-top: 1rem;
+  color: var(--theme-footer-muted);
+  line-height: 1.75;
+  font-size: 0.98rem;
+}
+
+.brandMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+}
+
+.metaPill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.42rem 0.8rem;
+  border-radius: 999px;
+  background-color: color-mix(in oklab, var(--theme-footer-text) 7%, transparent);
+  color: var(--theme-footer-text);
+  border: 1px solid color-mix(in oklab, var(--theme-footer-text) 10%, transparent);
+  font-size: 0.78rem;
+}
+
+.supportCard {
+  padding: 1.35rem;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in oklab, var(--theme-footer-text) 10%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--theme-footer-text) 6%, transparent), transparent),
+    color-mix(in oklab, var(--theme-footer-bottom) 82%, transparent);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.18);
+}
+
+.supportEyebrow {
+  color: var(--theme-brand-strong);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+
+.supportTitle {
+  color: var(--theme-footer-text);
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2vw, 1.65rem);
+  line-height: 1.12;
+}
+
+.supportText {
+  color: var(--theme-footer-muted);
+  font-size: 0.94rem;
+  line-height: 1.65;
+  margin-top: 0.95rem;
+}
+
+.supportButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.9rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  margin-top: 1.15rem;
+  border-radius: 999px;
+  background-color: var(--theme-footer-text);
+  color: var(--theme-footer-bottom);
+  font-weight: 700;
+  transition:
+    transform 220ms ease,
+    opacity 220ms ease;
+}
+
+.supportButton:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
 .linksGrid {
-  @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8 xl:gap-12 mb-12 text-sm;
+  @apply grid grid-cols-2 md:grid-cols-4 gap-8 xl:gap-12 text-sm;
+  padding-top: 2rem;
+  border-top: 1px solid color-mix(in oklab, var(--theme-footer-text) 12%, transparent);
 }
 
 .columnTitle {
@@ -185,7 +352,7 @@
 }
 
 .linkButton {
-  @apply transition-colors hover:underline;
+  @apply transition-colors;
   color: var(--theme-footer-muted);
 }
 
@@ -199,25 +366,6 @@
   border-radius: 0.375rem;
 }
 
-/* ─── Logo ──────────────────────────────────────────────────── */
-.logoSection {
-  @apply text-center py-12 md:py-16;
-  border-top: 1px solid color-mix(in oklab, var(--theme-footer-text) 18%, transparent);
-}
-
-.logoRow {
-  @apply flex items-center justify-center;
-}
-
-.logoText {
-  font-family: var(--font-display);
-  @apply font-bold tracking-normal transition-opacity;
-  font-size: clamp(3.5rem, 7vw, 7rem);
-  line-height: 1;
-  color: var(--theme-footer-text);
-}
-
-/* ─── Bottom bar ────────────────────────────────────────────── */
 .bottomBar {
   @apply py-5;
   background-color: var(--theme-footer-bottom);
@@ -229,11 +377,58 @@
   max-width: 1680px;
 }
 
-.bottomText {
-  @apply text-center;
+.bottomRow {
+  @apply flex flex-col md:flex-row gap-3 items-center justify-between;
 }
 
 .bottomCopy {
   @apply text-xs;
   color: color-mix(in oklab, var(--theme-footer-text) 68%, transparent);
+}
+
+.bottomLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.bottomLink {
+  color: color-mix(in oklab, var(--theme-footer-text) 68%, transparent);
+  font-size: 0.76rem;
+  transition: color 180ms ease;
+}
+
+.bottomLink:hover {
+  color: var(--theme-footer-text);
+}
+
+@media (max-width: 1180px) {
+  .footerIntro {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .footerIntro {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .topRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .newsletterTitle {
+    font-size: 1rem;
+  }
+
+  .footerIntro {
+    margin-bottom: 2.5rem;
+  }
+
+  .linksGrid {
+    grid-template-columns: 1fr 1fr;
+  }
 }

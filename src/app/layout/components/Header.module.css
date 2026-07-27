@@ -7,6 +7,10 @@
   border-bottom: 1px solid var(--theme-header-border);
   @apply w-full sticky top-0 z-50;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+  transition:
+    background-color 240ms ease,
+    border-color 240ms ease,
+    box-shadow 240ms ease;
 }
 
 .promoBar {
@@ -57,6 +61,7 @@
 
 .logoButton {
   @apply no-underline;
+  position: relative;
 }
 
 .logoButton:focus-visible {
@@ -73,10 +78,15 @@
   font-family: var(--font-display);
   @apply text-2xl md:text-3xl font-bold tracking-normal whitespace-nowrap leading-none transition-colors;
   color: var(--theme-text-primary);
+  display: inline-block;
+  transition:
+    color 220ms ease,
+    transform 220ms ease;
 }
 
 .logoButton:hover .logoText {
   color: var(--theme-brand-strong);
+  transform: translateY(-1px);
 }
 
 .navWrapper {
@@ -95,6 +105,9 @@
   @apply relative px-2 py-1.5 text-[13px] md:text-[14px] xl:text-[15px] font-medium transition-colors;
   background-color: transparent;
   color: var(--theme-text-primary);
+  transition:
+    color 220ms ease,
+    transform 220ms ease;
 }
 
 .navTriggerActive {
@@ -172,11 +185,16 @@
   @apply block rounded-md px-3 py-2 transition-colors;
   border: 1px solid var(--theme-border-soft);
   background-color: var(--theme-card-muted);
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease;
 }
 
 .navCard:hover {
   background-color: var(--theme-surface-primary);
   border-color: var(--theme-border-strong);
+  transform: translateY(-2px);
 }
 
 .navCardTitle {
@@ -226,12 +244,17 @@
   @apply font-normal inline-flex h-9 w-max items-center justify-center rounded-md px-2 py-1 text-[13px] md:text-[14px] cursor-pointer transition-colors;
   background-color: transparent;
   color: var(--theme-text-primary);
+  position: relative;
+  transition:
+    color 220ms ease,
+    transform 220ms ease;
 }
 
 .navTrigger:hover,
 .navLinkSimple:hover {
   background-color: transparent;
   color: var(--theme-brand-strong);
+  transform: translateY(-1px);
 }
 
 .navLinkPromo {
@@ -267,6 +290,7 @@
   display: flex;
   align-items: center;
   position: relative;
+  transition: transform 220ms ease;
 }
 
 .searchWrapper:focus-within {
@@ -284,7 +308,13 @@
   border: 1px solid var(--theme-input-border);
   background-color: var(--theme-input-bg);
   color: var(--theme-text-primary);
-  box-shadow: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.32) inset,
+    0 10px 24px color-mix(in oklab, var(--theme-brand-strong) 5%, transparent);
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease;
 }
 
 .searchInput::placeholder {
@@ -294,7 +324,9 @@
 .searchInput:focus-visible {
   outline: none;
   border-color: var(--theme-border-strong);
-  box-shadow: 0 0 0 3px var(--theme-focus);
+  box-shadow:
+    0 0 0 3px var(--theme-focus),
+    0 16px 34px color-mix(in oklab, var(--theme-brand-strong) 10%, transparent);
 }
 
 .actionRow {
@@ -306,6 +338,11 @@
   border-radius: 10px;
   color: var(--theme-text-primary);
   border: 1px solid transparent;
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease;
 }
 
 .iconLarge {
@@ -317,19 +354,33 @@
   border-radius: 10px;
   color: var(--theme-text-primary);
   border: 1px solid transparent;
+  overflow: visible;
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease;
 }
 
 .iconButton:hover,
 .cartButton:hover {
   background-color: var(--theme-brand-soft);
   border-color: var(--theme-border-soft);
+  transform: translateY(-2px);
 }
 
 .cartBadge {
-  @apply absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 rounded-full text-[10px];
+  @apply absolute flex items-center justify-center p-0 rounded-full text-[10px];
+  top: -0.3rem;
+  right: -0.3rem;
+  min-width: 1.15rem;
+  height: 1.15rem;
   background-color: var(--theme-text-primary);
   color: var(--theme-text-inverse);
   border: 2px solid var(--theme-header-solid);
+  line-height: 1;
+  z-index: 2;
+  animation: cartPulse 3.8s ease-in-out infinite;
 }
 
 .iconButtonHidden {
@@ -342,10 +393,16 @@
   background-color: var(--theme-brand-strong);
   color: white;
   border: 1px solid var(--theme-brand-strong);
+  transition:
+    transform 220ms ease,
+    filter 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .loginButton:hover {
   filter: brightness(0.92);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px color-mix(in oklab, var(--theme-brand-strong) 28%, transparent);
 }
 
 .loginButtonIcon {
@@ -581,5 +638,24 @@
 
   to {
     transform: translateX(-100%);
+  }
+}
+
+@keyframes cartPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--theme-brand-strong) 0%, transparent);
+  }
+
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--theme-brand-strong) 18%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartBadge {
+    animation: none;
   }
 }
