@@ -203,7 +203,7 @@ export function HomePage() {
   const recentProducts = recentIds
     .map((id) => getProductById(id))
     .filter((product): product is CatalogProduct => Boolean(product));
-  const highlightedMissions = missions.filter((mission) => !mission.completed).slice(0, 2);
+  const highlightedMissions = missions.filter((mission) => !mission.completed).slice(0, 1);
 
   const recentCardStyle = {
     "--product-card-min-h": "320px",

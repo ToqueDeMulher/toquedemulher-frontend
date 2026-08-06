@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { MapPin, CheckCircle2, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { routes } from "@/app/router/paths";
 import {
@@ -57,8 +57,7 @@ export function AddressPage() {
   const numberRef = useRef<HTMLInputElement>(null);
 
   if (!isLoggedIn) {
-    navigate(routes.login, { replace: true });
-    return null;
+    return <Navigate to={routes.login} replace />;
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

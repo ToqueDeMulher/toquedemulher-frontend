@@ -89,7 +89,7 @@ export function CartPage() {
     if (zipCode.length !== 8 && isShippingCalculated) {
       setIsShippingCalculated(false);
     }
-  }, [isShippingCalculated, zipCode]);
+  }, [zipCode]);
 
   const discount = appliedCoupon === VALID_COUPON ? subtotal * 0.1 : 0;
   const shipping = isShippingCalculated

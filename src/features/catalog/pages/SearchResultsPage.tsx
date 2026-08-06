@@ -31,48 +31,6 @@ const categories = [
   "gloss",
 ];
 
-const categoryData = {
-  maquiagem: {
-    title: "Maquiagem",
-    products: trendingProducts.filter((p) =>
-      p.name.toLowerCase().includes("bat") ||
-      p.name.toLowerCase().includes("base") ||
-      p.name.toLowerCase().includes("mascara") ||
-      p.name.toLowerCase().includes("blush")
-    ),
-  },
-  skincare: {
-    title: "Skincare",
-    products: trendingProducts.filter((p) =>
-      p.name.toLowerCase().includes("serum") ||
-      p.name.toLowerCase().includes("hidrat") ||
-      p.name.toLowerCase().includes("creme")
-    ),
-  },
-  corpo: {
-    title: "Corpo",
-    products: trendingProducts.filter((p) =>
-      p.name.toLowerCase().includes("corpo") ||
-      p.name.toLowerCase().includes("loção")
-    ),
-  },
-  cabelos: {
-    title: "Cabelos",
-    products: trendingProducts.filter((p) =>
-      p.name.toLowerCase().includes("shampoo") ||
-      p.name.toLowerCase().includes("condicionador") ||
-      p.name.toLowerCase().includes("kit")
-    ),
-  },
-  perfumes: {
-    title: "Perfumes",
-    products: trendingProducts.filter((p) =>
-      p.name.toLowerCase().includes("perfume") ||
-      p.name.toLowerCase().includes("eau")
-    ),
-  },
-};
-
 export function SearchResultsPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -235,7 +193,7 @@ export function SearchResultsPage() {
               <Button
                 variant="outline"
                 className={styles.browseButton}
-                onClick={() => navigate(routes.category("feminino"))}
+                onClick={() => navigate(routes.category("maquiagem"))}
               >
                 Ver categorias
               </Button>

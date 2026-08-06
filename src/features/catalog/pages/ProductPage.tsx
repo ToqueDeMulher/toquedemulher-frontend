@@ -31,7 +31,6 @@ export function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const productName = "Batom Matte Nude Luxo";
 
   useEffect(() => {
     setSelectedImage(0);
@@ -45,7 +44,7 @@ export function ProductPage() {
     }
 
     trackProductView(product.id, product.category);
-  }, [product]);
+  }, [product, trackProductView]);
 
   if (!product) {
     return (
@@ -242,8 +241,8 @@ export function ProductPage() {
                   aria-pressed={isWishlisted}
                   aria-label={
                     isWishlisted
-                      ? `Remover ${productName} da wishlist`
-                      : `Adicionar ${productName} à wishlist`
+                      ? `Remover ${product.name} da wishlist`
+                      : `Adicionar ${product.name} à wishlist`
                   }
                 >
                   <Heart
