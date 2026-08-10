@@ -92,7 +92,6 @@ export function LoginPage() {
   const redirectReason = (location.state as { reason?: string } | null)?.reason;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [loginRole, setLoginRole] = useState<AuthRole>("customer");
   const [animateLogin, setAnimateLogin] = useState(false);
   const [animateRegister, setAnimateRegister] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -118,8 +117,7 @@ export function LoginPage() {
 
   useEffect(() => {
     if (redirectReason === "admin-only") {
-      setLoginRole("admin");
-      toast.error("Acesso restrito. Entre com uma conta admin.");
+      toast.error("Acesso restrito. Faça login com uma conta administradora.");
     }
   }, [redirectReason]);
 
@@ -249,12 +247,6 @@ export function LoginPage() {
         const token = await googleLoginRequest(response.credential);
         const me = await getMeRequest(token.access_token);
 
-        if (loginRole === "admin" && me.role !== "admin") {
-          toast.error("Essa conta Google não tem permissão de admin.");
-          setIsLoading(false);
-          return;
-        }
-
         completeSignIn({
           authUser: normalizeAuthUser(me),
           accessToken: token.access_token,
@@ -273,7 +265,7 @@ export function LoginPage() {
         toast.error(error instanceof Error ? error.message : "Falha no login com Google.");
       }
     },
-    [loginRole, completeSignIn]
+    [completeSignIn]
   );
 
   useEffect(() => {
@@ -375,12 +367,6 @@ export function LoginPage() {
         password: loginPassword,
       });
       const me = await getMeRequest(token.access_token);
-
-      if (loginRole === "admin" && me.role !== "admin") {
-        toast.error("Essa conta não tem permissão de admin.");
-        setIsLoading(false);
-        return;
-      }
 
       completeSignIn({
         authUser: normalizeAuthUser(me),
@@ -489,7 +475,7 @@ export function LoginPage() {
       return;
     }
 
-    if (!validateEmail(loginEmail) && loginRole !== "admin") {
+    if (!validateEmail(loginEmail)) {
       toast.error("Digite um e-mail válido.");
       return;
     }
@@ -515,7 +501,7 @@ export function LoginPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>Boas-vindas!</h1>
           <p className={styles.subtitle}>
-            Entre como cliente ou admin para acessar a área certa da conta.
+            Entre na sua conta para acessar seus pedidos, favoritos e configurações.
           </p>
         </div>
         <p className="sr-only" aria-live="polite">
@@ -538,37 +524,6 @@ export function LoginPage() {
 
             <TabsContent value="login">
               <form onSubmit={handleLogin} className={styles.formLogin}>
-                <div className={styles.roleSection}>
-                  <span className={styles.roleLabel}>Entrando como</span>
-                  <div className={styles.roleToggle}>
-                    <button
-                      type="button"
-                      className={`${styles.roleButton} ${
-                        loginRole === "customer" ? styles.roleButtonActive : ""
-                      }`}
-                      onClick={() => setLoginRole("customer")}
-                      aria-pressed={loginRole === "customer"}
-                    >
-                      Cliente
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.roleButton} ${
-                        loginRole === "admin" ? styles.roleButtonActive : ""
-                      }`}
-                      onClick={() => setLoginRole("admin")}
-                      aria-pressed={loginRole === "admin"}
-                    >
-                      Admin
-                    </button>
-                  </div>
-                  <p className={styles.roleHint}>
-                    {loginRole === "admin"
-                      ? "Acesso admin: use uma conta com role admin cadastrada no backend."
-                      : "Acesso cliente: entre com seu e-mail para ver pedidos, wishlist e configurações."}
-                  </p>
-                </div>
-
                 <div>
                   <Label htmlFor="email" className={styles.fieldLabel}>
                     E-mail
@@ -576,11 +531,7 @@ export function LoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder={
-                      loginRole === "admin"
-                        ? "admin@toquedemulher.com"
-                        : "seu@email.com"
-                    }
+                    placeholder="seu@email.com"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     required
@@ -675,10 +626,8 @@ export function LoginPage() {
                       <Loader2 className={styles.iconSpin} />
                       Entrando...
                     </>
-                  ) : loginRole === "admin" ? (
-                    "Entrar como admin"
                   ) : (
-                    "Entrar como cliente"
+                    "Entrar"
                   )}
                 </Button>
               </form>
@@ -731,9 +680,7 @@ export function LoginPage() {
                 </div>
 
                 <p className={styles.footerMeta}>
-                  {loginRole === "admin"
-                    ? "Painel administrativo separado da área do cliente."
-                    : "Sua área de cliente mostra pedidos, wishlist e configurações pessoais."}
+                  Sua área mostra pedidos, favoritos e configurações pessoais.
                 </p>
               </div>
             </TabsContent>
@@ -1034,13 +981,12 @@ export function LoginPage() {
                       Criando conta...
                     </>
                   ) : (
-                    "Criar conta de cliente"
+                    "Criar conta"
                   )}
                 </Button>
 
                 <p className={styles.registerMeta}>
-                  Cadastro cria uma conta de cliente. Contas admin continuam
-                  restritas a acessos autorizados.
+                  O cadastro cria uma conta para compras, pedidos e configurações pessoais.
                 </p>
               </form>
             </TabsContent>

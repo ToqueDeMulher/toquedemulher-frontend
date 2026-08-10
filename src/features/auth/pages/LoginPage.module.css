@@ -67,36 +67,6 @@
   @apply space-y-5;
 }
 
-.roleSection {
-  @apply border border-pink-100 bg-pink-50/70 p-4 space-y-3;
-  border-radius: 12px;
-}
-
-.roleLabel {
-  @apply block text-sm font-medium text-gray-700;
-}
-
-.roleToggle {
-  @apply grid grid-cols-2 gap-2;
-}
-
-.roleButton {
-  @apply border border-pink-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors;
-  border-radius: 10px;
-}
-
-.roleButton:hover {
-  @apply border-pink-300 bg-pink-100;
-}
-
-.roleButtonActive {
-  @apply border-pink-500 bg-pink-600 text-white;
-}
-
-.roleHint {
-  @apply text-xs text-gray-600 leading-relaxed;
-}
-
 .formRegister {
   @apply space-y-4;
 }
@@ -430,14 +400,12 @@
 }
 
 .title,
-.roleButton,
 .input,
 .inputWithIcon {
   color: var(--theme-text-primary);
 }
 
 .subtitle,
-.roleHint,
 .checkboxText,
 .strengthRules,
 .termsText,
@@ -452,26 +420,9 @@
   box-shadow: none;
 }
 
-.tabsList,
-.roleSection {
+.tabsList {
   background-color: var(--theme-card-muted);
   border-color: var(--theme-border-soft);
-}
-
-.roleButton {
-  background-color: var(--theme-surface-primary);
-  border-color: var(--theme-input-border);
-}
-
-.roleButton:hover {
-  background-color: var(--theme-brand-soft);
-  border-color: var(--theme-border-strong);
-}
-
-.roleButtonActive {
-  background-color: var(--theme-brand-strong);
-  border-color: var(--theme-brand-strong);
-  color: var(--theme-text-inverse);
 }
 
 .fieldLabel {
