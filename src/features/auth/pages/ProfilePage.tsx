@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Star,
   Trash2,
-  ShoppingBag,
 } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -33,9 +32,13 @@ import {
 } from "@/features/auth/api/payment-method-service";
 import {
   getProfile,
+  getProfileOrders,
+  getProfileReviews,
   updateEmail,
   updatePassword,
   updateProfile,
+  type ProfileOrder,
+  type ProfileReview,
   type UserProfile,
 } from "@/features/auth/api/profile-service";
 import { useAuth } from "@/features/auth/context/auth-context";
@@ -44,60 +47,8 @@ import { Button } from "@/shared/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
-import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { ThemeSwitcher } from "@/app/layout/components/ThemeSwitcher";
 import styles from "./ProfilePage.module.css";
-
-const orders = [
-  {
-    id: "1234",
-    date: "20/10/2025",
-    status: "Entregue",
-    total: 156.8,
-    items: 3,
-    image: "https://images.unsplash.com/photo-1664165786318-9af861f2a9c3?w=100",
-  },
-  {
-    id: "1233",
-    date: "15/10/2025",
-    status: "Em trânsito",
-    total: 89.9,
-    items: 1,
-    image: "https://images.unsplash.com/photo-1758738880475-dac2ab1c92d4?w=100",
-  },
-  {
-    id: "1232",
-    date: "05/10/2025",
-    status: "Entregue",
-    total: 234.5,
-    items: 5,
-    image: "https://images.unsplash.com/photo-1613803745799-ba6c10aace85?w=100",
-  },
-];
-
-const wishlist = [
-  {
-    id: "w1",
-    name: "Sérum Anti-Idade Vitamina C",
-    price: 89.9,
-    image: "https://images.unsplash.com/photo-1613803745799-ba6c10aace85?w=200",
-    inStock: true,
-  },
-  {
-    id: "w2",
-    name: "Paleta de Sombras Rose Gold",
-    price: 79.9,
-    image: "https://images.unsplash.com/photo-1758738880475-dac2ab1c92d4?w=200",
-    inStock: true,
-  },
-  {
-    id: "w3",
-    name: "Base Líquida HD",
-    price: 69.9,
-    image: "https://images.unsplash.com/photo-1664165786318-9af861f2a9c3?w=200",
-    inStock: false,
-  },
-];
 
 type ProfileFormState = {
   name: string;
@@ -191,6 +142,57 @@ function formatAddress(address: Address) {
   return `${address.street}${number}${complement}, ${neighborhood}${address.city}/${address.state} - ${formatCep(address.cep)}`;
 }
 
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("pt-BR").format(new Date(value));
+}
+
+function formatMonthYear(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Membro recente";
+
+  return `Membro desde ${new Intl.DateTimeFormat("pt-BR", {
+    month: "short",
+    year: "numeric",
+  }).format(date)}`;
+}
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+}
+
+function getOrderStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    pending: "Pendente",
+    approved: "Aprovado",
+    rejected: "Recusado",
+    cancelled: "Cancelado",
+    refunded: "Reembolsado",
+  };
+
+  return labels[status] ?? status;
+}
+
+function getOrderStatusClass(status: string) {
+  if (status === "approved") return `${styles.statusBadge} ${styles.statusDelivered}`;
+  if (status === "pending") return `${styles.statusBadge} ${styles.statusTransit}`;
+  return `${styles.statusBadge} ${styles.statusOther}`;
+}
+
+function getOrderPreview(order: ProfileOrder) {
+  if (order.items.length === 0) return "Pedido sem itens registrados";
+
+  const firstItems = order.items
+    .slice(0, 2)
+    .map((item) => `${item.quantity}x ${item.title}`)
+    .join(", ");
+  const remaining = order.items.length > 2 ? ` +${order.items.length - 2}` : "";
+
+  return `${firstItems}${remaining}`;
+}
+
 function getPaymentTitle(method: SavedPaymentMethod) {
   if (method.label) return method.label;
   if (method.method_type === "card") return "Cartão salvo";
@@ -238,6 +240,8 @@ export function ProfilePage() {
     useState<PaymentFormState>(EMPTY_PAYMENT_FORM);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<SavedPaymentMethod[]>([]);
+  const [orders, setOrders] = useState<ProfileOrder[]>([]);
+  const [reviews, setReviews] = useState<ProfileReview[]>([]);
   const [isAccountLoading, setIsAccountLoading] = useState(true);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
@@ -253,10 +257,18 @@ export function ProfilePage() {
     async function loadAccountData() {
       setIsAccountLoading(true);
       try {
-        const [nextProfile, nextAddresses, nextPaymentMethods] = await Promise.all([
+        const [
+          nextProfile,
+          nextAddresses,
+          nextPaymentMethods,
+          nextOrders,
+          nextReviews,
+        ] = await Promise.all([
           getProfile(),
           getAddresses(),
           getPaymentMethods(),
+          getProfileOrders(),
+          getProfileReviews(),
         ]);
 
         if (!isMounted) return;
@@ -265,6 +277,8 @@ export function ProfilePage() {
         setProfileForm(mapProfileToForm(nextProfile));
         setAddresses(nextAddresses);
         setPaymentMethods(nextPaymentMethods);
+        setOrders(nextOrders);
+        setReviews(nextReviews);
       } catch (error) {
         if (isMounted) {
           toast.error(error instanceof Error ? error.message : "Não foi possível carregar o perfil.");
@@ -287,6 +301,9 @@ export function ProfilePage() {
 
   const displayName = profile?.name ?? user?.name ?? "Cliente";
   const email = profile?.email ?? user?.email ?? "cliente@email.com";
+  const memberSince = profile?.created_at
+    ? formatMonthYear(profile.created_at)
+    : "Membro recente";
   const initials = useMemo(
     () =>
       displayName
@@ -1029,10 +1046,8 @@ export function ProfilePage() {
                 <h1 className={styles.name}>{displayName}</h1>
                 <p className={styles.email}>{email}</p>
                 <div className={styles.badgeRow}>
-                  <Badge className={styles.statusOther}>Cliente VIP</Badge>
-                  <span className={styles.memberSince}>
-                    Membro desde Out 2024
-                  </span>
+                  <Badge className={styles.statusOther}>{levelName}</Badge>
+                  <span className={styles.memberSince}>{memberSince}</span>
                 </div>
               </div>
             </div>
@@ -1109,120 +1124,99 @@ export function ProfilePage() {
 
             <TabsContent value="orders" className={styles.tabContent}>
               <h2 className={styles.sectionTitle}>Histórico de Pedidos</h2>
-              <div className={styles.ordersList}>
-                {orders.map((order) => (
+              {isAccountLoading ? (
+                <div className={styles.loadingState}>
+                  <Loader2 className={styles.spinnerIcon} />
+                  Carregando pedidos...
+                </div>
+              ) : orders.length === 0 ? (
+                <div className={styles.emptyState}>Nenhum pedido encontrado.</div>
+              ) : (
+                <div className={styles.ordersList}>
+                  {orders.map((order) => (
                   <div key={order.id} className={styles.orderCard}>
                     <div className={styles.orderInfo}>
-                      <ImageWithFallback
-                        src={order.image}
-                        alt="Product"
-                        className={styles.orderImage}
-                      />
+                      <div className={styles.orderIconWrap}>
+                        <Package className={styles.orderIcon} />
+                      </div>
                       <div>
-                        <p className={styles.orderId}>Pedido #{order.id}</p>
-                        <p className={styles.orderMeta}>
-                          {order.date} • {order.items}{" "}
-                          {order.items === 1 ? "item" : "itens"}
+                        <p className={styles.orderId}>
+                          Pedido #{order.id.slice(0, 8).toUpperCase()}
                         </p>
-                        <Badge
-                          className={
-                            order.status === "Entregue"
-                              ? `${styles.statusBadge} ${styles.statusDelivered}`
-                              : order.status === "Em trânsito"
-                                ? `${styles.statusBadge} ${styles.statusTransit}`
-                                : `${styles.statusBadge} ${styles.statusOther}`
-                          }
-                        >
-                          {order.status}
+                        <p className={styles.orderMeta}>
+                          {formatDate(order.order_date)} • {order.items_count}{" "}
+                          {order.items_count === 1 ? "item" : "itens"}
+                        </p>
+                        <p className={styles.orderMeta}>
+                          {getOrderPreview(order)}
+                        </p>
+                        <Badge className={getOrderStatusClass(order.status)}>
+                          {getOrderStatusLabel(order.status)}
                         </Badge>
                       </div>
                     </div>
                     <div className={styles.textRight}>
                       <p className={styles.orderTotal}>
-                        R$ {order.total.toFixed(2).replace(".", ",")}
+                        {formatCurrency(order.total)}
                       </p>
                       <Button
                         variant="outline"
                         size="sm"
                         className={styles.orderButton}
+                        disabled
                       >
                         Ver detalhes
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="wishlist" className={styles.tabContent}>
               <h2 className={styles.sectionTitle}>Minha Wishlist</h2>
-              <div className={styles.wishlistGrid}>
-                {wishlist.map((item) => (
-                  <div key={item.id} className={styles.wishlistCard}>
-                    <div className={styles.wishlistImageWrap}>
-                      <ImageWithFallback
-                        src={item.image}
-                        alt={item.name}
-                        className={styles.wishlistImage}
-                      />
-                    </div>
-                    <div className={styles.wishlistBody}>
-                      <h3 className={styles.wishlistTitle}>{item.name}</h3>
-                      <p className={styles.wishlistPrice}>
-                        R$ {item.price.toFixed(2).replace(".", ",")}
-                      </p>
-                      <div className={styles.wishlistActions}>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          className={styles.wishlistAddButton}
-                          disabled={!item.inStock}
-                        >
-                          {item.inStock ? (
-                            <>
-                              <ShoppingBag className={styles.iconInline} />
-                              Adicionar
-                            </>
-                          ) : (
-                            "Indisponível"
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className={styles.wishlistIconButton}
-                        >
-                          <Heart className={styles.iconFavorite} />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className={styles.emptyState}>
+                Nenhum item favoritado ainda.
               </div>
             </TabsContent>
 
             <TabsContent value="reviews" className={styles.tabContent}>
               <h2 className={styles.sectionTitle}>Minhas Avaliações</h2>
-              <div className={styles.reviewList}>
-                <div className={styles.reviewCard}>
-                  <div className={styles.reviewHeader}>
-                    <div>
-                      <p className={styles.reviewTitle}>
-                        Batom Matte Nude Luxo
-                      </p>
-                      <div className={styles.reviewStars}>
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={styles.reviewStar} />
-                        ))}
-                      </div>
-                    </div>
-                    <span className={styles.reviewDate}>15/10/2025</span>
-                  </div>
-                  <p className={styles.reviewText}>
-                    Produto maravilhoso! Amei a textura, e a cor é perfeita.
-                  </p>
+              {isAccountLoading ? (
+                <div className={styles.loadingState}>
+                  <Loader2 className={styles.spinnerIcon} />
+                  Carregando avaliações...
                 </div>
-              </div>
+              ) : reviews.length === 0 ? (
+                <div className={styles.emptyState}>Nenhuma avaliação enviada.</div>
+              ) : (
+                <div className={styles.reviewList}>
+                  {reviews.map((review) => (
+                    <div key={review.id} className={styles.reviewCard}>
+                      <div className={styles.reviewHeader}>
+                        <div>
+                          <p className={styles.reviewTitle}>{review.product_name}</p>
+                          <div className={styles.reviewStars}>
+                            {Array.from({ length: review.rating }).map((_, i) => (
+                              <Star key={i} className={styles.reviewStar} />
+                            ))}
+                          </div>
+                        </div>
+                        <span className={styles.reviewDate}>
+                          {formatDate(review.created_at)}
+                        </span>
+                      </div>
+                      {review.title && (
+                        <p className={styles.reviewTitle}>{review.title}</p>
+                      )}
+                      {review.comment && (
+                        <p className={styles.reviewText}>{review.comment}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="settings" className={styles.tabContent}>

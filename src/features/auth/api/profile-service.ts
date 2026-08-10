@@ -9,7 +9,34 @@ export type UserProfile = {
   gender?: string | null;
   birth_date?: string | null;
   accepts_marketing?: boolean | null;
+  created_at?: string | null;
   role?: string | null;
+};
+
+export type ProfileOrderItem = {
+  id: string;
+  title: string;
+  quantity: number;
+  unit_price: number;
+};
+
+export type ProfileOrder = {
+  id: string;
+  order_date: string;
+  status: string;
+  total: number;
+  items_count: number;
+  items: ProfileOrderItem[];
+};
+
+export type ProfileReview = {
+  id: number;
+  product_id: string;
+  product_name: string;
+  rating: number;
+  title?: string | null;
+  comment?: string | null;
+  created_at: string;
 };
 
 export type ProfileUpdatePayload = {
@@ -32,6 +59,14 @@ type MessageResponse = {
 
 export function getProfile() {
   return apiRequest<UserProfile>("/user/me");
+}
+
+export function getProfileOrders() {
+  return apiRequest<ProfileOrder[]>("/user/me/orders");
+}
+
+export function getProfileReviews() {
+  return apiRequest<ProfileReview[]>("/user/me/reviews");
 }
 
 export function updateProfile(payload: ProfileUpdatePayload) {

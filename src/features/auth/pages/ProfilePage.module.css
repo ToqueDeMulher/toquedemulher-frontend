@@ -150,6 +150,16 @@
   @apply w-16 h-16 object-cover rounded-lg;
 }
 
+.orderIconWrap {
+  @apply flex h-16 w-16 flex-none items-center justify-center rounded-lg;
+  background-color: var(--theme-card-muted);
+}
+
+.orderIcon {
+  @apply size-5;
+  color: var(--theme-brand-strong);
+}
+
 .orderMeta {
   @apply text-gray-600;
 }
