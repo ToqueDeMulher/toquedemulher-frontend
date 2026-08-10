@@ -27,10 +27,23 @@ O frontend atual cobre os principais fluxos de navegação da loja e da área ad
 
 ## Como rodar localmente
 
+Inicie o backend primeiro em `http://127.0.0.1:8000`. Depois, em outro terminal:
+
 ```bash
 cd toquedemulher-frontend
 npm install
 npm run dev
+```
+
+O Vite vai abrir a aplicacao em:
+
+- `http://localhost:5173`
+- ou `http://127.0.0.1:5173`
+
+Se precisar fixar host e porta:
+
+```bash
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
 Build de produção:
@@ -39,9 +52,15 @@ Build de produção:
 npm run build
 ```
 
+Verificacao TypeScript:
+
+```bash
+./node_modules/.bin/tsc --noEmit
+```
+
 ## Configuração da API
 
-O frontend centraliza as requisições em `src/shared/services/apiClient.ts`.
+O frontend centraliza as requisições em `src/shared/api/api-client.ts`.
 
 Variáveis suportadas:
 
@@ -62,6 +81,77 @@ VITE_API_PREFIX=/api/v1
 VITE_GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
 ```
 
+Depois de alterar `.env`, reinicie o `npm run dev`. O Vite injeta variaveis
+`VITE_*` na inicializacao do processo.
+
+## Fluxo completo local
+
+Terminal 1, backend:
+
+```bash
+cd toquedemulher-backend
+source .venv/bin/activate
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Terminal 2, frontend:
+
+```bash
+cd toquedemulher-frontend
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+Acesse `http://127.0.0.1:5173`.
+
+## Login com Google
+
+O frontend usa Google Identity Services para obter o `credential` do Google e
+envia esse token para:
+
+```text
+POST /api/v1/user/google
+```
+
+Configuracao necessaria:
+
+- Frontend: `VITE_GOOGLE_CLIENT_ID` no `.env`.
+- Backend: `GOOGLE_CLIENT_ID` no `.env`. O backend tambem aceita `VITE_GOOGLE_CLIENT_ID` como fallback.
+- Google Cloud Console: o OAuth Client precisa ser do tipo Web e deve permitir a origem JavaScript local, como `http://localhost:5173` e/ou `http://127.0.0.1:5173`.
+
+Este projeto nao usa Supabase Auth para login Google. A Supabase esta sendo
+usada como banco Postgres; a autenticacao e feita pela API FastAPI.
+
+Se aparecer `{"detail":"Login com Google nao configurado"}`, o backend que
+recebeu a requisicao iniciou sem `GOOGLE_CLIENT_ID`/`VITE_GOOGLE_CLIENT_ID`.
+Confirme o `.env` do backend e reinicie a API.
+
+## Login, admin e perfil
+
+A tela de login e unica. Nao existe mais seletor "admin/cliente".
+
+Depois do login, o frontend chama o backend para obter o usuario atual. Se a
+`role` retornada for `admin`, a aplicacao redireciona para `/admin`; caso
+contrario, redireciona para `/perfil`.
+
+O perfil consome dados reais do backend para:
+
+- informacoes pessoais
+- enderecos
+- metodos de pagamento
+- pedidos
+- avaliacoes
+
+## Carrinho e checkout
+
+No checkout, usuarios logados usam enderecos salvos do perfil:
+
+- se houver endereco padrao de entrega, ele ja vem selecionado
+- se nao houver padrao, o primeiro endereco salvo e usado
+- o usuario pode escolher outro endereco salvo
+- o usuario pode adicionar um novo endereco e salva-lo no perfil
+
+Visitantes continuam usando o formulario manual de endereco.
+
 ## Estrutura principal
 
 - `src/app/`: boot da aplicação, providers, layout e rotas
@@ -70,8 +160,7 @@ VITE_GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
 - `src/features/auth/`: login e perfil
 - `src/features/admin/`: dashboard e cadastro de produtos
 - `src/features/institutional/`: páginas institucionais
-- `src/shared/services/`: cliente HTTP e serviços de integração
-- `src/shared/contexts/`: estado global de autenticação e carrinho
+- `src/shared/api/`: cliente HTTP e servicos de API compartilhados
 - `src/shared/ui/`: biblioteca de componentes reutilizáveis
 
 ## Rotas implementadas
@@ -95,7 +184,7 @@ Rotas públicas e autenticadas configuradas em `src/app/routes.tsx`:
 
 ### Cliente HTTP
 
-O helper `src/shared/services/apiClient.ts`:
+O helper `src/shared/api/api-client.ts`:
 
 - monta a URL final com base nas variáveis `VITE_API_URL` e `VITE_API_PREFIX`
 - injeta `Content-Type: application/json` quando necessário
@@ -113,7 +202,7 @@ Chaves de autenticação usadas no navegador:
 A tela `src/features/admin/pages/ProductCreatePage.tsx` já possui:
 
 - formulário administrativo com preview de payload
-- criação de produto via `src/shared/services/productService.ts`
+- criação de produto via `src/features/admin/api/product-service.ts`
 - upload de imagens com `FormData`
 - feedback visual com toast
 
@@ -130,4 +219,4 @@ No estado atual do frontend, o serviço de produtos consome:
 
 ## Situação atual da documentação
 
-Este README foi atualizado para refletir o estado atual do código versionado em **10 de março de 2026**.
+Este README foi atualizado para refletir o estado atual do código versionado em **10 de agosto de 2026**.
