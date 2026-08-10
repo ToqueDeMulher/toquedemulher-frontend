@@ -2,46 +2,6 @@
 @import "tw-animate-css";
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 
-@font-face {
-  font-family: "Satoshi Variable";
-  src: url("./shared/assets/fonts/Satoshi-Variable/Satoshi-Variable.ttf") format("truetype-variations");
-  font-weight: 300 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "all-round-gothic";
-  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-text.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "all-round-gothic";
-  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-medium.otf") format("opentype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "all-round-gothic";
-  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-demi.otf") format("opentype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "all-round-gothic";
-  src: url("./shared/assets/fonts/all-round-gothic/Demo_Fonts/Fontspring-DEMO-allroundgothic-bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @layer properties {
