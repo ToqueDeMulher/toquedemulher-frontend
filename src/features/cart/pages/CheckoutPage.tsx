@@ -1,7 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import {
+  Home,
+  Loader2,
   MapPin,
+  Plus,
   ShieldCheck,
   Truck,
   WalletCards,
@@ -17,6 +20,13 @@ import {
   normalizeCheckoutFlowStep,
 } from "@/features/cart/lib/checkout-flow";
 import { routes } from "@/app/router/paths";
+import {
+  createAddress,
+  getAddresses,
+  getRegiaoByUF,
+  type Address,
+  type AddressRequest,
+} from "@/features/auth/api/address-service";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
 import { useGamification } from "@/features/gamification/context/gamification-context";
@@ -38,6 +48,8 @@ type AddressFormState = {
   state: string;
   reference: string;
 };
+
+type AddressMode = "saved" | "new";
 
 type PaymentMethod = "card" | "pix" | "boleto";
 
@@ -75,6 +87,26 @@ const stepContent = {
   },
 } as const;
 
+function createEmptyAddressForm(contact?: { name?: string; email?: string } | null): AddressFormState {
+  return {
+    fullName: contact?.name ?? "",
+    email: contact?.email ?? "",
+    zipCode: "",
+    phone: "",
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    reference: "",
+  };
+}
+
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 function formatZipCode(zipCode: string) {
   if (zipCode.length <= 5) return zipCode;
   return `${zipCode.slice(0, 5)}-${zipCode.slice(5, 8)}`;
@@ -102,6 +134,77 @@ function formatExpiry(expiry: string) {
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function formatSavedAddress(address: Address) {
+  const street = address.street ?? "";
+  const city = address.city ?? "";
+  const state = address.state ?? "";
+  const number = address.number ? `, ${address.number}` : "";
+  const complement = address.complement ? ` - ${address.complement}` : "";
+  const neighborhood = address.neighborhood ? `${address.neighborhood} - ` : "";
+  const cep = formatZipCode(onlyDigits(address.cep).slice(0, 8));
+
+  return `${street}${number}${complement}, ${neighborhood}${city}/${state} - ${cep}`;
+}
+
+function mapSavedAddressToForm(
+  address: Address,
+  contact?: { name?: string; email?: string } | null,
+): AddressFormState {
+  return {
+    fullName: contact?.name ?? "",
+    email: contact?.email ?? "",
+    zipCode: onlyDigits(address.cep).slice(0, 8),
+    phone: onlyDigits(address.ddd ?? "").slice(0, 11),
+    street: address.street ?? "",
+    number: address.number ?? "",
+    complement: address.complement ?? "",
+    neighborhood: address.neighborhood ?? "",
+    city: address.city ?? "",
+    state: address.state ?? "",
+    reference: "",
+  };
+}
+
+function createAddressPayload(
+  addressForm: AddressFormState,
+  isDefaultShipping: boolean,
+): AddressRequest {
+  const state = addressForm.state.trim().toUpperCase();
+
+  return {
+    label: "Entrega",
+    cep: onlyDigits(addressForm.zipCode).slice(0, 8),
+    street: addressForm.street.trim(),
+    number: addressForm.number.trim(),
+    complement: addressForm.complement.trim() || undefined,
+    neighborhood: addressForm.neighborhood.trim(),
+    city: addressForm.city.trim(),
+    state,
+    region: getRegiaoByUF(state),
+    ddd: onlyDigits(addressForm.phone).slice(0, 2),
+    is_default_shipping: isDefaultShipping,
+    is_default_billing: false,
+  };
+}
+
+function findMatchingAddress(addresses: Address[], addressForm: AddressFormState) {
+  const cep = onlyDigits(addressForm.zipCode);
+  const street = addressForm.street.trim().toLowerCase();
+  const number = addressForm.number.trim().toLowerCase();
+
+  return (
+    addresses.find(
+      (address) =>
+        onlyDigits(address.cep) === cep &&
+        (address.street ?? "").trim().toLowerCase() === street &&
+        (address.number ?? "").trim().toLowerCase() === number,
+    ) ??
+    addresses.find((address) => address.is_default_shipping) ??
+    addresses[0] ??
+    null
+  );
 }
 
 function getAddressErrors(addressForm: AddressFormState) {
@@ -222,25 +325,15 @@ function addBusinessDays(baseDate: Date, businessDays: number) {
 export function CheckoutPage() {
   const navigate = useNavigate();
   const { step } = useParams<{ step?: string }>();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const { items, itemCount, subtotal, reset } = useCart();
   const { trackOrder } = useGamification();
   const currentStep = normalizeCheckoutFlowStep(step);
   const finishOrderConfettiRef = useRef<ConfettiHandle>(null);
 
-  const [addressForm, setAddressForm] = useState<AddressFormState>({
-    fullName: "",
-    email: "",
-    zipCode: "",
-    phone: "",
-    street: "",
-    number: "",
-    complement: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    reference: "",
-  });
+  const [addressForm, setAddressForm] = useState<AddressFormState>(() =>
+    createEmptyAddressForm(user),
+  );
   const [paymentForm, setPaymentForm] = useState<PaymentFormState>({
     method: "card",
     cardName: "",
@@ -250,26 +343,89 @@ export function CheckoutPage() {
     cpf: "",
     installments: "1x sem juros",
   });
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [addressMode, setAddressMode] = useState<AddressMode>("new");
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [addressAttempted, setAddressAttempted] = useState(false);
   const [paymentAttempted, setPaymentAttempted] = useState(false);
   const [orderNumber] = useState(createOrderNumber);
   const addressErrors = getAddressErrors(addressForm);
   const paymentErrors = getPaymentErrors(paymentForm);
-  const isAddressComplete = Object.keys(addressErrors).length === 0;
+  const selectedAddress =
+    savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
+  const isUsingSavedAddress = addressMode === "saved" && selectedAddress !== null;
+  const isAddressComplete =
+    isUsingSavedAddress || Object.keys(addressErrors).length === 0;
   const isPaymentComplete =
     paymentForm.method === "card"
       ? Object.keys(paymentErrors).length === 0
       : true;
 
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!isLoggedIn) {
+      setSavedAddresses([]);
+      setSelectedAddressId(null);
+      setAddressMode("new");
+      setShouldSaveAddress(false);
+      return;
+    }
+
+    setAddressForm((prev) => ({
+      ...prev,
+      fullName: prev.fullName || user?.name || "",
+      email: prev.email || user?.email || "",
+    }));
+    setIsLoadingAddresses(true);
+
+    getAddresses()
+      .then((addresses) => {
+        if (!isMounted) return;
+
+        setSavedAddresses(addresses);
+        const preferredAddress =
+          addresses.find((address) => address.is_default_shipping) ??
+          addresses[0] ??
+          null;
+
+        if (preferredAddress) {
+          setSelectedAddressId(preferredAddress.id);
+          setAddressMode("saved");
+          setAddressForm(mapSavedAddressToForm(preferredAddress, user));
+          setShouldSaveAddress(false);
+          return;
+        }
+
+        setSelectedAddressId(null);
+        setAddressMode("new");
+        setShouldSaveAddress(true);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        toast.error("Não foi possível carregar seus endereços salvos.");
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingAddresses(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn, user?.email, user?.name]);
+
   if (step !== undefined && step !== currentStep) {
     return <Navigate to={routes.checkoutStep(currentStep)} replace />;
   }
 
-  if (currentStep === "payment" && !isAddressComplete) {
+  if (currentStep === "payment" && !isLoadingAddresses && !isAddressComplete) {
     return <Navigate to={routes.checkoutStep("address")} replace />;
   }
 
-  if (currentStep === "confirmation" && !isAddressComplete) {
+  if (currentStep === "confirmation" && !isLoadingAddresses && !isAddressComplete) {
     return <Navigate to={routes.checkoutStep("address")} replace />;
   }
 
@@ -302,6 +458,10 @@ export function CheckoutPage() {
   ]
     .filter(Boolean)
     .join(", ");
+  const hasSavedAddresses = isLoggedIn && savedAddresses.length > 0;
+  const shouldShowAddressForm =
+    !isLoggedIn ||
+    (!isLoadingAddresses && (addressMode === "new" || !isUsingSavedAddress));
 
   const updateAddressField = (field: keyof AddressFormState, value: string) => {
     setAddressForm((prev) => ({ ...prev, [field]: value }));
@@ -311,16 +471,71 @@ export function CheckoutPage() {
     setPaymentForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleAddressSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSelectSavedAddress = (address: Address) => {
+    setAddressMode("saved");
+    setSelectedAddressId(address.id);
+    setAddressAttempted(false);
+    setAddressForm(mapSavedAddressToForm(address, user));
+  };
+
+  const handleUseNewAddress = () => {
+    setAddressMode("new");
+    setSelectedAddressId(null);
+    setAddressAttempted(false);
+    setShouldSaveAddress(isLoggedIn);
+    setAddressForm((prev) => ({
+      ...createEmptyAddressForm(user),
+      fullName: prev.fullName || user?.name || "",
+      email: prev.email || user?.email || "",
+    }));
+  };
+
+  const handleAddressSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setAddressAttempted(true);
+
+    if (isUsingSavedAddress) {
+      toast.success("Endereço selecionado. Agora escolha a forma de pagamento.");
+      navigate(routes.checkoutStep("payment"));
+      return;
+    }
 
     if (hasMissingAddressField(addressForm)) {
       toast.error("Preencha os campos obrigatórios com dados válidos.");
       return;
     }
 
-    toast.success("Endereço salvo. Agora escolha a forma de pagamento.");
+    if (isLoggedIn && shouldSaveAddress) {
+      setIsSavingAddress(true);
+
+      try {
+        await createAddress(
+          createAddressPayload(addressForm, savedAddresses.length === 0),
+        );
+
+        const nextAddresses = await getAddresses();
+        const nextSelectedAddress = findMatchingAddress(nextAddresses, addressForm);
+
+        setSavedAddresses(nextAddresses);
+
+        if (nextSelectedAddress) {
+          setSelectedAddressId(nextSelectedAddress.id);
+          setAddressMode("saved");
+          setAddressForm(mapSavedAddressToForm(nextSelectedAddress, user));
+        }
+
+        toast.success("Endereço salvo. Agora escolha a forma de pagamento.");
+      } catch {
+        toast.error("Não foi possível salvar o endereço. Tente novamente.");
+        setIsSavingAddress(false);
+        return;
+      }
+
+      setIsSavingAddress(false);
+    } else {
+      toast.success("Endereço revisado. Agora escolha a forma de pagamento.");
+    }
+
     navigate(routes.checkoutStep("payment"));
   };
 
@@ -340,7 +555,7 @@ export function CheckoutPage() {
   const handleFinishOrder = () => {
     finishOrderConfettiRef.current?.burst();
 
-    const contactEmail = addressForm.email.trim();
+    const contactEmail = addressForm.email.trim() || user?.email || "";
     const earnedPoints = trackOrder(
       items.map((item) => ({
         price: item.price,
@@ -373,20 +588,103 @@ export function CheckoutPage() {
           </div>
         </div>
 
-        {addressAttempted && Object.keys(addressErrors).length > 0 && (
-          <div className={styles.errorSummary} role="alert">
-            <p className={styles.errorSummaryTitle}>
-              Revise os campos obrigatórios do endereço antes de continuar.
-            </p>
-            <ul className={styles.errorList}>
-              {Object.values(addressErrors).map((error) => (
-                <li key={error}>{error}</li>
-              ))}
-            </ul>
+        {isLoggedIn && (
+          <div className={styles.savedAddressPanel}>
+            {isLoadingAddresses ? (
+              <div className={styles.addressLoading}>
+                <Loader2 className={styles.addressLoadingIcon} />
+                <span>Carregando endereços salvos</span>
+              </div>
+            ) : hasSavedAddresses ? (
+              <>
+                <div className={styles.savedAddressToolbar}>
+                  <p className={styles.savedAddressHeading}>Endereços salvos</p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className={styles.savedAddressAction}
+                    onClick={handleUseNewAddress}
+                  >
+                    <Plus className={styles.savedAddressButtonIcon} />
+                    Adicionar novo
+                  </Button>
+                </div>
+
+                <div className={styles.savedAddressList}>
+                  {savedAddresses.map((address) => {
+                    const isSelected =
+                      addressMode === "saved" && selectedAddressId === address.id;
+
+                    return (
+                      <button
+                        key={address.id}
+                        type="button"
+                        className={cn(
+                          styles.savedAddressCard,
+                          isSelected && styles.savedAddressCardActive,
+                        )}
+                        onClick={() => handleSelectSavedAddress(address)}
+                        aria-pressed={isSelected}
+                      >
+                        <span className={styles.savedAddressCardTop}>
+                          <span className={styles.savedAddressTitleRow}>
+                            <Home className={styles.savedAddressIcon} />
+                            <span className={styles.savedAddressTitle}>
+                              {address.label || "Endereço de entrega"}
+                            </span>
+                          </span>
+                          {address.is_default_shipping && (
+                            <span className={styles.savedAddressBadge}>Padrão</span>
+                          )}
+                        </span>
+                        <span className={styles.savedAddressText}>
+                          {formatSavedAddress(address)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className={styles.addressEmptyNotice}>
+                <Home className={styles.savedAddressIcon} />
+                <span>Nenhum endereço salvo ainda.</span>
+              </div>
+            )}
           </div>
         )}
 
-        <div className={styles.formGrid}>
+        {isUsingSavedAddress && selectedAddress && (
+          <div className={styles.selectedAddressNotice}>
+            <Home className={styles.savedAddressIcon} />
+            <div>
+              <p className={styles.saveAddressTitle}>
+                Entregar em {selectedAddress.label || "endereço salvo"}
+              </p>
+              <p className={styles.saveAddressText}>
+                {formatSavedAddress(selectedAddress)}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {shouldShowAddressForm && (
+          <>
+            {addressAttempted && Object.keys(addressErrors).length > 0 && (
+              <div className={styles.errorSummary} role="alert">
+                <p className={styles.errorSummaryTitle}>
+                  Revise os campos obrigatórios do endereço antes de continuar.
+                </p>
+                <ul className={styles.errorList}>
+                  {Object.values(addressErrors).map((error) => (
+                    <li key={error}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className={styles.formGrid}>
           <div className={styles.fullField}>
             <Label htmlFor="fullName" className={styles.fieldLabel}>
               Nome completo
@@ -649,7 +947,28 @@ export function CheckoutPage() {
               placeholder="Prédio, cor do portão, instruções para entrega etc."
             />
           </div>
-        </div>
+            </div>
+
+            {isLoggedIn && (
+              <label className={styles.saveAddressToggle}>
+                <input
+                  type="checkbox"
+                  className={styles.saveAddressCheckbox}
+                  checked={shouldSaveAddress}
+                  onChange={(event) => setShouldSaveAddress(event.target.checked)}
+                />
+                <span>
+                  <span className={styles.saveAddressTitle}>
+                    Salvar este endereço no perfil
+                  </span>
+                  <span className={styles.saveAddressText}>
+                    Ele ficará disponível nas próximas compras.
+                  </span>
+                </span>
+              </label>
+            )}
+          </>
+        )}
       </div>
 
       <div className={styles.noticeCard}>
@@ -672,8 +991,13 @@ export function CheckoutPage() {
         >
           Voltar ao carrinho
         </Button>
-        <Button size="lg" type="submit" className={styles.primaryButton}>
-          Continuar para pagamento
+        <Button
+          size="lg"
+          type="submit"
+          className={styles.primaryButton}
+          disabled={isLoadingAddresses || isSavingAddress}
+        >
+          {isSavingAddress ? "Salvando endereço..." : "Continuar para pagamento"}
         </Button>
       </div>
     </form>

@@ -122,6 +122,101 @@
   @apply mt-2 text-sm text-red-700;
 }
 
+.savedAddressPanel {
+  @apply mb-5 space-y-3;
+}
+
+.addressLoading,
+.addressEmptyNotice,
+.selectedAddressNotice,
+.saveAddressToggle {
+  @apply border p-3 flex items-start gap-3;
+  border-radius: 8px;
+}
+
+.addressLoading {
+  @apply items-center text-sm font-medium;
+}
+
+.addressLoadingIcon {
+  @apply size-4 shrink-0 animate-spin;
+}
+
+.savedAddressToolbar {
+  @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.savedAddressHeading {
+  @apply text-sm font-semibold;
+}
+
+.savedAddressAction {
+  @apply w-full sm:w-auto;
+}
+
+.savedAddressButtonIcon,
+.savedAddressIcon {
+  @apply size-4 shrink-0;
+}
+
+.savedAddressList {
+  @apply grid gap-3;
+}
+
+.savedAddressCard {
+  @apply w-full border p-4 text-left transition-colors;
+  border-radius: 8px;
+}
+
+.savedAddressCard:focus-visible {
+  outline: 3px solid rgb(247 57 134 / 0.25);
+  outline-offset: 2px;
+}
+
+.savedAddressCardTop {
+  @apply flex items-start justify-between gap-3;
+}
+
+.savedAddressTitleRow {
+  @apply inline-flex min-w-0 items-center gap-2;
+}
+
+.savedAddressTitle {
+  @apply truncate text-sm font-semibold;
+}
+
+.savedAddressBadge {
+  @apply rounded-full px-2 py-0.5 text-xs font-semibold;
+}
+
+.savedAddressText {
+  @apply mt-2 block text-sm leading-relaxed;
+}
+
+.selectedAddressNotice {
+  @apply mb-5;
+}
+
+.saveAddressToggle {
+  @apply mt-4 cursor-pointer;
+}
+
+.saveAddressCheckbox {
+  @apply shrink-0;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.15rem;
+  accent-color: var(--theme-brand-strong);
+}
+
+.saveAddressTitle {
+  @apply block text-sm font-semibold;
+}
+
+.saveAddressText {
+  @apply block text-sm leading-relaxed;
+}
+
 .noticeCard {
   @apply mx-5 sm:mx-6 mb-5 p-3 border border-pink-100 bg-pink-50/60 flex items-start gap-3;
   border-radius: 10px;
@@ -360,6 +455,10 @@
 
 .checkoutCard,
 .checkoutBody,
+.addressLoading,
+.addressEmptyNotice,
+.selectedAddressNotice,
+.saveAddressToggle,
 .noticeCard,
 .confirmationCard,
 .confirmationPanel,
@@ -371,6 +470,9 @@
 
 .sectionTitle,
 .guestBannerTitle,
+.savedAddressHeading,
+.savedAddressTitle,
+.saveAddressTitle,
 .noticeTitle,
 .confirmationTitle,
 .confirmationPanelTitle,
@@ -384,6 +486,10 @@
 .guestBannerText,
 .sectionText,
 .fieldLabel,
+.addressLoading,
+.addressEmptyNotice,
+.savedAddressText,
+.saveAddressText,
 .noticeText,
 .confirmationText,
 .confirmationPanelText,
@@ -398,6 +504,10 @@
 .guestBannerText,
 .sectionText,
 .fieldLabel,
+.addressLoading,
+.addressEmptyNotice,
+.savedAddressText,
+.saveAddressText,
 .noticeText,
 .confirmationText,
 .confirmationPanelText,
@@ -410,6 +520,9 @@
 }
 
 .sectionIconWrap,
+.addressEmptyNotice,
+.selectedAddressNotice,
+.saveAddressToggle,
 .noticeCard,
 .confirmationCard,
 .summaryPanel {
@@ -417,9 +530,32 @@
 }
 
 .sectionIconWrap,
+.addressLoadingIcon,
+.savedAddressIcon,
 .noticeIcon,
 .confirmationIconWrap,
 .summaryEtaIcon {
+  color: var(--theme-brand-strong);
+}
+
+.savedAddressCard {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.savedAddressCard:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+}
+
+.savedAddressCardActive {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-brand-strong);
+}
+
+.savedAddressBadge {
+  background-color: var(--theme-brand-soft);
   color: var(--theme-brand-strong);
 }
 
