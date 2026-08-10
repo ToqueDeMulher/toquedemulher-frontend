@@ -102,6 +102,14 @@
   @apply size-4 mr-2;
 }
 
+.iconInlineSpin {
+  @apply size-4 mr-2 animate-spin;
+}
+
+.spinnerIcon {
+  @apply size-4 animate-spin;
+}
+
 .iconSmall {
   @apply size-4;
 }
@@ -247,7 +255,125 @@
 }
 
 .settingsSection {
-  @apply space-y-6 max-w-2xl;
+  @apply space-y-6;
+}
+
+.loadingState {
+  @apply flex items-center gap-3 rounded-2xl border p-5 text-sm;
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-text-secondary);
+}
+
+.settingsGrid {
+  @apply grid gap-6 lg:grid-cols-2;
+}
+
+.settingsPanel {
+  @apply rounded-2xl border p-5;
+}
+
+.settingsPanelWide {
+  @apply lg:col-span-2;
+}
+
+.panelHeader {
+  @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5;
+}
+
+.panelTitleRow {
+  @apply flex items-center gap-2;
+}
+
+.panelIcon {
+  @apply size-4;
+  color: var(--theme-brand-strong);
+}
+
+.panelTitle {
+  @apply font-semibold;
+}
+
+.formGrid {
+  @apply grid gap-4 sm:grid-cols-2;
+}
+
+.fieldGroup {
+  @apply flex flex-col gap-1.5 text-sm font-medium;
+}
+
+.input,
+.select {
+  @apply w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-all;
+  @apply focus:border-pink-400 focus:ring-2 focus:ring-pink-100;
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.select {
+  @apply cursor-pointer;
+}
+
+.checkboxLine {
+  @apply mt-4 flex items-center gap-2 text-sm;
+}
+
+.checkboxLine input {
+  @apply size-4 cursor-pointer;
+  accent-color: var(--theme-brand-strong);
+}
+
+.formActions {
+  @apply mt-5 flex flex-col gap-3 sm:flex-row;
+}
+
+.itemList {
+  @apply space-y-3;
+}
+
+.savedItem {
+  @apply flex flex-col gap-4 rounded-2xl border p-4 sm:flex-row sm:items-start sm:justify-between;
+}
+
+.savedItemContent {
+  @apply min-w-0 flex-1;
+}
+
+.savedItemHeader {
+  @apply flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.savedItemTitle {
+  @apply font-medium;
+}
+
+.savedItemText {
+  @apply mt-1 text-sm;
+}
+
+.badgeGroup {
+  @apply flex flex-wrap gap-2;
+}
+
+.itemActions {
+  @apply flex flex-wrap gap-2 sm:justify-end;
+}
+
+.iconButtonDanger {
+  @apply text-red-600 hover:text-red-700;
+}
+
+.paymentGrid {
+  @apply grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)];
+}
+
+.paymentForm {
+  @apply min-w-0;
+}
+
+.emptyState {
+  @apply rounded-2xl border border-dashed p-5 text-sm;
 }
 
 .settingsGroupTitle {
@@ -302,6 +428,9 @@
 .tabsCard,
 .wishlistCard,
 .reviewCard,
+.settingsPanel,
+.savedItem,
+.emptyState,
 .settingsRow,
 .addressCard,
 .themeCard {
@@ -315,6 +444,9 @@
 .orderId,
 .wishlistTitle,
 .reviewTitle,
+.panelTitle,
+.fieldGroup,
+.savedItemTitle,
 .settingsGroupTitle,
 .settingsValue,
 .addressTitle {
@@ -327,6 +459,9 @@
 .orderMeta,
 .reviewDate,
 .reviewText,
+.savedItemText,
+.checkboxLine,
+.emptyState,
 .settingsLabel,
 .addressText,
 .themeText {

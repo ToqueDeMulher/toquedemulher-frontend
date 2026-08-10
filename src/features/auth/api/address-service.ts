@@ -19,6 +19,22 @@ export interface AddressResponse {
   mensagem: string;
 }
 
+export interface Address {
+  id: string;
+  label?: string | null;
+  cep: string;
+  street: string;
+  number?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  city: string;
+  state: string;
+  region?: string | null;
+  ddd?: string | null;
+  is_default_shipping: boolean;
+  is_default_billing: boolean;
+}
+
 export interface ViaCepResponse {
   cep: string;
   logradouro: string;
@@ -81,8 +97,28 @@ export async function fetchAddressByCep(
 export async function createAddress(
   data: AddressRequest
 ): Promise<AddressResponse> {
-  return apiRequest<AddressResponse>("/addresses", {
+  return apiRequest<AddressResponse>("/addresses/", {
     method: "POST",
     body: JSON.stringify(data),
+  });
+}
+
+export function getAddresses() {
+  return apiRequest<Address[]>("/addresses/");
+}
+
+export function updateAddress(
+  addressId: string,
+  data: Partial<AddressRequest>
+): Promise<AddressResponse> {
+  return apiRequest<AddressResponse>(`/addresses/${addressId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteAddress(addressId: string): Promise<AddressResponse> {
+  return apiRequest<AddressResponse>(`/addresses/${addressId}`, {
+    method: "DELETE",
   });
 }

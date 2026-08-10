@@ -278,6 +278,14 @@
   @apply w-full;
 }
 
+.googleButtonSlot {
+  @apply flex min-h-11 w-full items-center justify-center overflow-hidden;
+}
+
+.googleButtonSlot iframe {
+  max-width: 100%;
+}
+
 .iconMedium {
   @apply w-5 h-5;
 }

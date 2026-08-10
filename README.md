@@ -47,6 +47,7 @@ Variáveis suportadas:
 
 - `VITE_API_URL`: host base da API
 - `VITE_API_PREFIX`: prefixo das rotas da API
+- `VITE_GOOGLE_CLIENT_ID`: OAuth Client ID web usado pelo Google Identity Services
 
 Valores padrão atuais:
 
@@ -58,6 +59,7 @@ Exemplo de `.env`:
 ```env
 VITE_API_URL=http://localhost:8000
 VITE_API_PREFIX=/api/v1
+VITE_GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
 ```
 
 ## Estrutura principal

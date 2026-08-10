@@ -22,7 +22,7 @@ export type RegisterResponse = {
   mensagem: string;
 };
 
-export type BackendAuthRole = "cliente" | "admin";
+export type BackendAuthRole = "cliente" | "customer" | "admin";
 
 export type AuthUserResponse = {
   id: string;
@@ -48,6 +48,13 @@ export function loginRequest(payload: LoginPayload) {
   return apiRequest<AuthTokenResponse>("/user/login", {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+export function googleLoginRequest(credential: string) {
+  return apiRequest<AuthTokenResponse>("/user/google", {
+    method: "POST",
+    body: JSON.stringify({ credential }),
   });
 }
 

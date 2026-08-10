@@ -24,6 +24,7 @@ type AuthContextValue = {
     accessToken: string;
     refreshToken: string;
   }) => void;
+  updateUser: (user: AuthUser) => void;
   logout: () => void;
 };
 
@@ -53,6 +54,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }) => {
         window.localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
         window.localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+        window.localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));
+        setUser(nextUser);
+      },
+      updateUser: (nextUser: AuthUser) => {
         window.localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));
         setUser(nextUser);
       },
