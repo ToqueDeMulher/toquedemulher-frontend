@@ -1,0 +1,82 @@
+@reference "tailwindcss";
+
+.page {
+  @apply min-h-[72vh] px-5 py-12 flex items-center justify-center;
+  background-color: var(--theme-bg-canvas);
+}
+
+.panel {
+  @apply w-full max-w-md border p-7 text-center;
+  border-radius: 14px;
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
+}
+
+.logoRow {
+  @apply mb-7 inline-flex items-center gap-3;
+}
+
+.logoMark {
+  @apply inline-flex size-11 items-center justify-center text-base font-extrabold text-white;
+  border-radius: 12px;
+  background-color: var(--theme-brand-strong);
+  font-family: var(--font-display);
+}
+
+.logoText {
+  @apply text-2xl font-extrabold leading-none;
+  color: var(--theme-text-primary);
+  font-family: var(--font-display);
+}
+
+.iconWrap {
+  @apply mx-auto mb-5 flex size-16 items-center justify-center;
+  border-radius: 16px;
+  background-color: var(--theme-card-muted);
+  color: var(--theme-brand-strong);
+}
+
+.iconWrap[data-status="success"] {
+  color: rgb(22 163 74);
+}
+
+.iconWrap[data-status="error"] {
+  color: rgb(220 38 38);
+}
+
+.icon,
+.iconSpin {
+  @apply size-8;
+}
+
+.iconSpin {
+  @apply animate-spin;
+}
+
+.eyebrow {
+  @apply mb-3 inline-flex items-center justify-center gap-2 text-sm font-semibold;
+  color: var(--theme-brand-strong);
+}
+
+.eyebrowIcon {
+  @apply size-4;
+}
+
+.title {
+  @apply mb-3 text-3xl font-extrabold leading-tight;
+  color: var(--theme-text-primary);
+  font-family: var(--font-display);
+}
+
+.message {
+  @apply mx-auto max-w-sm text-sm leading-6;
+  color: var(--theme-text-secondary);
+}
+
+.actions {
+  @apply mt-7;
+}
+
+.primaryAction {
+  @apply w-full;
+}

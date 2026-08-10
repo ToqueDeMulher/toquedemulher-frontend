@@ -72,6 +72,13 @@ export function forgotPasswordRequest(email: string) {
   });
 }
 
+export function confirmEmailRequest(token: string) {
+  return apiRequest<{ mensagem: string }>("/user/confirm-email", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
 export function getMeRequest(accessToken?: string) {
   return apiRequest<AuthUserResponse>("/user/me", {
     method: "GET",

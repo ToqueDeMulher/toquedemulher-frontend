@@ -3,6 +3,7 @@ export const routes = {
   product: (productId: string = ":productId") => `/produto/${productId}`,
   category: (category: string = ":category") => `/categoria/${category}`,
   login: "/login",
+  confirmEmail: "/confirm-email",
   profile: "/perfil",
   adminDashboard: "/admin",
   cart: "/carrinho",

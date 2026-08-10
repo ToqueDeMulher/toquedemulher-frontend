@@ -141,6 +141,24 @@ O perfil consome dados reais do backend para:
 - pedidos
 - avaliacoes
 
+## Confirmacao de email
+
+O link enviado pelo backend aponta para:
+
+```text
+/confirm-email?token=...
+```
+
+A pagina `src/features/auth/pages/ConfirmEmailPage.tsx` chama:
+
+```text
+POST /api/v1/user/confirm-email
+```
+
+Quando o token e valido, o backend marca `email_confirmed_at` no usuario e a
+tela mostra o estado de sucesso. Se o token estiver ausente, expirado ou
+invalido, a tela mostra erro e leva a pessoa de volta ao login.
+
 ## Carrinho e checkout
 
 No checkout, usuarios logados usam enderecos salvos do perfil:

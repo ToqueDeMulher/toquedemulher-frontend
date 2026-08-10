@@ -9,6 +9,7 @@ import { ProductPage } from "@/features/catalog/pages/ProductPage";
 import { CartPage } from "@/features/cart/pages/CartPage";
 import { CheckoutPage } from "@/features/cart/pages/CheckoutPage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { ConfirmEmailPage } from "@/features/auth/pages/ConfirmEmailPage";
 import { ProfilePage } from "@/features/auth/pages/ProfilePage";
 import { AdminDashboardPage } from "@/features/admin/pages/AdminDashboardPage";
 import { AdminLayout } from "@/features/admin/layout/AdminLayout";
@@ -38,6 +39,7 @@ export function AppRoutes() {
         <Route path={routes.missions} element={<MissionsPage />} />
         <Route path={routes.ranking} element={<RankingPage />} />
         <Route path={routes.login} element={<LoginPage />} />
+        <Route path={routes.confirmEmail} element={<ConfirmEmailPage />} />
         <Route
           path={routes.profile}
           element={
