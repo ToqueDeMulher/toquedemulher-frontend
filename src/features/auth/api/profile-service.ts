@@ -53,6 +53,12 @@ export type PasswordUpdatePayload = {
   new_password: string;
 };
 
+export type DeleteAccountPayload = {
+  current_password?: string;
+  confirm_email: string;
+  confirm_text: string;
+};
+
 type MessageResponse = {
   mensagem: string;
 };
@@ -86,6 +92,13 @@ export function updateEmail(newEmail: string) {
 export function updatePassword(payload: PasswordUpdatePayload) {
   return apiRequest<MessageResponse>("/user/me/password", {
     method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAccount(payload: DeleteAccountPayload) {
+  return apiRequest<MessageResponse>("/user/me", {
+    method: "DELETE",
     body: JSON.stringify(payload),
   });
 }

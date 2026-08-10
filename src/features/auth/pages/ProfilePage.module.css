@@ -300,6 +300,10 @@
   color: var(--theme-brand-strong);
 }
 
+.dangerIcon {
+  @apply size-4 text-red-600;
+}
+
 .panelTitle {
   @apply font-semibold;
 }
@@ -382,6 +386,11 @@
   @apply min-w-0;
 }
 
+.dangerText {
+  @apply mb-5 text-sm;
+  color: var(--theme-text-secondary);
+}
+
 .emptyState {
   @apply rounded-2xl border border-dashed p-5 text-sm;
 }
@@ -446,6 +455,11 @@
 .themeCard {
   background-color: var(--theme-card-bg);
   border-color: var(--theme-border-soft);
+}
+
+.dangerPanel {
+  background-color: color-mix(in srgb, var(--theme-card-bg) 92%, #fee2e2 8%);
+  border-color: #fecaca;
 }
 
 .name,

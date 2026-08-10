@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
+  AlertTriangle,
   CreditCard,
   Heart,
   Loader2,
@@ -31,6 +32,7 @@ import {
   type SavedPaymentMethod,
 } from "@/features/auth/api/payment-method-service";
 import {
+  deleteAccount,
   getProfile,
   getProfileOrders,
   getProfileReviews,
@@ -66,6 +68,12 @@ type PasswordFormState = {
   confirm_password: string;
 };
 
+type DeleteAccountFormState = {
+  current_password: string;
+  confirm_email: string;
+  confirm_text: string;
+};
+
 type PaymentFormState = {
   method_type: PaymentMethodType;
   label: string;
@@ -92,6 +100,12 @@ const EMPTY_PASSWORD_FORM: PasswordFormState = {
   current_password: "",
   new_password: "",
   confirm_password: "",
+};
+
+const EMPTY_DELETE_ACCOUNT_FORM: DeleteAccountFormState = {
+  current_password: "",
+  confirm_email: "",
+  confirm_text: "",
 };
 
 const EMPTY_PAYMENT_FORM: PaymentFormState = {
@@ -236,6 +250,9 @@ export function ProfilePage() {
   });
   const [passwordForm, setPasswordForm] =
     useState<PasswordFormState>(EMPTY_PASSWORD_FORM);
+  const [deleteAccountForm, setDeleteAccountForm] = useState<DeleteAccountFormState>(
+    EMPTY_DELETE_ACCOUNT_FORM
+  );
   const [paymentForm, setPaymentForm] =
     useState<PaymentFormState>(EMPTY_PAYMENT_FORM);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -245,6 +262,7 @@ export function ProfilePage() {
   const [isAccountLoading, setIsAccountLoading] = useState(true);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isPaymentSaving, setIsPaymentSaving] = useState(false);
   const [busyAddressId, setBusyAddressId] = useState<string | null>(null);
   const [busyPaymentId, setBusyPaymentId] = useState<string | null>(null);
@@ -408,6 +426,37 @@ export function ProfilePage() {
       toast.error(error instanceof Error ? error.message : "Erro ao alterar senha.");
     } finally {
       setIsPasswordSaving(false);
+    }
+  };
+
+  const handleDeleteAccountSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (deleteAccountForm.confirm_email.trim().toLowerCase() !== email.toLowerCase()) {
+      toast.error("Digite o e-mail atual da conta para confirmar.");
+      return;
+    }
+
+    if (deleteAccountForm.confirm_text.trim() !== "DELETE") {
+      toast.error("Digite DELETE para confirmar a exclusão.");
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    try {
+      await deleteAccount({
+        current_password: deleteAccountForm.current_password.trim() || undefined,
+        confirm_email: deleteAccountForm.confirm_email.trim(),
+        confirm_text: deleteAccountForm.confirm_text.trim(),
+      });
+      setDeleteAccountForm(EMPTY_DELETE_ACCOUNT_FORM);
+      logout();
+      navigate(routes.home, { replace: true });
+      toast.success("Conta excluída com sucesso.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao excluir conta.");
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -1028,6 +1077,82 @@ export function ProfilePage() {
               <ThemeSwitcher />
             </div>
           </section>
+
+          <form
+            className={`${styles.settingsPanel} ${styles.settingsPanelWide} ${styles.dangerPanel}`}
+            onSubmit={handleDeleteAccountSubmit}
+          >
+            <div className={styles.panelHeader}>
+              <div className={styles.panelTitleRow}>
+                <AlertTriangle className={styles.dangerIcon} />
+                <h3 className={styles.panelTitle}>Excluir conta</h3>
+              </div>
+            </div>
+
+            <p className={styles.dangerText}>
+              Esta ação desativa seu acesso, remove seus dados pessoais do perfil e não
+              pode ser desfeita.
+            </p>
+
+            <div className={styles.formGrid}>
+              <label className={styles.fieldGroup}>
+                E-mail atual
+                <input
+                  className={styles.input}
+                  type="email"
+                  value={deleteAccountForm.confirm_email}
+                  onChange={(event) =>
+                    setDeleteAccountForm((prev) => ({
+                      ...prev,
+                      confirm_email: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className={styles.fieldGroup}>
+                Senha atual
+                <input
+                  className={styles.input}
+                  type="password"
+                  value={deleteAccountForm.current_password}
+                  placeholder="Opcional para conta Google"
+                  onChange={(event) =>
+                    setDeleteAccountForm((prev) => ({
+                      ...prev,
+                      current_password: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className={styles.fieldGroup}>
+                Digite DELETE
+                <input
+                  className={styles.input}
+                  value={deleteAccountForm.confirm_text}
+                  autoCapitalize="characters"
+                  onChange={(event) =>
+                    setDeleteAccountForm((prev) => ({
+                      ...prev,
+                      confirm_text: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+            </div>
+
+            <div className={styles.formActions}>
+              <Button type="submit" variant="destructive" disabled={isDeletingAccount}>
+                {isDeletingAccount ? (
+                  <Loader2 className={styles.iconInlineSpin} />
+                ) : (
+                  <Trash2 className={styles.iconInline} />
+                )}
+                Excluir minha conta
+              </Button>
+            </div>
+          </form>
         </div>
       )}
     </div>
