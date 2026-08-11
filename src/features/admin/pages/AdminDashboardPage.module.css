@@ -1,7 +1,7 @@
 @reference "tailwindcss";
 
 .page {
-  @apply rounded-2xl border p-4 sm:p-5 lg:p-6;
+  @apply rounded-lg border p-4 sm:p-5 lg:p-6;
   background-color: var(--theme-card-bg);
   border-color: var(--theme-border-soft);
   box-shadow: 0 20px 44px color-mix(in oklab, var(--theme-ink) 6%, transparent);
@@ -17,9 +17,9 @@
 }
 
 .topEyebrow {
-  @apply text-xs uppercase font-semibold;
+  @apply text-xs font-semibold;
   color: var(--theme-brand-strong);
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
 }
 
 .topTitle {
@@ -34,6 +34,11 @@
   color: var(--theme-text-secondary);
 }
 
+.updatedAt {
+  @apply mt-2 text-xs;
+  color: var(--theme-text-muted);
+}
+
 .topSearch {
   @apply relative min-w-0;
 }
@@ -44,7 +49,7 @@
 }
 
 .searchInput {
-  @apply h-10 rounded-xl border pl-9 text-sm;
+  @apply h-10 rounded-lg border pl-9 text-sm;
   background-color: var(--theme-input-bg);
   border-color: var(--theme-input-border);
   color: var(--theme-text-primary);
@@ -68,7 +73,7 @@
 }
 
 .profileCard {
-  @apply inline-flex min-w-0 items-center gap-2 rounded-xl border px-3 py-2;
+  @apply inline-flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2;
   background-color: var(--theme-card-muted);
   border-color: var(--theme-border-soft);
 }
@@ -97,10 +102,14 @@
 .loadingState,
 .emptyState,
 .emptyChart {
-  @apply mt-4 flex items-center gap-3 rounded-xl border p-4 text-sm;
+  @apply mt-4 flex items-center gap-3 rounded-lg border p-4 text-sm;
   background-color: var(--theme-card-muted);
   border-color: var(--theme-border-soft);
   color: var(--theme-text-secondary);
+}
+
+.emptyChart {
+  @apply min-h-[180px] justify-center;
 }
 
 .errorState {
@@ -123,18 +132,20 @@
 }
 
 .kpiCard {
-  @apply flex items-start gap-3 rounded-xl border p-4;
+  @apply flex min-h-[112px] items-start gap-3 rounded-lg border p-4;
   background-color: var(--theme-surface-primary);
   border-color: var(--theme-border-soft);
 }
 
-.kpiIconWrap {
-  @apply inline-flex h-10 w-10 flex-none items-center justify-center rounded-xl;
+.kpiIconWrap,
+.panelIconWrap {
+  @apply inline-flex h-10 w-10 flex-none items-center justify-center rounded-lg;
   background-color: var(--theme-brand-soft);
   color: var(--theme-brand-strong);
 }
 
-.kpiIcon {
+.kpiIcon,
+.panelIcon {
   @apply size-5;
 }
 
@@ -149,15 +160,16 @@
 }
 
 .kpiTitle {
-  @apply mt-1 text-sm;
+  @apply mt-1 text-sm font-medium;
   color: var(--theme-text-primary);
 }
 
 .kpiDetail {
-  @apply mt-1 text-xs;
+  @apply mt-1 text-xs leading-5;
   color: var(--theme-text-secondary);
 }
 
+.overviewGrid,
 .chartGrid,
 .bottomGrid {
   @apply mt-4 grid gap-3;
@@ -165,9 +177,13 @@
 }
 
 .panel {
-  @apply rounded-xl border p-4;
+  @apply rounded-lg border p-4;
   background-color: var(--theme-surface-primary);
   border-color: var(--theme-border-soft);
+}
+
+.salesPanel {
+  @apply min-w-0;
 }
 
 .panelHeader {
@@ -178,6 +194,110 @@
   @apply text-base font-semibold;
   color: var(--theme-text-primary);
   font-family: var(--font-display);
+}
+
+.netSalesBlock {
+  @apply mt-5 flex flex-col gap-1 border-b pb-4;
+  border-color: var(--theme-border-soft);
+}
+
+.netSalesBlock span {
+  @apply text-sm;
+  color: var(--theme-text-secondary);
+}
+
+.netSalesBlock strong {
+  @apply text-3xl font-semibold;
+  color: var(--theme-text-primary);
+  font-family: var(--font-display);
+}
+
+.moneyGrid {
+  @apply mt-4 grid gap-3;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.moneyMetric {
+  @apply border-t pt-3;
+  border-color: var(--theme-border-soft);
+}
+
+.moneyMetric span {
+  @apply block text-xs;
+  color: var(--theme-text-muted);
+}
+
+.moneyMetric strong {
+  @apply mt-1 block text-base font-semibold;
+  color: var(--theme-text-primary);
+}
+
+.moneyMetric small {
+  @apply mt-1 block text-xs;
+  color: var(--theme-text-secondary);
+}
+
+.statusList,
+.topList {
+  @apply mt-4 space-y-3;
+}
+
+.statusItem {
+  @apply border-t pt-3;
+  border-color: var(--theme-border-soft);
+}
+
+.statusMeta,
+.topItemMeta {
+  @apply flex items-start justify-between gap-3 text-sm;
+  color: var(--theme-text-primary);
+}
+
+.statusMeta strong,
+.topItemMeta strong {
+  @apply flex-none font-semibold;
+}
+
+.statusDetail,
+.productMetrics {
+  @apply mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs;
+  color: var(--theme-text-secondary);
+}
+
+.statusTrack,
+.topTrack {
+  @apply mt-2 h-2 w-full overflow-hidden rounded-full;
+  background-color: color-mix(in oklab, var(--theme-border-soft) 76%, transparent);
+}
+
+.statusFill,
+.topFill {
+  @apply block h-full rounded-full;
+}
+
+.statusApproved,
+.topFill,
+.currentBar {
+  background: var(--theme-success);
+}
+
+.statusPending,
+.refundBar {
+  background: var(--theme-accent-yellow);
+}
+
+.statusRejected,
+.statusCancelled {
+  background: rgb(239 68 68);
+}
+
+.statusRefunded,
+.previousBar {
+  background: var(--theme-accent-cyan);
+}
+
+.statusOther {
+  background: var(--theme-brand-strong);
 }
 
 .legendRow {
@@ -194,98 +314,50 @@
 }
 
 .legendCurrent {
-  background: var(--theme-brand-strong);
+  background: var(--theme-success);
 }
 
 .legendPrevious {
-  background: color-mix(in oklab, var(--theme-brand-strong) 42%, var(--theme-accent-cyan-soft));
+  background: var(--theme-accent-cyan);
 }
 
-.lineChartWrap {
-  @apply mt-4 rounded-xl border p-2;
+.legendRefunded {
+  background: var(--theme-accent-yellow);
+}
+
+.monthlyChart {
+  @apply mt-4 flex min-h-[240px] gap-3 overflow-x-auto rounded-lg border p-4;
   background-color: var(--theme-card-muted);
   border-color: var(--theme-border-soft);
 }
 
-.lineChart {
-  @apply h-[220px] w-full;
+.monthColumn {
+  @apply flex min-w-[54px] flex-1 flex-col items-center justify-end gap-2;
 }
 
-.gridLine {
-  stroke: color-mix(in oklab, var(--theme-border-soft) 80%, transparent);
-  stroke-width: 1;
+.monthBars {
+  @apply flex h-[170px] w-full items-end justify-center gap-1;
 }
 
-.currentLine,
-.prevLine {
-  fill: none;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.monthBar {
+  @apply block w-2.5 rounded-t-sm;
+  min-height: 0;
 }
 
-.currentLine {
-  stroke: var(--theme-brand-strong);
-}
-
-.prevLine {
-  stroke: color-mix(in oklab, var(--theme-brand-strong) 42%, var(--theme-accent-cyan-soft));
-}
-
-.statusList,
-.topList {
-  @apply mt-4 space-y-3;
-}
-
-.statusItem,
-.topItem {
-  @apply rounded-xl border p-3;
-  background-color: var(--theme-card-muted);
-  border-color: var(--theme-border-soft);
-}
-
-.statusMeta,
-.topItemMeta {
-  @apply flex items-center justify-between gap-3 text-sm;
+.monthLabel {
+  @apply text-xs font-semibold;
   color: var(--theme-text-primary);
 }
 
-.statusMeta strong,
-.topItemMeta strong {
-  @apply flex-none font-semibold;
+.monthOrders {
+  @apply text-[11px] leading-none;
+  color: var(--theme-text-muted);
 }
 
-.statusTrack,
-.topTrack {
-  @apply mt-2 h-2 w-full overflow-hidden rounded-full;
-  background-color: color-mix(in oklab, var(--theme-border-soft) 76%, transparent);
-}
-
-.statusFill,
-.topFill {
-  @apply block h-full rounded-full;
-}
-
-.statusApproved,
-.topFill {
-  background: rgb(34 197 94);
-}
-
-.statusPending {
-  background: rgb(234 179 8);
-}
-
-.statusRejected,
-.statusCancelled {
-  background: rgb(239 68 68);
-}
-
-.statusRefunded {
-  background: rgb(59 130 246);
-}
-
-.statusOther {
-  background: var(--theme-brand-strong);
+.tableCount {
+  @apply inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-3 text-sm font-semibold;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
 }
 
 .tableWrap {
@@ -293,7 +365,7 @@
 }
 
 .table {
-  @apply min-w-[760px] w-full border-separate border-spacing-y-2 text-xs;
+  @apply min-w-[900px] w-full border-separate border-spacing-y-2 text-xs;
 }
 
 .table thead th {
@@ -302,37 +374,69 @@
 }
 
 .table tbody td {
-  @apply px-3 py-3;
+  @apply px-3 py-3 align-middle;
   background-color: var(--theme-card-muted);
   color: var(--theme-text-primary);
 }
 
 .table tbody tr td:first-child {
-  @apply rounded-l-lg font-semibold;
+  @apply rounded-l-lg;
 }
 
 .table tbody tr td:last-child {
   @apply rounded-r-lg;
 }
 
-.statusBadge {
-  @apply inline-flex rounded-full px-2 py-1 text-[11px] font-medium;
-  color: white;
+.table tbody td strong {
+  @apply block max-w-[260px] truncate font-semibold;
 }
 
-.topRevenue {
-  @apply mt-2 text-xs;
+.table tbody td strong + span {
+  @apply mt-1 block max-w-[260px] truncate;
   color: var(--theme-text-secondary);
 }
 
-.footerHint {
-  @apply mt-5 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs;
+.amountCell {
+  @apply font-semibold;
+}
+
+.statusBadge {
+  @apply inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold;
+  color: white;
+}
+
+.topItem {
+  @apply flex gap-3 border-t pt-3;
+  border-color: var(--theme-border-soft);
+}
+
+.rankBadge {
+  @apply inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg text-sm font-semibold;
   background-color: var(--theme-brand-soft);
   color: var(--theme-brand-strong);
 }
 
-.footerHintIcon {
-  @apply size-4;
+.topContent {
+  @apply min-w-0 flex-1;
+}
+
+.topItemMeta div {
+  @apply min-w-0;
+}
+
+.topItemMeta div strong {
+  @apply block truncate;
+}
+
+.topItemMeta div span {
+  @apply mt-1 block truncate text-xs;
+  color: var(--theme-text-secondary);
+}
+
+@media (min-width: 640px) {
+  .moneyGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 768px) {
@@ -349,9 +453,9 @@
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1100px) {
   .topBar {
-    grid-template-columns: minmax(0, 0.85fr) minmax(260px, 0.65fr) auto;
+    grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.7fr) auto;
   }
 
   .topActions {
@@ -359,14 +463,20 @@
   }
 
   .kpiGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .chartGrid {
-    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.9fr);
+  .overviewGrid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
   }
 
   .bottomGrid {
-    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.9fr);
+    grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.9fr);
+  }
+}
+
+@media (min-width: 1440px) {
+  .kpiGrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }

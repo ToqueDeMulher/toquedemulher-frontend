@@ -2,16 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   AlertCircle,
+  BadgeDollarSign,
   Boxes,
-  DollarSign,
+  CreditCard,
   Loader2,
+  PackageCheck,
   PackagePlus,
+  ReceiptText,
   RefreshCw,
+  RotateCcw,
   Search,
   ShoppingBag,
   Store,
   TrendingUp,
   Users,
+  WalletCards,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -26,11 +32,13 @@ import {
 } from "@/features/admin/api/dashboard-service";
 import styles from "./AdminDashboardPage.module.css";
 
-const KPI_ICONS: Record<string, typeof Users> = {
-  customers: Users,
+const KPI_ICONS: Record<string, LucideIcon> = {
+  net_sales: BadgeDollarSign,
+  orders: ReceiptText,
+  average_order_value: WalletCards,
+  items_sold: PackageCheck,
   products: Boxes,
-  orders: ShoppingBag,
-  revenue: DollarSign,
+  customers: Users,
 };
 
 function formatCurrency(value: number) {
@@ -48,19 +56,22 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function pointsToPath(values: number[], maxValue: number, width: number, height: number) {
-  const padding = 12;
-  const chartHeight = height - padding * 2;
-  const step = width / Math.max(values.length - 1, 1);
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
 
-  return values
-    .map((value, index) => {
-      const normalized = maxValue > 0 ? value / maxValue : 0;
-      const x = index * step;
-      const y = height - padding - normalized * chartHeight;
-      return `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
-    })
-    .join(" ");
+function formatOrderId(value: string) {
+  return `#${value.slice(0, 8).toUpperCase()}`;
+}
+
+function formatProvider(value: string) {
+  if (!value) return "Checkout";
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function statusClass(status: string) {
@@ -77,14 +88,19 @@ function orderMatchesSearch(order: AdminRecentOrder, search: string) {
   return (
     order.order_id.toLowerCase().includes(value) ||
     order.customer.toLowerCase().includes(value) ||
+    order.customer_email.toLowerCase().includes(value) ||
     order.summary.toLowerCase().includes(value) ||
-    order.status_label.toLowerCase().includes(value)
+    order.status_label.toLowerCase().includes(value) ||
+    order.provider.toLowerCase().includes(value)
   );
 }
 
 function productMatchesSearch(product: AdminTopProduct, search: string) {
   const value = search.toLowerCase();
-  return product.name.toLowerCase().includes(value);
+  return (
+    product.name.toLowerCase().includes(value) ||
+    (product.slug ?? "").toLowerCase().includes(value)
+  );
 }
 
 function KpiCard({ item }: { item: AdminKpi }) {
@@ -129,29 +145,22 @@ export function AdminDashboardPage() {
     loadDashboard();
   }, []);
 
+  const normalizedSearch = searchTerm.trim();
+  const overview = dashboard?.sales_overview;
   const chartData = dashboard?.monthly_revenue ?? [];
-  const maxRevenue = useMemo(
+  const maxMonthlyValue = useMemo(
     () =>
       Math.max(
         0,
-        ...chartData.flatMap((item) => [item.current_year, item.previous_year])
+        ...chartData.flatMap((item) => [
+          item.current_year,
+          item.previous_year,
+          item.refunded_total,
+        ])
       ),
     [chartData]
   );
-  const currentPath = pointsToPath(
-    chartData.map((item) => item.current_year),
-    maxRevenue,
-    620,
-    220
-  );
-  const previousPath = pointsToPath(
-    chartData.map((item) => item.previous_year),
-    maxRevenue,
-    620,
-    220
-  );
-  const hasRevenueData = maxRevenue > 0;
-  const normalizedSearch = searchTerm.trim();
+  const hasMonthlyData = maxMonthlyValue > 0;
   const filteredOrders = (dashboard?.recent_orders ?? []).filter((order) =>
     normalizedSearch ? orderMatchesSearch(order, normalizedSearch) : true
   );
@@ -160,22 +169,32 @@ export function AdminDashboardPage() {
   );
   const userInitial = (user?.name ?? user?.email ?? "A").charAt(0).toUpperCase();
 
+  const getBarHeight = (value: number) => {
+    if (!hasMonthlyData || value <= 0) return "0%";
+    return `${Math.max((value / maxMonthlyValue) * 100, 6)}%`;
+  };
+
   return (
     <section className={styles.page}>
       <header className={styles.topBar}>
         <div className={styles.topTitleBlock}>
-          <p className={styles.topEyebrow}>Administração</p>
-          <h1 className={styles.topTitle}>Dashboard</h1>
+          <p className={styles.topEyebrow}>Ecommerce</p>
+          <h1 className={styles.topTitle}>Vendas e pedidos</h1>
           <p className={styles.topSubtitle}>
-            Operação da loja com dados reais de clientes, produtos e pedidos.
+            Painel conectado ao checkout, pagamentos, itens vendidos e catálogo.
           </p>
+          {dashboard?.generated_at && (
+            <p className={styles.updatedAt}>
+              Atualizado em {formatDateTime(dashboard.generated_at)}
+            </p>
+          )}
         </div>
 
         <div className={styles.topSearch}>
           <Search className={styles.searchIcon} />
           <Input
             className={styles.searchInput}
-            placeholder="Filtrar pedidos e produtos"
+            placeholder="Filtrar por pedido, cliente, status ou produto"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
@@ -218,7 +237,7 @@ export function AdminDashboardPage() {
       {isLoading && !dashboard ? (
         <div className={styles.loadingState}>
           <Loader2 className={styles.spinnerIcon} />
-          Carregando dashboard...
+          Carregando dashboard de ecommerce...
         </div>
       ) : (
         <>
@@ -228,13 +247,98 @@ export function AdminDashboardPage() {
             ))}
           </section>
 
+          {overview && (
+            <section className={styles.overviewGrid}>
+              <article className={`${styles.panel} ${styles.salesPanel}`}>
+                <div className={styles.panelHeader}>
+                  <div>
+                    <h2 className={styles.panelTitle}>Resumo financeiro</h2>
+                    <p className={styles.panelSubtitle}>
+                      Receita paga, reembolsos e ticket médio dos pedidos.
+                    </p>
+                  </div>
+                  <div className={styles.panelIconWrap}>
+                    <CreditCard className={styles.panelIcon} />
+                  </div>
+                </div>
+
+                <div className={styles.netSalesBlock}>
+                  <span>Vendas líquidas</span>
+                  <strong>{formatCurrency(overview.net_sales)}</strong>
+                </div>
+
+                <div className={styles.moneyGrid}>
+                  <div className={styles.moneyMetric}>
+                    <span>Pagas</span>
+                    <strong>{formatCurrency(overview.gross_sales)}</strong>
+                    <small>{overview.paid_orders} pedidos</small>
+                  </div>
+                  <div className={styles.moneyMetric}>
+                    <span>Reembolsadas</span>
+                    <strong>{formatCurrency(overview.refunded_sales)}</strong>
+                    <small>{overview.refunded_orders} pedidos</small>
+                  </div>
+                  <div className={styles.moneyMetric}>
+                    <span>Pendentes</span>
+                    <strong>{formatCurrency(overview.pending_sales)}</strong>
+                    <small>{overview.pending_orders} pedidos</small>
+                  </div>
+                  <div className={styles.moneyMetric}>
+                    <span>Ticket médio</span>
+                    <strong>{formatCurrency(overview.average_order_value)}</strong>
+                    <small>somente pagos</small>
+                  </div>
+                </div>
+              </article>
+
+              <article className={styles.panel}>
+                <div className={styles.panelHeader}>
+                  <div>
+                    <h2 className={styles.panelTitle}>Status dos pedidos</h2>
+                    <p className={styles.panelSubtitle}>
+                      Separação de pagos, pendentes, recusados e reembolsados.
+                    </p>
+                  </div>
+                  <div className={styles.panelIconWrap}>
+                    <RotateCcw className={styles.panelIcon} />
+                  </div>
+                </div>
+
+                {(dashboard?.status_distribution ?? []).length === 0 ? (
+                  <div className={styles.emptyState}>Nenhum pagamento registrado.</div>
+                ) : (
+                  <div className={styles.statusList}>
+                    {(dashboard?.status_distribution ?? []).map((item) => (
+                      <div key={item.status} className={styles.statusItem}>
+                        <div className={styles.statusMeta}>
+                          <span>{item.label}</span>
+                          <strong>{item.count}</strong>
+                        </div>
+                        <div className={styles.statusDetail}>
+                          <span>{formatCurrency(item.amount)}</span>
+                          <span>{item.percent}%</span>
+                        </div>
+                        <div className={styles.statusTrack}>
+                          <span
+                            className={`${styles.statusFill} ${statusClass(item.status)}`}
+                            style={{ width: `${item.percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </article>
+            </section>
+          )}
+
           <section className={styles.chartGrid}>
             <article className={styles.panel}>
               <div className={styles.panelHeader}>
                 <div>
-                  <h2 className={styles.panelTitle}>Receita mensal</h2>
+                  <h2 className={styles.panelTitle}>Vendas por mês</h2>
                   <p className={styles.panelSubtitle}>
-                    Pagamentos aprovados por mês.
+                    Receita paga, comparação com ano anterior e reembolsos.
                   </p>
                 </div>
                 <div className={styles.legendRow}>
@@ -246,61 +350,42 @@ export function AdminDashboardPage() {
                     <span className={`${styles.legendDot} ${styles.legendPrevious}`} />
                     Ano anterior
                   </span>
+                  <span className={styles.legendItem}>
+                    <span className={`${styles.legendDot} ${styles.legendRefunded}`} />
+                    Reembolso
+                  </span>
                 </div>
               </div>
 
-              <div className={styles.lineChartWrap}>
-                {hasRevenueData ? (
-                  <svg viewBox="0 0 620 220" className={styles.lineChart} aria-hidden="true">
-                    {[0, 1, 2, 3, 4].map((row) => (
-                      <line
-                        key={row}
-                        x1="0"
-                        y1={20 + row * 45}
-                        x2="620"
-                        y2={20 + row * 45}
-                        className={styles.gridLine}
-                      />
-                    ))}
-                    <path d={previousPath} className={styles.prevLine} />
-                    <path d={currentPath} className={styles.currentLine} />
-                  </svg>
-                ) : (
-                  <div className={styles.emptyChart}>Sem receita aprovada ainda.</div>
-                )}
-              </div>
-            </article>
-
-            <article className={styles.panel}>
-              <div className={styles.panelHeader}>
-                <div>
-                  <h2 className={styles.panelTitle}>Status dos pedidos</h2>
-                  <p className={styles.panelSubtitle}>
-                    Distribuição dos pagamentos registrados.
-                  </p>
-                </div>
-              </div>
-
-              {(dashboard?.status_distribution ?? []).length === 0 ? (
-                <div className={styles.emptyState}>Nenhum pagamento registrado.</div>
-              ) : (
-                <div className={styles.statusList}>
-                  {(dashboard?.status_distribution ?? []).map((item) => (
-                    <div key={item.status} className={styles.statusItem}>
-                      <div className={styles.statusMeta}>
-                        <span>{item.label}</span>
-                        <strong>{item.count}</strong>
-                      </div>
-                      <div className={styles.statusTrack}>
+              <div className={styles.monthlyChart}>
+                {hasMonthlyData ? (
+                  chartData.map((month) => (
+                    <div key={month.label} className={styles.monthColumn}>
+                      <div className={styles.monthBars}>
                         <span
-                          className={`${styles.statusFill} ${statusClass(item.status)}`}
-                          style={{ width: `${item.percent}%` }}
+                          className={`${styles.monthBar} ${styles.currentBar}`}
+                          style={{ height: getBarHeight(month.current_year) }}
+                          title={`${month.label}: ${formatCurrency(month.current_year)}`}
+                        />
+                        <span
+                          className={`${styles.monthBar} ${styles.previousBar}`}
+                          style={{ height: getBarHeight(month.previous_year) }}
+                          title={`${month.label} anterior: ${formatCurrency(month.previous_year)}`}
+                        />
+                        <span
+                          className={`${styles.monthBar} ${styles.refundBar}`}
+                          style={{ height: getBarHeight(month.refunded_total) }}
+                          title={`${month.label} reembolsado: ${formatCurrency(month.refunded_total)}`}
                         />
                       </div>
+                      <span className={styles.monthLabel}>{month.label}</span>
+                      <span className={styles.monthOrders}>{month.current_orders} pedidos</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                ) : (
+                  <div className={styles.emptyChart}>Sem vendas pagas ainda.</div>
+                )}
+              </div>
             </article>
           </section>
 
@@ -308,11 +393,12 @@ export function AdminDashboardPage() {
             <article className={styles.panel}>
               <div className={styles.panelHeader}>
                 <div>
-                  <h2 className={styles.panelTitle}>Pedidos recentes</h2>
+                  <h2 className={styles.panelTitle}>Pedidos</h2>
                   <p className={styles.panelSubtitle}>
-                    Últimos pagamentos registrados no checkout.
+                    Últimos checkouts registrados, com status e composição do pedido.
                   </p>
                 </div>
+                <div className={styles.tableCount}>{filteredOrders.length}</div>
               </div>
 
               {filteredOrders.length === 0 ? (
@@ -325,24 +411,33 @@ export function AdminDashboardPage() {
                         <th>Pedido</th>
                         <th>Cliente</th>
                         <th>Itens</th>
-                        <th>Data</th>
-                        <th>Total</th>
                         <th>Status</th>
+                        <th>Total</th>
+                        <th>Data</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredOrders.map((order) => (
                         <tr key={order.id}>
-                          <td>#{order.order_id.slice(0, 8).toUpperCase()}</td>
-                          <td>{order.customer}</td>
-                          <td>{order.summary}</td>
-                          <td>{formatDate(order.date)}</td>
-                          <td>{formatCurrency(order.total)}</td>
+                          <td>
+                            <strong>{formatOrderId(order.order_id)}</strong>
+                            <span>{formatProvider(order.provider)}</span>
+                          </td>
+                          <td>
+                            <strong>{order.customer}</strong>
+                            <span>{order.customer_email}</span>
+                          </td>
+                          <td>
+                            <strong>{order.summary}</strong>
+                            <span>{order.items_count} itens</span>
+                          </td>
                           <td>
                             <span className={`${styles.statusBadge} ${statusClass(order.status)}`}>
                               {order.status_label}
                             </span>
                           </td>
+                          <td className={styles.amountCell}>{formatCurrency(order.total)}</td>
+                          <td>{formatDate(order.date)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -356,8 +451,11 @@ export function AdminDashboardPage() {
                 <div>
                   <h2 className={styles.panelTitle}>Produtos mais vendidos</h2>
                   <p className={styles.panelSubtitle}>
-                    Ranking por quantidade aprovada.
+                    Ranking por unidades em pedidos pagos.
                   </p>
+                </div>
+                <div className={styles.panelIconWrap}>
+                  <ShoppingBag className={styles.panelIcon} />
                 </div>
               </div>
 
@@ -365,25 +463,33 @@ export function AdminDashboardPage() {
                 <div className={styles.emptyState}>Nenhum produto vendido ainda.</div>
               ) : (
                 <div className={styles.topList}>
-                  {filteredTopProducts.map((item) => (
+                  {filteredTopProducts.map((item, index) => (
                     <div key={item.product_id ?? item.name} className={styles.topItem}>
-                      <div className={styles.topItemMeta}>
-                        <span>{item.name}</span>
-                        <strong>{item.quantity} un.</strong>
+                      <div className={styles.rankBadge}>{index + 1}</div>
+                      <div className={styles.topContent}>
+                        <div className={styles.topItemMeta}>
+                          <div>
+                            <strong>{item.name}</strong>
+                            {item.slug && <span>/produto/{item.slug}</span>}
+                          </div>
+                          <strong>{item.quantity} un.</strong>
+                        </div>
+                        <div className={styles.topTrack}>
+                          <span
+                            className={styles.topFill}
+                            style={{ width: `${Math.max(item.percent, 6)}%` }}
+                          />
+                        </div>
+                        <div className={styles.productMetrics}>
+                          <span>{formatCurrency(item.revenue)}</span>
+                          <span>{item.orders_count} pedidos</span>
+                          <span>{formatCurrency(item.average_unit_price)} médio</span>
+                        </div>
                       </div>
-                      <div className={styles.topTrack}>
-                        <span className={styles.topFill} style={{ width: `${item.percent}%` }} />
-                      </div>
-                      <p className={styles.topRevenue}>{formatCurrency(item.revenue)}</p>
                     </div>
                   ))}
                 </div>
               )}
-
-              <div className={styles.footerHint}>
-                <TrendingUp className={styles.footerHintIcon} />
-                Atualizado a partir dos pagamentos aprovados.
-              </div>
             </article>
           </section>
         </>
