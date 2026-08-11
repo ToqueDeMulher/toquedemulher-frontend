@@ -16,4 +16,5 @@ psd
 thumb
 sketch
 build/
+.netlify/
 .vscode/

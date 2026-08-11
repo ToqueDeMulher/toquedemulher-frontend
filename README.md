@@ -52,6 +52,47 @@ Build de produção:
 npm run build
 ```
 
+## Deploy na Netlify
+
+O frontend esta pronto para deploy na Netlify com:
+
+- build command: `npm run build`
+- publish directory: `build`
+- runtime do build: `Node 22`
+- fallback de SPA: `public/_redirects`
+
+Primeiro login/link do projeto:
+
+```bash
+netlify login
+netlify link
+```
+
+Configure as variaveis publicas usadas pelo Vite na Netlify. Elas sao
+injetadas no bundle no momento do build, entao qualquer alteracao exige novo
+deploy.
+
+```bash
+netlify env:set VITE_API_URL "https://sua-api-em-producao.com" --context production
+netlify env:set VITE_API_PREFIX "/api/v1" --context production
+netlify env:set VITE_GOOGLE_CLIENT_ID "seu-client-id.apps.googleusercontent.com" --context production
+```
+
+Para validar antes de publicar:
+
+```bash
+netlify deploy --build
+```
+
+Para publicar em producao:
+
+```bash
+netlify deploy --build --prod
+```
+
+Observacao: `VITE_API_URL` nao pode apontar para `localhost` no deploy publico;
+use a URL publica do backend.
+
 Verificacao TypeScript:
 
 ```bash
