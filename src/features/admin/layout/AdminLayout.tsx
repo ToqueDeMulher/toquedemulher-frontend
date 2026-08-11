@@ -125,14 +125,14 @@ export function AdminLayout() {
               !isSidebarOpen ? styles.contentHidden : ""
             }`}
           >
-            {user?.name ?? "Equipe Toque de Mulher"}
+            {user?.name ?? "Administrador"}
           </strong>
           <p
             className={`${styles.accountEmail} ${
               !isSidebarOpen ? styles.contentHidden : ""
             }`}
           >
-            {user?.email ?? "admin@toquedemulher.com"}
+            {user?.email ?? "Conta administradora"}
           </p>
         </div>
 

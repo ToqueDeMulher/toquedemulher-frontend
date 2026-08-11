@@ -1,12 +1,14 @@
 @reference "tailwindcss";
 
 .page {
-  @apply rounded-[1.75rem] border border-[#e7e1fb] bg-[#fbfaff] p-4 sm:p-5 lg:p-6;
-  box-shadow: 0 24px 54px rgb(113 90 190 / 8%);
+  @apply rounded-2xl border p-4 sm:p-5 lg:p-6;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
+  box-shadow: 0 20px 44px color-mix(in oklab, var(--theme-ink) 6%, transparent);
 }
 
 .topBar {
-  @apply grid gap-3 items-center;
+  @apply grid gap-4 items-center;
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -15,12 +17,21 @@
 }
 
 .topEyebrow {
-  @apply text-xs uppercase tracking-[0.16em] text-[#8a76d8] font-semibold;
+  @apply text-xs uppercase font-semibold;
+  color: var(--theme-brand-strong);
+  letter-spacing: 0.12em;
 }
 
 .topTitle {
-  @apply mt-1 text-xl sm:text-2xl text-[#281f4f] font-semibold;
+  @apply mt-1 text-2xl sm:text-3xl font-semibold;
+  color: var(--theme-text-primary);
   font-family: var(--font-display);
+}
+
+.topSubtitle,
+.panelSubtitle {
+  @apply mt-1 text-sm;
+  color: var(--theme-text-secondary);
 }
 
 .topSearch {
@@ -28,89 +39,150 @@
 }
 
 .searchIcon {
-  @apply absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#9d92cd];
+  @apply absolute left-3 top-1/2 size-4 -translate-y-1/2;
+  color: var(--theme-text-muted);
 }
 
 .searchInput {
-  @apply h-10 rounded-xl border-[#e4ddfb] bg-white pl-9 text-sm text-[#3f356b] placeholder:text-[#a395d8];
+  @apply h-10 rounded-xl border pl-9 text-sm;
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text-primary);
+}
+
+.searchInput::placeholder {
+  color: var(--theme-text-muted);
 }
 
 .topActions {
-  @apply flex items-center gap-2 sm:gap-3;
+  @apply flex flex-wrap items-center gap-2 sm:gap-3;
 }
 
-.iconButton {
-  @apply inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#e5dffc] bg-white text-[#7c6bc6] transition-colors hover:bg-[#f5f2ff];
+.primaryAction,
+.secondaryAction {
+  @apply w-full sm:w-auto;
 }
 
-.iconAction {
+.actionIcon {
   @apply size-4;
 }
 
 .profileCard {
-  @apply ml-auto inline-flex items-center gap-2 rounded-xl border border-[#e5dffc] bg-white px-3 py-2;
+  @apply inline-flex min-w-0 items-center gap-2 rounded-xl border px-3 py-2;
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
 }
 
 .profileAvatar {
-  @apply inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#8f79eb] text-xs font-semibold text-white;
+  @apply inline-flex h-8 w-8 flex-none items-center justify-center rounded-full text-xs font-semibold;
+  background-color: var(--theme-brand-strong);
+  color: var(--theme-text-inverse);
+}
+
+.profileInfo {
+  @apply min-w-0;
 }
 
 .profileName {
-  @apply text-sm font-semibold text-[#2f255e] leading-none;
+  @apply truncate text-sm font-semibold leading-none;
+  color: var(--theme-text-primary);
 }
 
 .profileRole {
-  @apply mt-1 text-xs text-[#8e82bd] leading-none;
+  @apply mt-1 text-xs leading-none;
+  color: var(--theme-text-secondary);
+}
+
+.errorState,
+.loadingState,
+.emptyState,
+.emptyChart {
+  @apply mt-4 flex items-center gap-3 rounded-xl border p-4 text-sm;
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-text-secondary);
+}
+
+.errorState {
+  @apply flex-wrap;
+  color: rgb(185 28 28);
+}
+
+.stateIcon,
+.spinnerIcon {
+  @apply size-4 flex-none;
+}
+
+.spinnerIcon {
+  @apply animate-spin;
 }
 
 .kpiGrid {
-  @apply mt-4 grid gap-3;
+  @apply mt-5 grid gap-3;
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
 .kpiCard {
-  @apply rounded-2xl border border-[#e5dffc] bg-white p-4 flex items-start gap-3;
+  @apply flex items-start gap-3 rounded-xl border p-4;
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
 }
 
 .kpiIconWrap {
-  @apply inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f0ebff] text-[#7f69dc];
+  @apply inline-flex h-10 w-10 flex-none items-center justify-center rounded-xl;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
 }
 
 .kpiIcon {
   @apply size-5;
 }
 
+.kpiContent {
+  @apply min-w-0;
+}
+
 .kpiValue {
-  @apply text-lg font-semibold text-[#2f255e] leading-none;
+  @apply text-xl font-semibold leading-none;
+  color: var(--theme-text-primary);
+  font-family: var(--font-display);
 }
 
 .kpiTitle {
-  @apply mt-1 text-sm text-[#66598f];
+  @apply mt-1 text-sm;
+  color: var(--theme-text-primary);
 }
 
 .kpiDetail {
-  @apply mt-1 text-xs text-[#9b90c8];
+  @apply mt-1 text-xs;
+  color: var(--theme-text-secondary);
 }
 
-.chartGrid {
+.chartGrid,
+.bottomGrid {
   @apply mt-4 grid gap-3;
   grid-template-columns: 1fr;
 }
 
 .panel {
-  @apply rounded-2xl border border-[#e5dffc] bg-white p-4;
+  @apply rounded-xl border p-4;
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
 }
 
 .panelHeader {
-  @apply flex items-start justify-between gap-2;
+  @apply flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
 }
 
 .panelTitle {
-  @apply text-sm font-semibold text-[#2e245c];
+  @apply text-base font-semibold;
+  color: var(--theme-text-primary);
+  font-family: var(--font-display);
 }
 
 .legendRow {
-  @apply flex items-center gap-3 text-[11px] text-[#8b7fba];
+  @apply flex flex-wrap items-center gap-3 text-xs;
+  color: var(--theme-text-secondary);
 }
 
 .legendItem {
@@ -122,95 +194,121 @@
 }
 
 .legendCurrent {
-  background: #8f79eb;
+  background: var(--theme-brand-strong);
 }
 
 .legendPrevious {
-  background: #f06a95;
+  background: color-mix(in oklab, var(--theme-brand-strong) 42%, var(--theme-accent-cyan-soft));
 }
 
 .lineChartWrap {
-  @apply mt-3 rounded-xl border border-[#efeaff] bg-[#fcfbff] p-2;
+  @apply mt-4 rounded-xl border p-2;
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
 }
 
 .lineChart {
-  @apply w-full h-[220px];
+  @apply h-[220px] w-full;
 }
 
 .gridLine {
-  stroke: #ece6ff;
+  stroke: color-mix(in oklab, var(--theme-border-soft) 80%, transparent);
   stroke-width: 1;
 }
 
-.currentLine {
+.currentLine,
+.prevLine {
   fill: none;
-  stroke: #8f79eb;
   stroke-width: 3;
   stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.currentLine {
+  stroke: var(--theme-brand-strong);
 }
 
 .prevLine {
-  fill: none;
-  stroke: #f06a95;
-  stroke-width: 3;
-  stroke-linecap: round;
+  stroke: color-mix(in oklab, var(--theme-brand-strong) 42%, var(--theme-accent-cyan-soft));
 }
 
-.barChart {
-  @apply mt-4 h-[220px] flex items-end justify-between gap-3 rounded-xl border border-[#efeaff] bg-[#fcfbff] p-3;
+.statusList,
+.topList {
+  @apply mt-4 space-y-3;
 }
 
-.barGroup {
-  @apply flex h-full flex-1 flex-col items-center justify-end gap-2;
+.statusItem,
+.topItem {
+  @apply rounded-xl border p-3;
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
 }
 
-.barPair {
-  @apply flex items-end gap-1.5;
+.statusMeta,
+.topItemMeta {
+  @apply flex items-center justify-between gap-3 text-sm;
+  color: var(--theme-text-primary);
 }
 
-.bar {
-  @apply block w-4 rounded-t-md;
+.statusMeta strong,
+.topItemMeta strong {
+  @apply flex-none font-semibold;
 }
 
-.barCurrent {
-  background: #8f79eb;
+.statusTrack,
+.topTrack {
+  @apply mt-2 h-2 w-full overflow-hidden rounded-full;
+  background-color: color-mix(in oklab, var(--theme-border-soft) 76%, transparent);
 }
 
-.barPrevious {
-  background: #f06a95;
+.statusFill,
+.topFill {
+  @apply block h-full rounded-full;
 }
 
-.barLabel {
-  @apply text-[11px] text-[#8f84be];
+.statusApproved,
+.topFill {
+  background: rgb(34 197 94);
 }
 
-.bottomGrid {
-  @apply mt-4 grid gap-3;
-  grid-template-columns: 1fr;
+.statusPending {
+  background: rgb(234 179 8);
 }
 
-.linkButton {
-  @apply h-auto px-0 py-0 text-xs text-[#7d6bc8] hover:text-[#5f4cab];
+.statusRejected,
+.statusCancelled {
+  background: rgb(239 68 68);
+}
+
+.statusRefunded {
+  background: rgb(59 130 246);
+}
+
+.statusOther {
+  background: var(--theme-brand-strong);
 }
 
 .tableWrap {
-  @apply mt-3 overflow-x-auto;
+  @apply mt-4 overflow-x-auto;
 }
 
 .table {
-  @apply min-w-[640px] w-full border-separate border-spacing-y-2 text-xs;
+  @apply min-w-[760px] w-full border-separate border-spacing-y-2 text-xs;
 }
 
 .table thead th {
-  @apply px-2 py-1 text-left font-medium text-[#8d81bd];
+  @apply px-3 py-1 text-left font-medium;
+  color: var(--theme-text-secondary);
 }
 
 .table tbody td {
-  @apply px-2 py-2 text-[#3c326b] bg-[#faf8ff];
+  @apply px-3 py-3;
+  background-color: var(--theme-card-muted);
+  color: var(--theme-text-primary);
 }
 
 .table tbody tr td:first-child {
-  @apply rounded-l-lg;
+  @apply rounded-l-lg font-semibold;
 }
 
 .table tbody tr td:last-child {
@@ -219,52 +317,27 @@
 
 .statusBadge {
   @apply inline-flex rounded-full px-2 py-1 text-[11px] font-medium;
+  color: white;
 }
 
-.statusComplete {
-  @apply bg-[#e7fbef] text-[#1d8a48];
-}
-
-.statusShipping {
-  @apply bg-[#fff4de] text-[#b37d1b];
-}
-
-.statusPending {
-  @apply bg-[#ffe7ef] text-[#c33563];
-}
-
-.topList {
-  @apply mt-3 space-y-3;
-}
-
-.topItemMeta {
-  @apply flex items-center justify-between text-xs text-[#4b3f7c];
-}
-
-.topTrack {
-  @apply mt-1 h-2 w-full rounded-full bg-[#eee8ff];
-}
-
-.topFill {
-  @apply block h-full rounded-full;
-  background: linear-gradient(90deg, #8e78ea 0%, #c4b8f6 100%);
+.topRevenue {
+  @apply mt-2 text-xs;
+  color: var(--theme-text-secondary);
 }
 
 .footerHint {
-  @apply mt-5 inline-flex items-center gap-2 rounded-xl bg-[#f2edff] px-3 py-2 text-xs text-[#6b5ab0];
+  @apply mt-5 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
 }
 
 .footerHintIcon {
   @apply size-4;
 }
 
-.storeIcon {
-  @apply mr-1 size-3.5;
-}
-
 @media (min-width: 768px) {
   .topBar {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
   }
 
   .topActions {
@@ -278,7 +351,7 @@
 
 @media (min-width: 1200px) {
   .topBar {
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 0.85fr) minmax(260px, 0.65fr) auto;
   }
 
   .topActions {
@@ -290,63 +363,10 @@
   }
 
   .chartGrid {
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.9fr);
   }
 
   .bottomGrid {
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.9fr);
   }
-}
-
-.dark .page,
-.dark .panel,
-.dark .kpiCard,
-.dark .profileCard,
-.dark .iconButton,
-.dark .searchInput,
-.dark .lineChartWrap,
-.dark .barChart,
-.dark .table tbody td {
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
-}
-
-.dark .topTitle,
-.dark .profileName,
-.dark .kpiValue,
-.dark .panelTitle,
-.dark .table tbody td {
-  color: var(--theme-text-primary);
-}
-
-.dark .topEyebrow,
-.dark .searchIcon,
-.dark .iconButton,
-.dark .profileRole,
-.dark .kpiTitle,
-.dark .kpiDetail,
-.dark .legendRow,
-.dark .barLabel,
-.dark .table thead th,
-.dark .footerHint {
-  color: var(--theme-text-secondary);
-}
-
-.dark .profileAvatar,
-.dark .legendCurrent,
-.dark .barCurrent {
-  background: var(--theme-brand-strong);
-}
-
-.dark .legendPrevious,
-.dark .barPrevious {
-  background: color-mix(in oklab, var(--theme-brand-strong) 76%, white);
-}
-
-.dark .topTrack {
-  background: color-mix(in oklab, var(--theme-border-soft) 85%, transparent);
-}
-
-.dark .topFill {
-  background: linear-gradient(90deg, var(--theme-brand-strong) 0%, color-mix(in oklab, var(--theme-brand-strong) 42%, white) 100%);
 }

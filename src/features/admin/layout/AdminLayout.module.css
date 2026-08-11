@@ -2,9 +2,7 @@
 
 .shell {
   @apply min-h-screen lg:grid;
-  background:
-    radial-gradient(circle at top left, rgb(171 142 255 / 18%), transparent 22%),
-    linear-gradient(180deg, #f5f2ff 0%, #efebff 100%);
+  background-color: var(--theme-bg-canvas);
 }
 
 .shellSidebarOpen {
@@ -20,7 +18,9 @@
 }
 
 .sidebar {
-  @apply flex flex-col gap-5 border-b border-[#e7e0ff] bg-[#fdfcff] p-4 backdrop-blur-sm lg:min-h-screen lg:border-b-0 lg:border-r lg:sticky lg:top-0 transition-[width,transform] duration-200 ease-out;
+  @apply flex flex-col gap-5 border-b p-4 lg:min-h-screen lg:border-b-0 lg:border-r lg:sticky lg:top-0 transition-[width,transform] duration-200 ease-out;
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border-soft);
 }
 
 .sidebarOpen {
@@ -35,45 +35,65 @@
   @apply flex items-center justify-between;
 }
 
-.sidebarToggle {
-  @apply rounded-xl text-[#7f73ab] hover:bg-[#f1ecff] hover:text-[#6452ac];
+.sidebarToggle,
+.mainToggle {
+  @apply rounded-xl;
+  color: var(--theme-text-secondary);
+}
+
+.sidebarToggle:hover,
+.mainToggle:hover {
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
 }
 
 .toggleIcon {
   @apply size-4;
 }
 
-.brandBlock {
-  @apply rounded-xl border border-[#e8e1ff] bg-white p-4;
+.brandBlock,
+.accountCard,
+.statusBar {
+  @apply rounded-xl border p-4;
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
 }
 
 .brandBadge {
-  @apply border-0 bg-[#efe9ff] text-[#6b57bf] mb-3;
+  @apply border-0 mb-3;
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
 }
 
 .brandTitle {
-  @apply text-lg font-semibold text-[#2f255e] lowercase;
+  @apply text-lg font-semibold lowercase;
+  color: var(--theme-text-primary);
   font-family: var(--font-display);
 }
 
 .brandText {
-  @apply mt-2 text-xs text-[#7f74ab] leading-relaxed;
+  @apply mt-2 text-xs leading-relaxed;
+  color: var(--theme-text-secondary);
 }
 
 .accountCard {
-  @apply rounded-xl border border-[#e8e1ff] bg-[#f6f3ff] p-4;
+  background-color: var(--theme-card-muted);
 }
 
 .accountLabel {
-  @apply block text-[11px] uppercase tracking-[0.14em] text-[#8578bc] mb-1;
+  @apply block text-[11px] uppercase mb-1;
+  color: var(--theme-text-muted);
+  letter-spacing: 0.12em;
 }
 
 .accountName {
-  @apply block text-sm font-semibold text-[#302660];
+  @apply block text-sm font-semibold;
+  color: var(--theme-text-primary);
 }
 
 .accountEmail {
-  @apply mt-1 text-xs text-[#7f74ab] break-all;
+  @apply mt-1 text-xs break-all;
+  color: var(--theme-text-secondary);
 }
 
 .nav {
@@ -81,7 +101,8 @@
 }
 
 .navLink {
-  @apply inline-flex items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium text-[#675a91] transition-colors;
+  @apply inline-flex items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium transition-colors;
+  color: var(--theme-text-secondary);
 }
 
 .navLinkCollapsed {
@@ -89,11 +110,16 @@
 }
 
 .navLink:hover {
-  @apply border-[#e3dbff] bg-[#f4f0ff] text-[#5d4ca9];
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-soft);
+  color: var(--theme-brand-strong);
 }
 
 .navLinkActive {
-  @apply border-[#daccff] bg-[#8d76e8] text-white shadow-sm;
+  background-color: var(--theme-brand-strong);
+  border-color: var(--theme-brand-strong);
+  color: var(--theme-text-inverse);
+  box-shadow: 0 10px 24px color-mix(in oklab, var(--theme-brand-strong) 22%, transparent);
 }
 
 .navIcon {
@@ -104,12 +130,27 @@
   @apply mt-auto grid gap-3;
 }
 
+.storeButton,
+.logoutButton {
+  @apply justify-start rounded-xl;
+}
+
 .storeButton {
-  @apply justify-start rounded-xl border-[#ddd3ff] text-[#5c4aa9] hover:bg-[#f2edff];
+  border-color: var(--theme-border-soft);
+  color: var(--theme-brand-strong);
+}
+
+.storeButton:hover {
+  background-color: var(--theme-brand-soft);
 }
 
 .logoutButton {
-  @apply justify-start rounded-xl text-[#6d6197] hover:bg-white hover:text-[#5a48a2];
+  color: var(--theme-text-secondary);
+}
+
+.logoutButton:hover {
+  background-color: var(--theme-card-muted);
+  color: var(--theme-brand-strong);
 }
 
 .actionButtonCollapsed {
@@ -137,19 +178,17 @@
 }
 
 .statusBar {
-  @apply mb-4 flex items-center justify-between rounded-xl border border-[#e7e0ff] bg-white px-3 py-2.5;
+  @apply mb-4 flex items-center justify-between px-3 py-2.5;
 }
 
 .statusTextWrap {
-  @apply inline-flex items-center gap-2 text-sm text-[#6c6197];
-}
-
-.mainToggle {
-  @apply rounded-xl text-[#7f73ab] hover:bg-[#f1ecff] hover:text-[#6452ac];
+  @apply inline-flex items-center gap-2 text-sm;
+  color: var(--theme-text-secondary);
 }
 
 .statusIcon {
-  @apply size-4 text-[#7b69cf];
+  @apply size-4;
+  color: var(--theme-brand-strong);
 }
 
 .statusText {
@@ -177,47 +216,4 @@
   .contentHidden {
     display: initial;
   }
-}
-
-.dark .shell {
-  background:
-    radial-gradient(circle at top left, color-mix(in oklab, var(--theme-brand-strong) 16%, transparent), transparent 22%),
-    linear-gradient(180deg, color-mix(in oklab, var(--theme-bg-subtle) 96%, transparent) 0%, var(--theme-bg-canvas) 100%);
-}
-
-.dark .sidebar,
-.dark .brandBlock,
-.dark .accountCard,
-.dark .statusBar {
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
-}
-
-.dark .sidebarToggle,
-.dark .mainToggle,
-.dark .statusTextWrap,
-.dark .brandText,
-.dark .accountEmail,
-.dark .navLink,
-.dark .logoutButton {
-  color: var(--theme-text-secondary);
-}
-
-.dark .brandTitle,
-.dark .accountName {
-  color: var(--theme-text-primary);
-}
-
-.dark .brandBadge,
-.dark .navLink:hover,
-.dark .storeButton {
-  background-color: var(--theme-brand-soft);
-  color: var(--theme-brand-strong);
-  border-color: var(--theme-border-soft);
-}
-
-.dark .navLinkActive {
-  background-color: var(--theme-brand-strong);
-  color: var(--theme-text-inverse);
-  border-color: var(--theme-brand-strong);
 }
