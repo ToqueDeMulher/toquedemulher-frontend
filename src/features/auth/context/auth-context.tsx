@@ -1,8 +1,10 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   AUTH_TOKEN_KEY,
+  AUTH_UNAUTHORIZED_EVENT,
   AUTH_USER_KEY,
   REFRESH_TOKEN_KEY,
+  clearAuthStorage,
 } from "@/shared/api/api-client";
 
 export type AuthRole = "customer" | "admin";
@@ -62,14 +64,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(nextUser);
       },
       logout: () => {
-        window.localStorage.removeItem(AUTH_TOKEN_KEY);
-        window.localStorage.removeItem(REFRESH_TOKEN_KEY);
-        window.localStorage.removeItem(AUTH_USER_KEY);
+        clearAuthStorage();
         setUser(null);
       },
     }),
     [user]
   );
+
+  useEffect(() => {
+    const handleUnauthorized = () => setUser(null);
+
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () => {
+      window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized);
+    };
+  }, []);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

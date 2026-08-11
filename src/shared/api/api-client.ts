@@ -7,14 +7,41 @@ const API_PREFIX = import.meta.env.VITE_API_PREFIX ?? "/api/v1";
 export const AUTH_TOKEN_KEY = "tdm_access_token";
 export const REFRESH_TOKEN_KEY = "tdm_refresh_token";
 export const AUTH_USER_KEY = "tdm_auth_user";
+export const AUTH_UNAUTHORIZED_EVENT = "tdm_auth_unauthorized";
 
 export function getAuthToken() {
   return window.localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
+export function clearAuthStorage() {
+  window.localStorage.removeItem(AUTH_TOKEN_KEY);
+  window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+  window.localStorage.removeItem(AUTH_USER_KEY);
+}
+
 function buildUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${API_BASE_URL}${API_PREFIX}${normalizedPath}`;
+}
+
+function getErrorMessage(text: string, fallback: string) {
+  if (!text) return fallback;
+
+  try {
+    const payload = JSON.parse(text) as {
+      detail?: unknown;
+      message?: unknown;
+      mensagem?: unknown;
+    };
+    const detail = payload.detail ?? payload.message ?? payload.mensagem;
+
+    if (typeof detail === "string") return detail;
+    if (Array.isArray(detail)) return "Verifique os campos informados.";
+  } catch {
+    return text;
+  }
+
+  return fallback;
 }
 
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -36,7 +63,11 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(text || `Erro HTTP ${response.status}`);
+    if (response.status === 401) {
+      clearAuthStorage();
+      window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
+    }
+    throw new Error(getErrorMessage(text, `Erro HTTP ${response.status}`));
   }
 
   if (response.status === 204) {
