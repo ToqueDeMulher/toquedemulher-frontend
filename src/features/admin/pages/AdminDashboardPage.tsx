@@ -41,6 +41,8 @@ const KPI_ICONS: Record<string, LucideIcon> = {
   customers: Users,
 };
 
+const PRIMARY_KPI_KEYS = ["net_sales", "orders", "average_order_value"];
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -167,6 +169,15 @@ export function AdminDashboardPage() {
   const filteredTopProducts = (dashboard?.top_products ?? []).filter((product) =>
     normalizedSearch ? productMatchesSearch(product, normalizedSearch) : true
   );
+  const allKpis = dashboard?.kpis ?? [];
+  const prioritizedKpis = PRIMARY_KPI_KEYS.flatMap((key) => {
+    const item = allKpis.find((kpi) => kpi.key === key);
+    return item ? [item] : [];
+  });
+  const fallbackKpis = allKpis.filter((item) => !PRIMARY_KPI_KEYS.includes(item.key));
+  const primaryKpis = [...prioritizedKpis, ...fallbackKpis].slice(0, 3);
+  const primaryKpiKeys = new Set(primaryKpis.map((item) => item.key));
+  const secondaryKpis = allKpis.filter((item) => !primaryKpiKeys.has(item.key));
   const userInitial = (user?.name ?? user?.email ?? "A").charAt(0).toUpperCase();
 
   const getBarHeight = (value: number) => {
@@ -242,10 +253,25 @@ export function AdminDashboardPage() {
       ) : (
         <>
           <section className={styles.kpiGrid}>
-            {(dashboard?.kpis ?? []).map((item) => (
+            {primaryKpis.map((item) => (
               <KpiCard key={item.key} item={item} />
             ))}
           </section>
+
+          {secondaryKpis.length > 0 && (
+            <section className={styles.secondaryKpiPanel} aria-label="Métricas secundárias">
+              <span className={styles.secondaryKpiLabel}>Menos prioritárias</span>
+              <div className={styles.secondaryKpiList}>
+                {secondaryKpis.map((item) => (
+                  <div key={item.key} className={styles.secondaryKpiItem}>
+                    <span>{item.title}</span>
+                    <strong>{item.value}</strong>
+                    <small>{item.detail}</small>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {overview && (
             <section className={styles.overviewGrid}>
