@@ -234,6 +234,48 @@
   @apply text-sm text-gray-600;
 }
 
+.paymentGatewayCard {
+  @apply border border-pink-100 bg-pink-50/60 p-4 space-y-4;
+  border-radius: 10px;
+}
+
+.paymentGatewayTop {
+  @apply flex items-start gap-3;
+}
+
+.paymentGatewayIconWrap {
+  @apply inline-flex items-center justify-center bg-white text-pink-600 shrink-0;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 10px;
+}
+
+.paymentGatewayIcon {
+  @apply size-5;
+}
+
+.paymentGatewayTitle {
+  @apply text-base font-semibold text-gray-900 mb-1;
+}
+
+.paymentGatewayText {
+  @apply text-sm leading-relaxed text-gray-600;
+}
+
+.paymentGatewayMeta {
+  @apply border border-pink-100 bg-white p-3 flex items-start gap-3;
+  border-radius: 8px;
+}
+
+.buttonIcon,
+.buttonIconSpin {
+  @apply size-4 shrink-0;
+}
+
+.buttonIconSpin {
+  @apply animate-spin;
+}
+
 .methodGrid {
   @apply grid gap-3 sm:grid-cols-3 mb-6;
 }
@@ -337,6 +379,47 @@
   position: relative;
   display: inline-flex;
   width: 100%;
+}
+
+.resultLayout {
+  @apply xl:grid-cols-1;
+}
+
+.resultCard {
+  @apply border border-pink-100 bg-pink-50/60 p-6 text-center;
+  border-radius: 12px;
+}
+
+.resultIconWrap {
+  @apply mx-auto mb-4 inline-flex items-center justify-center rounded-full bg-white;
+  width: 4rem;
+  height: 4rem;
+}
+
+.resultIconSuccess {
+  @apply text-emerald-600;
+}
+
+.resultIconFailure {
+  @apply text-red-600;
+}
+
+.resultIcon {
+  @apply size-7;
+}
+
+.resultTitle {
+  @apply text-2xl font-semibold text-gray-900 mb-2;
+  font-family: var(--font-display);
+}
+
+.resultText {
+  @apply mx-auto max-w-2xl text-sm sm:text-base leading-relaxed text-gray-600;
+}
+
+.resultSession {
+  @apply mt-4 inline-flex max-w-full rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-600;
+  overflow-wrap: anywhere;
 }
 
 .summaryCard {
@@ -460,8 +543,13 @@
 .selectedAddressNotice,
 .saveAddressToggle,
 .noticeCard,
+.paymentGatewayCard,
+.paymentGatewayMeta,
 .confirmationCard,
 .confirmationPanel,
+.resultCard,
+.resultIconWrap,
+.resultSession,
 .summaryCard,
 .summaryPanel {
   background-color: var(--theme-surface-primary);
@@ -474,8 +562,10 @@
 .savedAddressTitle,
 .saveAddressTitle,
 .noticeTitle,
+.paymentGatewayTitle,
 .confirmationTitle,
 .confirmationPanelTitle,
+.resultTitle,
 .summaryItemName,
 .summaryPrice,
 .summaryPanelTitle,
@@ -491,8 +581,11 @@
 .savedAddressText,
 .saveAddressText,
 .noticeText,
+.paymentGatewayText,
 .confirmationText,
 .confirmationPanelText,
+.resultText,
+.resultSession,
 .summaryItemMeta,
 .summaryRow,
 .summaryPanelText,
@@ -509,8 +602,11 @@
 .savedAddressText,
 .saveAddressText,
 .noticeText,
+.paymentGatewayText,
 .confirmationText,
 .confirmationPanelText,
+.resultText,
+.resultSession,
 .summaryItemMeta,
 .summaryRow,
 .summaryPanelText,

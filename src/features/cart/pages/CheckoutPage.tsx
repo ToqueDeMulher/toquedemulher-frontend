@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
+  CheckCircle2,
+  CreditCard,
+  ExternalLink,
   Home,
   Loader2,
+  LogIn,
   MapPin,
   Plus,
   ShieldCheck,
   Truck,
   WalletCards,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -28,10 +33,10 @@ import {
   type AddressRequest,
 } from "@/features/auth/api/address-service";
 import { useAuth } from "@/features/auth/context/auth-context";
+import { createCheckoutSession } from "@/features/cart/api/checkout-service";
 import { useCart } from "@/features/cart/context/cart-context";
 import { useGamification } from "@/features/gamification/context/gamification-context";
 import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
-import { Confetti, type ConfettiHandle } from "@/components/motion-ui/confetti";
 import { toast } from "sonner";
 import styles from "./CheckoutPage.module.css";
 
@@ -50,18 +55,6 @@ type AddressFormState = {
 };
 
 type AddressMode = "saved" | "new";
-
-type PaymentMethod = "card" | "pix" | "boleto";
-
-type PaymentFormState = {
-  method: PaymentMethod;
-  cardName: string;
-  cardNumber: string;
-  expiry: string;
-  cvv: string;
-  cpf: string;
-  installments: string;
-};
 
 const REQUIRED_ADDRESS_FIELDS: Array<keyof AddressFormState> = [
   "fullName",
@@ -116,20 +109,6 @@ function formatPhone(phone: string) {
   if (phone.length <= 2) return phone ? `(${phone}` : "";
   if (phone.length <= 7) return `(${phone.slice(0, 2)}) ${phone.slice(2)}`;
   return `(${phone.slice(0, 2)}) ${phone.slice(2, 7)}-${phone.slice(7, 11)}`;
-}
-
-function formatCardNumber(cardNumber: string) {
-  return cardNumber
-    .replace(/\D/g, "")
-    .slice(0, 16)
-    .replace(/(\d{4})(?=\d)/g, "$1 ")
-    .trim();
-}
-
-function formatExpiry(expiry: string) {
-  const digits = expiry.replace(/\D/g, "").slice(0, 4);
-  if (digits.length <= 2) return digits;
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
 }
 
 function isValidEmail(email: string) {
@@ -261,40 +240,6 @@ function hasMissingAddressField(addressForm: AddressFormState) {
   });
 }
 
-function getPaymentErrors(paymentForm: PaymentFormState) {
-  const errors: Partial<Record<keyof PaymentFormState, string>> = {};
-
-  if (paymentForm.method !== "card") {
-    return errors;
-  }
-
-  if (paymentForm.cardName.trim().length === 0) {
-    errors.cardName = "Informe o nome impresso no cartão.";
-  }
-
-  if (paymentForm.cardNumber.replace(/\D/g, "").length !== 16) {
-    errors.cardNumber = "Digite os 16 números do cartão.";
-  }
-
-  if (paymentForm.expiry.replace(/\D/g, "").length !== 4) {
-    errors.expiry = "Digite a validade no formato MM/AA.";
-  }
-
-  if (paymentForm.cvv.replace(/\D/g, "").length < 3) {
-    errors.cvv = "Digite o código de segurança do cartão.";
-  }
-
-  if (paymentForm.cpf.replace(/\D/g, "").length !== 11) {
-    errors.cpf = "Digite o CPF do titular com 11 dígitos.";
-  }
-
-  return errors;
-}
-
-function isCardPaymentValid(paymentForm: PaymentFormState) {
-  return Object.keys(getPaymentErrors(paymentForm)).length === 0;
-}
-
 function createOrderNumber() {
   const now = new Date();
   const year = now.getFullYear();
@@ -325,44 +270,34 @@ function addBusinessDays(baseDate: Date, businessDays: number) {
 export function CheckoutPage() {
   const navigate = useNavigate();
   const { step } = useParams<{ step?: string }>();
+  const [searchParams] = useSearchParams();
   const { isLoggedIn, user } = useAuth();
   const { items, itemCount, subtotal, reset } = useCart();
   const { trackOrder } = useGamification();
   const currentStep = normalizeCheckoutFlowStep(step);
-  const finishOrderConfettiRef = useRef<ConfettiHandle>(null);
+  const checkoutResult =
+    step === "success" || step === "failure" ? step : null;
+  const checkoutSessionId = searchParams.get("session_id");
+  const handledCheckoutResultRef = useRef(false);
 
   const [addressForm, setAddressForm] = useState<AddressFormState>(() =>
     createEmptyAddressForm(user),
   );
-  const [paymentForm, setPaymentForm] = useState<PaymentFormState>({
-    method: "card",
-    cardName: "",
-    cardNumber: "",
-    expiry: "",
-    cvv: "",
-    cpf: "",
-    installments: "1x sem juros",
-  });
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [addressMode, setAddressMode] = useState<AddressMode>("new");
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
+  const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [addressAttempted, setAddressAttempted] = useState(false);
-  const [paymentAttempted, setPaymentAttempted] = useState(false);
   const [orderNumber] = useState(createOrderNumber);
   const addressErrors = getAddressErrors(addressForm);
-  const paymentErrors = getPaymentErrors(paymentForm);
   const selectedAddress =
     savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
   const isUsingSavedAddress = addressMode === "saved" && selectedAddress !== null;
   const isAddressComplete =
     isUsingSavedAddress || Object.keys(addressErrors).length === 0;
-  const isPaymentComplete =
-    paymentForm.method === "card"
-      ? Object.keys(paymentErrors).length === 0
-      : true;
 
   useEffect(() => {
     let isMounted = true;
@@ -417,23 +352,40 @@ export function CheckoutPage() {
     };
   }, [isLoggedIn, user?.email, user?.name]);
 
-  if (step !== undefined && step !== currentStep) {
+  useEffect(() => {
+    if (
+      checkoutResult !== "success" ||
+      handledCheckoutResultRef.current ||
+      items.length === 0
+    ) {
+      return;
+    }
+
+    handledCheckoutResultRef.current = true;
+    const earnedPoints = trackOrder(
+      items.map((item) => ({
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    );
+
+    reset();
+    toast.success(`Pagamento aprovado. Você ganhou +${earnedPoints} pontos.`);
+  }, [checkoutResult, items, reset, trackOrder]);
+
+  if (!checkoutResult && step !== undefined && step !== currentStep) {
     return <Navigate to={routes.checkoutStep(currentStep)} replace />;
   }
 
-  if (currentStep === "payment" && !isLoadingAddresses && !isAddressComplete) {
+  if (!checkoutResult && currentStep === "payment" && !isLoadingAddresses && !isAddressComplete) {
     return <Navigate to={routes.checkoutStep("address")} replace />;
   }
 
-  if (currentStep === "confirmation" && !isLoadingAddresses && !isAddressComplete) {
-    return <Navigate to={routes.checkoutStep("address")} replace />;
-  }
-
-  if (currentStep === "confirmation" && !isPaymentComplete) {
+  if (!checkoutResult && currentStep === "confirmation") {
     return <Navigate to={routes.checkoutStep("payment")} replace />;
   }
 
-  if (items.length === 0) {
+  if (!checkoutResult && items.length === 0) {
     return <Navigate to={routes.cart} replace />;
   }
 
@@ -450,7 +402,9 @@ export function CheckoutPage() {
     month: "long",
     year: "numeric",
   }).format(addBusinessDays(new Date(), 7));
-  const currentStepIndex = getCheckoutStepIndex(currentStep);
+  const currentStepIndex = checkoutResult
+    ? getCheckoutStepIndex("confirmation")
+    : getCheckoutStepIndex(currentStep);
   const addressSummary = [
     addressForm.street,
     addressForm.number,
@@ -467,10 +421,6 @@ export function CheckoutPage() {
     setAddressForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updatePaymentField = (field: keyof PaymentFormState, value: string) => {
-    setPaymentForm((prev) => ({ ...prev, [field]: value }));
-  };
-
   const handleSelectSavedAddress = (address: Address) => {
     setAddressMode("saved");
     setSelectedAddressId(address.id);
@@ -482,7 +432,7 @@ export function CheckoutPage() {
     setAddressMode("new");
     setSelectedAddressId(null);
     setAddressAttempted(false);
-    setShouldSaveAddress(isLoggedIn);
+    setShouldSaveAddress(savedAddresses.length === 0);
     setAddressForm((prev) => ({
       ...createEmptyAddressForm(user),
       fullName: prev.fullName || user?.name || "",
@@ -505,71 +455,76 @@ export function CheckoutPage() {
       return;
     }
 
-    if (isLoggedIn && shouldSaveAddress) {
-      setIsSavingAddress(true);
-
-      try {
-        await createAddress(
-          createAddressPayload(addressForm, savedAddresses.length === 0),
-        );
-
-        const nextAddresses = await getAddresses();
-        const nextSelectedAddress = findMatchingAddress(nextAddresses, addressForm);
-
-        setSavedAddresses(nextAddresses);
-
-        if (nextSelectedAddress) {
-          setSelectedAddressId(nextSelectedAddress.id);
-          setAddressMode("saved");
-          setAddressForm(mapSavedAddressToForm(nextSelectedAddress, user));
-        }
-
-        toast.success("Endereço salvo. Agora escolha a forma de pagamento.");
-      } catch {
-        toast.error("Não foi possível salvar o endereço. Tente novamente.");
-        setIsSavingAddress(false);
-        return;
-      }
-
-      setIsSavingAddress(false);
-    } else {
-      toast.success("Endereço revisado. Agora escolha a forma de pagamento.");
-    }
-
-    navigate(routes.checkoutStep("payment"));
-  };
-
-  const handlePaymentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setPaymentAttempted(true);
-
-    if (paymentForm.method === "card" && !isCardPaymentValid(paymentForm)) {
-      toast.error("Preencha os dados do cartão corretamente.");
+    if (!isLoggedIn) {
+      toast.error("Entre na sua conta para continuar para o pagamento seguro.");
+      navigate(routes.login, {
+        state: { from: { pathname: routes.checkoutStep("address") } },
+      });
       return;
     }
 
-    toast.success("Pagamento revisado. Confira os dados e finalize o pedido.");
-    navigate(routes.checkoutStep("confirmation"));
+    setIsSavingAddress(true);
+
+    try {
+      await createAddress(
+        createAddressPayload(
+          addressForm,
+          shouldSaveAddress || savedAddresses.length === 0,
+        ),
+      );
+
+      const nextAddresses = await getAddresses();
+      const nextSelectedAddress = findMatchingAddress(nextAddresses, addressForm);
+
+      if (!nextSelectedAddress) {
+        throw new Error("Endereço criado não foi encontrado.");
+      }
+
+      setSavedAddresses(nextAddresses);
+      setSelectedAddressId(nextSelectedAddress.id);
+      setAddressMode("saved");
+      setAddressForm(mapSavedAddressToForm(nextSelectedAddress, user));
+      toast.success("Endereço selecionado. Agora siga para o pagamento seguro.");
+    } catch {
+      toast.error("Não foi possível preparar o endereço. Tente novamente.");
+      setIsSavingAddress(false);
+      return;
+    }
+
+    setIsSavingAddress(false);
+    navigate(routes.checkoutStep("payment"));
   };
 
-  const handleFinishOrder = () => {
-    finishOrderConfettiRef.current?.burst();
+  const handlePaymentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    const contactEmail = addressForm.email.trim() || user?.email || "";
-    const earnedPoints = trackOrder(
-      items.map((item) => ({
-        price: item.price,
-        quantity: item.quantity,
-      })),
-    );
+    if (!isLoggedIn) {
+      toast.error("Entre na sua conta para iniciar o pagamento.");
+      navigate(routes.login, {
+        state: { from: { pathname: routes.checkoutStep("payment") } },
+      });
+      return;
+    }
 
-    reset();
-    toast.success(
-      !isLoggedIn && contactEmail
-        ? `Pedido confirmado! Você ganhou +${earnedPoints} pontos. Vamos enviar as atualizações para ${contactEmail}.`
-        : `Pedido confirmado com sucesso! Você ganhou +${earnedPoints} pontos.`,
-    );
-    navigate(routes.home, { replace: true });
+    if (!selectedAddressId) {
+      toast.error("Escolha ou cadastre um endereço antes de pagar.");
+      navigate(routes.checkoutStep("address"));
+      return;
+    }
+
+    setIsCreatingCheckout(true);
+
+    try {
+      const checkoutSession = await createCheckoutSession(selectedAddressId, items);
+      window.location.assign(checkoutSession.checkout_url);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível iniciar o pagamento.",
+      );
+      setIsCreatingCheckout(false);
+    }
   };
 
   const renderAddressStep = () => (
@@ -959,10 +914,10 @@ export function CheckoutPage() {
                 />
                 <span>
                   <span className={styles.saveAddressTitle}>
-                    Salvar este endereço no perfil
+                    Definir como endereço padrão
                   </span>
                   <span className={styles.saveAddressText}>
-                    Ele ficará disponível nas próximas compras.
+                    O endereço será salvo para esta compra e poderá ficar como padrão no perfil.
                   </span>
                 </span>
               </label>
@@ -1013,197 +968,35 @@ export function CheckoutPage() {
           <div>
             <h2 className={styles.sectionTitle}>Forma de pagamento</h2>
             <p className={styles.sectionText}>
-              Escolha o método e preencha os dados apenas se necessário.
+              O pagamento será feito no Checkout seguro da Stripe.
             </p>
           </div>
         </div>
 
-        <div className={styles.methodGrid}>
-          {[
-            { id: "card", label: "Cartão de crédito" },
-            { id: "pix", label: "Pix" },
-            { id: "boleto", label: "Boleto" },
-          ].map((method) => (
-            <button
-              key={method.id}
-              type="button"
-              className={cn(
-                styles.methodButton,
-                paymentForm.method === method.id && styles.methodButtonActive,
-              )}
-              onClick={() =>
-                updatePaymentField("method", method.id as PaymentMethod)
-              }
-            >
-              {method.label}
-            </button>
-          ))}
-        </div>
-
-        {paymentForm.method === "card" ? (
-          <div className={styles.formGrid}>
-            <div className={styles.fullField}>
-              <Label htmlFor="cardName" className={styles.fieldLabel}>
-                Nome impresso no cartão
-              </Label>
-              <Input
-                id="cardName"
-                value={paymentForm.cardName}
-                onChange={(event) =>
-                  updatePaymentField("cardName", event.target.value)
-                }
-                className={styles.fieldInput}
-                placeholder="Como aparece no cartão"
-              />
-              {paymentAttempted && paymentErrors.cardName && (
-                <p id="cardName-error" className={styles.fieldError}>
-                  {paymentErrors.cardName}
-                </p>
-              )}
-            </div>
-
-            <div className={styles.fullField}>
-              <Label htmlFor="cardNumber" className={styles.fieldLabel}>
-                Número do cartão
-              </Label>
-              <Input
-                id="cardNumber"
-                value={formatCardNumber(paymentForm.cardNumber)}
-                onChange={(event) =>
-                  updatePaymentField(
-                    "cardNumber",
-                    event.target.value.replace(/\D/g, "").slice(0, 16),
-                  )
-                }
-                className={styles.fieldInput}
-                placeholder="0000 0000 0000 0000"
-                autoComplete="cc-number"
-                inputMode="numeric"
-                required
-                aria-invalid={paymentAttempted && !!paymentErrors.cardNumber}
-                aria-describedby={
-                  paymentAttempted && paymentErrors.cardNumber
-                    ? "cardNumber-error"
-                    : undefined
-                }
-              />
-              {paymentAttempted && paymentErrors.cardNumber && (
-                <p id="cardNumber-error" className={styles.fieldError}>
-                  {paymentErrors.cardNumber}
-                </p>
-              )}
-            </div>
-
+        <div className={styles.paymentGatewayCard}>
+          <div className={styles.paymentGatewayTop}>
+            <span className={styles.paymentGatewayIconWrap}>
+              <CreditCard className={styles.paymentGatewayIcon} />
+            </span>
             <div>
-              <Label htmlFor="expiry" className={styles.fieldLabel}>
-                Validade
-              </Label>
-              <Input
-                id="expiry"
-                value={formatExpiry(paymentForm.expiry)}
-                onChange={(event) =>
-                  updatePaymentField("expiry", event.target.value)
-                }
-                className={styles.fieldInput}
-                placeholder="MM/AA"
-                autoComplete="cc-exp"
-                inputMode="numeric"
-                required
-                aria-invalid={paymentAttempted && !!paymentErrors.expiry}
-                aria-describedby={paymentAttempted && paymentErrors.expiry ? "expiry-error" : undefined}
-              />
-              {paymentAttempted && paymentErrors.expiry && (
-                <p id="expiry-error" className={styles.fieldError}>
-                  {paymentErrors.expiry}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="cvv" className={styles.fieldLabel}>
-                CVV
-              </Label>
-              <Input
-                id="cvv"
-                value={paymentForm.cvv}
-                onChange={(event) =>
-                  updatePaymentField(
-                    "cvv",
-                    event.target.value.replace(/\D/g, "").slice(0, 4),
-                  )
-                }
-                className={styles.fieldInput}
-                placeholder="123"
-                autoComplete="cc-csc"
-                inputMode="numeric"
-                required
-                aria-invalid={paymentAttempted && !!paymentErrors.cvv}
-                aria-describedby={paymentAttempted && paymentErrors.cvv ? "cvv-error" : undefined}
-              />
-              {paymentAttempted && paymentErrors.cvv && (
-                <p id="cvv-error" className={styles.fieldError}>
-                  {paymentErrors.cvv}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="cpf" className={styles.fieldLabel}>
-                CPF do titular
-              </Label>
-              <Input
-                id="cpf"
-                value={paymentForm.cpf}
-                onChange={(event) =>
-                  updatePaymentField(
-                    "cpf",
-                    event.target.value.replace(/\D/g, "").slice(0, 11),
-                  )
-                }
-                className={styles.fieldInput}
-                placeholder="00000000000"
-                inputMode="numeric"
-                required
-                aria-invalid={paymentAttempted && !!paymentErrors.cpf}
-                aria-describedby={paymentAttempted && paymentErrors.cpf ? "cpf-error" : undefined}
-              />
-              {paymentAttempted && paymentErrors.cpf && (
-                <p id="cpf-error" className={styles.fieldError}>
-                  {paymentErrors.cpf}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="installments" className={styles.fieldLabel}>
-                Parcelamento
-              </Label>
-              <Input
-                id="installments"
-                value={paymentForm.installments}
-                onChange={(event) =>
-                  updatePaymentField("installments", event.target.value)
-                }
-                className={styles.fieldInput}
-                placeholder="1x sem juros"
-              />
+              <h3 className={styles.paymentGatewayTitle}>Stripe Checkout</h3>
+              <p className={styles.paymentGatewayText}>
+                A Toque de Mulher não armazena dados de cartão. A Stripe recebe
+                o pagamento em uma página protegida e depois retorna você para o pedido.
+              </p>
             </div>
           </div>
-        ) : (
-          <div className={styles.noticeCard}>
+
+          <div className={styles.paymentGatewayMeta}>
             <ShieldCheck className={styles.noticeIcon} />
             <div>
-              <p className={styles.noticeTitle}>
-                {paymentForm.method === "pix" ? "Pix" : "Boleto"} selecionado
-              </p>
+              <p className={styles.noticeTitle}>Total enviado para pagamento</p>
               <p className={styles.noticeText}>
-                {paymentForm.method === "pix"
-                  ? "O QR Code será exibido na próxima etapa, junto da confirmação do pedido."
-                  : "O boleto será gerado após a confirmação final e poderá ser pago pelo banco ou app."}
+                R$ {total.toFixed(2).replace(".", ",")} com estoque reservado no backend.
               </p>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       <div className={styles.actionsRow}>
@@ -1216,134 +1009,130 @@ export function CheckoutPage() {
         >
           Voltar ao endereço
         </Button>
-        <Button size="lg" type="submit" className={styles.primaryButton}>
-          Revisar pedido
+        <Button
+          size="lg"
+          type="submit"
+          className={styles.primaryButton}
+          disabled={isCreatingCheckout}
+        >
+          {isCreatingCheckout ? (
+            <>
+              <Loader2 className={styles.buttonIconSpin} />
+              Criando pagamento...
+            </>
+          ) : (
+            <>
+              <ExternalLink className={styles.buttonIcon} />
+              Ir para pagamento seguro
+            </>
+          )}
         </Button>
       </div>
     </form>
   );
 
-  const renderConfirmationStep = () => (
-    <div className={styles.checkoutBody}>
-      <div className={styles.section}>
-        <div className={styles.confirmationCard}>
-          <span className={styles.confirmationIconWrap}>
-            <ShieldCheck className={styles.confirmationIcon} />
-          </span>
-          <h2 className={styles.confirmationTitle}>Tudo pronto para finalizar</h2>
-          <p className={styles.confirmationText}>
-            Revise o endereço, o pagamento e confirme seu pedido. Você pode
-            voltar pelas etapas no stepper quando quiser.
-          </p>
+  const renderCheckoutResult = () => {
+    const isSuccess = checkoutResult === "success";
+    const ResultIcon = isSuccess ? CheckCircle2 : XCircle;
+
+    return (
+      <div className={styles.checkoutBody}>
+        <div className={styles.section}>
+          <div className={styles.resultCard}>
+            <span
+              className={cn(
+                styles.resultIconWrap,
+                isSuccess ? styles.resultIconSuccess : styles.resultIconFailure,
+              )}
+            >
+              <ResultIcon className={styles.resultIcon} />
+            </span>
+            <h2 className={styles.resultTitle}>
+              {isSuccess ? "Pagamento recebido" : "Pagamento não concluído"}
+            </h2>
+            <p className={styles.resultText}>
+              {isSuccess
+                ? "Seu pedido foi criado e a confirmação será sincronizada pelo backend assim que a Stripe enviar o webhook."
+                : "A sessão de pagamento foi cancelada ou não foi concluída. Você pode voltar ao pagamento e tentar novamente."}
+            </p>
+            {checkoutSessionId && (
+              <p className={styles.resultSession}>
+                Sessão Stripe: {checkoutSessionId}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className={styles.confirmationGrid}>
-          <div className={styles.confirmationPanel}>
-            <h3 className={styles.confirmationPanelTitle}>Entrega</h3>
-            <p className={styles.confirmationPanelText}>
-              {addressForm.fullName || "Nome do destinatário"}
-            </p>
-            <p className={styles.confirmationPanelText}>
-              {addressForm.email || "E-mail de contato ainda não informado"}
-            </p>
-            <p className={styles.confirmationPanelText}>
-              {addressSummary || "Endereço ainda não preenchido"}
-            </p>
-            <p className={styles.confirmationPanelText}>
-              {[addressForm.neighborhood, addressForm.city, addressForm.state]
-                .filter(Boolean)
-                .join(" - ") || "Cidade / Estado"}
-            </p>
-          </div>
-
-          <div className={styles.confirmationPanel}>
-            <h3 className={styles.confirmationPanelTitle}>Pagamento</h3>
-            <p className={styles.confirmationPanelText}>
-              {paymentForm.method === "card"
-                ? "Cartão de crédito"
-                : paymentForm.method === "pix"
-                  ? "Pix"
-                  : "Boleto"}
-            </p>
-            <p className={styles.confirmationPanelText}>
-              {paymentForm.method === "card"
-                ? paymentForm.cardNumber
-                  ? `Final ${paymentForm.cardNumber.slice(-4)}`
-                  : "Cartão ainda não informado"
-                : "Pagamento será gerado após a finalização"}
-            </p>
-            <p className={styles.confirmationPanelText}>
-              Prazo estimado: {estimatedDate}
-            </p>
-          </div>
-
-          <div className={styles.confirmationPanel}>
-            <h3 className={styles.confirmationPanelTitle}>Recompensa</h3>
-            <p className={styles.confirmationReward}>
-              <ShieldCheck className={styles.confirmationRewardIcon} />
-              +{rewardPoints} Beauty Points nesta compra
-            </p>
-            <p className={styles.confirmationPanelText}>
-              Os pontos entram no seu perfil logo após a confirmação do pedido.
-            </p>
-          </div>
+        <div className={styles.actionsRow}>
+          {isSuccess ? (
+            <Button
+              size="lg"
+              className={styles.primaryButton}
+              onClick={() => navigate(routes.home, { replace: true })}
+            >
+              Voltar para a loja
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                className={styles.secondaryButton}
+                onClick={() => navigate(routes.cart)}
+              >
+                Voltar ao carrinho
+              </Button>
+              <Button
+                size="lg"
+                className={styles.primaryButton}
+                onClick={() => navigate(routes.checkoutStep("payment"))}
+              >
+                Tentar novamente
+              </Button>
+            </>
+          )}
         </div>
       </div>
-
-      <div className={styles.actionsRow}>
-        <Button
-          type="button"
-          size="lg"
-          variant="outline"
-          className={styles.secondaryButton}
-          onClick={() => navigate(routes.checkoutStep("payment"))}
-        >
-          Voltar ao pagamento
-        </Button>
-        <div className={styles.confettiButtonWrap}>
-          <Confetti
-            ref={finishOrderConfettiRef}
-            particleCount={40}
-            spread={110}
-            startVelocity={24}
-          />
-          <Button size="lg" className={styles.primaryButton} onClick={handleFinishOrder}>
-            Finalizar pedido
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
         <CheckoutStepper currentStep={currentStepIndex} className={styles.stepper} />
 
-        <div className={styles.layout}>
+        <div className={cn(styles.layout, checkoutResult && styles.resultLayout)}>
           <section className={styles.checkoutCard}>
             <header className={styles.checkoutHeader}>
-              <h1 className={styles.checkoutTitle}>{stepContent[currentStep].title}</h1>
+              <h1 className={styles.checkoutTitle}>
+                {checkoutResult === "success"
+                  ? "Pedido recebido"
+                  : checkoutResult === "failure"
+                    ? "Pagamento não concluído"
+                    : stepContent[currentStep].title}
+              </h1>
             </header>
 
-            {!isLoggedIn && (
+            {!checkoutResult && !isLoggedIn && (
               <div className={styles.guestBanner}>
-                <ShieldCheck className={styles.guestBannerIcon} />
+                <LogIn className={styles.guestBannerIcon} />
                 <div>
-                  <p className={styles.guestBannerTitle}>Checkout sem login</p>
+                  <p className={styles.guestBannerTitle}>Login necessário para pagar</p>
                   <p className={styles.guestBannerText}>
-                    Você pode concluir a compra como visitante. Precisamos apenas
-                    dos dados de entrega, contato e pagamento.
+                    O pagamento real usa seu perfil para vincular endereço,
+                    pedido e confirmação da Stripe.
                   </p>
                 </div>
               </div>
             )}
 
-            {currentStep === "address" && renderAddressStep()}
-            {currentStep === "payment" && renderPaymentStep()}
-            {currentStep === "confirmation" && renderConfirmationStep()}
+            {checkoutResult && renderCheckoutResult()}
+            {!checkoutResult && currentStep === "address" && renderAddressStep()}
+            {!checkoutResult && currentStep === "payment" && renderPaymentStep()}
           </section>
 
+          {!checkoutResult && (
           <aside className={styles.summaryCard}>
             <div className={styles.summaryHeader}>
               <h2 className={styles.summaryTitle}>Resumo do pedido</h2>
@@ -1407,17 +1196,9 @@ export function CheckoutPage() {
 
               <div className={styles.summaryPanel}>
                 <h3 className={styles.summaryPanelTitle}>Pagamento</h3>
+                <p className={styles.summaryPanelText}>Stripe Checkout</p>
                 <p className={styles.summaryPanelText}>
-                  {paymentForm.method === "card"
-                    ? "Cartão de crédito"
-                    : paymentForm.method === "pix"
-                      ? "Pix"
-                      : "Boleto"}
-                </p>
-                <p className={styles.summaryPanelText}>
-                  {paymentForm.method === "card" && paymentForm.cardNumber
-                    ? `Final ${paymentForm.cardNumber.slice(-4)}`
-                    : "Ainda não configurado"}
+                  O método final será escolhido na página segura da Stripe.
                 </p>
               </div>
 
@@ -1431,6 +1212,7 @@ export function CheckoutPage() {
               </div>
             </div>
           </aside>
+          )}
         </div>
       </div>
     </div>
