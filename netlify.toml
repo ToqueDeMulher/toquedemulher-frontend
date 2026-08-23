@@ -4,3 +4,9 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Redireciona todas as rotas para index.html (necessário para React Router)
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
