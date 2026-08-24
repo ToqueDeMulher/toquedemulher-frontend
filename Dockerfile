@@ -4,12 +4,13 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-# The .env file must be present or variables passed as args for Vite to bake them into the build
 RUN npm run build
 
 # Serve stage
 FROM nginx:alpine
-# Vite is configured to output to the "build" directory
+# Copy our custom Nginx config to replace the default one
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 COPY --from=builder /app/build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
