@@ -413,7 +413,7 @@
   @apply hidden sm:inline;
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 1720px) {
   .mainRow {
     grid-template-columns: auto minmax(620px, 1fr) minmax(460px, 660px) auto;
   }
