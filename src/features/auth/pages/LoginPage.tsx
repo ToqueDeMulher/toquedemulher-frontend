@@ -619,16 +619,9 @@ export function LoginPage() {
                       loginAnimateTimeoutRef
                     )
                   }
-                  disabled={isLoading}
+                  isLoading={isLoading}
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className={styles.iconSpin} />
-                      Entrando...
-                    </>
-                  ) : (
-                    "Entrar"
-                  )}
+                  {isLoading ? "Entrando..." : "Entrar"}
                 </Button>
               </form>
 
@@ -973,16 +966,9 @@ export function LoginPage() {
                       registerAnimateTimeoutRef
                     )
                   }
-                  disabled={isLoading}
+                  isLoading={isLoading}
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className={styles.iconSpin} />
-                      Criando conta...
-                    </>
-                  ) : (
-                    "Criar conta"
-                  )}
+                  {isLoading ? "Criando conta..." : "Criar conta"}
                 </Button>
 
                 <p className={styles.registerMeta}>

@@ -950,7 +950,7 @@ export function CheckoutPage() {
           size="lg"
           type="submit"
           className={styles.primaryButton}
-          disabled={isLoadingAddresses || isSavingAddress}
+          isLoading={isLoadingAddresses || isSavingAddress}
         >
           {isSavingAddress ? "Salvando endereço..." : "Continuar para pagamento"}
         </Button>
@@ -1013,13 +1013,10 @@ export function CheckoutPage() {
           size="lg"
           type="submit"
           className={styles.primaryButton}
-          disabled={isCreatingCheckout}
+          isLoading={isCreatingCheckout}
         >
           {isCreatingCheckout ? (
-            <>
-              <Loader2 className={styles.buttonIconSpin} />
-              Criando pagamento...
-            </>
+            "Criando pagamento..."
           ) : (
             <>
               <ExternalLink className={styles.buttonIcon} />
