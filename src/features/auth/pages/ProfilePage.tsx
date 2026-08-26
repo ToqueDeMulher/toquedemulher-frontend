@@ -49,6 +49,7 @@ import { Button } from "@/shared/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
+import { EmptyState } from "@/shared/ui/empty-state";
 import { ThemeSwitcher } from "@/app/layout/components/ThemeSwitcher";
 import styles from "./ProfilePage.module.css";
 
@@ -772,7 +773,11 @@ export function ProfilePage() {
             </div>
 
             {addresses.length === 0 ? (
-              <div className={styles.emptyState}>Nenhum endereço cadastrado.</div>
+              <EmptyState 
+                icon={MapPin} 
+                title="Nenhum endereço" 
+                description="Você ainda não possui endereços cadastrados para entrega." 
+              />
             ) : (
               <div className={styles.itemList}>
                 {addresses.map((address) => (
@@ -1021,7 +1026,11 @@ export function ProfilePage() {
 
               <div className={styles.itemList}>
                 {paymentMethods.length === 0 ? (
-                  <div className={styles.emptyState}>Nenhum método salvo.</div>
+                  <EmptyState 
+                    icon={CreditCard} 
+                    title="Nenhum cartão" 
+                    description="Salve um método de pagamento para acelerar suas compras." 
+                  />
                 ) : (
                   paymentMethods.map((method) => (
                     <div key={method.id} className={styles.savedItem}>
@@ -1255,7 +1264,11 @@ export function ProfilePage() {
                   Carregando pedidos...
                 </div>
               ) : orders.length === 0 ? (
-                <div className={styles.emptyState}>Nenhum pedido encontrado.</div>
+                <EmptyState 
+                  icon={Package} 
+                  title="Nenhum pedido" 
+                  description="Você ainda não fez nenhum pedido conosco." 
+                />
               ) : (
                 <div className={styles.ordersList}>
                   {orders.map((order) => (
@@ -1301,9 +1314,11 @@ export function ProfilePage() {
 
             <TabsContent value="wishlist" className={styles.tabContent}>
               <h2 className={styles.sectionTitle}>Minha Wishlist</h2>
-              <div className={styles.emptyState}>
-                Nenhum item favoritado ainda.
-              </div>
+              <EmptyState 
+                icon={Heart} 
+                title="Wishlist vazia" 
+                description="Seus produtos favoritos aparecerão aqui." 
+              />
             </TabsContent>
 
             <TabsContent value="reviews" className={styles.tabContent}>
@@ -1314,7 +1329,11 @@ export function ProfilePage() {
                   Carregando avaliações...
                 </div>
               ) : reviews.length === 0 ? (
-                <div className={styles.emptyState}>Nenhuma avaliação enviada.</div>
+                <EmptyState 
+                  icon={Star} 
+                  title="Nenhuma avaliação" 
+                  description="Você ainda não avaliou nenhum produto." 
+                />
               ) : (
                 <div className={styles.reviewList}>
                   {reviews.map((review) => (
