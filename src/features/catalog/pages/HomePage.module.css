@@ -635,6 +635,13 @@
   border-radius: 999px;
 }
 
+@media (max-width: 639px) {
+  .productCarouselPrev,
+  .productCarouselNext {
+    display: none;
+  }
+}
+
 .productCarouselProgress {
   @apply mt-1.5 flex items-center justify-center gap-2 mx-auto;
 }
