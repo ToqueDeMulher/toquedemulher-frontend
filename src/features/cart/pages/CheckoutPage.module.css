@@ -717,3 +717,31 @@
   border-color: color-mix(in oklab, var(--destructive) 35%, transparent);
   background-color: color-mix(in oklab, var(--destructive) 16%, var(--theme-surface-primary));
 }
+
+@media (max-width: 479px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullField {
+    grid-column: 1;
+  }
+
+  .methodGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actionsRow {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .confirmationGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepper {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+}

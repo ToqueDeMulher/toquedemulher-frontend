@@ -371,3 +371,49 @@
 .faqSection {
   border-top-color: var(--theme-border-soft);
 }
+
+@media (max-width: 479px) {
+  .section {
+    padding-top: 1.75rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .grid {
+    gap: 1.25rem;
+  }
+
+  .thumbGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .actionRow {
+    flex-direction: column;
+  }
+
+  .reviewCard {
+    padding: 1rem;
+  }
+
+  .reviewTop {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .reviewImages {
+    flex-wrap: wrap;
+  }
+
+  .reviewImage {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .summaryCard {
+    padding: 1.25rem;
+  }
+}
