@@ -183,3 +183,57 @@
 .iconSmall {
   @apply h-4 w-4;
 }
+
+.page {
+  background: linear-gradient(
+    180deg,
+    var(--theme-bg-canvas),
+    color-mix(in oklab, var(--theme-brand-soft) 36%, var(--theme-bg-canvas)),
+    var(--theme-bg-canvas)
+  );
+}
+
+.headerBadge,
+.imageIntro {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-soft);
+}
+
+.headerBadge,
+.primaryBadge,
+.removeButton,
+.errorText {
+  color: var(--theme-brand-strong);
+}
+
+.title {
+  color: var(--theme-text-primary);
+}
+
+.description,
+.headerMeta,
+.helperText,
+.uploadHint {
+  color: var(--theme-text-secondary);
+}
+
+.backButton,
+.footerItem,
+.footerItemWide,
+.imageCard {
+  border-color: var(--theme-border-soft);
+}
+
+.backButton {
+  background-color: var(--theme-surface-primary);
+  color: var(--theme-brand-strong);
+}
+
+.backButton:hover {
+  background-color: var(--theme-brand-soft);
+  border-color: var(--theme-border-strong);
+}
+
+.fieldLabel {
+  color: var(--theme-text-primary);
+}

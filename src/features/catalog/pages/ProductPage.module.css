@@ -300,13 +300,15 @@
 .imagePanel,
 .thumbButton,
 .summaryCard,
-.reviewCard {
+.reviewCard,
+.rewardCard {
   background-color: var(--theme-card-bg);
   border-color: var(--theme-border-soft);
 }
 
 .imagePanel,
-.thumbButton {
+.thumbButton,
+.rewardCard {
   background-color: var(--theme-card-muted);
 }
 
@@ -343,8 +345,14 @@
 
 .price,
 .wishlistIcon,
-.wishlistIconActive {
+.wishlistIconActive,
+.rewardIcon,
+.rewardText {
   color: var(--theme-brand-strong);
+}
+
+.rewardTitle {
+  color: var(--theme-text-primary);
 }
 
 .quantityControls {

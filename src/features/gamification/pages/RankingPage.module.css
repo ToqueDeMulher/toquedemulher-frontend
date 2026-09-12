@@ -317,3 +317,79 @@
 .loginPromptIcon {
   @apply size-4 mr-2;
 }
+
+/* Keep every ranking surface on the active palette in dark mode. */
+.page {
+  background:
+    radial-gradient(circle at top, color-mix(in oklab, var(--theme-brand-strong) 10%, transparent), transparent 30%),
+    var(--theme-bg-canvas);
+}
+
+.hero,
+.meCard,
+.podiumCardSecondary,
+.board,
+.levelGuide {
+  background-color: var(--theme-surface-primary);
+  border-color: var(--theme-border-soft);
+}
+
+.meStatBlock,
+.boardHeader,
+.levelCard {
+  background-color: var(--theme-card-muted);
+  border-color: var(--theme-border-soft);
+}
+
+.meProgress {
+  background-color: var(--theme-surface-secondary);
+  border-color: var(--theme-border-soft);
+}
+
+.avatar,
+.boardAvatar {
+  background-color: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
+}
+
+.heroTitle,
+.meName,
+.meStatValue,
+.podiumName,
+.boardTitle,
+.boardName,
+.boardPoints strong,
+.levelGuideTitle,
+.levelName {
+  color: var(--theme-text-primary);
+}
+
+.heroText,
+.meMeta,
+.meProgressHeader,
+.podiumPoints,
+.levelGuideText {
+  color: var(--theme-text-secondary);
+}
+
+.meStatLabel,
+.boardRankNumber,
+.boardPoints span,
+.levelPoints {
+  color: var(--theme-text-muted);
+}
+
+.boardList,
+.boardRow {
+  border-color: var(--theme-border-soft);
+}
+
+.boardRow:hover,
+.boardRowCurrent,
+.levelCardActive {
+  background-color: var(--theme-brand-soft);
+}
+
+.levelCardActive {
+  border-color: var(--theme-border-strong);
+}

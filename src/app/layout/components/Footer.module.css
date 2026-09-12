@@ -99,7 +99,7 @@
   @apply py-5 sm:py-6;
   background:
     radial-gradient(circle at top right, color-mix(in oklab, var(--theme-accent-cyan) 16%, transparent), transparent 34%),
-    linear-gradient(135deg, var(--theme-brand-strong), color-mix(in oklab, var(--theme-brand-strong) 76%, black));
+    linear-gradient(135deg, var(--theme-brand-fill), color-mix(in oklab, var(--theme-brand-fill) 76%, black));
 }
 
 .newsletterInner {

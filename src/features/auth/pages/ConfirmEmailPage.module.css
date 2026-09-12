@@ -17,9 +17,10 @@
 }
 
 .logoMark {
-  @apply inline-flex size-11 items-center justify-center text-base font-extrabold text-white;
+  @apply inline-flex size-11 items-center justify-center text-base font-extrabold;
   border-radius: 12px;
-  background-color: var(--theme-brand-strong);
+  background-color: var(--theme-brand-fill);
+  color: var(--theme-on-brand);
   font-family: var(--font-display);
 }
 

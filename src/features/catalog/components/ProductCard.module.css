@@ -133,8 +133,8 @@
 }
 
 .badgeNew {
-  @apply text-white;
-  background-color: var(--theme-brand-strong);
+  color: var(--theme-on-brand);
+  background-color: var(--theme-brand-fill);
   border-radius: 999px;
 }
 
