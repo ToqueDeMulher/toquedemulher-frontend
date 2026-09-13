@@ -229,8 +229,8 @@ export function ProductCreatePage() {
     setUploadErrors((prev) => ({ ...prev, [index]: null }));
 
     try {
-      const parsedId = normalizeNumber(uploadProductId.trim());
-      if (!parsedId) {
+      const parsedId = uploadProductId.trim();
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsedId)) {
         throw new Error("ID do produto inválido.");
       }
 
@@ -268,9 +268,11 @@ export function ProductCreatePage() {
     const payload = buildPayload(values);
 
     try {
-      await createProduct(payload);
-      toast.success("Produto criado com sucesso!");
+      const product = await createProduct(payload);
       reset(defaultValues);
+      setUploadProductId(product.id);
+      setUploadErrors({});
+      toast.success("Produto criado! Agora envie as imagens abaixo.");
     } catch (err) {
       toast.error("Erro ao cadastrar produto.");
     }
@@ -976,14 +978,14 @@ export function ProductCreatePage() {
                   <Input
                     value={uploadProductId}
                     onChange={(event) => setUploadProductId(event.target.value)}
-                    placeholder="ID numérico retornado após criar o produto"
+                    placeholder="ID preenchido ao cadastrar o produto"
                     className={styles.inputTopSpace}
                   />
                   <p className={styles.helperText}>
                     O endpoint{" "}
                     <code>/api/v1/products/&lt;product_id&gt;/images</code>
-                    requer o ID numérico do produto e autenticação admin.
-                    Informe o valor e use o botão de upload em cada imagem.
+                    usa o ID do produto e seu acesso de administrador.
+                    Cadastre o produto primeiro e depois envie as imagens.
                   </p>
                 </div>
 
@@ -1068,14 +1070,13 @@ export function ProductCreatePage() {
                       <FormField
                         control={control}
                         name={`images.${index}.url` as const}
-                        rules={{ required: "Informe a URL da imagem." }}
                         render={({ field }) => (
                           <FormItem className={styles.imageFieldWide}>
                             <span
                               className={styles.fieldLabel}
                               onMouseDown={preventLabelFocus}
                             >
-                              URL *
+                              URL da imagem enviada
                             </span>
                             <FormControl>
                               <Input placeholder="https://..." {...field} />
