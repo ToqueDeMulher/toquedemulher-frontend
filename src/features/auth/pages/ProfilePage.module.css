@@ -464,6 +464,7 @@
 
 .name,
 .loyaltyTitle,
+.loyaltyPoints,
 .sectionTitle,
 .orderId,
 .wishlistTitle,
@@ -499,6 +500,14 @@
 .loyaltyCard,
 .wishlistImageWrap {
   background-color: var(--theme-card-muted);
+}
+
+.loyaltyCard {
+  background-image: linear-gradient(
+    110deg,
+    var(--theme-card-muted),
+    color-mix(in oklab, var(--theme-brand-soft) 58%, var(--theme-surface-primary))
+  );
 }
 
 .loyaltyHighlight,

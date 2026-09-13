@@ -3493,6 +3493,8 @@ body {
   --theme-footer-muted: rgba(255, 255, 255, 0.82);
   --theme-brand: #f73986;
   --theme-brand-strong: #f73986;
+  --theme-brand-fill: #d81b60;
+  --theme-on-brand: #ffffff;
   --theme-brand-soft: rgba(247, 57, 134, 0.1);
   --theme-focus: rgba(247, 57, 134, 0.3);
   --theme-switch-track: rgba(247, 57, 134, 0.12);
@@ -3576,6 +3578,8 @@ body {
   --theme-footer-muted: #dadce5;
   --theme-brand: #f3a6ca;
   --theme-brand-strong: #f3a6ca;
+  --theme-brand-fill: #b91c5c;
+  --theme-on-brand: #ffffff;
   --theme-brand-soft: rgba(243, 166, 202, 0.16);
   --theme-focus: rgba(243, 166, 202, 0.28);
   --theme-switch-track: rgba(243, 166, 202, 0.14);
@@ -4162,12 +4166,12 @@ h6,
 
 .dark .bg-pink-600,
 .dark .bg-pink-700 {
-  background-color: var(--theme-brand-strong) !important;
+  background-color: var(--theme-brand-fill) !important;
 }
 
 .dark .hover\:bg-pink-600:hover,
 .dark .hover\:bg-pink-700:hover {
-  background-color: color-mix(in oklab, var(--theme-brand-strong) 88%, black) !important;
+  background-color: color-mix(in oklab, var(--theme-brand-fill) 88%, black) !important;
 }
 
 .dark .border-pink-100,

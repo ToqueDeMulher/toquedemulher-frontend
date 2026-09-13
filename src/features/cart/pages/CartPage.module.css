@@ -25,7 +25,8 @@
 
 .cartHeader {
   @apply px-5 sm:px-6 py-4 text-white;
-  background-color: var(--theme-ink);
+  background-color: var(--theme-footer-bg);
+  color: var(--theme-footer-text);
 }
 
 .cartTitle {
@@ -279,7 +280,8 @@
 
 .summaryHeader {
   @apply px-5 py-4 text-white;
-  background-color: var(--theme-ink);
+  background-color: var(--theme-footer-bg);
+  color: var(--theme-footer-text);
 }
 
 .summaryTitle {

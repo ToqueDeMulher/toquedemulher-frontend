@@ -136,7 +136,7 @@
 /* ─── CTA banner ────────────────────────────────────────────── */
 .ctaBanner {
   @apply p-8 sm:p-10 text-center mt-8;
-  background-color: var(--theme-brand-strong);
+  background-color: var(--theme-brand-fill);
   border-radius: 14px;
 }
 
@@ -276,8 +276,8 @@
 .formSubmit {
   @apply w-full py-3 font-semibold text-sm transition-all mt-2;
   border-radius: 10px;
-  background-color: var(--theme-brand-strong);
-  color: white;
+  background-color: var(--theme-brand-fill);
+  color: var(--theme-on-brand);
 }
 
 .formSubmit:hover {
@@ -391,8 +391,8 @@
 }
 
 .jobApply:hover {
-  background-color: var(--theme-brand-strong);
-  color: white;
+  background-color: var(--theme-brand-fill);
+  color: var(--theme-on-brand);
 }
 
 /* ─── Rastreamento / Pedidos / Desejos (em breve) ───────────── */
@@ -425,8 +425,8 @@
 .comingSoonPrimary {
   @apply px-6 py-3 font-semibold text-sm transition-all;
   border-radius: 10px;
-  background-color: var(--theme-brand-strong);
-  color: white;
+  background-color: var(--theme-brand-fill);
+  color: var(--theme-on-brand);
 }
 
 .comingSoonPrimary:hover {
@@ -512,9 +512,9 @@
 
 .stepNumber {
   @apply w-10 h-10 flex items-center justify-center text-lg font-bold mx-auto mb-3;
-  background-color: var(--theme-brand-strong);
+  background-color: var(--theme-brand-fill);
   border-radius: 10px;
-  color: white;
+  color: var(--theme-on-brand);
 }
 
 .stepTitle {

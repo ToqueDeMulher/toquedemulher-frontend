@@ -191,7 +191,7 @@
 /* ─── CTA final ─────────────────────────────────────────────── */
 .helpCta {
   @apply mt-12 p-10 sm:p-12 text-center;
-  background-color: var(--theme-brand-strong);
+  background-color: var(--theme-brand-fill);
   border-radius: 14px;
 }
 
