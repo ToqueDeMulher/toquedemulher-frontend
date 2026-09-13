@@ -5,7 +5,23 @@ import { apiRequest } from "@/shared/api/api-client";
 export type CheckoutSessionResponse = {
   checkout_url: string;
   session_id: string;
+  order_id: string;
   client_secret?: string | null;
+};
+
+export type CheckoutPaymentStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "cancelled"
+  | "refunded";
+
+export type CheckoutStatusResponse = {
+  session_id: string;
+  order_id: string;
+  status: CheckoutPaymentStatus;
+  amount: number;
+  currency: string;
 };
 
 function slugify(value: string) {
@@ -17,11 +33,16 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function createCheckoutSession(addressId: string, items: CartItem[]) {
+export function createCheckoutSession(
+  addressId: string,
+  items: CartItem[],
+  idempotencyKey: string,
+) {
   return apiRequest<CheckoutSessionResponse>("/payments/checkout", {
     method: "POST",
     body: JSON.stringify({
       address_id: addressId,
+      idempotency_key: idempotencyKey,
       items: items.map((item) => ({
         id: item.id,
         slug: slugify(item.name),
@@ -32,4 +53,17 @@ export function createCheckoutSession(addressId: string, items: CartItem[]) {
       })),
     }),
   });
+}
+
+export function getCheckoutStatus(sessionId: string) {
+  return apiRequest<CheckoutStatusResponse>(
+    `/payments/checkout/${encodeURIComponent(sessionId)}`,
+  );
+}
+
+export function cancelCheckout(orderId: string) {
+  return apiRequest<CheckoutStatusResponse>(
+    `/payments/checkout/${encodeURIComponent(orderId)}/cancel`,
+    { method: "POST" },
+  );
 }

@@ -33,7 +33,12 @@ import {
   type AddressRequest,
 } from "@/features/auth/api/address-service";
 import { useAuth } from "@/features/auth/context/auth-context";
-import { createCheckoutSession } from "@/features/cart/api/checkout-service";
+import {
+  cancelCheckout,
+  createCheckoutSession,
+  getCheckoutStatus,
+  type CheckoutPaymentStatus,
+} from "@/features/cart/api/checkout-service";
 import { useCart } from "@/features/cart/context/cart-context";
 import { useGamification } from "@/features/gamification/context/gamification-context";
 import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
@@ -55,6 +60,11 @@ type AddressFormState = {
 };
 
 type AddressMode = "saved" | "new";
+type CheckoutVerificationState =
+  | CheckoutPaymentStatus
+  | "checking"
+  | "error"
+  | null;
 
 const REQUIRED_ADDRESS_FIELDS: Array<keyof AddressFormState> = [
   "fullName",
@@ -267,6 +277,18 @@ function addBusinessDays(baseDate: Date, businessDays: number) {
   return result;
 }
 
+function createIdempotencyKey() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (character) => {
+    const random = Math.floor(Math.random() * 16);
+    const value = character === "x" ? random : (random & 0x3) | 0x8;
+    return value.toString(16);
+  });
+}
+
 export function CheckoutPage() {
   const navigate = useNavigate();
   const { step } = useParams<{ step?: string }>();
@@ -278,7 +300,15 @@ export function CheckoutPage() {
   const checkoutResult =
     step === "success" || step === "failure" ? step : null;
   const checkoutSessionId = searchParams.get("session_id");
+  const checkoutOrderId = searchParams.get("order_id");
   const handledCheckoutResultRef = useRef(false);
+  const handledCheckoutCancellationRef = useRef(false);
+  const [checkoutIdempotencyKey] = useState(createIdempotencyKey);
+  const [checkoutVerification, setCheckoutVerification] =
+    useState<CheckoutVerificationState>(() =>
+      checkoutResult === "success" ? "checking" : null,
+    );
+  const [verificationRun, setVerificationRun] = useState(0);
 
   const [addressForm, setAddressForm] = useState<AddressFormState>(() =>
     createEmptyAddressForm(user),
@@ -354,7 +384,69 @@ export function CheckoutPage() {
 
   useEffect(() => {
     if (
-      checkoutResult !== "success" ||
+      checkoutResult !== "failure" ||
+      !checkoutOrderId ||
+      handledCheckoutCancellationRef.current
+    ) {
+      return;
+    }
+
+    handledCheckoutCancellationRef.current = true;
+    cancelCheckout(checkoutOrderId).catch(() => {
+      toast.error(
+        "O pagamento foi cancelado, mas a liberação do estoque ainda está sendo processada.",
+      );
+    });
+  }, [checkoutOrderId, checkoutResult]);
+
+  useEffect(() => {
+    if (checkoutResult !== "success") {
+      setCheckoutVerification(null);
+      return;
+    }
+    if (!checkoutSessionId) {
+      setCheckoutVerification("error");
+      return;
+    }
+
+    let isCancelled = false;
+    let timeoutId: number | undefined;
+    let attempt = 0;
+    const maxAttempts = 10;
+
+    const verifyPayment = async () => {
+      if (attempt === 0) setCheckoutVerification("checking");
+      attempt += 1;
+
+      try {
+        const checkout = await getCheckoutStatus(checkoutSessionId);
+        if (isCancelled) return;
+
+        setCheckoutVerification(checkout.status);
+        if (checkout.status === "pending" && attempt < maxAttempts) {
+          timeoutId = window.setTimeout(verifyPayment, 1500);
+        }
+      } catch {
+        if (isCancelled) return;
+        if (attempt < 3) {
+          timeoutId = window.setTimeout(verifyPayment, 1500);
+          return;
+        }
+        setCheckoutVerification("error");
+      }
+    };
+
+    void verifyPayment();
+
+    return () => {
+      isCancelled = true;
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    };
+  }, [checkoutResult, checkoutSessionId, verificationRun]);
+
+  useEffect(() => {
+    if (
+      checkoutVerification !== "approved" ||
       handledCheckoutResultRef.current ||
       items.length === 0
     ) {
@@ -371,7 +463,7 @@ export function CheckoutPage() {
 
     reset();
     toast.success(`Pagamento aprovado. Você ganhou +${earnedPoints} pontos.`);
-  }, [checkoutResult, items, reset, trackOrder]);
+  }, [checkoutVerification, items, reset, trackOrder]);
 
   if (!checkoutResult && step !== undefined && step !== currentStep) {
     return <Navigate to={routes.checkoutStep(currentStep)} replace />;
@@ -515,7 +607,11 @@ export function CheckoutPage() {
     setIsCreatingCheckout(true);
 
     try {
-      const checkoutSession = await createCheckoutSession(selectedAddressId, items);
+      const checkoutSession = await createCheckoutSession(
+        selectedAddressId,
+        items,
+        checkoutIdempotencyKey,
+      );
       window.location.assign(checkoutSession.checkout_url);
     } catch (error) {
       toast.error(
@@ -1032,8 +1128,38 @@ export function CheckoutPage() {
   );
 
   const renderCheckoutResult = () => {
-    const isSuccess = checkoutResult === "success";
-    const ResultIcon = isSuccess ? CheckCircle2 : XCircle;
+    const returnedFromSuccess = checkoutResult === "success";
+    const isApproved =
+      returnedFromSuccess && checkoutVerification === "approved";
+    const isProcessing =
+      returnedFromSuccess &&
+      (checkoutVerification === "checking" || checkoutVerification === "pending");
+    const isTerminalFailure =
+      returnedFromSuccess &&
+      (checkoutVerification === "rejected" ||
+        checkoutVerification === "cancelled" ||
+        checkoutVerification === "refunded");
+    const ResultIcon = isProcessing
+      ? Loader2
+      : isApproved
+        ? CheckCircle2
+        : XCircle;
+    const resultTitle = isApproved
+      ? "Pagamento confirmado"
+      : isProcessing
+        ? checkoutVerification === "checking"
+          ? "Confirmando pagamento"
+          : "Pagamento em processamento"
+        : returnedFromSuccess && checkoutVerification === "error"
+          ? "Não foi possível confirmar"
+          : "Pagamento não concluído";
+    const resultText = isApproved
+      ? "Seu pagamento foi confirmado pelo backend e o pedido já está registrado."
+      : isProcessing
+        ? "Estamos aguardando a confirmação segura da Stripe. Não feche esta página enquanto verificamos o pagamento."
+        : returnedFromSuccess && checkoutVerification === "error"
+          ? "Não conseguimos consultar o pagamento agora. Tente verificar novamente antes de refazer a compra."
+          : "A sessão foi cancelada, recusada ou não foi concluída. A reserva de estoque será liberada pelo backend.";
 
     return (
       <div className={styles.checkoutBody}>
@@ -1042,19 +1168,22 @@ export function CheckoutPage() {
             <span
               className={cn(
                 styles.resultIconWrap,
-                isSuccess ? styles.resultIconSuccess : styles.resultIconFailure,
+                isApproved
+                  ? styles.resultIconSuccess
+                  : isProcessing
+                    ? styles.resultIconPending
+                    : styles.resultIconFailure,
               )}
             >
-              <ResultIcon className={styles.resultIcon} />
+              <ResultIcon
+                className={cn(
+                  styles.resultIcon,
+                  isProcessing && styles.buttonIconSpin,
+                )}
+              />
             </span>
-            <h2 className={styles.resultTitle}>
-              {isSuccess ? "Pagamento recebido" : "Pagamento não concluído"}
-            </h2>
-            <p className={styles.resultText}>
-              {isSuccess
-                ? "Seu pedido foi criado e a confirmação será sincronizada pelo backend assim que a Stripe enviar o webhook."
-                : "A sessão de pagamento foi cancelada ou não foi concluída. Você pode voltar ao pagamento e tentar novamente."}
-            </p>
+            <h2 className={styles.resultTitle}>{resultTitle}</h2>
+            <p className={styles.resultText}>{resultText}</p>
             {checkoutSessionId && (
               <p className={styles.resultSession}>
                 Sessão Stripe: {checkoutSessionId}
@@ -1064,7 +1193,7 @@ export function CheckoutPage() {
         </div>
 
         <div className={styles.actionsRow}>
-          {isSuccess ? (
+          {isApproved ? (
             <Button
               size="lg"
               className={styles.primaryButton}
@@ -1072,6 +1201,26 @@ export function CheckoutPage() {
             >
               Voltar para a loja
             </Button>
+          ) : returnedFromSuccess && !isTerminalFailure ? (
+            <>
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                className={styles.secondaryButton}
+                onClick={() => navigate(routes.home)}
+              >
+                Voltar para a loja
+              </Button>
+              <Button
+                size="lg"
+                className={styles.primaryButton}
+                disabled={checkoutVerification === "checking"}
+                onClick={() => setVerificationRun((value) => value + 1)}
+              >
+                Verificar novamente
+              </Button>
+            </>
           ) : (
             <>
               <Button
@@ -1107,7 +1256,9 @@ export function CheckoutPage() {
             <header className={styles.checkoutHeader}>
               <h1 className={styles.checkoutTitle}>
                 {checkoutResult === "success"
-                  ? "Pedido recebido"
+                  ? checkoutVerification === "approved"
+                    ? "Pedido confirmado"
+                    : "Confirmação do pedido"
                   : checkoutResult === "failure"
                     ? "Pagamento não concluído"
                     : stepContent[currentStep].title}

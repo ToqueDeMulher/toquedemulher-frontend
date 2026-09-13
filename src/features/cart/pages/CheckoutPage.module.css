@@ -404,6 +404,10 @@
   @apply text-red-600;
 }
 
+.resultIconPending {
+  @apply text-amber-600;
+}
+
 .resultIcon {
   @apply size-7;
 }
