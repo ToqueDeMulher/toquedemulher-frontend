@@ -257,6 +257,21 @@
   }
 }
 
+@media (max-width: 479px) {
+  .itemImageWrap {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .quantityButton {
+    @apply h-8 w-8;
+  }
+
+  .quantityValue {
+    min-width: 2rem;
+  }
+}
+
 .summaryCard {
   @apply sticky top-24 bg-white border border-pink-100 overflow-hidden;
   border-radius: 14px;

@@ -5,6 +5,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { CheckoutStepper } from "@/features/cart/components/CheckoutStepper";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
+import { EmptyState } from "@/shared/ui/empty-state";
 import { toast } from "sonner";
 import { routes } from "@/app/router/paths";
 import { useCart } from "@/features/cart/context/cart-context";
@@ -155,21 +156,20 @@ export function CartPage() {
     return (
       <div className={styles.page}>
         <div className={styles.container}>
-          <div className={styles.emptyWrap}>
-            <ShoppingBag className={styles.emptyIcon} />
-            <h2 className={styles.emptyTitle}>Seu carrinho está vazio</h2>
-            <p className={styles.emptyText}>
-              Adicione produtos incríveis ao seu carrinho!
-            </p>
-            <Button
-              size="lg"
-              variant="default"
-              className={styles.emptyButton}
-              onClick={() => navigate(routes.home)}
-            >
-              Continuar Comprando
-            </Button>
-          </div>
+          <EmptyState
+            icon={ShoppingBag}
+            title="Seu carrinho está vazio"
+            description="Adicione produtos incríveis ao seu carrinho!"
+            action={
+              <Button
+                size="lg"
+                variant="default"
+                onClick={() => navigate(routes.home)}
+              >
+                Continuar Comprando
+              </Button>
+            }
+          />
         </div>
       </div>
     );

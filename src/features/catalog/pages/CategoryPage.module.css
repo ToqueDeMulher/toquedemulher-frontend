@@ -338,3 +338,30 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 479px) {
+  .heroAside {
+    display: none;
+  }
+
+  .heroCard {
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+
+  .sortRow {
+    width: 100%;
+  }
+
+  .sortTrigger {
+    width: 100%;
+  }
+
+  .sortLabel {
+    display: none;
+  }
+
+  .filterButtons {
+    gap: 0.5rem;
+  }
+}

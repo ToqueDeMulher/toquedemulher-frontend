@@ -1,7 +1,7 @@
 @reference "tailwindcss";
 
 .page {
-  @apply min-h-[80vh] flex flex-col items-center justify-center py-12 px-6 relative overflow-hidden;
+  @apply min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 sm:px-6 relative overflow-hidden;
   background-color: var(--theme-bg-canvas);
 }
 
@@ -42,7 +42,7 @@
 }
 
 .card {
-  @apply bg-white p-8 border border-pink-100;
+  @apply bg-white p-5 sm:p-8 border border-pink-100;
   border-radius: 12px;
 }
 

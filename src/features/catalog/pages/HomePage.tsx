@@ -20,6 +20,7 @@ import {
 } from "@/shared/ui/carousel";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
+import { ProductCardSkeleton } from "@/features/catalog/components/ProductCardSkeleton";
 import { routes } from "@/app/router/paths";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
@@ -126,6 +127,7 @@ export function HomePage() {
   const [productCount, setProductCount] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const recentKey = "tdm_recent_products";
 
@@ -198,6 +200,11 @@ export function HomePage() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(t);
   }, []);
 
   const recentProducts = recentIds
@@ -366,7 +373,13 @@ export function HomePage() {
               setApi={setProductApi}
             >
               <CarouselContent className={styles.productCarouselContent}>
-                {trendingProducts.slice(0, 10).map((product) => (
+                {isLoading 
+                  ? Array.from({ length: 5 }).map((_, index) => (
+                      <CarouselItem key={`skel-nov-${index}`} className={styles.productCarouselItem}>
+                        <ProductCardSkeleton />
+                      </CarouselItem>
+                    ))
+                  : trendingProducts.slice(0, 10).map((product) => (
                   <CarouselItem key={product.id} className={styles.productCarouselItem}>
                     <ProductCard
                       {...product}
@@ -423,7 +436,13 @@ export function HomePage() {
 
           <Reveal className={styles.recommendedBox} delayMs={150}>
             <div className={styles.recommendedGrid}>
-              {Array.from({ length: 12 }).map((_, index) => {
+              {isLoading
+                ? Array.from({ length: 12 }).map((_, index) => (
+                    <div key={`skel-rec-${index}`} className={styles.recommendedItem}>
+                      <ProductCardSkeleton style={recommendedCardStyle} />
+                    </div>
+                  ))
+                : Array.from({ length: 12 }).map((_, index) => {
                 const product = trendingProducts[index % trendingProducts.length];
                 return (
                   <div key={`recommended-${index}`} className={styles.recommendedItem}>
