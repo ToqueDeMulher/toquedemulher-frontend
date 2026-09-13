@@ -1,3 +1,4 @@
+import { useFavorites } from "@/features/catalog/hooks/use-favorites";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Heart, Minus, Plus, Sparkles, Star } from "lucide-react";
@@ -30,12 +31,13 @@ export function ProductPage() {
   const product = getProductById(productId);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { ids: favoriteIds, toggle: toggleFavorite } = useFavorites();
+  const isWishlisted = favoriteIds.includes(productId);
 
   useEffect(() => {
     setSelectedImage(0);
     setQuantity(1);
-    setIsWishlisted(false);
+
   }, [productId]);
 
   useEffect(() => {
@@ -231,7 +233,7 @@ export function ProductPage() {
                     isWishlisted ? styles.wishlistActive : ""
                   }`}
                   onClick={() => {
-                    setIsWishlisted((current) => !current);
+                    toggleFavorite(product.id);
                     toast.success(
                       isWishlisted
                         ? "Removido da wishlist"

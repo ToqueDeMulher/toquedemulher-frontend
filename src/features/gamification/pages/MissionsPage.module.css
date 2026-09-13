@@ -285,3 +285,21 @@
   background-color: var(--theme-complement-soft);
   color: var(--theme-complement-text);
 }
+
+/* Shared pink storefront surfaces, in light and dark mode. */
+:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
+:global(:root) .container { max-width:1384px; padding-left:32px; padding-right:32px; }
+:global(:root) .missionCard, :global(:root) .overviewCard, :global(:root) .heroStatCard { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
+:global(:root) .heroText, :global(:root) .missionDescription { color:var(--theme-text-secondary); }
+:global(:root) .hero, :global(:root) .ctaCard { background:var(--theme-brand-soft); background-image:none; color:var(--foreground); border-color:var(--border); }
+:global(:root) .heroTitle { font-family:var(--font-display); font-size:clamp(32px,4vw,54px); font-weight:600; line-height:1.14; letter-spacing:-.045em; color:var(--foreground); }
+:global(:root) .missionIconWrap { background:var(--theme-brand-soft); background-image:none; color:var(--theme-brand); }
+:global(:root) .heroEyebrow { background:var(--theme-accent-cyan-soft); color:var(--theme-accent-cyan-text); border-color:var(--border); }
+:global(:root) .ctaPrimary, :global(:root) .loginButton { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }
+:global(:root) .loginCard { background:var(--theme-accent-cyan-soft); color:var(--foreground); border:1px solid var(--border); border-radius:20px; }
+:global(:root) .tabsList { background:var(--theme-brand-soft); border-color:var(--border); }
+@media(max-width:767px) { :global(:root) .container { padding-left:18px; padding-right:18px; } }
+
+:global(:root) .hero { background:var(--retro-lime); border:1px solid var(--theme-complement-text); border-radius:24px; background-image:radial-gradient(#35571817 1px,transparent 1px); background-size:10px 10px; }
+:global(:root) .missionCard:nth-child(3n+1) .missionIconWrap { background:var(--retro-sky); }
+:global(:root) .missionCard:nth-child(3n+2) .missionIconWrap { background:var(--retro-orange); }

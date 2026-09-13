@@ -217,3 +217,16 @@
     display: initial;
   }
 }
+
+/* Shared pink storefront surfaces, in light and dark mode. */
+:global(:root) .statusText { color:var(--theme-text-secondary); }
+:global(:root) .shell { background:var(--background); }
+:global(:root) .sidebar { background:var(--theme-brand-soft); border-color:var(--theme-border-strong); color:var(--foreground); }
+:global(:root) .brandTitle { color:var(--foreground); font-family:var(--font-display); font-weight:700; }
+:global(:root) .brandText,:global(:root) .accountEmail,:global(:root) .accountLabel { color:var(--theme-text-secondary); }
+:global(:root) .accountCard { background:var(--card); border-color:var(--border); border-radius:16px; }
+:global(:root) .navLink { color:var(--foreground); border-radius:12px; }
+:global(:root) .navLinkActive { background:var(--primary); color:var(--primary-foreground); }
+:global(:root) .statusBar { border:1px solid var(--border); border-radius:16px; background:var(--card); }
+:global(:root) .storeButton,:global(:root) .logoutButton { background:var(--card); color:var(--foreground); border-color:var(--border); }
+:global(:root) .sidebarToggle,:global(:root) .mainToggle { color:var(--foreground); background:var(--card); }

@@ -339,3 +339,19 @@
 .removeButton:hover {
   color: var(--destructive);
 }
+
+/* Shared pink storefront surfaces, in light and dark mode. */
+:global(:root) .summaryCard, :global(:root) .itemCard { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
+:global(:root) .description { color:var(--theme-text-secondary); }
+:global(:root) .title { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
+:global(:root) .iconWrap { background:var(--theme-brand-soft); background-image:none; color:var(--theme-brand); }
+:global(:root) .primaryButton { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }
+:global(:root) .content { background:var(--card); color:var(--foreground); border-color:var(--border); width:min(100%,460px); }
+:global(:root) .header { background:var(--theme-brand-soft); border-bottom:1px solid var(--border); }
+:global(:root) .title,:global(:root) .itemName,:global(:root) .itemPrice { color:var(--foreground); }
+:global(:root) .shippingCard { background:var(--theme-complement-soft); color:var(--theme-complement-text); border-color:var(--border); }
+:global(:root) .itemCard { background:var(--card); border:0; border-bottom:1px solid var(--border); border-radius:0; padding:18px 0; box-shadow:none; }
+:global(:root) .itemImage { background:#fff; object-fit:contain; border-radius:12px; }
+:global(:root) .quantityControls { border-color:var(--border); background:var(--background); color:var(--foreground); }
+:global(:root) .footer { border-top:1px solid var(--border); background:var(--card); }
+:global(:root) .summaryCard { background:var(--theme-brand-soft); border:0; box-shadow:none; }

@@ -1,3 +1,4 @@
+import { FavoritesContent } from "@/features/catalog/pages/FavoritesPage";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   AlertTriangle,
@@ -13,7 +14,7 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { routes } from "@/app/router/paths";
 import {
@@ -242,6 +243,7 @@ export function ProfilePage() {
     totalPoints,
   } = useGamification();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileForm, setProfileForm] = useState<ProfileFormState>({
@@ -1236,7 +1238,7 @@ export function ProfilePage() {
         </div>
 
         <div className={styles.tabsCard}>
-          <Tabs defaultValue="orders" className={styles.tabsRoot}>
+          <Tabs value={["orders", "wishlist", "reviews", "settings"].includes(searchParams.get("tab") || "") ? searchParams.get("tab")! : "orders"} onValueChange={value => setSearchParams({ tab: value }, { replace: true })} className={styles.tabsRoot}>
             <TabsList className={styles.tabsList}>
               <TabsTrigger value="orders" className={styles.tabTrigger}>
                 <Package className={styles.iconInline} />
@@ -1244,7 +1246,7 @@ export function ProfilePage() {
               </TabsTrigger>
               <TabsTrigger value="wishlist" className={styles.tabTrigger}>
                 <Heart className={styles.iconInline} />
-                Wishlist
+                Favoritos
               </TabsTrigger>
               <TabsTrigger value="reviews" className={styles.tabTrigger}>
                 <Star className={styles.iconInline} />
@@ -1313,12 +1315,8 @@ export function ProfilePage() {
             </TabsContent>
 
             <TabsContent value="wishlist" className={styles.tabContent}>
-              <h2 className={styles.sectionTitle}>Minha Wishlist</h2>
-              <EmptyState 
-                icon={Heart} 
-                title="Wishlist vazia" 
-                description="Seus produtos favoritos aparecerão aqui." 
-              />
+              <h2 className={styles.sectionTitle}>Meus favoritos</h2>
+              <FavoritesContent />
             </TabsContent>
 
             <TabsContent value="reviews" className={styles.tabContent}>

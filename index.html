@@ -16,11 +16,14 @@
 
     <link rel="icon" href="/icone.png" />
 
-    <title>Toque de Mulher</title>
+    <meta name="description" content="Descubra seu próximo favorito na Toque de Mulher. Maquiagem, skincare, perfumes e autocuidado para a beleza do seu jeito." />
+    <meta name="theme-color" content="#fff5fa" />
+    <title>Toque de Mulher | Beleza do seu jeito</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
       (function () {
         try {
+          document.documentElement.dataset.reducedMotion = window.localStorage.getItem("tdm-reduced-motion") || "false";
           var key = "tdm-theme";
           var storedTheme = window.localStorage.getItem(key);
           var theme =

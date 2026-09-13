@@ -296,3 +296,21 @@
   @apply border border-white/50 text-white px-7 py-3 transition-all hover:bg-white/10 text-sm;
   border-radius: 10px;
 }
+
+/* Shared pink storefront surfaces, in light and dark mode. */
+:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
+:global(:root) .container { max-width:1384px; padding-left:32px; padding-right:32px; }
+:global(:root) .policyCard, :global(:root) .missionCard, :global(:root) .valueCard, :global(:root) .statCard, :global(:root) .timelineContent { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
+:global(:root) .textBody, :global(:root) .textSpacing { color:var(--theme-text-secondary); }
+:global(:root) .heroSection, :global(:root) .ctaCard { background:var(--theme-brand-soft); background-image:none; color:var(--foreground); border-color:var(--border); }
+:global(:root) .heroTitle { font-family:var(--font-display); font-size:clamp(32px,4vw,54px); font-weight:600; line-height:1.14; letter-spacing:-.045em; color:var(--foreground); }
+:global(:root) .sectionTitle { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
+:global(:root) .statIconWrap, :global(:root) .missionIconWrap { background:var(--theme-brand-soft); background-image:none; color:var(--theme-brand); }
+:global(:root) .heroEyebrow { background:var(--theme-accent-cyan-soft); color:var(--theme-accent-cyan-text); border-color:var(--border); }
+:global(:root) .ctaPrimary { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }
+@media(max-width:767px) { :global(:root) .container { padding-left:18px; padding-right:18px; } }
+
+:global(:root) .heroSection { background:var(--retro-cream); background-image:radial-gradient(#65430e15 1px,transparent 1px); background-size:12px 12px; }
+:global(:root) .imageFrame { border-radius:80px 24px 80px 24px; border:1px solid var(--theme-border-strong); }
+:global(:root) .statCard:nth-child(2n) { background:var(--retro-sky); }
+:global(:root) .statCard:nth-child(3n) { background:var(--retro-lime); }

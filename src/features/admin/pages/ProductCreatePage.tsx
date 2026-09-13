@@ -1,3 +1,4 @@
+import { ProductImagePreview } from "@/features/admin/components/ProductImagePreview";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -14,6 +15,7 @@ import {
   FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/shared/ui/form";
 
@@ -201,7 +203,7 @@ export function ProductCreatePage() {
   });
 
   const watchedValues = watch();
-  const previewPayload = buildPayload(watchedValues);
+
   const [uploadProductId, setUploadProductId] = useState("");
   const [pendingImages, setPendingImages] = useState<Record<string, File>>({});
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
@@ -279,10 +281,10 @@ export function ProductCreatePage() {
           <div className={styles.headerLeft}>
             <div className={styles.headerMetaRow}>
               <Badge variant="secondary" className={styles.headerBadge}>
-                Novo recurso
+                Sua vitrine
               </Badge>
               <span className={styles.headerMeta}>
-                Envie os dados no formato aceito pelo endpoint POST /api/v1/products
+                Um novo favorito para sua loja.
               </span>
             </div>
             <h1 className={styles.title}>Cadastro de Produtos</h1>
@@ -308,7 +310,7 @@ export function ProductCreatePage() {
             {/* PRODUCT - Informações gerais */}
             <Card>
               <CardHeader>
-                <CardTitle>Informações gerais (Product)</CardTitle>
+                <CardTitle>Informações gerais</CardTitle>
                 <CardDescription>
                   Dados básicos utilizados para identificar o produto na
                   plataforma.
@@ -321,12 +323,9 @@ export function ProductCreatePage() {
                   rules={{ required: "Informe o nome comercial." }}
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Nome *
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Batom Matte Vermelho Power"
@@ -344,12 +343,9 @@ export function ProductCreatePage() {
                   rules={{ required: "Informe o preço." }}
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Preço (R$) *
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input type="number" min="0" step="0.01" {...field} />
                       </FormControl>
@@ -363,12 +359,9 @@ export function ProductCreatePage() {
                   name="volume"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Volume
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="5ml, 30g, 250ml" {...field} />
                       </FormControl>
@@ -382,12 +375,9 @@ export function ProductCreatePage() {
                   name="product_type"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Tipo de produto
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="batom, sérum, perfume" {...field} />
                       </FormControl>
@@ -401,12 +391,9 @@ export function ProductCreatePage() {
                   name="target_audience"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Público
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="feminino, masculino, unissex"
@@ -423,7 +410,7 @@ export function ProductCreatePage() {
             {/* PRODUCT - Detalhes cosméticos */}
             <Card>
               <CardHeader>
-                <CardTitle>Detalhes cosméticos (Product)</CardTitle>
+                <CardTitle>Detalhes cosméticos</CardTitle>
                 <CardDescription>
                   Especificações usadas para filtros e recomendações
                   personalizadas.
@@ -435,12 +422,9 @@ export function ProductCreatePage() {
                   name="skin_type"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Tipo de pele
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="seca, oleosa, sensível"
@@ -456,12 +440,9 @@ export function ProductCreatePage() {
                   name="hair_type"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Tipo de cabelo
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="liso, cacheado, todos" {...field} />
                       </FormControl>
@@ -474,12 +455,9 @@ export function ProductCreatePage() {
                   name="color"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Cor
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="vermelho, nude, transparente"
@@ -495,12 +473,9 @@ export function ProductCreatePage() {
                   name="fragrance"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Fragrância
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="floral, amadeirado, cítrico"
@@ -516,12 +491,9 @@ export function ProductCreatePage() {
                   name="spf"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Proteção solar (SPF)
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input type="number" min="0" step="1" {...field} />
                       </FormControl>
@@ -538,12 +510,9 @@ export function ProductCreatePage() {
                     render={({ field }) => (
                       <FormItem className={styles.footerItem}>
                         <div className={styles.footerTextGroup}>
-                          <span
-                            className={styles.fieldLabel}
-                            onMouseDown={preventLabelFocus}
-                          >
+                          <FormLabel className={styles.fieldLabel}>
                             Produto ativo
-                          </span>
+                          </FormLabel>
                           <FormDescription>
                             Controla exibição na vitrine.
                           </FormDescription>
@@ -563,12 +532,9 @@ export function ProductCreatePage() {
                     render={({ field }) => (
                       <FormItem className={styles.footerItem}>
                         <div className={styles.footerTextGroup}>
-                          <span
-                            className={styles.fieldLabel}
-                            onMouseDown={preventLabelFocus}
-                          >
+                          <FormLabel className={styles.fieldLabel}>
                             Vegano
-                          </span>
+                          </FormLabel>
                           <FormDescription>
                             Sem ingredientes de origem animal.
                           </FormDescription>
@@ -588,12 +554,9 @@ export function ProductCreatePage() {
                     render={({ field }) => (
                       <FormItem className={styles.footerItem}>
                         <div className={styles.footerTextGroup}>
-                          <span
-                            className={styles.fieldLabel}
-                            onMouseDown={preventLabelFocus}
-                          >
+                          <FormLabel className={styles.fieldLabel}>
                             Cruelty-free
-                          </span>
+                          </FormLabel>
                           <FormDescription>
                             Sem testes em animais.
                           </FormDescription>
@@ -613,12 +576,9 @@ export function ProductCreatePage() {
                     render={({ field }) => (
                       <FormItem className={styles.footerItemWide}>
                         <div className={styles.footerTextGroup}>
-                          <span
-                            className={styles.fieldLabel}
-                            onMouseDown={preventLabelFocus}
-                          >
+                          <FormLabel className={styles.fieldLabel}>
                             Hipoalergênico
-                          </span>
+                          </FormLabel>
                           <FormDescription>
                             Indicado para peles sensíveis.
                           </FormDescription>
@@ -639,7 +599,7 @@ export function ProductCreatePage() {
             {/* SUPPLIER */}
             <Card>
               <CardHeader>
-                <CardTitle>Fornecedor (Supplier)</CardTitle>
+                <CardTitle>Fornecedor</CardTitle>
                 <CardDescription>
                   Dados para criar ou vincular o fornecedor responsável por este
                   produto.
@@ -652,12 +612,9 @@ export function ProductCreatePage() {
                   rules={{ required: "Informe o nome do fornecedor." }}
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Nome do fornecedor *
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Beleza Suprema Distribuidora"
@@ -673,12 +630,9 @@ export function ProductCreatePage() {
                   name="supplier_contact"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Contato do fornecedor
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="(11) 99999-0000" {...field} />
                       </FormControl>
@@ -691,12 +645,9 @@ export function ProductCreatePage() {
                   name="supplier_email"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         E-mail do fornecedor
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="contato@fornecedor.com"
@@ -713,7 +664,7 @@ export function ProductCreatePage() {
             {/* BRAND */}
             <Card>
               <CardHeader>
-                <CardTitle>Marca (Brand)</CardTitle>
+                <CardTitle>Marca</CardTitle>
                 <CardDescription>
                   Marca comercial exibida junto ao nome do produto.
                 </CardDescription>
@@ -725,12 +676,9 @@ export function ProductCreatePage() {
                   rules={{ required: "Informe o nome da marca." }}
                   render={({ field }) => (
                     <FormItem className={styles.maxWidthMd}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Marca *
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Toque de Mulher" {...field} />
                       </FormControl>
@@ -744,7 +692,7 @@ export function ProductCreatePage() {
             {/* DESCRIPTION */}
             <Card>
               <CardHeader>
-                <CardTitle>Descrição (Description)</CardTitle>
+                <CardTitle>Descrição</CardTitle>
                 <CardDescription>
                   Texto detalhado vinculado a este produto.
                 </CardDescription>
@@ -756,12 +704,9 @@ export function ProductCreatePage() {
                   rules={{ required: "Informe a descrição principal." }}
                   render={({ field }) => (
                     <FormItem className={styles.fullWidth}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Descrição principal *
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Textarea
                           rows={4}
@@ -781,12 +726,9 @@ export function ProductCreatePage() {
                   name="description_usage_tips"
                   render={({ field }) => (
                     <FormItem className={styles.fullWidth}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Dicas de uso
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Textarea
                           rows={3}
@@ -803,12 +745,9 @@ export function ProductCreatePage() {
                   name="description_ingredients"
                   render={({ field }) => (
                     <FormItem className={styles.fullWidth}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Ingredientes
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Textarea
                           rows={3}
@@ -826,7 +765,7 @@ export function ProductCreatePage() {
             {/* CATEGORY */}
             <Card>
               <CardHeader>
-                <CardTitle>Categorias (Category)</CardTitle>
+                <CardTitle>Categorias</CardTitle>
                 <CardDescription>
                   Este campo alimenta tags do produto. Se informar um número,
                   ele será usado como category_id.
@@ -838,12 +777,9 @@ export function ProductCreatePage() {
                   name="categories_names"
                   render={({ field }) => (
                     <FormItem className={styles.maxWidthXl}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Tags ou category_id
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Maquiagem, Lábios, Batom ou 1"
@@ -864,7 +800,7 @@ export function ProductCreatePage() {
             {/* STOCK */}
             <Card>
               <CardHeader>
-                <CardTitle>Estoque inicial (Stock)</CardTitle>
+                <CardTitle>Estoque inicial</CardTitle>
                 <CardDescription>
                   Estoque vinculado ao produto no momento do cadastro.
                 </CardDescription>
@@ -878,12 +814,9 @@ export function ProductCreatePage() {
                   }}
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Quantidade em estoque *
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input type="number" min="0" step="1" {...field} />
                       </FormControl>
@@ -899,12 +832,9 @@ export function ProductCreatePage() {
                   name="stock_expiry_date"
                   render={({ field }) => (
                     <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Validade (opcional)
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -933,12 +863,9 @@ export function ProductCreatePage() {
                   name="notes"
                   render={({ field }) => (
                     <FormItem className={styles.fullWidth}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
+                      <FormLabel className={styles.fieldLabel}>
                         Observações
-                      </span>
+                      </FormLabel>
                       <FormControl>
                         <Textarea
                           rows={4}
@@ -956,7 +883,7 @@ export function ProductCreatePage() {
             {/* PRODUCTIMAGE */}
             <Card>
               <CardHeader>
-                <CardTitle>Imagens (ProductImage)</CardTitle>
+                <CardTitle>Imagens</CardTitle>
                 <CardDescription>
                   A primeira imagem enviada será marcada como principal.
                 </CardDescription>
@@ -992,6 +919,7 @@ export function ProductCreatePage() {
                             });
                             remove(index);
                           }}
+                          disabled={isSubmitting}
                           className={styles.removeButton}
                         >
                           <Trash2 className={styles.iconLeft} /> Remover
@@ -1002,16 +930,8 @@ export function ProductCreatePage() {
                     <div className={styles.imageRow}>
                       <input
                         ref={(element) => {
-                          if (element) {
-                            fileInputRefs.current[field.id] = element;
-                          } else {
-                            delete fileInputRefs.current[field.id];
-                            setPendingImages((previous) => {
-                              const next = { ...previous };
-                              delete next[field.id];
-                              return next;
-                            });
-                          }
+                          if (element) fileInputRefs.current[field.id] = element;
+                          else delete fileInputRefs.current[field.id];
                         }}
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
@@ -1046,6 +966,7 @@ export function ProductCreatePage() {
                         {pendingImages[field.id]?.name || "Aceita JPG, PNG ou WEBP, at\u00e9 5 MB."}
                       </span>
                     </div>
+                    <ProductImagePreview file={pendingImages[field.id]} url={watchedValues.images?.[index]?.url} />
                     {uploadErrors[index] && (
                       <p className={styles.errorText}>{uploadErrors[index]}</p>
                     )}
@@ -1056,12 +977,9 @@ export function ProductCreatePage() {
                         name={`images.${index}.url` as const}
                         render={({ field }) => (
                           <FormItem className={styles.imageFieldWide}>
-                            <span
-                              className={styles.fieldLabel}
-                              onMouseDown={preventLabelFocus}
-                            >
+                            <FormLabel className={styles.fieldLabel}>
                               URL da imagem enviada
-                            </span>
+                            </FormLabel>
                             <FormControl>
                               <Input placeholder="Preenchida ao enviar a imagem" {...field} readOnly />
                             </FormControl>
@@ -1074,12 +992,9 @@ export function ProductCreatePage() {
                         name={`images.${index}.order` as const}
                         render={({ field }) => (
                           <FormItem>
-                            <span
-                              className={styles.fieldLabel}
-                              onMouseDown={preventLabelFocus}
-                            >
+                            <FormLabel className={styles.fieldLabel}>
                               Ordenação
-                            </span>
+                            </FormLabel>
                             <FormControl>
                               <Input type="number" min="1" {...field} />
                             </FormControl>
@@ -1092,12 +1007,9 @@ export function ProductCreatePage() {
                         name={`images.${index}.alt_text` as const}
                         render={({ field }) => (
                           <FormItem className={styles.fullWidth}>
-                            <span
-                              className={styles.fieldLabel}
-                              onMouseDown={preventLabelFocus}
-                            >
+                            <FormLabel className={styles.fieldLabel}>
                               Texto alternativo
-                            </span>
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="Descrição acessível da imagem"
@@ -1123,6 +1035,7 @@ export function ProductCreatePage() {
                       alt_text: "",
                     })
                   }
+                  disabled={isSubmitting}
                   className={styles.addButton}
                 >
                   <Plus className={styles.iconLeft} /> Adicionar imagem
@@ -1133,15 +1046,13 @@ export function ProductCreatePage() {
             {/* PREVIEW */}
             <Card>
               <CardHeader>
-                <CardTitle>Pré-visualização da requisição</CardTitle>
+                <CardTitle>Pronto para a vitrine?</CardTitle>
                 <CardDescription>
-                  Payload pronto para ser enviado ao endpoint POST /api/v1/products.
+                  Confira o nome, o valor e as imagens antes de salvar.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className={styles.preview}>
-                  {JSON.stringify(previewPayload, null, 2)}
-                </pre>
+                <div className={styles.productSummary}><span>{watchedValues.name || "Seu novo produto"}</span><strong>{new Intl.NumberFormat("pt-BR", {style:"currency",currency:"BRL"}).format(Number(watchedValues.price) || 0)}</strong></div>
               </CardContent>
               <CardFooter className={styles.cardFooter}>
                 <Button
