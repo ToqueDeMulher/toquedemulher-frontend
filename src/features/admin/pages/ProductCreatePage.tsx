@@ -203,78 +203,72 @@ export function ProductCreatePage() {
   const watchedValues = watch();
   const previewPayload = buildPayload(watchedValues);
   const [uploadProductId, setUploadProductId] = useState("");
+  const [pendingImages, setPendingImages] = useState<Record<string, File>>({});
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [uploadErrors, setUploadErrors] = useState<
     Record<number, string | null>
   >({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  const handleImageFileChange = async (
+  const handleImageFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     fieldId: string,
     index: number,
   ) => {
     const file = event.target.files?.[0];
-    if (!file) {
+    event.target.value = "";
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Selecione um arquivo JPG, PNG ou WebP.");
       return;
     }
-
-    if (!uploadProductId.trim()) {
-      toast.error("Informe o ID do produto para enviar imagens.");
-      event.target.value = "";
+    if (file.size > 5 * 1024 * 1024 || file.size === 0) {
+      toast.error("Selecione uma imagem de até 5 MB.");
       return;
     }
-
-    setUploadingIndex(index);
-    setUploadErrors((prev) => ({ ...prev, [index]: null }));
-
-    try {
-      const parsedId = uploadProductId.trim();
-      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsedId)) {
-        throw new Error("ID do produto inválido.");
-      }
-
-      const altTextValue = form
-        .getValues(`images.${index}.alt_text` as const)
-        ?.trim();
-
-      const response = await uploadProductImage(parsedId, file, {
-        is_primary: index === 0,
-        alt_text: altTextValue || undefined,
-      });
-
-      form.setValue(`images.${index}.url`, response.url);
-      form.setValue(`images.${index}.order`, String(response.sort_order || index + 1));
-      if (response.alt_text) {
-        form.setValue(`images.${index}.alt_text`, response.alt_text);
-      }
-
-      setUploadErrors((prev) => ({ ...prev, [index]: null }));
-      toast.success("Imagem enviada com sucesso!");
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erro ao enviar imagem. Tente novamente.";
-      toast.error(message);
-      setUploadErrors((prev) => ({ ...prev, [index]: message }));
-    } finally {
-      setUploadingIndex(null);
-      event.target.value = "";
-    }
+    setPendingImages((previous) => ({ ...previous, [fieldId]: file }));
+    setUploadErrors((previous) => ({ ...previous, [index]: null }));
   };
 
   const submitProduct = async (values: ProductFormValues) => {
-    const payload = buildPayload(values);
-
     try {
-      const product = await createProduct(payload);
+      let productId = uploadProductId;
+      if (!productId) {
+        const product = await createProduct(buildPayload(values));
+        productId = product.id;
+        setUploadProductId(productId);
+      }
+      for (const [index, field] of fields.entries()) {
+        const file = pendingImages[field.id];
+        if (!file) continue;
+        setUploadingIndex(index);
+        try {
+          const image = await uploadProductImage(productId, file, {
+            is_primary: index === 0,
+            alt_text: values.images[index]?.alt_text?.trim() || undefined,
+          });
+          form.setValue(`images.${index}.url`, image.url);
+          setPendingImages((previous) => {
+            const next = { ...previous };
+            delete next[field.id];
+            return next;
+          });
+          setUploadErrors((previous) => ({ ...previous, [index]: null }));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Erro ao enviar imagem.";
+          setUploadErrors((previous) => ({ ...previous, [index]: message }));
+          throw new Error(`Produto cadastrado. ${message} Clique em Salvar imagens para tentar novamente.`);
+        }
+      }
+      toast.success("Produto e imagens salvos com sucesso!");
       reset(defaultValues);
-      setUploadProductId(product.id);
+      setUploadProductId("");
+      setPendingImages({});
       setUploadErrors({});
-      toast.success("Produto criado! Agora envie as imagens abaixo.");
-    } catch (err) {
-      toast.error("Erro ao cadastrar produto.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao cadastrar produto.");
+    } finally {
+      setUploadingIndex(null);
     }
   };
 
@@ -969,23 +963,9 @@ export function ProductCreatePage() {
               </CardHeader>
               <CardContent className={styles.cardFlexLarge}>
                 <div className={styles.imageIntro}>
-                  <span
-                    className={styles.fieldLabel}
-                    onMouseDown={preventLabelFocus}
-                  >
-                    ID do produto para upload de imagens
-                  </span>
-                  <Input
-                    value={uploadProductId}
-                    onChange={(event) => setUploadProductId(event.target.value)}
-                    placeholder="ID preenchido ao cadastrar o produto"
-                    className={styles.inputTopSpace}
-                  />
                   <p className={styles.helperText}>
-                    O endpoint{" "}
-                    <code>/api/v1/products/&lt;product_id&gt;/images</code>
-                    usa o ID do produto e seu acesso de administrador.
-                    Cadastre o produto primeiro e depois envie as imagens.
+                    Selecione as imagens e clique em Cadastrar produto.
+                    Os arquivos serão enviados automaticamente após o cadastro.
                   </p>
                 </div>
 
@@ -1005,6 +985,11 @@ export function ProductCreatePage() {
                           size="sm"
                           onClick={() => {
                             delete fileInputRefs.current[field.id];
+                            setPendingImages((previous) => {
+                              const next = { ...previous };
+                              delete next[field.id];
+                              return next;
+                            });
                             remove(index);
                           }}
                           className={styles.removeButton}
@@ -1021,6 +1006,11 @@ export function ProductCreatePage() {
                             fileInputRefs.current[field.id] = element;
                           } else {
                             delete fileInputRefs.current[field.id];
+                            setPendingImages((previous) => {
+                              const next = { ...previous };
+                              delete next[field.id];
+                              return next;
+                            });
                           }
                         }}
                         type="file"
@@ -1035,15 +1025,9 @@ export function ProductCreatePage() {
                         variant="secondary"
                         size="sm"
                         onClick={() => {
-                          if (!uploadProductId.trim()) {
-                            toast.error(
-                              "Informe o ID do produto antes de enviar arquivos.",
-                            );
-                            return;
-                          }
                           fileInputRefs.current[field.id]?.click();
                         }}
-                        disabled={uploadingIndex === index}
+                        disabled={isSubmitting}
                         className={styles.uploadButton}
                       >
                         {uploadingIndex === index ? (
@@ -1059,7 +1043,7 @@ export function ProductCreatePage() {
                         )}
                       </Button>
                       <span className={styles.uploadHint}>
-                        Aceita JPG, PNG ou WEBP.
+                        {pendingImages[field.id]?.name || "Aceita JPG, PNG ou WEBP, at\u00e9 5 MB."}
                       </span>
                     </div>
                     {uploadErrors[index] && (
@@ -1079,7 +1063,7 @@ export function ProductCreatePage() {
                               URL da imagem enviada
                             </span>
                             <FormControl>
-                              <Input placeholder="https://..." {...field} />
+                              <Input placeholder="Preenchida ao enviar a imagem" {...field} readOnly />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1163,7 +1147,12 @@ export function ProductCreatePage() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => reset(defaultValues)}
+                  onClick={() => {
+                    reset(defaultValues);
+                    setUploadProductId("");
+                    setPendingImages({});
+                    setUploadErrors({});
+                  }}
                   disabled={isSubmitting}
                 >
                   Limpar campos
@@ -1176,7 +1165,7 @@ export function ProductCreatePage() {
                   className={styles.submitButton}
                 >
                   {isSubmitting && <Loader2 className={styles.iconSpin} />}
-                  Cadastrar produto
+                  {uploadProductId ? "Salvar imagens" : "Cadastrar produto"}
                 </Button>
               </CardFooter>
             </Card>
