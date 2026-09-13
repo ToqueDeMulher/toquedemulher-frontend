@@ -511,29 +511,3 @@
     grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.9fr);
   }
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
-:global(:root) .profileCard, :global(:root) .panel, :global(:root) .kpiCard, :global(:root) .secondaryKpiPanel { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
-:global(:root) .topSubtitle, :global(:root) .panelSubtitle, :global(:root) .kpiDetail { color:var(--theme-text-secondary); }
-:global(:root) .topTitle { font-family:var(--font-display); font-size:clamp(32px,4vw,54px); font-weight:600; line-height:1.14; letter-spacing:-.045em; color:var(--foreground); }
-:global(:root) .searchInput { background:var(--input-background); color:var(--foreground); border:1px solid var(--input); border-radius:10px; }
-:global(:root) .topEyebrow { background:var(--theme-accent-cyan-soft); color:var(--theme-accent-cyan-text); border-color:var(--border); }
-:global(:root) .primaryAction { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }
-:global(:root) .kpiCard { border-radius:18px; padding:22px; transition:transform .2s; }
-:global(:root) .kpiCard:hover { transform:translateY(-3px); border-color:var(--theme-border-strong); }
-:global(:root) .kpiCard:nth-child(2n) .kpiIconWrap { background:var(--theme-accent-cyan-soft); color:var(--theme-accent-cyan-text); }
-:global(:root) .kpiCard:nth-child(3n) .kpiIconWrap { background:var(--theme-complement-soft); color:var(--theme-complement-text); }
-:global(:root) .kpiValue { font-family:var(--font-display); color:var(--foreground); }
-:global(:root) .panelTitle,:global(:root) .topTitle { color:var(--foreground); }
-:global(:root) .panel { border-radius:18px; }
-:global(:root) .table { color:var(--foreground); }
-:global(:root) .table th { background:var(--theme-brand-soft); color:var(--theme-text-secondary); }
-:global(:root) .table td { border-color:var(--border); }
-
-:global(:root) .topTitle { font-size:36px; }
-:global(:root) .topBar { flex-wrap:wrap; }
-:global(:root) .kpiCard:nth-child(3n+1) { background:var(--theme-brand-soft); }
-:global(:root) .kpiCard:nth-child(3n+2) { background:var(--retro-sky); }
-:global(:root) .kpiCard:nth-child(3n+3) { background:var(--retro-lime); }
-:global(:root) .emptyChart,:global(:root) .emptyState { background:var(--theme-bg-subtle); color:var(--theme-text-secondary); border-color:var(--border); }

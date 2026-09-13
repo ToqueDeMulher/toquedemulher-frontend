@@ -237,30 +237,3 @@
 .fieldLabel {
   color: var(--theme-text-primary);
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
-:global(:root) .container { max-width:1384px; padding-left:32px; padding-right:32px; }
-:global(:root) .description, :global(:root) .fieldLabel, :global(:root) .helperText { color:var(--theme-text-secondary); }
-:global(:root) .title { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
-:global(:root) .submitButton { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }
-@media(max-width:767px) { :global(:root) .container { padding-left:18px; padding-right:18px; } }
-
-:global(:root) .page { padding:24px 0 48px; }
-:global(:root) .headerRow { padding:28px; border:1px solid var(--theme-border-strong); border-radius:22px; background:var(--theme-brand-soft); margin-bottom:26px; }
-:global(:root) .title { font-family:var(--font-display); font-size:36px; font-weight:600; }
-:global(:root) .headerMeta { font-size:11px; color:var(--theme-text-secondary); }
-:global(:root) .headerBadge { background:var(--theme-accent-cyan-soft); color:var(--theme-accent-cyan-text); border-color:var(--border); }
-:global(:root) .imageIntro { border:1px dashed var(--theme-border-strong); border-radius:14px; background:var(--theme-brand-soft); padding:22px; }
-:global(:root) .imageCard { background:var(--theme-bg-subtle); border:1px solid var(--border); border-radius:18px; padding:22px; }
-:global(:root) .primaryBadge { background:var(--theme-accent-cyan-soft); color:var(--theme-accent-cyan-text); border-radius:999px; padding:5px 10px; font-size:10px; }
-:global(:root) .productSummary { display:flex; justify-content:space-between; gap:20px; padding:20px; border-radius:14px; background:var(--theme-brand-soft); color:var(--foreground); }
-:global(:root) .productSummary strong { white-space:nowrap; }
-:global(:root) .cardFooter { gap:14px; padding-top:20px; border-top:1px solid var(--border); }
-@media(max-width:767px) {
- :global(:root) .headerRow { padding:22px; }
- :global(:root) .title { font-size:28px; }
- :global(:root) .imageCard { padding:16px; }
- :global(:root) .gridImageFields,:global(:root) .gridThree { grid-template-columns:1fr; }
- :global(:root) .imageRow { flex-wrap:wrap; }
-}

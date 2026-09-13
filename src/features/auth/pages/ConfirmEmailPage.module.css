@@ -81,10 +81,3 @@
 .primaryAction {
   @apply w-full;
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
-:global(:root) .panel { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
-:global(:root) .title { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
-:global(:root) .iconWrap { background:var(--theme-brand-soft); background-image:none; color:var(--theme-brand); }
-:global(:root) .primaryAction { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }

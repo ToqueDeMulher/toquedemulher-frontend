@@ -425,36 +425,3 @@
     padding: 1.25rem;
   }
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
-:global(:root) .container { max-width:1384px; padding-left:32px; padding-right:32px; }
-:global(:root) .reviewCard, :global(:root) .summaryCard { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
-:global(:root) .description, :global(:root) .reviewText { color:var(--theme-text-secondary); }
-:global(:root) .title { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
-:global(:root) .rewardCard { background:var(--theme-accent-cyan-soft); color:var(--foreground); border:1px solid var(--border); border-radius:20px; }
-@media(max-width:767px) { :global(:root) .container { padding-left:18px; padding-right:18px; } }
-
-/* Focused product detail and purchase actions */
-:global(:root) .section { padding:28px 0 54px; }
-:global(:root) .grid { gap:48px; align-items:start; }
-:global(:root) .imagePanel { background:#fff; border:1px solid var(--border); border-radius:26px; overflow:hidden; padding:25px; }
-:global(:root) .mainImage { object-fit:contain; height:480px; width:100%; }
-:global(:root) .title { font-family:var(--font-display); font-size:clamp(26px,3vw,40px); line-height:1.2; font-weight:600; margin-bottom:20px; }
-:global(:root) .price { color:var(--foreground); font-size:30px; }
-:global(:root) .rewardCard { padding:18px; border-radius:14px; background:var(--theme-accent-cyan-soft); }
-:global(:root) .addButton { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); min-height:52px; }
-:global(:root) .wishlistButton { border-color:var(--theme-border-strong); color:var(--theme-brand); background:var(--theme-brand-soft); }
-:global(:root) .thumbButton { background:#fff; border:1px solid var(--border); border-radius:12px; }
-:global(:root) .thumbActive { border:2px solid var(--theme-brand); }
-:global(:root) .reviewsSection { background:var(--theme-bg-subtle); border-block:1px solid var(--border); padding:42px 0; }
-:global(:root) .relatedGrid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:22px; }
-:global(:root) .faqSection { background:var(--theme-brand-soft); }
-@media(max-width:767px) {
- :global(:root) .grid { gap:26px; grid-template-columns:1fr; }
- :global(:root) .mainImage { height:300px; }
- :global(:root) .relatedGrid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
- :global(:root) .imagePanel { padding:15px; border-radius:20px; }
- :global(:root) .actionRow { gap:10px; } :global(:root) .title { font-size:28px; }
-}
-:global(:root) .badgeDiscount { background:#e4f5ad; color:#3d5120; border:1px solid #8da45b; border-radius:999px; }

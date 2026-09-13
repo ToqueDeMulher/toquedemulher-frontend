@@ -6,14 +6,14 @@ import {
 import { apiRequest } from "@/shared/api/api-client";
 
 export async function createProduct(payload: CreateProductPayload) {
-  return apiRequest<{ id: string; name: string }>("/products", {
+  return apiRequest("/products/", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export async function uploadProductImage(
-  productId: string,
+  productId: number,
   file: File,
   options: UploadProductImageOptions = {}
 ): Promise<ProductImageResponse> {
@@ -24,8 +24,13 @@ export async function uploadProductImage(
     formData.append("alt_text", options.alt_text);
   }
 
-  if (options.is_primary) formData.append("order", "1");
-  return apiRequest<ProductImageResponse>(`/products/${productId}/images`, {
+  const params = new URLSearchParams();
+  if (typeof options.is_primary === "boolean") {
+    params.set("is_primary", String(options.is_primary));
+  }
+
+  const query = params.size ? `?${params.toString()}` : "";
+  return apiRequest<ProductImageResponse>(`/products/${productId}/images${query}`, {
     method: "POST",
     body: formData,
   });

@@ -103,7 +103,3 @@
     transform: translateY(0);
   }
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .description { color:var(--theme-text-secondary); }
-:global(:root) .title { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }

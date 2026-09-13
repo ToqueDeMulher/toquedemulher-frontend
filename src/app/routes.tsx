@@ -23,15 +23,10 @@ import { NotFoundPage } from "@/features/system/pages/NotFoundPage";
 import { SearchResultsPage } from "@/features/catalog/pages/SearchResultsPage";
 import { AddressPage } from "@/features/auth/pages/AddressPage";
 
-import { FavoritesPage } from "@/features/catalog/pages/FavoritesPage";
-import { SettingsPage } from "@/features/auth/pages/SettingsPage";
-
 export function AppRoutes() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route path={routes.favorites} element={<FavoritesPage />} />
-        <Route path={routes.settings} element={<SettingsPage />} />
         <Route path={routes.home} element={<HomePage />} />
         <Route path={routes.product()} element={<ProductPage />} />
         <Route path={routes.category()} element={<CategoryPage />} />
@@ -53,7 +48,6 @@ export function AppRoutes() {
             </RequireAuth>
           }
         />
-        <Route path="*" element={<NotFoundPage />} />
         <Route path={routes.help} element={<HelpPage />} />
         <Route path={routes.about} element={<AboutPage />} />
         <Route path={routes.institutional()} element={<InstitutionalPage />} />
@@ -77,6 +71,7 @@ export function AppRoutes() {
         <Route path={routes.adminDashboard} element={<AdminDashboardPage />} />
         <Route path={routes.productCreate} element={<ProductCreatePage />} />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

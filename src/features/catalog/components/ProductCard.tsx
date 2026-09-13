@@ -1,5 +1,4 @@
-import { useFavorites } from "@/features/catalog/hooks/use-favorites";
-import { useCart } from "@/features/cart/context/cart-context";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/shared/ui/button";
@@ -41,9 +40,7 @@ export function ProductCard({
   hideMeta = false,
   hideTitle = false,
 }: ProductCardProps) {
-  const { ids, toggle } = useFavorites();
-  const { addItem } = useCart();
-  const isFav = ids.includes(id);
+  const [isFav, setIsFav] = useState(false);
   const navigate = useNavigate();
 
   const priceBRL = `R$ ${price.toFixed(2).replace(".", ",")}`;
@@ -76,7 +73,6 @@ export function ProductCard({
 
       <div className={styles.imageWrapper}>
         <ImageWithFallback
-          loading="lazy"
           src={image}
           alt={name}
           className={styles.productImage}
@@ -95,7 +91,7 @@ export function ProductCard({
           className={styles.favButton}
           onClick={(e) => {
             e.stopPropagation();
-            toggle(id);
+            setIsFav((v) => !v);
           }}
           aria-pressed={isFav}
           aria-label={
@@ -148,12 +144,12 @@ export function ProductCard({
           className={styles.addButton}
           onClick={(e) => {
             e.stopPropagation();
-            if (onAddToCart) onAddToCart(); else addItem(id);
+            onAddToCart?.();
           }}
           type="button"
         >
           <ShoppingCart className={styles.cartIcon} aria-hidden="true" />
-          Adicionar
+          Adicionar ao Carrinho
         </Button>
       </div>
     </article>

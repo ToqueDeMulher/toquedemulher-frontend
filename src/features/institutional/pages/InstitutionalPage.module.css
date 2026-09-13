@@ -526,22 +526,3 @@
   @apply text-xs leading-relaxed;
   color: var(--theme-text-secondary);
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
-:global(:root) .container { max-width:1384px; padding-left:32px; padding-right:32px; }
-:global(:root) .policyCard, :global(:root) .contactForm, :global(:root) .contactInfoCard, :global(:root) .jobCard, :global(:root) .cultureCard, :global(:root) .comingSoonCard, :global(:root) .stepCard, :global(:root) .articleSection { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
-:global(:root) .heroSubtitle, :global(:root) .sectionText, :global(:root) .articleText, :global(:root) .policyListItem { color:var(--theme-text-secondary); }
-:global(:root) .hero, :global(:root) .ctaBanner { background:var(--theme-brand-soft); background-image:none; color:var(--foreground); border-color:var(--border); }
-:global(:root) .heroTitle { font-family:var(--font-display); font-size:clamp(32px,4vw,54px); font-weight:600; line-height:1.14; letter-spacing:-.045em; color:var(--foreground); }
-:global(:root) .sectionTitle { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
-:global(:root) .formInput, :global(:root) .formTextarea, :global(:root) .formSelect { background:var(--input-background); color:var(--foreground); border:1px solid var(--input); border-radius:10px; }
-:global(:root) .heroIconWrap { background:var(--theme-brand-soft); background-image:none; color:var(--theme-brand); }
-:global(:root) .heroEyebrow { background:var(--theme-accent-cyan-soft); color:var(--theme-accent-cyan-text); border-color:var(--border); }
-:global(:root) .ctaBannerPrimary, :global(:root) .comingSoonPrimary { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }
-@media(max-width:767px) { :global(:root) .container { padding-left:18px; padding-right:18px; } }
-
-:global(:root) .hero { background:var(--retro-cream); border-bottom:1px solid var(--border); }
-:global(:root) .heroIconWrap { background:var(--retro-sky); border-radius:30% 48% 28% 40%; border:1px solid var(--theme-accent-cyan-text); transform:rotate(-6deg); }
-:global(:root) .ctaBanner { background:var(--retro-sky); border-radius:24px; }
-:global(:root) .ctaBannerTitle,:global(:root) .ctaBannerText { color:var(--foreground); }

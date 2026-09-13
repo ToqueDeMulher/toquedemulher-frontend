@@ -555,28 +555,3 @@
       0% 0%;
   }
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
-:global(:root) .card { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
-:global(:root) .subtitle, :global(:root) .fieldLabel { color:var(--theme-text-secondary); }
-:global(:root) .title { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
-:global(:root) .input { background:var(--input-background); color:var(--foreground); border:1px solid var(--input); border-radius:10px; }
-:global(:root) .submitButton { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }
-:global(:root) .tabsList { background:var(--theme-brand-soft); border-color:var(--border); }
-/* Login and registration */
-:global(:root) .page { padding:46px 18px 64px; background:var(--theme-brand-soft); }
-:global(:root) .decorOrb { display:none; }
-:global(:root) .content { max-width:480px; position:relative; }
-:global(:root) .title { font-family:var(--font-display); font-size:38px; line-height:1.1; font-weight:600; color:var(--foreground); }
-:global(:root) .subtitle { font-size:13px; line-height:1.8; }
-:global(:root) .card { border:1px solid var(--theme-border-strong); border-radius:24px; box-shadow:7px 8px 0 var(--theme-border-strong); overflow:hidden; background:var(--card); }
-:global(:root) .tabsList { background:var(--theme-accent-cyan-soft); border-radius:999px; padding:5px; height:auto; }
-:global(:root) .tabTriggerLogin,:global(:root) .tabTriggerRegister { min-height:42px; border-radius:999px; color:var(--foreground); font-size:13px; }
-:global(:root) .tabTriggerLogin[data-state=active],:global(:root) .tabTriggerRegister[data-state=active] { background:var(--primary); color:var(--primary-foreground); }
-:global(:root) .formLogin,:global(:root) .formRegister { padding-top:24px; }
-:global(:root) .fieldLabel { color:var(--foreground); font-size:12px; }
-:global(:root) .input { border-radius:10px; background:var(--input-background); border-color:var(--input); color:var(--foreground); }
-:global(:root) .dividerText { background:var(--card); color:var(--theme-text-muted); }
-:global(:root) .registerButton { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); }
-@media(max-width:767px) { :global(:root) .page { padding:32px 18px 48px; } :global(:root) .title { font-size:32px; } }

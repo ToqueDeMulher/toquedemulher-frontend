@@ -201,14 +201,3 @@
   background-color: var(--theme-card-muted);
   border-color: var(--theme-border-soft);
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
-:global(:root) .container { max-width:1384px; padding-left:32px; padding-right:32px; }
-:global(:root) .card { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
-:global(:root) .label { color:var(--theme-text-secondary); }
-:global(:root) .cardTitle { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
-:global(:root) .input { background:var(--input-background); color:var(--foreground); border:1px solid var(--input); border-radius:10px; }
-:global(:root) .iconWrap { background:var(--theme-brand-soft); background-image:none; color:var(--theme-brand); }
-:global(:root) .submitButton { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); border-radius:999px; }
-@media(max-width:767px) { :global(:root) .container { padding-left:18px; padding-right:18px; } }

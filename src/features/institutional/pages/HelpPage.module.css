@@ -231,23 +231,3 @@
 .searchInner {
   @apply relative;
 }
-
-/* Shared pink storefront surfaces, in light and dark mode. */
-:global(:root) .page { background:var(--background); background-image:none; color:var(--foreground); }
-:global(:root) .container { max-width:1384px; padding-left:32px; padding-right:32px; }
-:global(:root) .contactCard, :global(:root) .faqCard { background:var(--card); background-image:none; color:var(--foreground); border:1px solid var(--border); border-radius:20px; box-shadow:var(--store-shadow); }
-:global(:root) .subtitle, :global(:root) .heroText, :global(:root) .contactText { color:var(--theme-text-secondary); }
-:global(:root) .heroCard, :global(:root) .heroSection, :global(:root) .helpCta { background:var(--theme-brand-soft); background-image:none; color:var(--foreground); border-color:var(--border); }
-:global(:root) .heroTitle { font-family:var(--font-display); font-size:clamp(32px,4vw,54px); font-weight:600; line-height:1.14; letter-spacing:-.045em; color:var(--foreground); }
-:global(:root) .title { font-family:var(--font-display); color:var(--foreground); letter-spacing:-.035em; }
-:global(:root) .searchInput { background:var(--input-background); color:var(--foreground); border:1px solid var(--input); border-radius:10px; }
-:global(:root) .heroBadge { background:var(--theme-accent-cyan-soft); color:var(--theme-accent-cyan-text); border-color:var(--border); }
-:global(:root) .tabsList { background:var(--theme-brand-soft); border-color:var(--border); }
-@media(max-width:767px) { :global(:root) .container { padding-left:18px; padding-right:18px; } }
-
-:global(:root) .heroSection { background:var(--retro-sky); border-bottom:1px solid var(--theme-accent-cyan-text); }
-:global(:root) .heroCard { background:var(--retro-cream); border-radius:28px 60px 28px 28px; }
-:global(:root) .heroCardText,:global(:root) .heroStatLabel,:global(:root) .helpCtaText { color:var(--theme-text-secondary); }
-:global(:root) .helpCtaTitle { color:var(--foreground); }
-:global(:root) .helpCtaButton { color:var(--primary-foreground); background:var(--primary); border-color:var(--primary); }
-:global(:root) .contactCard:nth-child(2) { background:var(--retro-lime); }

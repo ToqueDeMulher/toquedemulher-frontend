@@ -5,8 +5,6 @@ export const routes = {
   login: "/login",
   confirmEmail: "/confirm-email",
   profile: "/perfil",
-  favorites: "/favoritos",
-  settings: "/configuracoes",
   adminDashboard: "/admin",
   cart: "/carrinho",
   checkout: "/checkout",

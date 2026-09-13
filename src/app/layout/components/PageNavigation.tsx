@@ -42,7 +42,7 @@ function titleFromSlug(slug: string) {
 function getBreadcrumbItems(pathname: string, search: string): BreadcrumbItem[] {
   if (pathname === routes.home) return [];
 
-  const base: BreadcrumbItem[] = [{ label: "Início", to: routes.home }];
+  const base: BreadcrumbItem[] = [{ label: "Home", to: routes.home }];
 
   const productMatch = matchPath(routes.product(), pathname);
   if (productMatch?.params.productId) {
@@ -86,8 +86,6 @@ function getBreadcrumbItems(pathname: string, search: string): BreadcrumbItem[] 
     return [...base, { label: institutionalLabels[slug] ?? titleFromSlug(slug) }];
   }
 
-  if (pathname === routes.favorites) return [...base, { label: "Favoritos" }];
-  if (pathname === routes.settings) return [...base, { label: "Preferências" }];
   if (pathname === routes.cart) return [...base, { label: "Carrinho" }];
   if (pathname === routes.login) return [...base, { label: "Entrar" }];
   if (pathname === routes.profile) return [...base, { label: "Meu Perfil" }];
