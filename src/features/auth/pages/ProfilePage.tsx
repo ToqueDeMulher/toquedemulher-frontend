@@ -14,7 +14,7 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { routes } from "@/app/router/paths";
 import {
@@ -253,6 +253,9 @@ export function ProfilePage() {
     totalPoints,
   } = useGamification();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab") ?? "orders";
+  const selectedTab = ["orders", "wishlist", "reviews", "settings"].includes(requestedTab) ? requestedTab : "orders";
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileForm, setProfileForm] = useState<ProfileFormState>({
@@ -1210,6 +1213,7 @@ export function ProfilePage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
+        <div className={styles.pageHeading}><span>SEU ESPAÇO NA TOQUE</span><h2>Que bom ter você por aqui.</h2><p>Seus pedidos, seus favoritos e os detalhes que fazem a diferença.</p></div>
         <div className={styles.profileCard}>
           <div className={styles.profileRow}>
             <div className={styles.profileInfo}>
@@ -1304,7 +1308,7 @@ export function ProfilePage() {
         </div>
 
         <div className={styles.tabsCard}>
-          <Tabs defaultValue="orders" className={styles.tabsRoot}>
+          <Tabs value={selectedTab} onValueChange={tab => setSearchParams(prev => { const next = new URLSearchParams(prev); next.set("tab", tab); return next; }, { replace: true })} className={styles.tabsRoot}>
             <TabsList className={styles.tabsList}>
               <TabsTrigger value="orders" className={styles.tabTrigger}>
                 <Package className={styles.iconInline} />
@@ -1312,7 +1316,7 @@ export function ProfilePage() {
               </TabsTrigger>
               <TabsTrigger value="wishlist" className={styles.tabTrigger}>
                 <Heart className={styles.iconInline} />
-                Wishlist
+                Favoritos
               </TabsTrigger>
               <TabsTrigger value="reviews" className={styles.tabTrigger}>
                 <Star className={styles.iconInline} />
@@ -1335,7 +1339,8 @@ export function ProfilePage() {
                 <EmptyState 
                   icon={Package} 
                   title="Nenhum pedido" 
-                  description="Você ainda não fez nenhum pedido conosco." 
+                  description="Seus pedidos e o andamento de cada compra aparecem aqui."
+                  action={<Button onClick={() => navigate(routes.category("maquiagem"))}>Descobrir produtos</Button>}
                 />
               ) : (
                 <div className={styles.ordersList}>
@@ -1381,7 +1386,7 @@ export function ProfilePage() {
             </TabsContent>
 
             <TabsContent value="wishlist" className={styles.tabContent}>
-              <h2 className={styles.sectionTitle}>Minha Wishlist</h2>
+              <h2 className={styles.sectionTitle}>Meus favoritos</h2>
               <FavoritesContent />
             </TabsContent>
 

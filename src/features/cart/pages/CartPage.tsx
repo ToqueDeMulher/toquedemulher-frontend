@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Minus, Plus, ShoppingBag, Package, ChevronRight } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  ShoppingBag,
+  Package,
+  ChevronRight,
+  ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { CheckoutStepper } from "@/features/cart/components/CheckoutStepper";
@@ -9,6 +18,8 @@ import { EmptyState } from "@/shared/ui/empty-state";
 import { toast } from "sonner";
 import { routes } from "@/app/router/paths";
 import { useCart } from "@/features/cart/context/cart-context";
+import { useFavorites } from "@/features/catalog/hooks/use-favorites";
+import { Progress } from "@/shared/ui/progress";
 import styles from "./CartPage.module.css";
 
 const CEP_STATE_RANGES = [
@@ -80,7 +91,9 @@ function addBusinessDays(baseDate: Date, businessDays: number) {
 
 export function CartPage() {
   const navigate = useNavigate();
-  const { items, itemCount, subtotal, updateItemQuantity, removeItem } = useCart();
+  const { addFavorite } = useFavorites();
+  const { items, itemCount, subtotal, updateItemQuantity, removeItem } =
+    useCart();
   const [coupon, setCoupon] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
   const [zipCode, setZipCode] = useState("");
@@ -90,7 +103,7 @@ export function CartPage() {
     if (zipCode.length !== 8 && isShippingCalculated) {
       setIsShippingCalculated(false);
     }
-  }, [zipCode]);
+  }, [zipCode, isShippingCalculated]);
 
   const discount = appliedCoupon === VALID_COUPON ? subtotal * 0.1 : 0;
   const shipping = isShippingCalculated
@@ -145,7 +158,7 @@ export function CartPage() {
       if (subtotal >= FREE_SHIPPING_THRESHOLD) {
         toast.success("Frete grátis aplicado!");
       } else {
-        toast.success(`Frete: R$ ${shipping.toFixed(2)}`);
+        toast.success("Frete estimado: R$ 15,90");
       }
     } else {
       toast.error("CEP inválido.");
@@ -159,12 +172,12 @@ export function CartPage() {
           <EmptyState
             icon={ShoppingBag}
             title="Seu carrinho está vazio"
-            description="Adicione produtos incríveis ao seu carrinho!"
+            description="Um novo ritual começa com uma escolha. Encontre os produtos que combinam com você."
             action={
               <Button
                 size="lg"
                 variant="default"
-                onClick={() => navigate(routes.home)}
+                onClick={() => navigate(routes.category("maquiagem"))}
               >
                 Continuar Comprando
               </Button>
@@ -178,11 +191,29 @@ export function CartPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
+        <div className={styles.pageHeading}>
+          <div>
+            <span>ESCOLHIDOS POR VOCÊ</span>
+            <h1>Seu carrinho.</h1>
+            <p>
+              {itemCount}{" "}
+              {itemCount === 1
+                ? "item para o seu ritual"
+                : "itens para o seu ritual"}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            onClick={() => navigate(routes.category("maquiagem"))}
+          >
+            <ArrowLeft size={15} /> Continuar comprando
+          </Button>
+        </div>
         <CheckoutStepper currentStep={0} className={styles.stepper} />
         <div className={styles.layout}>
           <section className={styles.cartCard}>
             <div className={styles.cartHeader}>
-              <h1 className={styles.cartTitle}>Carrinho</h1>
+              <h2 className={styles.cartTitle}>Sua seleção</h2>
             </div>
 
             <div className={styles.cartBody}>
@@ -194,8 +225,9 @@ export function CartPage() {
                     <p
                       className={`${styles.freeShippingText} ${styles.freeShippingPendingText}`}
                     >
-                      Faltam R$ {remainingForFreeShipping.toFixed(2)} para ganhar{" "}
-                      <strong>FRETE GRÁTIS</strong>!
+                      Faltam R${" "}
+                      {remainingForFreeShipping.toFixed(2).replace(".", ",")}{" "}
+                      para ganhar <strong>FRETE GRÁTIS</strong>!
                     </p>
                   </div>
                 )}
@@ -206,7 +238,10 @@ export function CartPage() {
                     <p
                       className={`${styles.freeShippingText} ${styles.freeShippingSuccessText}`}
                     >
-                      <Package className={styles.freeShippingIcon} aria-hidden="true" />
+                      <Package
+                        className={styles.freeShippingIcon}
+                        aria-hidden="true"
+                      />
                       Parabéns! Você ganhou <strong>FRETE GRÁTIS</strong>!
                     </p>
                   </div>
@@ -214,6 +249,14 @@ export function CartPage() {
               </div>
 
               <div className={styles.section}>
+                <Progress
+                  value={Math.min(
+                    100,
+                    (subtotal / FREE_SHIPPING_THRESHOLD) * 100,
+                  )}
+                  className={styles.shippingProgress}
+                  aria-label="Progresso para frete grátis"
+                />
                 <div className={styles.sectionHeader}>
                   <span className={styles.sectionIconWrap}>
                     <ShoppingBag className={styles.sectionIcon} />
@@ -250,14 +293,19 @@ export function CartPage() {
                             </span>
                             {item.originalPrice && (
                               <span className={styles.originalPrice}>
-                                R$ {item.originalPrice.toFixed(2).replace(".", ",")}
+                                R${" "}
+                                {item.originalPrice
+                                  .toFixed(2)
+                                  .replace(".", ",")}
                               </span>
                             )}
                           </div>
                           {item.originalPrice && (
                             <p className={styles.itemOfferLine}>
-                              {Math.round((1 - item.price / item.originalPrice) * 100)}%
-                              OFF
+                              {Math.round(
+                                (1 - item.price / item.originalPrice) * 100,
+                              )}
+                              % OFF
                               <span className={styles.itemOfferTime}>
                                 Oferta por tempo limitado
                               </span>
@@ -281,9 +329,15 @@ export function CartPage() {
                               className={styles.quantityButton}
                               aria-label={`Diminuir quantidade de ${item.name}`}
                             >
-                              <Minus className={styles.quantityIcon} aria-hidden="true" />
+                              <Minus
+                                className={styles.quantityIcon}
+                                aria-hidden="true"
+                              />
                             </Button>
-                            <span className={styles.quantityValue} aria-live="polite">
+                            <span
+                              className={styles.quantityValue}
+                              aria-live="polite"
+                            >
                               {item.quantity}
                             </span>
                             <Button
@@ -295,7 +349,10 @@ export function CartPage() {
                               className={styles.quantityButton}
                               aria-label={`Aumentar quantidade de ${item.name}`}
                             >
-                              <Plus className={styles.quantityIcon} aria-hidden="true" />
+                              <Plus
+                                className={styles.quantityIcon}
+                                aria-hidden="true"
+                              />
                             </Button>
                           </div>
                           <p className={styles.lineTotal}>
@@ -308,7 +365,14 @@ export function CartPage() {
                             <button
                               type="button"
                               className={styles.itemActionLink}
-                              onClick={() => toast.success("Item salvo para depois")}
+                              onClick={() => {
+                                if (addFavorite(item.id)) {
+                                  removeItem(item.id);
+                                  toast.success(
+                                    "Produto movido para seus favoritos",
+                                  );
+                                }
+                              }}
                             >
                               Salvar
                             </button>
@@ -324,16 +388,6 @@ export function CartPage() {
                       </div>
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    className={styles.itemGiftRow}
-                    onClick={() =>
-                      toast.success("Opção de presente registrada para revisão na próxima etapa.")
-                    }
-                  >
-                    <span>Embrulho para presente por apenas R$ 12,90!</span>
-                    <ChevronRight className={styles.itemGiftIcon} aria-hidden="true" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -342,13 +396,16 @@ export function CartPage() {
           <aside className={styles.summaryColumn}>
             <div className={styles.summaryCard}>
               <div className={styles.summaryHeader}>
-                <h2 className={styles.summaryTitle}>Checkout</h2>
+                <h2 className={styles.summaryTitle}>Resumo do pedido</h2>
               </div>
               <div className={styles.summaryBody}>
                 <div className={styles.summarySection}>
                   <div className={styles.summaryActionHeader}>
                     <span>Envio para {shippingDestination}</span>
-                    <ChevronRight className={styles.summaryChevron} aria-hidden="true" />
+                    <ChevronRight
+                      className={styles.summaryChevron}
+                      aria-hidden="true"
+                    />
                   </div>
 
                   <div className={styles.summaryShippingLine}>
@@ -359,15 +416,20 @@ export function CartPage() {
                       <p className={styles.summaryShippingTitle}>
                         {shippingLineTitle}
                       </p>
-                      <p className={styles.summaryShippingSub}>{shippingLineSub}</p>
+                      <p className={styles.summaryShippingSub}>
+                        {shippingLineSub}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className={styles.summarySection}>
                   <div className={styles.summaryActionHeader}>
-                    <span>Cupom ou Código de Influenciadora / Recompensas</span>
-                    <ChevronRight className={styles.summaryChevron} aria-hidden="true" />
+                    <span>Tem um cupom?</span>
+                    <ChevronRight
+                      className={styles.summaryChevron}
+                      aria-hidden="true"
+                    />
                   </div>
 
                   <form
@@ -387,21 +449,30 @@ export function CartPage() {
                       onChange={(e) => setCoupon(e.target.value)}
                       className={styles.summaryInput}
                     />
-                    <Button type="submit" variant="outline" className={styles.summaryButton}>
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      className={styles.summaryButton}
+                    >
                       Aplicar
                     </Button>
                   </form>
                 </div>
 
                 <div className={styles.summarySection}>
-                  <h3 className={styles.summarySectionTitle}>Sumário</h3>
+                  <h3 className={styles.summarySectionTitle}>
+                    Entrega e valores
+                  </h3>
                   <div className={styles.summaryZipRow}>
                     <Input
                       id="cart-zip-code"
-                      placeholder="CEP"
+                      placeholder="00000-000"
+                      aria-label="CEP para calcular a entrega"
                       value={zipCode}
                       onChange={(e) =>
-                        setZipCode(e.target.value.replace(/\D/g, "").slice(0, 8))
+                        setZipCode(
+                          e.target.value.replace(/\D/g, "").slice(0, 8),
+                        )
                       }
                       maxLength={8}
                       inputMode="numeric"
@@ -413,7 +484,7 @@ export function CartPage() {
                       variant="outline"
                       className={styles.summaryButton}
                     >
-                      OK
+                      Calcular
                     </Button>
                   </div>
 
@@ -425,7 +496,9 @@ export function CartPage() {
                     {discount > 0 && (
                       <div className={styles.breakdownHighlight}>
                         <span>Desconto</span>
-                        <span>- R$ {discount.toFixed(2).replace(".", ",")}</span>
+                        <span>
+                          - R$ {discount.toFixed(2).replace(".", ",")}
+                        </span>
                       </div>
                     )}
                     <div
@@ -452,7 +525,9 @@ export function CartPage() {
                   </div>
 
                   <p className={styles.summaryEta}>
-                    Data estimada de entrega: {estimatedShippingDate}
+                    {isShippingCalculated
+                      ? `Entrega estimada a partir de ${estimatedShippingDate}.`
+                      : "Informe seu CEP para estimar a entrega. O valor final será confirmado no checkout."}
                   </p>
                 </div>
               </div>
@@ -464,8 +539,11 @@ export function CartPage() {
                   className={styles.checkoutButton}
                   onClick={() => navigate(routes.checkoutStep("address"))}
                 >
-                  Finalizar Compra
+                  Continuar para entrega <ArrowRight size={17} />
                 </Button>
+                <p className={styles.checkoutNote}>
+                  <ShieldCheck size={14} /> Seus dados tratados com cuidado
+                </p>
               </div>
             </div>
           </aside>

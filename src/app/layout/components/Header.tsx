@@ -1,536 +1,373 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, User, Heart, LayoutDashboard, Tag } from "lucide-react";
-import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
-import { Input } from "@/shared/ui/input";
+import { useState, useEffect, useRef } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/shared/ui/navigation-menu";
+  ArrowRight,
+  Heart,
+  Menu,
+  Pause,
+  Play,
+  Search,
+  ShoppingBag,
+  Sparkles,
+  User,
+  X,
+} from "lucide-react";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/shared/ui/sheet";
 import { routes } from "@/app/router/paths";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
-import { trendingProducts } from "@/features/catalog/data/catalog-products";
+import {
+  catalogCategories,
+  trendingProducts,
+} from "@/features/catalog/data/catalog-products";
 import styles from "./Header.module.css";
 
-const ALL_CATEGORIES = [
-  { slug: "maquiagem", label: "Maquiagem" },
-  { slug: "skincare", label: "Skin Care" },
-  { slug: "corpo", label: "Corpo" },
-  { slug: "cabelos", label: "Cabelos" },
-  { slug: "perfumes", label: "Perfumes" },
-];
-
-const MAX_PRODUCT_SUGGESTIONS = 4;
-const MAX_CATEGORY_SUGGESTIONS = 3;
+const marqueeRepeats = Array.from({ length: 8 }, (_, i) => i);
 
 export function Header() {
-  const [activeCategory, setActiveCategory] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [marqueePaused, setMarqueePaused] = useState(false);
   const { isLoggedIn, isAdmin } = useAuth();
-  const { itemCount } = useCart();
-  const accountRoute = isLoggedIn && isAdmin ? routes.adminDashboard : routes.profile;
+  const { itemCount, openCart } = useCart();
+  const location = useLocation();
+  const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const normalized = searchTerm.toLowerCase().trim();
-  const suggestedProducts = normalized.length >= 1
-    ? trendingProducts
-        .filter((product) => product.name.toLowerCase().includes(normalized))
-        .slice(0, MAX_PRODUCT_SUGGESTIONS)
+  const accountRoute = !isLoggedIn
+    ? routes.login
+    : isAdmin
+      ? routes.adminDashboard
+      : routes.profile;
+  const query = searchTerm.trim().toLocaleLowerCase("pt-BR");
+  const categories = Object.values(catalogCategories);
+  const results = query
+    ? [
+        ...categories
+          .filter((item) =>
+            item.title.toLocaleLowerCase("pt-BR").includes(query),
+          )
+          .slice(0, 2)
+          .map((item) => ({
+            label: item.title,
+            to: routes.category(item.slug),
+            detail: "Coleção",
+          })),
+        ...trendingProducts
+          .filter((item) =>
+            item.name.toLocaleLowerCase("pt-BR").includes(query),
+          )
+          .slice(0, 4)
+          .map((item) => ({
+            label: item.name,
+            to: routes.product(item.id),
+            detail: item.price.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }),
+          })),
+      ]
     : [];
-  const suggestedCategories = normalized.length >= 1
-    ? ALL_CATEGORIES.filter(
-        (category) =>
-          category.label.toLowerCase().includes(normalized) ||
-          category.slug.includes(normalized),
-      ).slice(0, MAX_CATEGORY_SUGGESTIONS)
-    : [];
-  const hasResults = suggestedProducts.length > 0 || suggestedCategories.length > 0;
-
-  type SuggestionItem =
-    | { kind: "product"; id: string; name: string }
-    | { kind: "category"; slug: string; label: string }
-    | { kind: "search"; term: string };
-
-  const flatItems: SuggestionItem[] = [
-    ...suggestedCategories.map((category) => ({ kind: "category" as const, ...category })),
-    ...suggestedProducts.map((product) => ({
-      kind: "product" as const,
-      id: product.id,
-      name: product.name,
-    })),
-    ...(normalized.length >= 1 ? [{ kind: "search" as const, term: searchTerm }] : []),
-  ];
-
-  const handleCategoryClick = (category: string) => {
-    setActiveCategory(category);
-  };
-
-  const closeDropdown = useCallback(() => {
-    setShowDropdown(false);
-    setActiveIndex(-1);
-  }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        closeDropdown();
-      }
+    setMenuOpen(false);
+    setShowDropdown(false);
+    setActiveIndex(-1);
+  }, [location.key]);
+  useEffect(() => {
+    const close = (event: MouseEvent) => {
+      if (!searchRef.current?.contains(event.target as Node))
+        setShowDropdown(false);
     };
+    const scroll = () => setScrolled(window.scrollY > 40);
+    scroll();
+    document.addEventListener("mousedown", close);
+    window.addEventListener("scroll", scroll, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", close);
+      window.removeEventListener("scroll", scroll);
+    };
+  }, []);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [closeDropdown]);
-
-  const navigateToItem = (item: SuggestionItem) => {
-    closeDropdown();
-    setSearchTerm("");
-
-    if (item.kind === "product") navigate(routes.product(item.id));
-    else if (item.kind === "category") navigate(routes.category(item.slug));
-    else navigate(routes.search(item.term));
-  };
-
-  const handleSearchSubmit = (event: React.FormEvent) => {
+  const search = (event: React.FormEvent) => {
     event.preventDefault();
-    if (searchTerm.trim()) {
-      closeDropdown();
-      navigate(routes.search(searchTerm));
-      setSearchTerm("");
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!showDropdown || flatItems.length === 0) return;
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      setActiveIndex((index) => Math.min(index + 1, flatItems.length - 1));
-    } else if (event.key === "ArrowUp") {
-      event.preventDefault();
-      setActiveIndex((index) => Math.max(index - 1, -1));
-    } else if (event.key === "Enter" && activeIndex >= 0) {
-      event.preventDefault();
-      navigateToItem(flatItems[activeIndex]);
-    } else if (event.key === "Escape") {
-      closeDropdown();
-      inputRef.current?.blur();
-    }
+    if (!query) return;
+    navigate(
+      activeIndex >= 0 && results[activeIndex]
+        ? results[activeIndex].to
+        : routes.search(searchTerm.trim()),
+    );
+    setSearchTerm("");
+    setShowDropdown(false);
+    inputRef.current?.blur();
   };
 
   return (
     <>
-      <div className={styles.promoBar} role="region" aria-label="Avisos promocionais">
-        <div className={styles.promoRow}>
-          {[1, 2, 3, 4].map((item) => (
-            <span key={item} className={styles.promoText}>
-              Frete grátis acima de R$ 150,00 • Até 50% OFF em selecionados
-            </span>
-          ))}
-        </div>
-        <div className={styles.promoRow} aria-hidden="true">
-          {[1, 2, 3, 4].map((item) => (
-            <span key={`clone-${item}`} className={styles.promoText}>
-              Frete grátis acima de R$ 150,00 • Até 50% OFF em selecionados
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <header className={styles.header}>
-        <div className={styles.mainHeader}>
-          <div className={styles.mainContainer}>
-            <div className={styles.mainRow}>
-              <div className={styles.logoWrapper}>
-                <Link
-                  to={routes.home}
-                  className={styles.logoButton}
-                  aria-label="Ir para a página inicial da Toque de Mulher"
-                >
-                  <span className={styles.logoText}>toque de mulher</span>
-                </Link>
-              </div>
-
-              <nav className={styles.navWrapper} aria-label="Navegação principal">
-                <NavigationMenu className={styles.navMenu} viewport={false}>
-                  <NavigationMenuList className={styles.navList}>
-                    <NavigationMenuItem>
-                      <NavigationMenuTrigger
-                        onClick={() => handleCategoryClick("comprar")}
-                        className={`${styles.navTrigger} ${
-                          activeCategory === "comprar"
-                            ? styles.navTriggerActive
-                            : styles.navTriggerInactive
-                        }`}
-                      >
-                        Comprar
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent className={styles.navContent}>
-                        <div className={styles.navPanel}>
-                          <div className={`${styles.navColumn} ${styles.navColumnFeatured}`}>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.home}>Destaques</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Novidades</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Mais Vendidos</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>K-Beauty</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Volta às Aulas</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Presentes</Link>
-                              </NavigationMenuLink>
-                            </div>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.home}>Outlet</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Até 50% OFF</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Kits Promo</Link>
-                              </NavigationMenuLink>
-                            </div>
-                          </div>
-
-                          <div className={styles.navColumn}>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.category("maquiagem")}>Maquiagem</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("maquiagem")}>Rosto</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("maquiagem")}>Olhos</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("maquiagem")}>Lábios</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("maquiagem")}>Paletas</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("maquiagem")}>Acessórios</Link>
-                              </NavigationMenuLink>
-                            </div>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.category("corpo")}>Corpo</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("corpo")}>Hidratantes</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("corpo")}>Banho</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("corpo")}>Desodorantes</Link>
-                              </NavigationMenuLink>
-                            </div>
-                          </div>
-
-                          <div className={styles.navColumn}>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.category("skincare")}>Skin Care</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("skincare")}>Limpeza</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("skincare")}>Séruns</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("skincare")}>Hidratantes</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("skincare")}>Tônicos</Link>
-                              </NavigationMenuLink>
-                            </div>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.category("cabelos")}>Cabelos</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("cabelos")}>Shampoos</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("cabelos")}>Máscaras</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("cabelos")}>Finalizadores</Link>
-                              </NavigationMenuLink>
-                            </div>
-                          </div>
-
-                          <div className={styles.navColumn}>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.category("perfumes")}>Perfumes</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("perfumes")}>Femininos</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("perfumes")}>Masculinos</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.category("perfumes")}>Body Splash</Link>
-                              </NavigationMenuLink>
-                            </div>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.home}>Marcas</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Bruna Tavares</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Niina Secrets</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Eudora</Link>
-                              </NavigationMenuLink>
-                              <NavigationMenuLink asChild className={styles.navSectionLink}>
-                                <Link to={routes.home}>Vult</Link>
-                              </NavigationMenuLink>
-                            </div>
-                          </div>
-
-                          <div className={styles.navColumn}>
-                            <div className={styles.navSection}>
-                              <NavigationMenuLink asChild className={styles.navSectionTitleLink}>
-                                <Link to={routes.home}>Regiões</Link>
-                              </NavigationMenuLink>
-                              <div className={styles.navCards}>
-                                <NavigationMenuLink asChild className={styles.navCard}>
-                                  <Link to={routes.home}>
-                                    <span className={styles.navCardTitle}>Brasil</span>
-                                    <span className={styles.navCardSub}>Beauty</span>
-                                  </Link>
-                                </NavigationMenuLink>
-                                <NavigationMenuLink asChild className={styles.navCard}>
-                                  <Link to={routes.home}>
-                                    <span className={styles.navCardTitle}>Internacional</span>
-                                    <span className={styles.navCardSub}>Beauty</span>
-                                  </Link>
-                                </NavigationMenuLink>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-
-                    <NavigationMenuItem>
-                      <NavigationMenuLink
-                        asChild
-                        className={`${styles.navLinkSimple} ${styles.navLinkPromo}`}
-                      >
-                        <Link to={routes.home}>Promoções</Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-
-                    <NavigationMenuItem>
-                      <NavigationMenuLink asChild className={styles.navLinkSimple}>
-                        <Link to={routes.home}>Novos</Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-
-                    <NavigationMenuItem>
-                      <NavigationMenuLink asChild className={styles.navLinkSimple}>
-                        <Link to={routes.home}>Marcas</Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  </NavigationMenuList>
-                </NavigationMenu>
-              </nav>
-
-              <div ref={searchRef} className={styles.searchWrapper}>
-                <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
-                  <Search className={styles.searchIcon} />
-                  <Input
-                    ref={inputRef}
-                    className={styles.searchInput}
-                    placeholder="Buscar produtos..."
-                    aria-label="Buscar produtos"
-                    aria-autocomplete="list"
-                    aria-expanded={showDropdown}
-                    value={searchTerm}
-                    onChange={(event) => {
-                      setSearchTerm(event.target.value);
-                      setShowDropdown(true);
-                      setActiveIndex(-1);
-                    }}
-                    onFocus={() => searchTerm.trim() && setShowDropdown(true)}
-                    onKeyDown={handleKeyDown}
-                    autoComplete="off"
-                  />
-                </form>
-
-                {showDropdown && normalized.length >= 1 && (
-                  <div className={styles.dropdown} role="listbox">
-                    {!hasResults && (
-                      <div className={styles.dropdownEmpty}>
-                        Nenhum resultado para &ldquo;{searchTerm}&rdquo;
-                      </div>
-                    )}
-
-                    {suggestedCategories.length > 0 && (
-                      <div className={styles.dropdownGroup}>
-                        <span className={styles.dropdownGroupLabel}>Categorias</span>
-                        {suggestedCategories.map((category) => {
-                          const index = flatItems.findIndex(
-                            (item) => item.kind === "category" && item.slug === category.slug,
-                          );
-
-                          return (
-                            <button
-                              key={category.slug}
-                              role="option"
-                              aria-selected={activeIndex === index}
-                              className={`${styles.dropdownItem} ${
-                                activeIndex === index ? styles.dropdownItemActive : ""
-                              }`}
-                              onMouseDown={() => navigateToItem({ kind: "category", ...category })}
-                              onMouseEnter={() => setActiveIndex(index)}
-                            >
-                              <Tag className={styles.dropdownItemIcon} />
-                              <span>{category.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {suggestedProducts.length > 0 && (
-                      <div className={styles.dropdownGroup}>
-                        <span className={styles.dropdownGroupLabel}>Produtos</span>
-                        {suggestedProducts.map((product) => {
-                          const index = flatItems.findIndex(
-                            (item) => item.kind === "product" && item.id === product.id,
-                          );
-
-                          return (
-                            <button
-                              key={product.id}
-                              role="option"
-                              aria-selected={activeIndex === index}
-                              className={`${styles.dropdownItem} ${
-                                activeIndex === index ? styles.dropdownItemActive : ""
-                              }`}
-                              onMouseDown={() =>
-                                navigateToItem({
-                                  kind: "product",
-                                  id: product.id,
-                                  name: product.name,
-                                })
-                              }
-                              onMouseEnter={() => setActiveIndex(index)}
-                            >
-                              <img
-                                src={product.image}
-                                alt={product.name}
-                                className={styles.dropdownItemThumb}
-                              />
-                              <span className={styles.dropdownItemName}>{product.name}</span>
-                              <span className={styles.dropdownItemPrice}>
-                                R$ {product.price.toFixed(2).replace(".", ",")}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {normalized.length >= 1 && (
-                      <button
-                        className={`${styles.dropdownSearchAll} ${
-                          activeIndex === flatItems.length - 1 ? styles.dropdownItemActive : ""
-                        }`}
-                        onMouseDown={handleSearchSubmit as unknown as React.MouseEventHandler}
-                        onMouseEnter={() => setActiveIndex(flatItems.length - 1)}
-                      >
-                        <Search className={styles.dropdownItemIcon} />
-                        Ver todos os resultados para &ldquo;{searchTerm}&rdquo;
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.actionRow}>
-                <Button asChild variant="ghost" size="icon" className={styles.cartButton}>
-                  <Link to={routes.cart} aria-label="Carrinho">
-                    <ShoppingCart className={styles.iconLarge} />
-                    {itemCount > 0 && (
-                      <span className="sr-only">
-                        {itemCount} {itemCount === 1 ? "item no carrinho" : "itens no carrinho"}
-                      </span>
-                    )}
-                    {itemCount > 0 && (
-                      <Badge className={styles.cartBadge} aria-hidden="true">
-                        {itemCount}
-                      </Badge>
-                    )}
-                  </Link>
-                </Button>
-
-                {isLoggedIn ? (
-                  <Button asChild variant="ghost" size="icon" className={styles.iconButton}>
-                    <Link to={accountRoute} aria-label="Meu perfil">
-                      <User className={styles.iconLarge} aria-hidden="true" />
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button asChild variant="default" size="sm" className={styles.loginButton}>
-                    <Link to={routes.login}>
-                      <User className={styles.loginButtonIcon} aria-hidden="true" />
-                      <span className={styles.loginButtonText}>Entrar</span>
-                    </Link>
-                  </Button>
-                )}
-
-                {isLoggedIn && (
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="icon"
-                    className={`${styles.iconButton} ${styles.iconButtonHidden}`}
+      <div className={styles.promoBar}>
+        <div className={styles.marqueeWrap}>
+          <div className={styles.marqueeViewport}>
+            <div
+              className={styles.marqueeTrack}
+              data-paused={marqueePaused}
+              aria-live="off"
+            >
+              <div className={styles.marqueeChunk}>
+                {marqueeRepeats.map((i) => (
+                  <Link
+                    key={i}
+                    to={routes.category("maquiagem")}
+                    className={styles.marqueeItem}
+                    aria-hidden={i === 0 ? undefined : true}
+                    tabIndex={i === 0 ? undefined : -1}
                   >
-                    <Link
-                      to={isAdmin ? routes.productCreate : routes.profile}
-                      aria-label={isAdmin ? "Painel administrativo" : "Favoritos"}
-                    >
-                      {isAdmin ? (
-                        <LayoutDashboard className={styles.iconLarge} aria-hidden="true" />
-                      ) : (
-                        <Heart className={styles.iconLarge} aria-hidden="true" />
-                      )}
-                    </Link>
-                  </Button>
-                )}
+                    Frete grátis acima de R$ 150
+                  </Link>
+                ))}
+              </div>
+              <div className={styles.marqueeChunk} aria-hidden="true">
+                {marqueeRepeats.map((i) => (
+                  <Link
+                    key={i}
+                    to={routes.category("maquiagem")}
+                    className={styles.marqueeItem}
+                    aria-hidden="true"
+                    tabIndex={-1}
+                  >
+                    Frete grátis acima de R$ 150
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
+          <button
+            type="button"
+            className={styles.marqueeToggle}
+            onClick={() => setMarqueePaused((paused) => !paused)}
+            aria-label={
+              marqueePaused ? "Retomar animação" : "Pausar animação"
+            }
+            aria-pressed={marqueePaused}
+          >
+            {marqueePaused ? <Play size={11} /> : <Pause size={11} />}
+          </button>
         </div>
+      </div>
+      <header className={styles.header} data-scrolled={scrolled}>
+        <div className={styles.mainRow}>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger className={styles.menuButton} aria-label="Abrir menu">
+              <Menu size={22} />
+            </SheetTrigger>
+            <SheetContent side="left" className={styles.mobileMenu}>
+              <SheetHeader>
+                <SheetTitle className={styles.mobileLogo}>
+                  toque de mulher<span>.</span>
+                </SheetTitle>
+                <SheetDescription>
+                  Seu próximo favorito está aqui.
+                </SheetDescription>
+              </SheetHeader>
+              <nav aria-label="Menu do celular" className={styles.mobileLinks}>
+                <span className={styles.menuEyebrow}>EXPLORE A LOJA</span>
+                {categories.map((item) => (
+                  <SheetClose asChild key={item.slug}>
+                    <Link to={routes.category(item.slug)}>
+                      {item.title}
+                      <ArrowRight size={17} />
+                    </Link>
+                  </SheetClose>
+                ))}
+                <SheetClose asChild>
+                  <Link to={routes.about}>
+                    Sobre a loja
+                    <ArrowRight size={17} />
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link to={routes.missions}>
+                    Beauty Club
+                    <Sparkles size={17} />
+                  </Link>
+                </SheetClose>
+              </nav>
+              <div className={styles.mobileBottom}>
+                <Link to={accountRoute}>
+                  <User size={17} />
+                  {isLoggedIn ? "Minha conta" : "Entrar ou criar conta"}
+                </Link>
+                <Link to={routes.help}>
+                  Falar com atendimento <ArrowRight size={16} />
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <Link
+            to={routes.home}
+            className={styles.logo}
+            aria-label="Toque de Mulher — página inicial"
+          >
+            toque de mulher<span>.</span>
+          </Link>
+          <div
+            ref={searchRef}
+            className={styles.searchWrapper}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget))
+                setShowDropdown(false);
+            }}
+          >
+            <form onSubmit={search} className={styles.searchForm} role="search">
+              <button
+                type="submit"
+                className={styles.searchSubmit}
+                aria-label="Buscar"
+              >
+                <Search size={18} />
+              </button>
+              <input
+                ref={inputRef}
+                value={searchTerm}
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setActiveIndex(-1);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
+                placeholder="Qual vai ser o seu próximo favorito?"
+                aria-label="Buscar produtos"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={showDropdown && Boolean(query)}
+                aria-controls="header-search-results"
+                aria-activedescendant={
+                  showDropdown && activeIndex >= 0
+                    ? `search-result-${activeIndex}`
+                    : undefined
+                }
+                autoComplete="off"
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    setShowDropdown(false);
+                    setActiveIndex(-1);
+                  }
+                  if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    setShowDropdown(true);
+                    setActiveIndex((index) =>
+                      Math.min(index + 1, results.length - 1),
+                    );
+                  }
+                  if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    setActiveIndex((index) => Math.max(index - 1, -1));
+                  }
+                }}
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  className={styles.clearSearch}
+                  onClick={() => {
+                    setSearchTerm("");
+                    inputRef.current?.focus();
+                  }}
+                  aria-label="Limpar busca"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </form>
+            {showDropdown && query && (
+              <div className={styles.dropdown}>
+                <div className={styles.menuEyebrow}>ENCONTRE SEU TOQUE</div>
+                <div
+                  id="header-search-results"
+                  role="listbox"
+                  aria-label="Sugestões de produtos e categorias"
+                >
+                  {results.map((item, index) => (
+                    <Link
+                      id={`search-result-${index}`}
+                      role="option"
+                      aria-selected={activeIndex === index}
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setSearchTerm("")}
+                      className={styles.searchResult}
+                      onMouseEnter={() => setActiveIndex(index)}
+                    >
+                      <span>{item.label}</span>
+                      <small>{item.detail}</small>
+                    </Link>
+                  ))}
+                </div>
+                {!results.length && (
+                  <p className={styles.noResults}>
+                    Não encontramos esse nome. Tente um produto ou categoria.
+                  </p>
+                )}
+                <Link
+                  className={styles.allResults}
+                  to={routes.search(searchTerm)}
+                  onClick={() => setSearchTerm("")}
+                >
+                  Ver todos os resultados <ArrowRight size={16} />
+                </Link>
+              </div>
+            )}
+          </div>
+          <div className={styles.actions}>
+            <Link className={styles.accountLink} to={accountRoute}>
+              <User size={21} />
+              <span>{isLoggedIn ? "Minha conta" : "Entrar"}</span>
+            </Link>
+            <Link
+              to={routes.favorites}
+              className={styles.favoriteLink}
+              aria-label="Meus favoritos"
+            >
+              <Heart size={21} />
+            </Link>
+            <button
+              type="button"
+              className={styles.cartButton}
+              onClick={openCart}
+              aria-label={`Abrir carrinho, ${itemCount} ${itemCount === 1 ? "item" : "itens"}`}
+            >
+              <ShoppingBag size={21} />
+              <span key={itemCount} className={styles.cartCount}>
+                {itemCount}
+              </span>
+            </button>
+          </div>
+        </div>
+        <nav className={styles.desktopNav} aria-label="Navegação principal">
+          <div className={styles.categoryLinks}>
+            {categories.map((item) => (
+              <NavLink key={item.slug} to={routes.category(item.slug)}>
+                {item.title}
+              </NavLink>
+            ))}
+          </div>
+          <div className={styles.discoverLinks}>
+            <NavLink to={routes.about}>Sobre a loja</NavLink>
+            <NavLink to={routes.missions}>
+              <Sparkles size={14} /> Beauty Club
+            </NavLink>
+          </div>
+        </nav>
       </header>
     </>
   );

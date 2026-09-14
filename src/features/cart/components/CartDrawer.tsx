@@ -61,9 +61,7 @@ export function CartDrawer() {
 
   const handleContinueShopping = () => {
     closeCart();
-    if (location.pathname !== routes.home) {
-      navigate(routes.home);
-    }
+    if (!items.length) navigate(routes.category("maquiagem"));
   };
 
   const handleOpenCartPage = () => {
@@ -182,7 +180,7 @@ export function CartDrawer() {
                         >
                           <Minus className={styles.quantityIcon} />
                         </button>
-                        <span className={styles.quantityValue}>{item.quantity}</span>
+                        <span className={styles.quantityValue} aria-live="polite">{item.quantity}</span>
                         <button
                           type="button"
                           className={styles.quantityButton}
@@ -221,7 +219,7 @@ export function CartDrawer() {
                 <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>
               </div>
               <div className={styles.summaryRow}>
-                <span>Frete</span>
+                <span>Frete estimado</span>
                 <span>
                   {shipping === 0
                     ? "Grátis"
@@ -229,7 +227,7 @@ export function CartDrawer() {
                 </span>
               </div>
               <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
-                <span>Total</span>
+                <span>Total estimado</span>
                 <strong>R$ {total.toFixed(2).replace(".", ",")}</strong>
               </div>
               <div className={styles.rewardRow}>

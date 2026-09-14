@@ -1,298 +1,309 @@
-@reference "tailwindcss";
-
-/* ─── Layout ─────────────────────────────────────────────────── */
 .page {
-  @apply min-h-screen;
-  background-color: var(--theme-bg-canvas);
+  width: min(1320px, calc(100% - 96px));
+  margin-inline: auto;
+  padding-block: 44px 32px;
 }
-
-.container {
-  @apply mx-auto w-full px-5 sm:px-8 lg:px-12 xl:px-16;
-  max-width: 1100px;
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+  align-items: center;
 }
-
-/* ─── Hero ──────────────────────────────────────────────────── */
-.heroSection {
-  @apply relative py-16 sm:py-24 text-center;
-  background-color: var(--theme-bg-subtle);
-  border-bottom: 1px solid var(--theme-border-soft);
+.eyebrow {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--theme-text-secondary);
+  margin-bottom: 24px;
 }
-
-.heroContent {
-  @apply max-w-2xl mx-auto;
+.heroCopy h1 {
+  font-size: clamp(40px, 4.5vw, 65px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
 }
-
-.heroEyebrow {
-  @apply text-xs font-semibold uppercase tracking-[0.25em] mb-3;
-  color: var(--theme-brand-strong);
+.heroCopy h1 span {
+  color: #f73986;
 }
-
-.heroTitle {
-  @apply text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5;
-  color: var(--theme-text-primary);
+.heroCopy p {
+  max-width: 405px;
+  font-size: 14px;
+  color: var(--theme-text-secondary);
+  line-height: 1.9;
+  margin: 28px 0;
 }
-
-.textBody {
-  @apply text-base sm:text-lg leading-relaxed;
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid var(--theme-text-primary);
+  padding-bottom: 10px;
+  font-size: 12px;
+}
+.heroMedia {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 1.08;
+}
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.imageNote {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: #fffdf2e0;
+  color: #493928;
+  padding: 10px 16px;
+  border-radius: 30px;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+.manifesto {
+  max-width: 780px;
+  margin-inline: auto;
+  text-align: center;
+  padding-block: 100px;
+  scroll-margin-top: 165px;
+}
+.manifesto h2 {
+  font-size: clamp(28px, 3.3vw, 44px);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  margin-bottom: 28px;
+}
+.manifesto h2 span {
+  color: #f73986;
+}
+.manifesto p {
+  max-width: 650px;
+  margin: 16px auto 0;
+  line-height: 1.9;
+  font-size: 14px;
   color: var(--theme-text-secondary);
 }
-
-/* ─── Stats ─────────────────────────────────────────────────── */
-.statsSection {
-  @apply py-10 sm:py-14;
-  background-color: var(--theme-bg-subtle);
-  border-bottom: 1px solid var(--theme-border-soft);
+.sectionHeading {
+  margin-bottom: 30px;
 }
-
-.statsGrid {
-  @apply grid grid-cols-2 lg:grid-cols-4 gap-6;
+.sectionHeading h2 {
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
-
-.statCard {
-  @apply flex flex-col items-center text-center gap-2 p-4;
+.sectionHeading .eyebrow {
+  margin-bottom: 14px;
 }
-
-.statIconWrap {
-  @apply w-10 h-10 rounded-xl flex items-center justify-center mb-1;
-  background-color: var(--theme-brand-soft);
-}
-
-.statIcon {
-  @apply size-5;
-  color: var(--theme-brand-strong);
-}
-
-.statValue {
-  @apply text-2xl sm:text-3xl font-bold;
-  color: var(--theme-text-primary);
-}
-
-.statLabel {
-  @apply text-xs sm:text-sm;
-  color: var(--theme-text-secondary);
-}
-
-/* ─── Seções gerais ─────────────────────────────────────────── */
-.section {
-  @apply py-14 sm:py-20;
-}
-
-.storyWrapper {
-  @apply max-w-4xl mx-auto;
-}
-
-.storyGrid {
-  @apply grid md:grid-cols-2 gap-12 items-center;
-}
-
-.sectionTitle {
-  @apply text-2xl sm:text-3xl font-bold mb-5;
-  color: var(--theme-brand-strong);
-}
-
-.textSpacing {
-  @apply text-base leading-relaxed mb-4;
-  color: var(--theme-text-secondary);
-}
-
-.imageFrame {
-  @apply relative h-80 overflow-hidden;
-  border-radius: 12px;
-  background-color: var(--theme-card-muted);
-}
-
-.imageCover {
-  @apply w-full h-full object-cover;
-}
-
-/* ─── Missão / Visão / Valores ──────────────────────────────── */
-.missionSection {
-  @apply py-14 sm:py-20;
-  background-color: var(--theme-bg-subtle);
-}
-
-.missionGrid {
-  @apply grid sm:grid-cols-3 gap-6;
-}
-
-.missionCard {
-  @apply p-6 sm:p-8 border;
-  border-radius: 12px;
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
-}
-
-.missionIconWrap {
-  @apply w-11 h-11 rounded-xl flex items-center justify-center mb-4;
-  background-color: var(--theme-brand-soft);
-}
-
-.missionIcon {
-  @apply size-5;
-  color: var(--theme-brand-strong);
-}
-
-.missionTitle {
-  @apply text-base font-bold mb-2;
-  color: var(--theme-text-primary);
-}
-
-.missionText {
-  @apply text-sm leading-relaxed;
-  color: var(--theme-text-secondary);
-}
-
-/* ─── Timeline ──────────────────────────────────────────────── */
-.centerTitle {
-  @apply text-2xl sm:text-3xl font-bold text-center mb-10;
-  color: var(--theme-brand-strong);
-}
-
-.timeline {
-  @apply relative pl-6 sm:pl-10;
-  border-left: 2px solid var(--theme-border-soft);
-}
-
-.timelineItem {
-  @apply relative mb-10 last:mb-0;
-}
-
-.timelineMarker {
-  @apply absolute -left-[2.6rem] sm:-left-[2.8rem] flex items-center gap-2;
-  top: 0.15rem;
-}
-
-.timelineYear {
-  @apply text-xs font-bold px-2 py-0.5 rounded-full;
-  background-color: var(--theme-brand-soft);
-  color: var(--theme-brand-strong);
-}
-
-.timelineDot {
-  @apply absolute -right-[0.45rem] w-3.5 h-3.5 rounded-full border-2;
-  background-color: var(--theme-brand-strong);
-  border-color: var(--theme-bg-canvas);
-  top: 0.2rem;
-  right: -2.65rem;
-}
-
-.timelineContent {
-  @apply pl-2;
-}
-
-.timelineTitle {
-  @apply text-base font-bold mb-1;
-  color: var(--theme-text-primary);
-}
-
-.timelineText {
-  @apply text-sm leading-relaxed;
-  color: var(--theme-text-secondary);
-}
-
-/* ─── Valores ───────────────────────────────────────────────── */
-.valuesSection {
-  @apply py-14 sm:py-20;
-  background-color: var(--theme-bg-canvas);
-}
-
 .valuesGrid {
-  @apply grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
 }
-
 .valueCard {
-  @apply p-6 border text-center;
-  border-radius: 12px;
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
+  padding: 32px;
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 8px;
+  background: var(--theme-surface-primary);
 }
-
-.valueIconWrap {
-  @apply w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4;
-  background-color: var(--theme-brand-soft);
+.valueTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #f73986;
+  margin-bottom: 36px;
 }
-
-.valueIcon {
-  @apply size-7;
-  color: var(--theme-brand-strong);
+.valueTop span {
+  color: var(--theme-text-muted);
+  font-size: 11px;
 }
-
-.valueTitle {
-  @apply text-sm font-bold mb-2;
-  color: var(--theme-text-primary);
+.valueCard h3 {
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 16px;
 }
-
-.valueText {
-  @apply text-xs leading-relaxed;
+.valueCard p {
+  font-size: 13px;
+  color: var(--theme-text-secondary);
+  line-height: 1.85;
+}
+.ritualSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-block: 80px;
+  background: var(--theme-card-muted);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.ritualMedia {
+  min-height: 400px;
+}
+.ritualMedia img {
+  width: 100%;
+  height: 100%;
+  max-height: 540px;
+  object-fit: cover;
+}
+.ritualCopy {
+  padding: 50px 64px;
+  align-self: center;
+}
+.ritualCopy h2 {
+  font-size: clamp(32px, 3.5vw, 48px);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+.ritualCopy p {
+  font-size: 13px;
+  line-height: 1.85;
+  margin: 24px 0;
   color: var(--theme-text-secondary);
 }
-
-/* ─── Políticas ─────────────────────────────────────────────── */
-.policiesSection {
-  @apply py-14 sm:py-20;
-  background-color: var(--theme-bg-subtle);
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  padding: 14px 24px;
+  border-radius: 40px;
+  background: #f73986;
+  color: #26151d;
+  font-size: 12px;
+  transition: transform 0.3s;
 }
-
-.policiesTitle {
-  @apply text-2xl sm:text-3xl font-bold mb-8;
-  color: var(--theme-brand-strong);
+.primaryLink:hover {
+  transform: translateY(-3px);
 }
-
-.policiesStack {
-  @apply grid sm:grid-cols-2 gap-5;
+.helpSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  padding: 0 0 24px;
 }
-
-.policyCard {
-  @apply p-6 border;
-  border-radius: 12px;
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
+.helpHeader {
+  display: flex;
+  gap: 22px;
+  align-items: start;
 }
-
-.policyTitle {
-  @apply text-sm font-bold mb-3;
-  color: var(--theme-text-primary);
+.helpHeader > svg {
+  color: #f73986;
+  margin-top: 5px;
 }
-
-.policyList {
-  @apply space-y-2 text-sm;
+.helpHeader h2 {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.helpHeader p {
   color: var(--theme-text-secondary);
+  font-size: 12px;
+  margin-top: 12px;
 }
-
-/* ─── CTA ───────────────────────────────────────────────────── */
-.ctaSection {
-  @apply py-14 sm:py-20;
+.helpLinks {
+  display: grid;
 }
-
-.ctaCard {
-  @apply max-w-3xl mx-auto p-10 sm:p-14 text-center text-white;
-  background-color: var(--theme-brand-fill);
-  border-radius: 14px;
+.helpLinks a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--theme-border-soft);
 }
-
-.ctaEyebrow {
-  @apply text-xs font-semibold uppercase tracking-[0.2em] mb-2 text-white/70;
+.helpLinks a:hover {
+  color: #f73986;
 }
-
-.ctaTitle {
-  @apply text-2xl sm:text-3xl font-bold mb-3;
+@media (max-width: 1023px) {
+  .page {
+    width: calc(100% - 48px);
+  }
+  .hero {
+    gap: 32px;
+  }
+  .valueCard {
+    padding: 24px;
+  }
+  .ritualCopy {
+    padding: 32px;
+  }
 }
-
-.ctaText {
-  @apply text-base text-white/80 mb-8;
+@media (max-width: 639px) {
+  .page {
+    width: calc(100% - 36px);
+    padding-top: 26px;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .heroCopy h1 {
+    font-size: 45px;
+  }
+  .heroCopy p {
+    font-size: 13px;
+  }
+  .heroMedia {
+    aspect-ratio: 1.2;
+  }
+  .manifesto {
+    padding-block: 56px;
+  }
+  .manifesto h2 {
+    font-size: 30px;
+  }
+  .manifesto p {
+    font-size: 13px;
+  }
+  .valuesGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .sectionHeading h2 {
+    font-size: 30px;
+  }
+  .valueTop {
+    margin-bottom: 20px;
+  }
+  .ritualSection {
+    grid-template-columns: 1fr;
+    margin-block: 48px;
+  }
+  .ritualMedia {
+    min-height: 0;
+    aspect-ratio: 1.3;
+  }
+  .ritualCopy {
+    padding: 30px;
+  }
+  .helpSection {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 }
-
-.ctaActions {
-  @apply flex flex-col sm:flex-row gap-4 justify-center;
+.heroMedia {
+  border-radius: 8px 64px 8px 8px;
 }
-
-.ctaPrimary {
-  @apply bg-white font-semibold px-7 py-3 transition-all hover:bg-gray-100 text-sm;
-  border-radius: 10px;
-  color: var(--theme-brand-strong);
+.ritualSection {
+  border-radius: 8px 8px 8px 56px;
 }
-
-.ctaSecondary {
-  @apply border border-white/50 text-white px-7 py-3 transition-all hover:bg-white/10 text-sm;
-  border-radius: 10px;
+.storyFlower {
+  display: block;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 28px;
+  color: #f73986;
+  --flower-center: var(--theme-bg-canvas);
+  animation: store-orbit 30s linear infinite;
+}
+@media (max-width: 639px) {
+  .heroMedia {
+    border-top-right-radius: 40px;
+  }
+  .ritualSection {
+    border-bottom-left-radius: 36px;
+  }
 }

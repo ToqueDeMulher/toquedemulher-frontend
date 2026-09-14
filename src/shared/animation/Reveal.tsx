@@ -16,6 +16,11 @@ export function Reveal({ children, className, delayMs = 0 }: RevealProps) {
     const element = ref.current;
     if (!element) return;
 
+    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
@@ -24,8 +29,8 @@ export function Reveal({ children, className, delayMs = 0 }: RevealProps) {
         observer.disconnect();
       },
       {
-        threshold: 0.18,
-        rootMargin: "0px 0px -8% 0px",
+        threshold: 0,
+        rootMargin: "0px 0px -24px 0px",
       },
     );
 
