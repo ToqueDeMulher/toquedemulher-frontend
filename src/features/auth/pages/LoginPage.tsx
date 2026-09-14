@@ -6,6 +6,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { BeautyFlower } from "@/shared/ui/BeautyFlower";
 import { routes } from "@/app/router/paths";
 import {
   forgotPasswordRequest,
@@ -491,24 +492,37 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.decorLayer}>
-        <div className={`${styles.decorOrb} ${styles.decorOrbTopLeft}`} />
-        <div className={`${styles.decorOrb} ${styles.decorOrbBottomRight}`} />
-        <div className={`${styles.decorOrb} ${styles.decorOrbCenter}`} />
-      </div>
+      <div className={styles.shell}>
+        <aside className={styles.brandPanel} aria-hidden="true">
+          <div className={styles.brandPanelGlow} />
+          <BeautyFlower className={styles.brandFlowerTop} />
+          <BeautyFlower className={styles.brandFlowerBottom} />
+          <div className={styles.brandPanelContent}>
+            <span className={styles.brandLogo}>
+              toque de mulher<span>.</span>
+            </span>
+            <h2 className={styles.brandHeadline}>
+              Seu próximo favorito começa aqui.
+            </h2>
+            <p className={styles.brandCopy}>
+              Entre para acompanhar pedidos, favoritos e as vantagens
+              exclusivas do Beauty Club.
+            </p>
+          </div>
+        </aside>
 
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Boas-vindas!</h1>
-          <p className={styles.subtitle}>
-            Entre na sua conta para acessar seus pedidos, favoritos e configurações.
+        <div className={styles.formPanel}>
+          <div className={styles.header}>
+            <span className={styles.eyebrow}>Bem-vinda</span>
+            <h1 className={styles.title}>Boas-vindas!</h1>
+            <p className={styles.subtitle}>
+              Entre na sua conta para acessar seus pedidos, favoritos e configurações.
+            </p>
+          </div>
+          <p className="sr-only" aria-live="polite">
+            {authAnnouncement}
           </p>
-        </div>
-        <p className="sr-only" aria-live="polite">
-          {authAnnouncement}
-        </p>
 
-        <div className={styles.card}>
           <Tabs defaultValue="login" className={styles.tabsRoot}>
             <TabsList className={styles.tabsList}>
               <TabsTrigger value="login" className={styles.tabTriggerLogin}>

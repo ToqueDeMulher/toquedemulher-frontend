@@ -5,45 +5,126 @@
   background-color: var(--theme-bg-canvas);
 }
 
-.decorLayer {
+.shell {
+  @apply w-full max-w-5xl relative z-10 grid overflow-hidden;
+  border-radius: 16px;
+  border: 1px solid var(--theme-border-soft);
+  box-shadow: 0 30px 70px -30px #28131c2e;
+}
+
+@media (min-width: 1024px) {
+  .shell {
+    grid-template-columns: 1fr 1.15fr;
+  }
+}
+
+.brandPanel {
   display: none;
 }
 
-.decorOrb {
-  @apply absolute rounded-full blur-3xl animate-pulse;
+@media (min-width: 1024px) {
+  .brandPanel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 56px 52px;
+    background: #261e23;
+    color: #fffafc;
+  }
 }
 
-.decorOrbTopLeft {
-  @apply top-10 left-10 w-32 h-32 bg-pink-300;
+.brandPanelGlow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 15%, #f7398633, transparent 60%),
+    radial-gradient(ellipse at 85% 95%, #f7398626, transparent 70%);
 }
 
-.decorOrbBottomRight {
-  @apply bottom-10 right-10 w-40 h-40 bg-pink-400 delay-1000;
+.brandFlowerTop,
+.brandFlowerBottom {
+  position: absolute;
+  color: #ffffff14;
 }
 
-.decorOrbCenter {
-  @apply top-1/2 left-1/2 w-36 h-36 bg-pink-200 delay-500;
+.brandFlowerTop {
+  width: 150px;
+  height: 150px;
+  top: -35px;
+  right: -25px;
 }
 
-.content {
-  @apply w-full max-w-md relative z-10 space-y-6;
+.brandFlowerBottom {
+  width: 110px;
+  height: 110px;
+  bottom: 15px;
+  left: -25px;
+}
+
+.brandPanelContent {
+  position: relative;
+  z-index: 1;
+}
+
+.brandLogo {
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  margin-bottom: 32px;
+}
+
+.brandLogo span {
+  color: #f73986;
+}
+
+.brandHeadline {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 2.4vw, 36px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  max-width: 340px;
+  margin-bottom: 16px;
+}
+
+.brandCopy {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #cfc2c8;
+  max-width: 300px;
+}
+
+.formPanel {
+  @apply p-5 sm:p-10;
+  background-color: var(--theme-card-bg);
 }
 
 .header {
-  @apply flex flex-col items-center text-center;
+  @apply flex flex-col items-center text-center mb-6;
+}
+
+.eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--theme-brand-strong);
+  margin-bottom: 10px;
 }
 
 .title {
-  @apply text-gray-900 mb-2 text-3xl sm:text-4xl font-semibold;
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  @apply mb-2 text-3xl sm:text-4xl font-medium;
 }
 
 .subtitle {
-  @apply text-gray-600 text-sm sm:text-base;
-}
-
-.card {
-  @apply bg-white p-5 sm:p-8 border border-pink-100;
-  border-radius: 12px;
+  @apply text-sm sm:text-base;
 }
 
 .tabsRoot {
@@ -51,16 +132,14 @@
 }
 
 .tabsList {
-  @apply grid w-full grid-cols-2 mb-8 bg-pink-50;
+  @apply grid w-full grid-cols-2 mb-8;
   border-radius: 10px;
 }
 
-.tabTriggerLogin {
-  @apply data-[state=active]:bg-pink-600 data-[state=active]:text-white;
-}
-
-.tabTriggerRegister {
-  @apply data-[state=active]:bg-pink-600 data-[state=active]:text-white;
+.tabTriggerLogin[data-state="active"],
+.tabTriggerRegister[data-state="active"] {
+  background-color: var(--theme-brand);
+  color: #fff;
 }
 
 .formLogin {
@@ -408,12 +487,6 @@
 .registerMeta,
 .footerMeta {
   color: var(--theme-text-secondary);
-}
-
-.card {
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
-  box-shadow: none;
 }
 
 .tabsList {

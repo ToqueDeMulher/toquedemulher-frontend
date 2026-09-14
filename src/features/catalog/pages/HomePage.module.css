@@ -552,15 +552,18 @@
 
 /* The original campaign stays large; pink and a soft checker add personality. */
 .page {
-  background-color: var(--theme-bg-canvas);
+  background-color: #fffdfa;
   background-image: conic-gradient(
     from 90deg,
-    #f7398605 25%,
+    #ffffff 25%,
     transparent 0 50%,
-    #f7398605 0 75%,
+    #ffffff 0 75%,
     transparent 0
   );
   background-size: 88px 88px;
+}
+:global(.dark) .page {
+  background-color: var(--theme-bg-canvas);
 }
 .heroSection {
   width: 100%;
