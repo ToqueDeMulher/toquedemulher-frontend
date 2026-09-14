@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
+  Truck,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
@@ -19,6 +20,7 @@ import { useIsMobile } from "@/shared/ui/use-mobile";
 import styles from "./AdminLayout.module.css";
 
 const adminNavItems = [
+  { to: routes.adminShipping, label: "Envios e etiquetas", icon: Truck },
   {
     to: routes.adminDashboard,
     label: "Dashboard",

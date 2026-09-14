@@ -6,6 +6,7 @@ export const routes = {
   confirmEmail: "/confirm-email",
   profile: "/perfil",
   adminDashboard: "/admin",
+  adminShipping: "/admin/envios",
   cart: "/carrinho",
   checkout: "/checkout",
   checkoutStep: (step: string = ":step") => `/checkout/${step}`,
@@ -15,7 +16,8 @@ export const routes = {
   about: "/sobre",
   productCreate: "/admin/produtos/novo",
   institutional: (slug: string = ":slug") => `/institucional/${slug}`,
-  search: (query?: string) => `/busca${query ? `?q=${encodeURIComponent(query)}` : ""}`,
+  search: (query?: string) =>
+    `/busca${query ? `?q=${encodeURIComponent(query)}` : ""}`,
   addressCreate: "/meu-endereco/novo",
   favorites: "/favoritos",
   accountRecovery: "/redefinir-senha",

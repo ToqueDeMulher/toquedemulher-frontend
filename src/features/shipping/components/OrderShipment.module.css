@@ -1,0 +1,25 @@
+.panel {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  background: var(--theme-brand-soft);
+  border: 1px solid #f7398633;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+.panel h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+.panel p {
+  font-size: 12px;
+  color: var(--theme-text-secondary);
+  line-height: 1.6;
+}
+.panel strong {
+  font-size: 12px;
+}
+.panel button {
+  justify-self: start;
+  margin-top: 6px;
+}

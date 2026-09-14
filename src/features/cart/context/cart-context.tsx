@@ -1,3 +1,7 @@
+import type {
+  ShippingQuote,
+  ShippingService,
+} from "@/features/cart/api/shipping-service";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   getProductById,
@@ -30,7 +34,32 @@ type CartContextValue = {
   updateItemQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   reset: () => void;
+  cartFingerprint: string;
+  shippingQuote: ShippingQuote | null;
+  shippingService: ShippingService | null;
+  setShippingQuote: (quote: ShippingQuote) => void;
+  selectShippingService: (id: number) => void;
+  clearShippingQuote: () => void;
 };
+
+type StoredShipping = {
+  quote: ShippingQuote;
+  fingerprint: string;
+  serviceId: number;
+};
+function readShipping(): StoredShipping | null {
+  try {
+    const data = JSON.parse(
+      sessionStorage.getItem("tdm_shipping_selection") || "null",
+    );
+    return data?.quote?.services?.length &&
+      Number.isFinite(Date.parse(data.quote.expires_at))
+      ? data
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 const CART_STORAGE_KEY = "tdm_cart_items";
 
@@ -80,6 +109,45 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const { trackCartAdd } = useGamification();
   const [items, setItems] = useState<CartItem[]>(readInitialCart);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [storedShipping, setStoredShipping] = useState<StoredShipping | null>(
+    readShipping,
+  );
+  const cartFingerprint = JSON.stringify(
+    items
+      .map((item) => [item.id, item.quantity, item.price])
+      .sort((a, b) => String(a[0]).localeCompare(String(b[0]))),
+  );
+  const shippingQuote =
+    storedShipping?.fingerprint === cartFingerprint &&
+    Date.parse(storedShipping.quote.expires_at) > Date.now()
+      ? storedShipping.quote
+      : null;
+  const shippingService =
+    shippingQuote?.services.find(
+      (service) => service.id === storedShipping?.serviceId,
+    ) ?? null;
+  useEffect(() => {
+    if (!storedShipping) return;
+    if (storedShipping.fingerprint !== cartFingerprint) {
+      setStoredShipping(null);
+      return;
+    }
+    const timeout = window.setTimeout(
+      () => setStoredShipping(null),
+      Math.max(0, Date.parse(storedShipping.quote.expires_at) - Date.now()),
+    );
+    return () => window.clearTimeout(timeout);
+  }, [storedShipping, cartFingerprint]);
+  useEffect(() => {
+    try {
+      if (storedShipping)
+        sessionStorage.setItem(
+          "tdm_shipping_selection",
+          JSON.stringify(storedShipping),
+        );
+      else sessionStorage.removeItem("tdm_shipping_selection");
+    } catch {}
+  }, [storedShipping]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -96,11 +164,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items]);
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
   const value = useMemo(
     () => ({
       items,
+      clearShippingQuote: () => setStoredShipping(null),
+      cartFingerprint,
+      shippingQuote,
+      shippingService,
+      setShippingQuote: (quote: ShippingQuote) =>
+        setStoredShipping({
+          quote,
+          fingerprint: cartFingerprint,
+          serviceId: quote.services[0].id,
+        }),
+      selectShippingService: (serviceId: number) =>
+        setStoredShipping((current) =>
+          current ? { ...current, serviceId } : null,
+        ),
       itemCount,
       subtotal,
       isCartOpen,
@@ -159,10 +244,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       },
       reset: () => {
         setItems([]);
+        setStoredShipping(null);
         setIsCartOpen(false);
       },
     }),
-    [isCartOpen, itemCount, items, subtotal, trackCartAdd],
+    [
+      isCartOpen,
+      itemCount,
+      items,
+      subtotal,
+      trackCartAdd,
+      cartFingerprint,
+      shippingQuote,
+      shippingService,
+    ],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

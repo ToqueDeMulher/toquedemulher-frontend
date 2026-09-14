@@ -1,3 +1,4 @@
+import { ShippingPage } from "@/features/admin/pages/ShippingPage";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { routes } from "@/app/router/paths";
 import { AppLayout } from "@/app/layout/AppLayout";
@@ -72,6 +73,7 @@ export function AppRoutes() {
           </RequireAdmin>
         }
       >
+        <Route path={routes.adminShipping} element={<ShippingPage />} />
         <Route path={routes.adminDashboard} element={<AdminDashboardPage />} />
         <Route path={routes.productCreate} element={<ProductCreatePage />} />
       </Route>

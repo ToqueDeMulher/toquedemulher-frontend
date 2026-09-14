@@ -1,3 +1,4 @@
+import { OrderShipment } from "@/features/shipping/components/OrderShipment";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   AlertTriangle,
@@ -202,8 +203,10 @@ function getOrderStatusLabel(status: string) {
 }
 
 function getOrderStatusClass(status: string) {
-  if (status === "approved") return `${styles.statusBadge} ${styles.statusDelivered}`;
-  if (status === "pending") return `${styles.statusBadge} ${styles.statusTransit}`;
+  if (status === "approved")
+    return `${styles.statusBadge} ${styles.statusDelivered}`;
+  if (status === "pending")
+    return `${styles.statusBadge} ${styles.statusTransit}`;
   return `${styles.statusBadge} ${styles.statusOther}`;
 }
 
@@ -227,7 +230,9 @@ function getPaymentTitle(method: SavedPaymentMethod) {
 
 function getPaymentDetail(method: SavedPaymentMethod) {
   if (method.method_type === "card") {
-    const brand = method.card_brand ? `${method.card_brand.toUpperCase()} ` : "";
+    const brand = method.card_brand
+      ? `${method.card_brand.toUpperCase()} `
+      : "";
     const validity =
       method.card_exp_month && method.card_exp_year
         ? ` · ${String(method.card_exp_month).padStart(2, "0")}/${method.card_exp_year}`
@@ -255,7 +260,11 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get("tab") ?? "orders";
-  const selectedTab = ["orders", "wishlist", "reviews", "settings"].includes(requestedTab) ? requestedTab : "orders";
+  const selectedTab = ["orders", "wishlist", "reviews", "settings"].includes(
+    requestedTab,
+  )
+    ? requestedTab
+    : "orders";
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileForm, setProfileForm] = useState<ProfileFormState>({
@@ -265,13 +274,14 @@ export function ProfilePage() {
   });
   const [passwordForm, setPasswordForm] =
     useState<PasswordFormState>(EMPTY_PASSWORD_FORM);
-  const [deleteAccountForm, setDeleteAccountForm] = useState<DeleteAccountFormState>(
-    EMPTY_DELETE_ACCOUNT_FORM
-  );
+  const [deleteAccountForm, setDeleteAccountForm] =
+    useState<DeleteAccountFormState>(EMPTY_DELETE_ACCOUNT_FORM);
   const [paymentForm, setPaymentForm] =
     useState<PaymentFormState>(EMPTY_PAYMENT_FORM);
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<SavedPaymentMethod[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<SavedPaymentMethod[]>(
+    [],
+  );
   const [orders, setOrders] = useState<ProfileOrder[]>([]);
   const [reviews, setReviews] = useState<ProfileReview[]>([]);
   const [isAccountLoading, setIsAccountLoading] = useState(true);
@@ -317,7 +327,11 @@ export function ProfilePage() {
         setReviews(nextReviews);
       } catch (error) {
         if (isMounted) {
-          toast.error(error instanceof Error ? error.message : "Não foi possível carregar o perfil.");
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Não foi possível carregar o perfil.",
+          );
         }
       } finally {
         if (isMounted) setIsAccountLoading(false);
@@ -348,7 +362,7 @@ export function ProfilePage() {
         .slice(0, 2)
         .map((part) => part.charAt(0).toUpperCase())
         .join(""),
-    [displayName]
+    [displayName],
   );
 
   const refreshProfile = async () => {
@@ -376,7 +390,9 @@ export function ProfilePage() {
     navigate(routes.home);
   };
 
-  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
@@ -395,7 +411,9 @@ export function ProfilePage() {
       toast.success("Foto de perfil atualizada!");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Nao foi possivel enviar sua foto.",
+        error instanceof Error
+          ? error.message
+          : "Nao foi possivel enviar sua foto.",
       );
     } finally {
       setIsUploadingAvatar(false);
@@ -415,7 +433,8 @@ export function ProfilePage() {
       return;
     }
 
-    const emailChanged = profile?.email && profile.email !== profileForm.email.trim();
+    const emailChanged =
+      profile?.email && profile.email !== profileForm.email.trim();
 
     setIsProfileSaving(true);
     try {
@@ -439,7 +458,9 @@ export function ProfilePage() {
       await refreshProfile();
       toast.success("Perfil atualizado.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erro ao atualizar perfil.");
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao atualizar perfil.",
+      );
     } finally {
       setIsProfileSaving(false);
     }
@@ -467,16 +488,23 @@ export function ProfilePage() {
       setPasswordForm(EMPTY_PASSWORD_FORM);
       toast.success("Senha alterada.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erro ao alterar senha.");
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao alterar senha.",
+      );
     } finally {
       setIsPasswordSaving(false);
     }
   };
 
-  const handleDeleteAccountSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleDeleteAccountSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
-    if (deleteAccountForm.confirm_email.trim().toLowerCase() !== email.toLowerCase()) {
+    if (
+      deleteAccountForm.confirm_email.trim().toLowerCase() !==
+      email.toLowerCase()
+    ) {
       toast.error("Digite o e-mail atual da conta para confirmar.");
       return;
     }
@@ -489,7 +517,8 @@ export function ProfilePage() {
     setIsDeletingAccount(true);
     try {
       await deleteAccount({
-        current_password: deleteAccountForm.current_password.trim() || undefined,
+        current_password:
+          deleteAccountForm.current_password.trim() || undefined,
         confirm_email: deleteAccountForm.confirm_email.trim(),
         confirm_text: deleteAccountForm.confirm_text.trim(),
       });
@@ -498,7 +527,9 @@ export function ProfilePage() {
       navigate(routes.home, { replace: true });
       toast.success("Conta excluída com sucesso.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erro ao excluir conta.");
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao excluir conta.",
+      );
     } finally {
       setIsDeletingAccount(false);
     }
@@ -506,7 +537,7 @@ export function ProfilePage() {
 
   const handleSetAddressDefault = async (
     addressId: string,
-    field: "is_default_shipping" | "is_default_billing"
+    field: "is_default_shipping" | "is_default_billing",
   ) => {
     setBusyAddressId(addressId);
     try {
@@ -514,7 +545,9 @@ export function ProfilePage() {
       await refreshAddresses();
       toast.success("Endereço atualizado.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erro ao atualizar endereço.");
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao atualizar endereço.",
+      );
     } finally {
       setBusyAddressId(null);
     }
@@ -527,7 +560,9 @@ export function ProfilePage() {
       await refreshAddresses();
       toast.success("Endereço removido.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erro ao remover endereço.");
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao remover endereço.",
+      );
     } finally {
       setBusyAddressId(null);
     }
@@ -575,7 +610,11 @@ export function ProfilePage() {
       setPaymentForm(EMPTY_PAYMENT_FORM);
       toast.success("Método de pagamento salvo.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erro ao salvar método de pagamento.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erro ao salvar método de pagamento.",
+      );
     } finally {
       setIsPaymentSaving(false);
     }
@@ -588,7 +627,11 @@ export function ProfilePage() {
       await refreshPaymentMethods();
       toast.success("Método principal atualizado.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erro ao atualizar método de pagamento.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erro ao atualizar método de pagamento.",
+      );
     } finally {
       setBusyPaymentId(null);
     }
@@ -601,7 +644,11 @@ export function ProfilePage() {
       await refreshPaymentMethods();
       toast.success("Método de pagamento removido.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erro ao remover método de pagamento.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erro ao remover método de pagamento.",
+      );
     } finally {
       setBusyPaymentId(null);
     }
@@ -631,7 +678,10 @@ export function ProfilePage() {
                   className={styles.input}
                   value={profileForm.name}
                   onChange={(event) =>
-                    setProfileForm((prev) => ({ ...prev, name: event.target.value }))
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      name: event.target.value,
+                    }))
                   }
                 />
               </label>
@@ -643,7 +693,10 @@ export function ProfilePage() {
                   type="email"
                   value={profileForm.email}
                   onChange={(event) =>
-                    setProfileForm((prev) => ({ ...prev, email: event.target.value }))
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      email: event.target.value,
+                    }))
                   }
                 />
               </label>
@@ -655,7 +708,10 @@ export function ProfilePage() {
                   inputMode="numeric"
                   value={profileForm.cpf}
                   onChange={(event) =>
-                    setProfileForm((prev) => ({ ...prev, cpf: event.target.value }))
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      cpf: event.target.value,
+                    }))
                   }
                 />
               </label>
@@ -667,7 +723,10 @@ export function ProfilePage() {
                   inputMode="tel"
                   value={profileForm.phone}
                   onChange={(event) =>
-                    setProfileForm((prev) => ({ ...prev, phone: event.target.value }))
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      phone: event.target.value,
+                    }))
                   }
                 />
               </label>
@@ -678,14 +737,19 @@ export function ProfilePage() {
                   className={styles.select}
                   value={profileForm.gender}
                   onChange={(event) =>
-                    setProfileForm((prev) => ({ ...prev, gender: event.target.value }))
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      gender: event.target.value,
+                    }))
                   }
                 >
                   <option value="">Não informado</option>
                   <option value="feminino">Feminino</option>
                   <option value="masculino">Masculino</option>
                   <option value="nao-binario">Não binário</option>
-                  <option value="prefiro-nao-informar">Prefiro não informar</option>
+                  <option value="prefiro-nao-informar">
+                    Prefiro não informar
+                  </option>
                 </select>
               </label>
 
@@ -731,7 +795,10 @@ export function ProfilePage() {
             </div>
           </form>
 
-          <form className={styles.settingsPanel} onSubmit={handlePasswordSubmit}>
+          <form
+            className={styles.settingsPanel}
+            onSubmit={handlePasswordSubmit}
+          >
             <div className={styles.panelHeader}>
               <div className={styles.panelTitleRow}>
                 <ShieldCheck className={styles.panelIcon} />
@@ -798,7 +865,9 @@ export function ProfilePage() {
             </div>
           </form>
 
-          <section className={`${styles.settingsPanel} ${styles.settingsPanelWide}`}>
+          <section
+            className={`${styles.settingsPanel} ${styles.settingsPanelWide}`}
+          >
             <div className={styles.panelHeader}>
               <div className={styles.panelTitleRow}>
                 <MapPin className={styles.panelIcon} />
@@ -816,10 +885,10 @@ export function ProfilePage() {
             </div>
 
             {addresses.length === 0 ? (
-              <EmptyState 
-                icon={MapPin} 
-                title="Nenhum endereço" 
-                description="Você ainda não possui endereços cadastrados para entrega." 
+              <EmptyState
+                icon={MapPin}
+                title="Nenhum endereço"
+                description="Você ainda não possui endereços cadastrados para entrega."
               />
             ) : (
               <div className={styles.itemList}>
@@ -832,23 +901,35 @@ export function ProfilePage() {
                         </p>
                         <div className={styles.badgeGroup}>
                           {address.is_default_shipping && (
-                            <Badge className={styles.statusTransit}>Entrega</Badge>
+                            <Badge className={styles.statusTransit}>
+                              Entrega
+                            </Badge>
                           )}
                           {address.is_default_billing && (
-                            <Badge className={styles.statusOther}>Cobrança</Badge>
+                            <Badge className={styles.statusOther}>
+                              Cobrança
+                            </Badge>
                           )}
                         </div>
                       </div>
-                      <p className={styles.savedItemText}>{formatAddress(address)}</p>
+                      <p className={styles.savedItemText}>
+                        {formatAddress(address)}
+                      </p>
                     </div>
                     <div className={styles.itemActions}>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={busyAddressId === address.id || address.is_default_shipping}
+                        disabled={
+                          busyAddressId === address.id ||
+                          address.is_default_shipping
+                        }
                         onClick={() =>
-                          handleSetAddressDefault(address.id, "is_default_shipping")
+                          handleSetAddressDefault(
+                            address.id,
+                            "is_default_shipping",
+                          )
                         }
                       >
                         Entrega
@@ -857,9 +938,15 @@ export function ProfilePage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={busyAddressId === address.id || address.is_default_billing}
+                        disabled={
+                          busyAddressId === address.id ||
+                          address.is_default_billing
+                        }
                         onClick={() =>
-                          handleSetAddressDefault(address.id, "is_default_billing")
+                          handleSetAddressDefault(
+                            address.id,
+                            "is_default_billing",
+                          )
                         }
                       >
                         Cobrança
@@ -882,7 +969,9 @@ export function ProfilePage() {
             )}
           </section>
 
-          <section className={`${styles.settingsPanel} ${styles.settingsPanelWide}`}>
+          <section
+            className={`${styles.settingsPanel} ${styles.settingsPanelWide}`}
+          >
             <div className={styles.panelHeader}>
               <div className={styles.panelTitleRow}>
                 <CreditCard className={styles.panelIcon} />
@@ -891,7 +980,10 @@ export function ProfilePage() {
             </div>
 
             <div className={styles.paymentGrid}>
-              <form className={styles.paymentForm} onSubmit={handlePaymentSubmit}>
+              <form
+                className={styles.paymentForm}
+                onSubmit={handlePaymentSubmit}
+              >
                 <div className={styles.formGrid}>
                   <label className={styles.fieldGroup}>
                     Tipo
@@ -986,7 +1078,10 @@ export function ProfilePage() {
                           onChange={(event) =>
                             setPaymentForm((prev) => ({
                               ...prev,
-                              card_last4: onlyDigits(event.target.value).slice(0, 4),
+                              card_last4: onlyDigits(event.target.value).slice(
+                                0,
+                                4,
+                              ),
                             }))
                           }
                         />
@@ -1005,13 +1100,14 @@ export function ProfilePage() {
                           }
                         >
                           <option value="">MM</option>
-                          {Array.from({ length: 12 }, (_, index) => index + 1).map(
-                            (month) => (
-                              <option key={month} value={month}>
-                                {String(month).padStart(2, "0")}
-                              </option>
-                            )
-                          )}
+                          {Array.from(
+                            { length: 12 },
+                            (_, index) => index + 1,
+                          ).map((month) => (
+                            <option key={month} value={month}>
+                              {String(month).padStart(2, "0")}
+                            </option>
+                          ))}
                         </select>
                       </label>
 
@@ -1028,13 +1124,14 @@ export function ProfilePage() {
                           }
                         >
                           <option value="">AAAA</option>
-                          {Array.from({ length: 12 }, (_, index) => 2026 + index).map(
-                            (year) => (
-                              <option key={year} value={year}>
-                                {year}
-                              </option>
-                            )
-                          )}
+                          {Array.from(
+                            { length: 12 },
+                            (_, index) => 2026 + index,
+                          ).map((year) => (
+                            <option key={year} value={year}>
+                              {year}
+                            </option>
+                          ))}
                         </select>
                       </label>
                     </>
@@ -1069,34 +1166,42 @@ export function ProfilePage() {
 
               <div className={styles.itemList}>
                 {paymentMethods.length === 0 ? (
-                  <EmptyState 
-                    icon={CreditCard} 
-                    title="Nenhum cartão" 
-                    description="Salve um método de pagamento para acelerar suas compras." 
+                  <EmptyState
+                    icon={CreditCard}
+                    title="Nenhum cartão"
+                    description="Salve um método de pagamento para acelerar suas compras."
                   />
                 ) : (
                   paymentMethods.map((method) => (
                     <div key={method.id} className={styles.savedItem}>
                       <div className={styles.savedItemContent}>
                         <div className={styles.savedItemHeader}>
-                          <p className={styles.savedItemTitle}>{getPaymentTitle(method)}</p>
+                          <p className={styles.savedItemTitle}>
+                            {getPaymentTitle(method)}
+                          </p>
                           <div className={styles.badgeGroup}>
                             <Badge className={styles.statusTransit}>
                               {paymentTypeLabel[method.method_type]}
                             </Badge>
                             {method.is_default && (
-                              <Badge className={styles.statusDelivered}>Principal</Badge>
+                              <Badge className={styles.statusDelivered}>
+                                Principal
+                              </Badge>
                             )}
                           </div>
                         </div>
-                        <p className={styles.savedItemText}>{getPaymentDetail(method)}</p>
+                        <p className={styles.savedItemText}>
+                          {getPaymentDetail(method)}
+                        </p>
                       </div>
                       <div className={styles.itemActions}>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          disabled={busyPaymentId === method.id || method.is_default}
+                          disabled={
+                            busyPaymentId === method.id || method.is_default
+                          }
                           onClick={() => handleSetPaymentDefault(method.id)}
                         >
                           Principal
@@ -1142,8 +1247,8 @@ export function ProfilePage() {
             </div>
 
             <p className={styles.dangerText}>
-              Esta ação desativa seu acesso, remove seus dados pessoais do perfil e não
-              pode ser desfeita.
+              Esta ação desativa seu acesso, remove seus dados pessoais do
+              perfil e não pode ser desfeita.
             </p>
 
             <div className={styles.formGrid}>
@@ -1195,7 +1300,11 @@ export function ProfilePage() {
             </div>
 
             <div className={styles.formActions}>
-              <Button type="submit" variant="destructive" disabled={isDeletingAccount}>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={isDeletingAccount}
+              >
                 {isDeletingAccount ? (
                   <Loader2 className={styles.iconInlineSpin} />
                 ) : (
@@ -1213,7 +1322,13 @@ export function ProfilePage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <div className={styles.pageHeading}><span>SEU ESPAÇO NA TOQUE</span><h2>Que bom ter você por aqui.</h2><p>Seus pedidos, seus favoritos e os detalhes que fazem a diferença.</p></div>
+        <div className={styles.pageHeading}>
+          <span>SEU ESPAÇO NA TOQUE</span>
+          <h2>Que bom ter você por aqui.</h2>
+          <p>
+            Seus pedidos, seus favoritos e os detalhes que fazem a diferença.
+          </p>
+        </div>
         <div className={styles.profileCard}>
           <div className={styles.profileRow}>
             <div className={styles.profileInfo}>
@@ -1295,12 +1410,23 @@ export function ProfilePage() {
                 </p>
               </div>
             </div>
-            <Progress value={progressToNextLevel} className={styles.progressBar} />
+            <Progress
+              value={progressToNextLevel}
+              className={styles.progressBar}
+            />
             <div className={styles.loyaltyActions}>
-              <Button variant="default" size="sm" onClick={() => navigate(routes.missions)}>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate(routes.missions)}
+              >
                 Ver missões
               </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate(routes.ranking)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(routes.ranking)}
+              >
                 Ver ranking
               </Button>
             </div>
@@ -1308,7 +1434,20 @@ export function ProfilePage() {
         </div>
 
         <div className={styles.tabsCard}>
-          <Tabs value={selectedTab} onValueChange={tab => setSearchParams(prev => { const next = new URLSearchParams(prev); next.set("tab", tab); return next; }, { replace: true })} className={styles.tabsRoot}>
+          <Tabs
+            value={selectedTab}
+            onValueChange={(tab) =>
+              setSearchParams(
+                (prev) => {
+                  const next = new URLSearchParams(prev);
+                  next.set("tab", tab);
+                  return next;
+                },
+                { replace: true },
+              )
+            }
+            className={styles.tabsRoot}
+          >
             <TabsList className={styles.tabsList}>
               <TabsTrigger value="orders" className={styles.tabTrigger}>
                 <Package className={styles.iconInline} />
@@ -1336,50 +1475,56 @@ export function ProfilePage() {
                   Carregando pedidos...
                 </div>
               ) : orders.length === 0 ? (
-                <EmptyState 
-                  icon={Package} 
-                  title="Nenhum pedido" 
+                <EmptyState
+                  icon={Package}
+                  title="Nenhum pedido"
                   description="Seus pedidos e o andamento de cada compra aparecem aqui."
-                  action={<Button onClick={() => navigate(routes.category("maquiagem"))}>Descobrir produtos</Button>}
+                  action={
+                    <Button
+                      onClick={() => navigate(routes.category("maquiagem"))}
+                    >
+                      Descobrir produtos
+                    </Button>
+                  }
                 />
               ) : (
                 <div className={styles.ordersList}>
                   {orders.map((order) => (
-                  <div key={order.id} className={styles.orderCard}>
-                    <div className={styles.orderInfo}>
-                      <div className={styles.orderIconWrap}>
-                        <Package className={styles.orderIcon} />
+                    <div key={order.id} className={styles.orderCard}>
+                      <div className={styles.orderInfo}>
+                        <div className={styles.orderIconWrap}>
+                          <Package className={styles.orderIcon} />
+                        </div>
+                        <div>
+                          <p className={styles.orderId}>
+                            Pedido #{order.id.slice(0, 8).toUpperCase()}
+                          </p>
+                          <p className={styles.orderMeta}>
+                            {formatDate(order.order_date)} • {order.items_count}{" "}
+                            {order.items_count === 1 ? "item" : "itens"}
+                          </p>
+                          <p className={styles.orderMeta}>
+                            {getOrderPreview(order)}
+                          </p>
+                          <Badge className={getOrderStatusClass(order.status)}>
+                            {getOrderStatusLabel(order.status)}
+                          </Badge>
+                        </div>
                       </div>
-                      <div>
-                        <p className={styles.orderId}>
-                          Pedido #{order.id.slice(0, 8).toUpperCase()}
+                      <div className={styles.textRight}>
+                        <p className={styles.orderTotal}>
+                          {formatCurrency(order.total)}
                         </p>
-                        <p className={styles.orderMeta}>
-                          {formatDate(order.order_date)} • {order.items_count}{" "}
-                          {order.items_count === 1 ? "item" : "itens"}
-                        </p>
-                        <p className={styles.orderMeta}>
-                          {getOrderPreview(order)}
-                        </p>
-                        <Badge className={getOrderStatusClass(order.status)}>
-                          {getOrderStatusLabel(order.status)}
-                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.orderButton}
+                          onClick={() => setSelectedOrder(order)}
+                        >
+                          Ver detalhes
+                        </Button>
                       </div>
                     </div>
-                    <div className={styles.textRight}>
-                      <p className={styles.orderTotal}>
-                        {formatCurrency(order.total)}
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={styles.orderButton}
-                        onClick={() => setSelectedOrder(order)}
-                      >
-                        Ver detalhes
-                      </Button>
-                    </div>
-                  </div>
                   ))}
                 </div>
               )}
@@ -1398,10 +1543,10 @@ export function ProfilePage() {
                   Carregando avaliações...
                 </div>
               ) : reviews.length === 0 ? (
-                <EmptyState 
-                  icon={Star} 
-                  title="Nenhuma avaliação" 
-                  description="Você ainda não avaliou nenhum produto." 
+                <EmptyState
+                  icon={Star}
+                  title="Nenhuma avaliação"
+                  description="Você ainda não avaliou nenhum produto."
                 />
               ) : (
                 <div className={styles.reviewList}>
@@ -1409,11 +1554,15 @@ export function ProfilePage() {
                     <div key={review.id} className={styles.reviewCard}>
                       <div className={styles.reviewHeader}>
                         <div>
-                          <p className={styles.reviewTitle}>{review.product_name}</p>
+                          <p className={styles.reviewTitle}>
+                            {review.product_name}
+                          </p>
                           <div className={styles.reviewStars}>
-                            {Array.from({ length: review.rating }).map((_, i) => (
-                              <Star key={i} className={styles.reviewStar} />
-                            ))}
+                            {Array.from({ length: review.rating }).map(
+                              (_, i) => (
+                                <Star key={i} className={styles.reviewStar} />
+                              ),
+                            )}
                           </div>
                         </div>
                         <span className={styles.reviewDate}>
@@ -1440,7 +1589,10 @@ export function ProfilePage() {
         </div>
       </div>
 
-      <Dialog open={selectedOrder !== null} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+      <Dialog
+        open={selectedOrder !== null}
+        onOpenChange={(open) => !open && setSelectedOrder(null)}
+      >
         <DialogContent>
           {selectedOrder && (
             <>
@@ -1458,12 +1610,16 @@ export function ProfilePage() {
 
               <div className={styles.orderDetailList}>
                 {selectedOrder.items.length === 0 ? (
-                  <p className={styles.orderMeta}>Pedido sem itens registrados.</p>
+                  <p className={styles.orderMeta}>
+                    Pedido sem itens registrados.
+                  </p>
                 ) : (
                   selectedOrder.items.map((item) => (
                     <div key={item.id} className={styles.orderDetailItem}>
                       <div>
-                        <p className={styles.orderDetailItemTitle}>{item.title}</p>
+                        <p className={styles.orderDetailItemTitle}>
+                          {item.title}
+                        </p>
                         <p className={styles.orderMeta}>
                           {item.quantity}x {formatCurrency(item.unit_price)}
                         </p>
@@ -1476,6 +1632,10 @@ export function ProfilePage() {
                 )}
               </div>
 
+              <OrderShipment
+                key={selectedOrder.id}
+                orderId={selectedOrder.id}
+              />
               <div className={styles.orderDetailTotal}>
                 <span>Total</span>
                 <strong>{formatCurrency(selectedOrder.total)}</strong>
