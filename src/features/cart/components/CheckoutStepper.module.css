@@ -50,7 +50,7 @@
   background: var(--theme-surface-primary);
   color: var(--theme-text-muted);
   border: 1px solid var(--theme-border-soft);
-  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  transition: background 0.25s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .iconCircleActive {

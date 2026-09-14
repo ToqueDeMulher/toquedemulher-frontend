@@ -72,6 +72,13 @@ export function forgotPasswordRequest(email: string) {
   });
 }
 
+export function resetPasswordRequest(token: string, newPassword: string) {
+  return apiRequest<{ message: string }>("/user/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, new_password: newPassword }),
+  });
+}
+
 export function confirmEmailRequest(token: string) {
   return apiRequest<{ mensagem: string }>("/user/confirm-email", {
     method: "POST",

@@ -11,8 +11,8 @@
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
   transition:
     transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 280ms ease,
-    border-color 280ms ease;
+    box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .card::before {
@@ -27,7 +27,7 @@
     var(--theme-accent-cyan)
   );
   opacity: 0;
-  transition: opacity 0.22s ease;
+  transition: opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .card::after {
@@ -45,8 +45,8 @@
   opacity: 0;
   pointer-events: none;
   transition:
-    transform 620ms ease,
-    opacity 280ms ease;
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .card:focus-within {
@@ -107,7 +107,7 @@
   height: var(--product-card-image-h, 10.25rem);
   max-height: 10.25rem;
   background-color: transparent;
-  transition: transform 0.32s ease;
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (min-width: 640px) {
@@ -151,9 +151,9 @@
   background-color: color-mix(in oklab, var(--theme-surface-primary) 88%, transparent);
   border: 1px solid var(--theme-border-soft);
   transition:
-    transform 220ms ease,
-    background-color 220ms ease,
-    border-color 220ms ease;
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .heartIcon {
@@ -229,9 +229,9 @@
   transform: translateY(10px);
   pointer-events: none;
   transition:
-    opacity 0.22s ease,
-    transform 0.22s ease,
-    box-shadow 0.22s ease;
+    opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .cartIcon {

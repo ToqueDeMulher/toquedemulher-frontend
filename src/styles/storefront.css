@@ -65,7 +65,7 @@ input:not([type=checkbox]):not([type=radio]):not([type=file]),select { min-heigh
 .store-empty > svg { margin:0 auto 20px; color:var(--theme-brand-strong); width:36px; height:36px; }
 .store-empty h2 { font-size:36px; margin-bottom:12px; }
 .store-empty p { color:var(--theme-text-secondary); margin-bottom:24px; }
-.route-content { animation:page-arrive .38s ease both; }
+.route-content { animation:page-arrive .38s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .store-skip { position:fixed; left:20px; top:-100px; z-index:100; border-radius:8px; padding:12px 18px; background:var(--primary); color:var(--primary-foreground); }
 .store-skip:focus { top:12px; }
 @keyframes page-arrive { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
@@ -90,7 +90,7 @@ h1,h2 { font-weight:600; }
 /* Colorful details keep the experience playful without changing the brand. */
 :root { --play-lime:#dafa81; --play-lilac:#dcc1ff; --play-blue:#c4d9ff; --play-pink:#ff80c3; --play-ink:#38204d; }
 .dark { --play-lime:#dafa81; --play-lilac:#dcc1ff; --play-blue:#c4d9ff; --play-pink:#ff80c3; --play-ink:#38204d; }
-[data-slot=button]:hover svg { animation:button-pop .4s ease; }
+[data-slot=button]:hover svg { animation:button-pop .4s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes button-pop { 0%,100% { transform:scale(1); } 50% { transform:scale(1.18) rotate(-8deg); } }
 :root { --retro-cream:#fff4d9; --retro-lime:#e0f2a0; --retro-blue:#2149c6; --retro-sky:#c6dfff; --retro-orange:#ffd09d; --retro-text:#23231c; }
 .dark { --retro-cream:#28251c; --retro-lime:#2c3a22; --retro-blue:#2643a2; --retro-sky:#1e304c; --retro-orange:#503322; --retro-text:#f0f3de; }

@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   AlertTriangle,
+  Camera,
   CreditCard,
   Heart,
   Loader2,
@@ -39,17 +40,27 @@ import {
   updateEmail,
   updatePassword,
   updateProfile,
+  uploadAvatar,
   type ProfileOrder,
   type ProfileReview,
   type UserProfile,
 } from "@/features/auth/api/profile-service";
+import { resolveApiAssetUrl } from "@/shared/api/api-client";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useGamification } from "@/features/gamification/context/gamification-context";
+import { FavoritesContent } from "@/features/catalog/pages/FavoritesPage";
 import { Button } from "@/shared/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { EmptyState } from "@/shared/ui/empty-state";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/shared/ui/dialog";
 import { ThemeSwitcher } from "@/app/layout/components/ThemeSwitcher";
 import styles from "./ProfilePage.module.css";
 
@@ -267,6 +278,9 @@ export function ProfilePage() {
   const [isPaymentSaving, setIsPaymentSaving] = useState(false);
   const [busyAddressId, setBusyAddressId] = useState<string | null>(null);
   const [busyPaymentId, setBusyPaymentId] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<ProfileOrder | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (isAdmin) return;
@@ -357,6 +371,32 @@ export function ProfilePage() {
   const handleLogout = () => {
     logout();
     navigate(routes.home);
+  };
+
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Formato de imagem invalido. Use JPEG, PNG ou WebP.");
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+
+    try {
+      const updatedProfile = await uploadAvatar(file);
+      setProfile(updatedProfile);
+      toast.success("Foto de perfil atualizada!");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Nao foi possivel enviar sua foto.",
+      );
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
 
   const handleProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -1174,7 +1214,35 @@ export function ProfilePage() {
           <div className={styles.profileRow}>
             <div className={styles.profileInfo}>
               <div className={styles.avatar}>
-                <span>{initials || "CL"}</span>
+                {profile?.avatar_url ? (
+                  <img
+                    src={resolveApiAssetUrl(profile.avatar_url)}
+                    alt={`Foto de perfil de ${displayName}`}
+                    className={styles.avatarImage}
+                  />
+                ) : (
+                  <span>{initials || "CL"}</span>
+                )}
+                <button
+                  type="button"
+                  className={styles.avatarEditButton}
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={isUploadingAvatar}
+                  aria-label="Trocar foto de perfil"
+                >
+                  {isUploadingAvatar ? (
+                    <Loader2 className={styles.avatarEditIconSpin} />
+                  ) : (
+                    <Camera className={styles.avatarEditIcon} />
+                  )}
+                </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className={styles.hiddenInput}
+                  onChange={handleAvatarChange}
+                />
               </div>
               <div>
                 <h1 className={styles.name}>{displayName}</h1>
@@ -1301,7 +1369,7 @@ export function ProfilePage() {
                         variant="outline"
                         size="sm"
                         className={styles.orderButton}
-                        disabled
+                        onClick={() => setSelectedOrder(order)}
                       >
                         Ver detalhes
                       </Button>
@@ -1314,11 +1382,7 @@ export function ProfilePage() {
 
             <TabsContent value="wishlist" className={styles.tabContent}>
               <h2 className={styles.sectionTitle}>Minha Wishlist</h2>
-              <EmptyState 
-                icon={Heart} 
-                title="Wishlist vazia" 
-                description="Seus produtos favoritos aparecerão aqui." 
-              />
+              <FavoritesContent />
             </TabsContent>
 
             <TabsContent value="reviews" className={styles.tabContent}>
@@ -1370,6 +1434,51 @@ export function ProfilePage() {
           </Tabs>
         </div>
       </div>
+
+      <Dialog open={selectedOrder !== null} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+        <DialogContent>
+          {selectedOrder && (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  Pedido #{selectedOrder.id.slice(0, 8).toUpperCase()}
+                </DialogTitle>
+                <DialogDescription>
+                  {formatDate(selectedOrder.order_date)} ·{" "}
+                  <Badge className={getOrderStatusClass(selectedOrder.status)}>
+                    {getOrderStatusLabel(selectedOrder.status)}
+                  </Badge>
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className={styles.orderDetailList}>
+                {selectedOrder.items.length === 0 ? (
+                  <p className={styles.orderMeta}>Pedido sem itens registrados.</p>
+                ) : (
+                  selectedOrder.items.map((item) => (
+                    <div key={item.id} className={styles.orderDetailItem}>
+                      <div>
+                        <p className={styles.orderDetailItemTitle}>{item.title}</p>
+                        <p className={styles.orderMeta}>
+                          {item.quantity}x {formatCurrency(item.unit_price)}
+                        </p>
+                      </div>
+                      <p className={styles.orderDetailItemTotal}>
+                        {formatCurrency(item.quantity * item.unit_price)}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className={styles.orderDetailTotal}>
+                <span>Total</span>
+                <strong>{formatCurrency(selectedOrder.total)}</strong>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

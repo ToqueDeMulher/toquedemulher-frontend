@@ -197,10 +197,10 @@ body {
   background-color: var(--theme-bg-canvas);
   color: var(--theme-text-primary);
   transition:
-    background-color 0.28s ease,
-    color 0.28s ease,
-    border-color 0.28s ease,
-    box-shadow 0.28s ease;
+    background-color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
   hr {
@@ -328,12 +328,12 @@ body {
   [role="button"],
   a[data-slot="button"] {
     transition:
-      background-color 0.28s ease,
-      border-color 0.28s ease,
-      color 0.28s ease,
-      box-shadow 0.28s ease,
-      opacity 0.28s ease,
-      transform 0.28s ease;
+      background-color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   button:not(:disabled),
@@ -366,7 +366,7 @@ body {
       transparent
     );
     transform: translateX(-120%) skewX(-18deg);
-    transition: transform 0.58s ease;
+    transition: transform 0.58s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   [data-slot="button"]:hover::after,
@@ -2917,7 +2917,7 @@ body {
   }
 
   .data-\[motion\^\=from-\]\:animate-in[data-motion^="from-"] {
-    animation: enter var(--tw-duration, .15s) var(--tw-ease, ease);
+    animation: enter var(--tw-duration, .15s) var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .data-\[motion\^\=from-\]\:fade-in[data-motion^="from-"] {
@@ -2925,7 +2925,7 @@ body {
   }
 
   .data-\[motion\^\=to-\]\:animate-out[data-motion^="to-"] {
-    animation: exit var(--tw-duration, .15s) var(--tw-ease, ease);
+    animation: exit var(--tw-duration, .15s) var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .data-\[motion\^\=to-\]\:fade-out[data-motion^="to-"] {
@@ -3035,7 +3035,7 @@ body {
   }
 
   .data-\[state\=closed\]\:animate-out[data-state="closed"] {
-    animation: exit var(--tw-duration, .15s) var(--tw-ease, ease);
+    animation: exit var(--tw-duration, .15s) var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .data-\[state\=closed\]\:fade-out-0[data-state="closed"] {
@@ -3047,7 +3047,7 @@ body {
   }
 
   .group-data-\[viewport\=false\]\/navigation-menu\:data-\[state\=closed\]\:animate-out:is(:where(.group\/navigation-menu)[data-viewport="false"] *)[data-state="closed"] {
-    animation: exit var(--tw-duration, .15s) var(--tw-ease, ease);
+    animation: exit var(--tw-duration, .15s) var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .group-data-\[viewport\=false\]\/navigation-menu\:data-\[state\=closed\]\:fade-out-0:is(:where(.group\/navigation-menu)[data-viewport="false"] *)[data-state="closed"] {
@@ -3059,7 +3059,7 @@ body {
   }
 
   .data-\[state\=hidden\]\:animate-out[data-state="hidden"] {
-    animation: exit var(--tw-duration, .15s) var(--tw-ease, ease);
+    animation: exit var(--tw-duration, .15s) var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .data-\[state\=hidden\]\:fade-out[data-state="hidden"] {
@@ -3071,7 +3071,7 @@ body {
   }
 
   .data-\[state\=open\]\:animate-in[data-state="open"] {
-    animation: enter var(--tw-duration, .15s) var(--tw-ease, ease);
+    animation: enter var(--tw-duration, .15s) var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .data-\[state\=open\]\:bg-accent\/50[data-state="open"] {
@@ -3105,7 +3105,7 @@ body {
   }
 
   .group-data-\[viewport\=false\]\/navigation-menu\:data-\[state\=open\]\:animate-in:is(:where(.group\/navigation-menu)[data-viewport="false"] *)[data-state="open"] {
-    animation: enter var(--tw-duration, .15s) var(--tw-ease, ease);
+    animation: enter var(--tw-duration, .15s) var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .group-data-\[viewport\=false\]\/navigation-menu\:data-\[state\=open\]\:fade-in-0:is(:where(.group\/navigation-menu)[data-viewport="false"] *)[data-state="open"] {
@@ -3127,7 +3127,7 @@ body {
   }
 
   .data-\[state\=visible\]\:animate-in[data-state="visible"] {
-    animation: enter var(--tw-duration, .15s) var(--tw-ease, ease);
+    animation: enter var(--tw-duration, .15s) var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .data-\[state\=visible\]\:fade-in[data-state="visible"] {

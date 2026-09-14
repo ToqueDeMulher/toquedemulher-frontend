@@ -22,6 +22,8 @@ import { RankingPage } from "@/features/gamification/pages/RankingPage";
 import { NotFoundPage } from "@/features/system/pages/NotFoundPage";
 import { SearchResultsPage } from "@/features/catalog/pages/SearchResultsPage";
 import { AddressPage } from "@/features/auth/pages/AddressPage";
+import { FavoritesPage } from "@/features/catalog/pages/FavoritesPage";
+import { ResetPasswordPage } from "@/features/auth/pages/ResetPasswordPage";
 
 export function AppRoutes() {
   return (
@@ -40,6 +42,8 @@ export function AppRoutes() {
         <Route path={routes.ranking} element={<RankingPage />} />
         <Route path={routes.login} element={<LoginPage />} />
         <Route path={routes.confirmEmail} element={<ConfirmEmailPage />} />
+        <Route path={routes.accountRecovery} element={<ResetPasswordPage />} />
+        <Route path={routes.favorites} element={<FavoritesPage />} />
         <Route
           path={routes.profile}
           element={

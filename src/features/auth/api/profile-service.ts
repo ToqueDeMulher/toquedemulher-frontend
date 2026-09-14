@@ -11,6 +11,7 @@ export type UserProfile = {
   accepts_marketing?: boolean | null;
   created_at?: string | null;
   role?: string | null;
+  avatar_url?: string | null;
 };
 
 export type ProfileOrderItem = {
@@ -100,5 +101,15 @@ export function deleteAccount(payload: DeleteAccountPayload) {
   return apiRequest<MessageResponse>("/user/me", {
     method: "DELETE",
     body: JSON.stringify(payload),
+  });
+}
+
+export function uploadAvatar(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiRequest<UserProfile>("/user/me/avatar", {
+    method: "POST",
+    body: formData,
   });
 }

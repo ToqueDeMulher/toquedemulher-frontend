@@ -23,7 +23,27 @@
 }
 
 .avatar {
-  @apply w-24 h-24 bg-gradient-to-br from-pink-300 to-pink-500 rounded-full flex items-center justify-center text-white text-lg font-semibold;
+  @apply relative w-24 h-24 bg-gradient-to-br from-pink-300 to-pink-500 rounded-full flex items-center justify-center text-white text-lg font-semibold overflow-hidden flex-none;
+}
+
+.avatarImage {
+  @apply w-full h-full object-cover;
+}
+
+.avatarEditButton {
+  @apply absolute bottom-0 right-0 flex size-8 items-center justify-center rounded-full bg-white text-pink-600 border border-pink-200 shadow-sm hover:bg-pink-50 disabled:opacity-60;
+}
+
+.avatarEditIcon {
+  @apply size-4;
+}
+
+.avatarEditIconSpin {
+  @apply size-4 animate-spin;
+}
+
+.hiddenInput {
+  @apply hidden;
 }
 
 .name {
@@ -190,6 +210,26 @@
 
 .orderButton {
   @apply w-full sm:w-auto;
+}
+
+.orderDetailList {
+  @apply flex flex-col gap-3 mt-2;
+}
+
+.orderDetailItem {
+  @apply flex items-center justify-between gap-4 py-3 border-b border-pink-100 last:border-b-0;
+}
+
+.orderDetailItemTitle {
+  @apply text-gray-800 font-medium;
+}
+
+.orderDetailItemTotal {
+  @apply text-gray-800 font-semibold whitespace-nowrap;
+}
+
+.orderDetailTotal {
+  @apply flex items-center justify-between mt-4 pt-4 border-t border-pink-100 text-lg;
 }
 
 .wishlistGrid {
@@ -467,6 +507,8 @@
 .loyaltyPoints,
 .sectionTitle,
 .orderId,
+.orderDetailItemTitle,
+.orderDetailItemTotal,
 .wishlistTitle,
 .reviewTitle,
 .panelTitle,

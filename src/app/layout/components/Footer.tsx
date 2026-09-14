@@ -252,7 +252,7 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link to={routes.institutional("desejos")} className={styles.linkButton}>
+                  <Link to={routes.favorites} className={styles.linkButton}>
                     Lista de Desejos
                   </Link>
                 </li>

@@ -17,4 +17,6 @@ export const routes = {
   institutional: (slug: string = ":slug") => `/institucional/${slug}`,
   search: (query?: string) => `/busca${query ? `?q=${encodeURIComponent(query)}` : ""}`,
   addressCreate: "/meu-endereco/novo",
+  favorites: "/favoritos",
+  accountRecovery: "/redefinir-senha",
 } as const;
