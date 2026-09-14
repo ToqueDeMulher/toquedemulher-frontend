@@ -444,42 +444,6 @@
   background-color: var(--theme-bg-subtle);
 }
 
-/* ─── Sumário de navegação (index) ─────────────────────────── */
-.toc {
-  @apply hidden lg:block sticky top-24 self-start p-5 border;
-  border-radius: 12px;
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
-  width: 220px;
-}
-
-.tocTitle {
-  @apply text-xs font-bold uppercase tracking-wider mb-3;
-  color: var(--theme-text-muted);
-}
-
-.tocList {
-  @apply space-y-2;
-}
-
-.tocItem {
-  @apply text-xs transition-colors cursor-pointer;
-  color: var(--theme-text-secondary);
-}
-
-.tocItem:hover {
-  color: var(--theme-brand-strong);
-}
-
-/* ─── Layout com sidebar ────────────────────────────────────── */
-.withToc {
-  @apply flex gap-8 items-start;
-}
-
-.mainContent {
-  @apply flex-1 min-w-0;
-}
-
 /* ─── Highlight box ─────────────────────────────────────────── */
 .highlight {
   @apply rounded-xl p-4 border-l-4 my-6;

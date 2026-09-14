@@ -9,44 +9,6 @@
   padding: 0 1rem;
 }
 
-.breadcrumb {
-  padding-top: 1rem;
-  padding-bottom: 0.5rem;
-}
-
-.breadcrumbRow {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  color: var(--theme-text-muted);
-}
-
-.breadcrumbLink {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  color: var(--theme-text-muted);
-  text-decoration: none;
-}
-
-.breadcrumbLink:hover {
-  color: var(--theme-text-primary);
-  text-decoration: underline;
-}
-
-.breadcrumbIcon {
-  width: 1rem;
-  height: 1rem;
-  color: var(--theme-text-muted);
-}
-
-.breadcrumbActive {
-  color: var(--theme-text-primary);
-  font-weight: 500;
-}
-
 .searchSection {
   padding: 1.5rem 0;
 }

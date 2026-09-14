@@ -38,28 +38,6 @@
   @apply bg-white;
 }
 
-.emptyWrap {
-  @apply max-w-2xl mx-auto text-center py-14 px-6 bg-white border border-pink-100;
-  border-radius: 14px;
-}
-
-.emptyIcon {
-  @apply size-14 mx-auto mb-4 text-pink-300;
-}
-
-.emptyTitle {
-  @apply text-xl sm:text-2xl font-semibold text-gray-900 mb-2;
-  font-family: var(--font-display);
-}
-
-.emptyText {
-  @apply text-base text-gray-600 mb-8;
-}
-
-.emptyButton {
-  @apply w-full sm:w-auto;
-}
-
 .section {
   @apply p-4 sm:p-5;
 }
@@ -410,19 +388,6 @@
   @apply w-full;
 }
 
-.recommendSection {
-  @apply mt-10;
-}
-
-.recommendTitle {
-  @apply text-xl sm:text-2xl font-semibold text-gray-900 mb-4;
-  font-family: var(--font-display);
-}
-
-.recommendGrid {
-  @apply grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4;
-}
-
 @media (max-width: 1279px) {
   .summaryCard {
     position: static;
@@ -438,7 +403,6 @@
 
 .cartCard,
 .cartBody,
-.emptyWrap,
 .itemsPanel,
 .itemCard,
 .summaryCard,
@@ -448,7 +412,6 @@
   border-color: var(--theme-border-soft);
 }
 
-.emptyTitle,
 .sectionTitle,
 .itemTitle,
 .price,
@@ -456,12 +419,10 @@
 .lineTotal,
 .summaryActionHeader,
 .summaryShippingTitle,
-.summarySectionTitle,
-.recommendTitle {
+.summarySectionTitle {
   color: var(--theme-text-primary);
 }
 
-.emptyText,
 .sectionText,
 .itemStockText,
 .itemActionLink,
@@ -472,7 +433,6 @@
   color: var(--theme-text-secondary);
 }
 
-.emptyText,
 .sectionText,
 .itemStockText,
 .itemActionLink,
@@ -483,7 +443,6 @@
   color: color-mix(in oklab, var(--theme-text-primary) 86%, var(--theme-text-secondary));
 }
 
-.emptyIcon,
 .sectionIconWrap,
 .freeShippingIcon,
 .summaryChevron,

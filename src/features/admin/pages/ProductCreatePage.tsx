@@ -211,7 +211,6 @@ export function ProductCreatePage() {
 
   const handleImageFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    fieldId: string,
     index: number,
   ) => {
     const file = event.target.files?.[0];
@@ -1025,7 +1024,7 @@ export function ProductCreatePage() {
                         accept="image/jpeg,image/png,image/webp"
                         className={styles.hiddenInput}
                         onChange={(event) =>
-                          handleImageFileChange(event, field.id, index)
+                          handleImageFileChange(event, index)
                         }
                       />
                       <Button

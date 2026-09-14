@@ -277,93 +277,6 @@
   @apply animate-spin;
 }
 
-.methodGrid {
-  @apply grid gap-3 sm:grid-cols-3 mb-6;
-}
-
-.methodFieldset {
-  @apply mb-2;
-}
-
-.methodLegend {
-  @apply mb-3 text-sm font-medium text-gray-700;
-}
-
-.methodButton {
-  @apply border border-pink-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.methodButton:hover {
-  @apply border-pink-300 bg-pink-50;
-}
-
-.methodButtonActive {
-  @apply border-pink-500 bg-pink-50 text-pink-700;
-}
-
-.methodButton:focus-within {
-  outline: 3px solid rgb(247 57 134 / 0.25);
-  outline-offset: 2px;
-}
-
-.methodRadio {
-  @apply sr-only;
-}
-
-.confirmationCard {
-  @apply border border-pink-100 bg-pink-50/60 p-5 text-center mb-5;
-  border-radius: 12px;
-}
-
-.confirmationIconWrap {
-  @apply inline-flex items-center justify-center rounded-full bg-white text-pink-600 mb-4;
-  width: 4rem;
-  height: 4rem;
-}
-
-.confirmationIcon {
-  @apply size-7;
-}
-
-.confirmationTitle {
-  @apply text-2xl font-semibold text-gray-900 mb-3;
-  font-family: var(--font-display);
-}
-
-.confirmationText {
-  @apply text-sm sm:text-base text-gray-600 max-w-2xl mx-auto;
-}
-
-.confirmationGrid {
-  @apply grid gap-4 sm:grid-cols-2;
-}
-
-.confirmationPanel {
-  @apply border border-pink-100 bg-white p-4;
-  border-radius: 10px;
-}
-
-.confirmationPanelTitle {
-  @apply text-sm font-semibold text-gray-900 mb-3;
-}
-
-.confirmationPanelText {
-  @apply text-sm text-gray-600 leading-relaxed;
-}
-
-.confirmationReward {
-  @apply inline-flex items-center gap-2 text-sm font-semibold text-pink-700 mb-2;
-}
-
-.confirmationRewardIcon {
-  @apply size-4;
-}
-
 .actionsRow {
   @apply px-5 sm:px-6 pb-6 flex flex-col-reverse sm:flex-row gap-3;
 }
@@ -374,12 +287,6 @@
 
 .primaryButton {
   @apply w-full sm:flex-1;
-}
-
-.confettiButtonWrap {
-  position: relative;
-  display: inline-flex;
-  width: 100%;
 }
 
 .resultLayout {
@@ -551,8 +458,6 @@
 .noticeCard,
 .paymentGatewayCard,
 .paymentGatewayMeta,
-.confirmationCard,
-.confirmationPanel,
 .resultCard,
 .resultIconWrap,
 .resultSession,
@@ -569,8 +474,6 @@
 .saveAddressTitle,
 .noticeTitle,
 .paymentGatewayTitle,
-.confirmationTitle,
-.confirmationPanelTitle,
 .resultTitle,
 .summaryItemName,
 .summaryPrice,
@@ -588,8 +491,6 @@
 .saveAddressText,
 .noticeText,
 .paymentGatewayText,
-.confirmationText,
-.confirmationPanelText,
 .resultText,
 .resultSession,
 .summaryItemMeta,
@@ -609,8 +510,6 @@
 .saveAddressText,
 .noticeText,
 .paymentGatewayText,
-.confirmationText,
-.confirmationPanelText,
 .resultText,
 .resultSession,
 .summaryItemMeta,
@@ -626,7 +525,6 @@
 .selectedAddressNotice,
 .saveAddressToggle,
 .noticeCard,
-.confirmationCard,
 .summaryPanel {
   background-color: var(--theme-card-muted);
 }
@@ -635,7 +533,6 @@
 .addressLoadingIcon,
 .savedAddressIcon,
 .noticeIcon,
-.confirmationIconWrap,
 .summaryEtaIcon {
   color: var(--theme-brand-strong);
 }
@@ -666,27 +563,6 @@
   background-color: var(--theme-input-bg);
   border-color: var(--theme-input-border);
   color: var(--theme-text-primary);
-}
-
-.methodLegend,
-.methodButton {
-  color: var(--theme-text-primary);
-}
-
-.methodButton {
-  background-color: var(--theme-surface-primary);
-  border-color: var(--theme-input-border);
-}
-
-.methodButton:hover {
-  background-color: var(--theme-brand-soft);
-  border-color: var(--theme-border-strong);
-}
-
-.methodButtonActive {
-  background-color: var(--theme-brand-soft);
-  border-color: var(--theme-brand-strong);
-  color: var(--theme-brand-strong);
 }
 
 .secondaryButton {
@@ -741,17 +617,9 @@
     grid-column: 1;
   }
 
-  .methodGrid {
-    grid-template-columns: 1fr;
-  }
-
   .actionsRow {
     padding-left: 1rem;
     padding-right: 1rem;
-  }
-
-  .confirmationGrid {
-    grid-template-columns: 1fr;
   }
 
   .stepper {

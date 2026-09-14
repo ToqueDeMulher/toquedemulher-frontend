@@ -323,7 +323,6 @@
 .reviewTitle,
 .relatedTitle,
 .faqTitle,
-.summaryTitle,
 .confirmationTitle {
   color: var(--theme-text-primary);
 }
