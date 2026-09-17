@@ -24,7 +24,6 @@ type AuthContextValue = {
   login: (params: {
     user: AuthUser;
     accessToken: string;
-    refreshToken: string;
   }) => void;
   updateUser: (user: AuthUser) => void;
   logout: () => void;
@@ -43,19 +42,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
+  useEffect(() => {
+    window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
       role: user?.role ?? null,
       isLoggedIn: user !== null,
       isAdmin: user?.role === "admin",
-      login: ({ user: nextUser, accessToken, refreshToken }: {
+      login: ({ user: nextUser, accessToken }: {
         user: AuthUser;
         accessToken: string;
-        refreshToken: string;
       }) => {
         window.localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
-        window.localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
         window.localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));
         setUser(nextUser);
       },

@@ -207,14 +207,12 @@ export function LoginPage() {
     (params: {
       authUser: { id: string; name: string; email: string; role: AuthRole };
       accessToken: string;
-      refreshToken: string;
       successMessage: string;
       delay?: number;
     }) => {
       const {
         authUser,
         accessToken,
-        refreshToken,
         successMessage,
         delay = 1200,
       } = params;
@@ -227,7 +225,6 @@ export function LoginPage() {
         login({
           user: authUser,
           accessToken,
-          refreshToken,
         });
         navigate(resolveRedirect(authUser.role), { replace: true });
       }, delay);
@@ -251,7 +248,6 @@ export function LoginPage() {
         completeSignIn({
           authUser: normalizeAuthUser(me),
           accessToken: token.access_token,
-          refreshToken: token.refresh_token,
           successMessage:
             me.role === "admin"
               ? "Login admin com Google realizado com sucesso!"
@@ -372,7 +368,6 @@ export function LoginPage() {
       completeSignIn({
         authUser: normalizeAuthUser(me),
         accessToken: token.access_token,
-        refreshToken: token.refresh_token,
         successMessage:
           me.role === "admin"
             ? "Login admin realizado com sucesso!"
@@ -443,7 +438,6 @@ export function LoginPage() {
     completeSignIn({
       authUser: normalizeAuthUser(me),
       accessToken: token.access_token,
-      refreshToken: token.refresh_token,
       successMessage: "Cadastro realizado com sucesso! Bem-vinda!",
       delay: 1500,
     });

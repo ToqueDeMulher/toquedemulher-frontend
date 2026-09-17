@@ -253,8 +253,10 @@ O helper `src/shared/api/api-client.ts`:
 Chaves de autenticação usadas no navegador:
 
 - `tdm_access_token`
-- `tdm_refresh_token`
 - `tdm_auth_user`
+
+O refresh token retornado pela API não é persistido: ainda não há fluxo de
+renovação ativo. Tokens antigos são removidos do navegador ao iniciar o app.
 
 ### Cadastro administrativo de produtos
 
