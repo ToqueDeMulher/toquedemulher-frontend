@@ -1437,7 +1437,7 @@ export function ProfilePage() {
                 size="sm"
                 onClick={() => navigate(routes.ranking)}
               >
-                Ver ranking
+                Ver comunidade
               </Button>
             </div>
           </div>

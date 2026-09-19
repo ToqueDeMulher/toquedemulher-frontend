@@ -429,7 +429,7 @@ export function HomePage() {
                     : "Continue descobrindo seus favoritos."}
                 </p>
                 <Link to={routes.ranking} className={styles.textLink}>
-                  Ver ranking <ArrowRight size={16} />
+                  Ver jardim da comunidade <ArrowRight size={16} />
                 </Link>
               </>
             ) : (

@@ -93,7 +93,7 @@ function getBreadcrumbItems(pathname: string, search: string): BreadcrumbItem[] 
   if (pathname === routes.help) return [...base, { label: "Central de Ajuda" }];
   if (pathname === routes.about) return [...base, { label: "Sobre Nós" }];
   if (pathname === routes.missions) return [...base, { label: "Missões" }];
-  if (pathname === routes.ranking) return [...base, { label: "Ranking" }];
+  if (pathname === routes.ranking) return [...base, { label: "Comunidade" }];
 
   if (pathname === "/busca") {
     const query = new URLSearchParams(search).get("q");
