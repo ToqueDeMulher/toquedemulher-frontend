@@ -1,9 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { Navigate, useParams } from "react-router-dom";
-import { ArrowRight, SlidersHorizontal, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, Navigate, useParams } from "react-router-dom";
+import {
+  ArrowRight,
+  Heart,
+  SearchX,
+  SlidersHorizontal,
+  Sparkles,
+} from "lucide-react";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
 import {
   Select,
   SelectContent,
@@ -11,11 +16,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
+import { BeautyFlower } from "@/shared/ui/BeautyFlower";
 import {
   catalogCategories,
   defaultCategorySlug,
   getProductsByCategory,
   isCatalogCategorySlug,
+  type CatalogCategorySlug,
 } from "@/features/catalog/data/catalog-products";
 import { routes } from "@/app/router/paths";
 import { useCart } from "@/features/cart/context/cart-context";
@@ -23,13 +30,42 @@ import { useGamification } from "@/features/gamification/context/gamification-co
 import { Reveal } from "@/shared/animation/Reveal";
 import styles from "./CategoryPage.module.css";
 
-const categoryDescriptions = {
-  maquiagem: "Bases, blushes, batons e kits para looks do dia a dia ou produções completas.",
-  skincare: "Limpeza, hidratação e tratamento para uma rotina de cuidado consistente.",
-  corpo: "Cremes, loções e autocuidado corporal para manter a pele nutrida e perfumada.",
-  cabelos: "Tratamentos e finalizadores para rotina capilar com brilho, força e reparação.",
-  perfumes: "Fragrâncias femininas marcantes, do floral delicado ao amadeirado sofisticado.",
-} as const;
+const CATEGORY_EDITORIAL: Record<
+  CatalogCategorySlug,
+  { eyebrow: string; statement: string; note: string }
+> = {
+  maquiagem: {
+    eyebrow: "Cor, textura e expressão",
+    statement: "Seu jeito de criar, todos os dias.",
+    note: "Do detalhe sutil ao look completo, escolha o que combina com o seu momento.",
+  },
+  skincare: {
+    eyebrow: "Cuidado em cada etapa",
+    statement: "Uma rotina que acolhe a sua pele.",
+    note: "Texturas e ativos para transformar constância em um ritual prazeroso.",
+  },
+  corpo: {
+    eyebrow: "Pausa para você",
+    statement: "Cuidado que também se sente.",
+    note: "Nutrição, perfume e conforto para prolongar a sensação de pele bem cuidada.",
+  },
+  cabelos: {
+    eyebrow: "Força, brilho e movimento",
+    statement: "Seu cabelo no melhor ritmo.",
+    note: "Tratamentos e finalizadores para acompanhar cada fase da sua rotina capilar.",
+  },
+  perfumes: {
+    eyebrow: "Memória e personalidade",
+    statement: "Uma assinatura que fica.",
+    note: "Encontre a fragrância que traduz sua presença, do primeiro toque ao fundo.",
+  },
+};
+
+const CATEGORY_ORDER = Object.keys(catalogCategories) as CatalogCategorySlug[];
+
+function formatSubcategory(value: string) {
+  return value.replace(/(^|\s)\S/g, (letter) => letter.toUpperCase());
+}
 
 export function CategoryPage() {
   const { category } = useParams();
@@ -40,10 +76,7 @@ export function CategoryPage() {
   const isValidCategory = isCatalogCategorySlug(category);
 
   useEffect(() => {
-    if (!isValidCategory) {
-      return;
-    }
-
+    if (!isValidCategory) return;
     setFilteredCategory("all");
     setSortBy("featured");
     trackCategoryView(category);
@@ -54,16 +87,14 @@ export function CategoryPage() {
   }
 
   const categoryConfig = catalogCategories[category];
+  const editorial = CATEGORY_EDITORIAL[category];
   const categoryProducts = getProductsByCategory(category);
-  const subcategories = useMemo(
-    () => [
-      "all",
-      ...new Set(
-        categoryProducts.map((product) => product.subcategory.toLowerCase()),
-      ),
-    ],
-    [categoryProducts],
-  );
+  const subcategories = [
+    "all",
+    ...new Set(
+      categoryProducts.map((product) => product.subcategory.toLowerCase()),
+    ),
+  ];
 
   const filteredProducts = categoryProducts.filter((product) =>
     filteredCategory === "all"
@@ -86,182 +117,167 @@ export function CategoryPage() {
     }
   });
 
-  const featuredSubcategories = subcategories
-    .filter((item) => item !== "all")
-    .slice(0, 3);
+  const categoryIndex = CATEGORY_ORDER.indexOf(category);
+  const nextCategory =
+    CATEGORY_ORDER[(categoryIndex + 1) % CATEGORY_ORDER.length] ?? defaultCategorySlug;
+  const hasFilterChoices = subcategories.length > 2;
+  const hasSortingChoices = categoryProducts.length > 1;
 
   return (
     <div className={styles.page}>
       <section className={`${styles.container} ${styles.heroSection}`}>
-        <Reveal className={styles.heroCard} delayMs={60}>
+        <Reveal className={styles.heroCard} delayMs={50}>
+          <BeautyFlower className={styles.heroFlower} />
           <div className={styles.heroContent}>
-            <div className={styles.heroEyebrow}>
+            <p className={styles.heroEyebrow}>
               <Sparkles className={styles.heroEyebrowIcon} />
-              Categoria em destaque
-            </div>
-
+              {editorial.eyebrow}
+            </p>
             <h1 className={styles.headerTitle}>{categoryConfig.title}</h1>
-            <p className={styles.headerDescription}>{categoryDescriptions[category]}</p>
-
-            <div className={styles.heroMeta}>
-              <div className={styles.heroMetric}>
-                <span className={styles.heroMetricLabel}>Produtos</span>
-                <strong className={styles.heroMetricValue}>{categoryProducts.length}</strong>
-              </div>
-              <div className={styles.heroMetric}>
-                <span className={styles.heroMetricLabel}>Subcategorias</span>
-                <strong className={styles.heroMetricValue}>{subcategories.length - 1}</strong>
-              </div>
-              <div className={styles.heroMetric}>
-                <span className={styles.heroMetricLabel}>Seleção</span>
-                <strong className={styles.heroMetricValue}>Atualizada</strong>
-              </div>
-            </div>
-
-            <div className={styles.heroChips}>
-              {featuredSubcategories.map((subcategory) => (
-                <Badge key={subcategory} className={styles.heroChip}>
-                  {subcategory}
-                </Badge>
-              ))}
-            </div>
+            <p className={styles.heroStatement}>{editorial.statement}</p>
+            <p className={styles.headerDescription}>{editorial.note}</p>
           </div>
 
-          <div className={styles.heroAside}>
-            <div className={styles.heroAsideCard}>
-              <p className={styles.heroAsideTitle}>A mesma atmosfera elegante da home.</p>
-              <p className={styles.heroAsideText}>
-                Navegue pela categoria com mais ritmo visual, filtros claros e vitrine mais refinada.
-              </p>
-              <div className={styles.heroAsideLink}>
-                Ver destaques
-                <ArrowRight className={styles.heroAsideIcon} />
-              </div>
+          <aside className={styles.heroAside} aria-label="Resumo da categoria">
+            <span className={styles.heroIndex}>
+              0{categoryIndex + 1} / 0{CATEGORY_ORDER.length}
+            </span>
+            <div className={styles.heroAsideMain}>
+              <strong>{categoryProducts.length}</strong>
+              <span>{categoryProducts.length === 1 ? "produto" : "produtos"}</span>
             </div>
-          </div>
+            <div className={styles.heroTags}>
+              {subcategories
+                .filter((item) => item !== "all")
+                .slice(0, 4)
+                .map((subcategory) => (
+                  <span key={subcategory}>{formatSubcategory(subcategory)}</span>
+                ))}
+            </div>
+          </aside>
         </Reveal>
       </section>
 
-      <div className={`${styles.container} ${styles.filterSection}`}>
-        <Reveal className={styles.filterCard} delayMs={100}>
-          <div className={styles.filterRow}>
-            <div className={styles.filterGroup}>
-              <div className={styles.filterLabel}>
-                <SlidersHorizontal className={styles.filterIcon} />
-                <span className={styles.filterLabelText}>Filtrar</span>
-              </div>
+      <section className={`${styles.container} ${styles.productsSection}`}>
+        <div className={styles.productsHeader}>
+          <div>
+            <p className={styles.sectionEyebrow}>Seleção da categoria</p>
+            <h2 className={styles.sectionTitle}>Escolha com calma.</h2>
+          </div>
+          <p className={styles.resultsRow} aria-live="polite">
+            <strong>{sortedProducts.length}</strong>{" "}
+            {sortedProducts.length === 1 ? "resultado" : "resultados"}
+          </p>
+        </div>
 
-              <div className={styles.filterButtons}>
-                {subcategories.map((subcategory) => (
-                  <Button
-                    key={subcategory}
-                    variant={filteredCategory === subcategory ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setFilteredCategory(subcategory)}
-                    className={
-                      filteredCategory === subcategory
-                        ? styles.filterButtonActive
-                        : styles.filterButton
-                    }
+        {(hasFilterChoices || hasSortingChoices) && (
+          <Reveal className={styles.filterCard} delayMs={80}>
+            {hasFilterChoices && (
+              <div className={styles.filterGroup}>
+                <span className={styles.filterLabel}>
+                  <SlidersHorizontal className={styles.filterIcon} />
+                  Filtrar por
+                </span>
+                <div className={styles.filterButtons}>
+                  {subcategories.map((subcategory) => {
+                    const isActive = filteredCategory === subcategory;
+                    return (
+                      <button
+                        key={subcategory}
+                        type="button"
+                        aria-pressed={isActive}
+                        onClick={() => setFilteredCategory(subcategory)}
+                        className={`${styles.filterButton} ${
+                          isActive ? styles.filterButtonActive : ""
+                        }`}
+                      >
+                        {subcategory === "all"
+                          ? "Todos"
+                          : formatSubcategory(subcategory)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {hasSortingChoices && (
+              <div className={styles.sortRow}>
+                <span className={styles.sortLabel}>Ordenar</span>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger
+                    className={styles.sortTrigger}
+                    aria-label="Ordenar produtos da categoria"
                   >
-                    {subcategory === "all" ? "Todos" : subcategory}
-                  </Button>
-                ))}
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="featured">Em destaque</SelectItem>
+                    <SelectItem value="price-asc">Menor preço</SelectItem>
+                    <SelectItem value="price-desc">Maior preço</SelectItem>
+                    <SelectItem value="rating">Melhor avaliação</SelectItem>
+                    <SelectItem value="name">Nome de A a Z</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-
-            <div className={styles.sortRow}>
-              <span className={styles.sortLabel}>Ordenar por:</span>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger
-                  className={styles.sortTrigger}
-                  aria-label="Ordenar produtos da categoria"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="featured">Em Destaque</SelectItem>
-                  <SelectItem value="price-asc">Menor Preço</SelectItem>
-                  <SelectItem value="price-desc">Maior Preço</SelectItem>
-                  <SelectItem value="rating">Melhor Avaliação</SelectItem>
-                  <SelectItem value="name">Nome A-Z</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className={styles.resultsRow} aria-live="polite">
-            Mostrando <span className={styles.resultsCount}>{sortedProducts.length}</span> produtos
-          </div>
-        </Reveal>
-      </div>
-
-      <div className={`${styles.container} ${styles.productsSection}`}>
-        <Reveal className={styles.productsGrid} delayMs={130}>
-          {sortedProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              {...product}
-              onAddToCart={() => addItem(product.id, 1)}
-            />
-          ))}
-        </Reveal>
-
-        {sortedProducts.length === 0 && (
-          <Reveal className={styles.emptyState} delayMs={160}>
-            <div className={styles.emptyCard}>
-              <div className={styles.emptyIcon}>
-                <svg
-                  className={styles.emptySvg}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className={styles.emptyTitle}>Nenhum produto encontrado</h3>
-              <p className={styles.emptyText}>
-                Tente selecionar outra categoria ou limpar os filtros.
-              </p>
-              <Button
-                variant="link"
-                className={styles.clearButton}
-                onClick={() => setFilteredCategory("all")}
-              >
-                Limpar filtros
-              </Button>
-            </div>
+            )}
           </Reveal>
         )}
-      </div>
 
-      <div className={`${styles.container} ${styles.newsletterSection}`}>
-        <Reveal className={styles.newsletterCard} delayMs={180}>
-          <div className={styles.newsletterPattern} />
-          <div className={styles.newsletterContent}>
-            <h2 className={styles.newsletterTitle}>Receba novidades</h2>
-            <p className={styles.newsletterText}>
-              Assine nossa newsletter e receba ofertas exclusivas no seu e-mail.
-            </p>
-            <div className={styles.newsletterForm}>
-              <input
-                type="email"
-                placeholder="Seu melhor e-mail"
-                className={styles.newsletterInput}
+        {sortedProducts.length > 0 ? (
+          <Reveal className={styles.productsGrid} delayMs={110}>
+            {sortedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                {...product}
+                onAddToCart={() => addItem(product.id, 1)}
               />
-              <Button size="lg" variant="outline" className={styles.newsletterButton}>
-                Quero receber
-              </Button>
-            </div>
+            ))}
+          </Reveal>
+        ) : (
+          <div className={styles.emptyCard}>
+            <span className={styles.emptyIcon}><SearchX /></span>
+            <h3 className={styles.emptyTitle}>Nenhum produto nesta seleção.</h3>
+            <p className={styles.emptyText}>Escolha outro filtro para continuar explorando.</p>
+            <Button
+              variant="outline"
+              className={styles.clearButton}
+              onClick={() => setFilteredCategory("all")}
+            >
+              Mostrar todos
+            </Button>
+          </div>
+        )}
+      </section>
+
+      <section className={`${styles.container} ${styles.discoverySection}`}>
+        <Reveal className={styles.discoveryCard} delayMs={140}>
+          <BeautyFlower className={styles.discoveryFlower} />
+          <div>
+            <p className={styles.discoveryEyebrow}>Continue descobrindo</p>
+            <h2 className={styles.discoveryTitle}>
+              Depois de {categoryConfig.title.toLowerCase()}, explore {" "}
+              {catalogCategories[nextCategory].title.toLowerCase()}.
+            </h2>
+            <p className={styles.discoveryText}>
+              Uma nova seleção espera por você, com escolhas para completar o seu ritual.
+            </p>
+          </div>
+          <div className={styles.discoveryActions}>
+            <Button asChild className={styles.discoveryPrimary}>
+              <Link to={routes.category(nextCategory)}>
+                Ver {catalogCategories[nextCategory].title}
+                <ArrowRight className={styles.actionIcon} />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className={styles.discoverySecondary}>
+              <Link to={routes.favorites}>
+                <Heart className={styles.actionIcon} /> Meus favoritos
+              </Link>
+            </Button>
           </div>
         </Reveal>
-      </div>
+      </section>
     </div>
   );
 }
