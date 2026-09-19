@@ -1,8 +1,8 @@
 .page {
   display: grid;
-  gap: 24px;
+  gap: 20px;
   color: var(--theme-text-primary);
-  padding: 24px 0 48px;
+  padding: 0 0 48px;
 }
 .heading {
   display: flex;
@@ -15,12 +15,17 @@
   gap: 8px;
   align-items: center;
   color: var(--theme-text-secondary);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 .heading h1 {
   font-family: var(--font-display);
   font-size: 34px;
-  margin: 10px 0;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  margin: 8px 0;
 }
 .page p {
   color: var(--theme-text-secondary);
@@ -32,10 +37,10 @@
   justify-content: space-between;
   align-items: center;
   gap: 24px;
-  background: var(--theme-brand-soft);
-  border: 1px solid #f7398640;
-  border-radius: 28px 8px 28px 8px;
-  padding: 28px;
+  background: linear-gradient(135deg, var(--theme-surface-primary), var(--theme-card-muted));
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 14px;
+  padding: 24px;
 }
 .page h2 {
   font-family: var(--font-display);
@@ -48,13 +53,13 @@
   gap: 12px;
 }
 .connection svg {
-  color: #f73986;
+  color: var(--theme-brand-strong);
 }
 .card {
   background: var(--theme-surface-primary);
-  padding: 28px;
+  padding: 24px;
   border: 1px solid var(--theme-border-soft);
-  border-radius: 12px;
+  border-radius: 14px;
   display: grid;
   gap: 12px;
 }
@@ -65,9 +70,10 @@
 .card select {
   width: 100%;
   padding: 12px;
-  border: 1px solid var(--theme-border-soft);
+  border: 1px solid var(--theme-input-border);
   border-radius: 8px;
-  background: var(--theme-surface-primary);
+  background: var(--theme-input-bg);
+  color: var(--theme-text-primary);
   font-size: 13px;
 }
 .dimensions {
@@ -102,7 +108,8 @@
   padding: 8px 12px;
   border-radius: 30px;
   background: var(--theme-brand-soft);
-  border: 1px solid #f7398630;
+  border: 1px solid var(--theme-border-strong);
+  color: var(--theme-brand-strong);
 }
 .invoice {
   display: grid;
@@ -118,7 +125,7 @@
 .error {
   color: var(--theme-text-primary) !important;
   padding: 12px;
-  border-left: 3px solid #f73986;
+  border-left: 3px solid var(--theme-brand-strong);
   background: var(--theme-brand-soft);
 }
 .recovery {

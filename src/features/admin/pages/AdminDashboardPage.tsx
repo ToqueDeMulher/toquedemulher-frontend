@@ -13,7 +13,6 @@ import {
   RotateCcw,
   Search,
   ShoppingBag,
-  Store,
   TrendingUp,
   Users,
   WalletCards,
@@ -22,7 +21,6 @@ import {
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { routes } from "@/app/router/paths";
-import { useAuth } from "@/features/auth/context/auth-context";
 import {
   getAdminDashboard,
   type AdminDashboard,
@@ -109,13 +107,13 @@ function KpiCard({ item }: { item: AdminKpi }) {
   const Icon = KPI_ICONS[item.key] ?? TrendingUp;
 
   return (
-    <article className={styles.kpiCard}>
+    <article className={`${styles.kpiCard} ${item.key === "net_sales" ? styles.kpiFeatured : ""}`}>
       <div className={styles.kpiIconWrap}>
         <Icon className={styles.kpiIcon} />
       </div>
       <div className={styles.kpiContent}>
-        <p className={styles.kpiValue}>{item.value}</p>
         <p className={styles.kpiTitle}>{item.title}</p>
+        <p className={styles.kpiValue}>{item.value}</p>
         <p className={styles.kpiDetail}>{item.detail}</p>
       </div>
     </article>
@@ -123,7 +121,6 @@ function KpiCard({ item }: { item: AdminKpi }) {
 }
 
 export function AdminDashboardPage() {
-  const { user } = useAuth();
   const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -178,7 +175,6 @@ export function AdminDashboardPage() {
   const primaryKpis = [...prioritizedKpis, ...fallbackKpis].slice(0, 3);
   const primaryKpiKeys = new Set(primaryKpis.map((item) => item.key));
   const secondaryKpis = allKpis.filter((item) => !primaryKpiKeys.has(item.key));
-  const userInitial = (user?.name ?? user?.email ?? "A").charAt(0).toUpperCase();
 
   const getBarHeight = (value: number) => {
     if (!hasMonthlyData || value <= 0) return "0%";
@@ -189,52 +185,46 @@ export function AdminDashboardPage() {
     <section className={styles.page}>
       <header className={styles.topBar}>
         <div className={styles.topTitleBlock}>
-          <p className={styles.topEyebrow}>Ecommerce</p>
-          <h1 className={styles.topTitle}>Vendas e pedidos</h1>
+          <p className={styles.topEyebrow}>GESTÃO DA LOJA</p>
+          <h1 className={styles.topTitle}>Visão geral</h1>
           <p className={styles.topSubtitle}>
-            Painel conectado ao checkout, pagamentos, itens vendidos e catálogo.
+            Acompanhe vendas, pedidos e produtos em um só lugar.
           </p>
-          {dashboard?.generated_at && (
-            <p className={styles.updatedAt}>
-              Atualizado em {formatDateTime(dashboard.generated_at)}
-            </p>
-          )}
         </div>
-
-        <div className={styles.topSearch}>
-          <Search className={styles.searchIcon} />
-          <Input
-            className={styles.searchInput}
-            placeholder="Filtrar por pedido, cliente, status ou produto"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-          />
-        </div>
-
         <div className={styles.topActions}>
+          {dashboard?.generated_at && (
+            <span className={styles.updatedAt}>
+              Atualizado em {formatDateTime(dashboard.generated_at)}
+            </span>
+          )}
+          <Button type="button" size="sm" variant="outline" className={styles.secondaryAction}
+            onClick={() => void loadDashboard()} disabled={isLoading}>
+            <RefreshCw className={`${styles.actionIcon} ${isLoading ? styles.spinning : ""}`} />
+            Atualizar
+          </Button>
           <Button asChild size="sm" className={styles.primaryAction}>
             <Link to={routes.productCreate}>
               <PackagePlus className={styles.actionIcon} />
-              Cadastrar produto
+              Novo produto
             </Link>
           </Button>
-          <Button asChild size="sm" variant="outline" className={styles.secondaryAction}>
-            <Link to={routes.home}>
-              <Store className={styles.actionIcon} />
-              Ver loja
-            </Link>
-          </Button>
-          <div className={styles.profileCard}>
-            <div className={styles.profileAvatar}>{userInitial}</div>
-            <div className={styles.profileInfo}>
-              <p className={styles.profileName}>{user?.name ?? "Administrador"}</p>
-              <p className={styles.profileRole}>Admin</p>
-            </div>
-          </div>
         </div>
       </header>
 
-      {errorMessage && (
+      <div className={styles.filterBar}>
+        <div>
+          <label htmlFor="admin-search" className={styles.filterLabel}>Buscar neste painel</label>
+          <p className={styles.filterHint}>Filtra pedidos recentes e produtos mais vendidos.</p>
+        </div>
+        <div className={styles.topSearch}>
+          <Search className={styles.searchIcon} aria-hidden="true" />
+          <Input id="admin-search" type="search" className={styles.searchInput}
+            placeholder="Pedido, cliente ou produto"
+            value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
+        </div>
+      </div>
+
+      {errorMessage && dashboard && (
         <div className={styles.errorState}>
           <AlertCircle className={styles.stateIcon} />
           <span>{errorMessage}</span>
@@ -248,7 +238,15 @@ export function AdminDashboardPage() {
       {isLoading && !dashboard ? (
         <div className={styles.loadingState}>
           <Loader2 className={styles.spinnerIcon} />
-          Carregando dashboard de ecommerce...
+          Carregando indicadores da loja...
+        </div>
+      ) : !dashboard ? (
+        <div className={styles.errorState} role="alert">
+          <AlertCircle className={styles.stateIcon} />
+          <span>{errorMessage || "Os indicadores não estão disponíveis agora."}</span>
+          <Button type="button" size="sm" variant="outline" onClick={() => void loadDashboard()}>
+            <RefreshCw className={styles.actionIcon} /> Tentar novamente
+          </Button>
         </div>
       ) : (
         <>
@@ -260,7 +258,7 @@ export function AdminDashboardPage() {
 
           {secondaryKpis.length > 0 && (
             <section className={styles.secondaryKpiPanel} aria-label="Métricas secundárias">
-              <span className={styles.secondaryKpiLabel}>Menos prioritárias</span>
+              <span className={styles.secondaryKpiLabel}>Outros indicadores</span>
               <div className={styles.secondaryKpiList}>
                 {secondaryKpis.map((item) => (
                   <div key={item.key} className={styles.secondaryKpiItem}>

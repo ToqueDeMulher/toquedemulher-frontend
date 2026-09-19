@@ -1,15 +1,17 @@
 @reference "tailwindcss";
 
 .page {
-  @apply rounded-lg border p-4 sm:p-5 lg:p-6;
-  background-color: var(--theme-card-bg);
-  border-color: var(--theme-border-soft);
-  box-shadow: 0 20px 44px color-mix(in oklab, var(--theme-ink) 6%, transparent);
+  min-width: 0;
+  padding-bottom: 32px;
 }
 
 .topBar {
-  @apply grid gap-4 items-center;
-  grid-template-columns: minmax(0, 1fr);
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 27px;
 }
 
 .topTitleBlock {
@@ -17,30 +19,57 @@
 }
 
 .topEyebrow {
-  @apply text-xs font-semibold;
+  @apply text-[11px] font-semibold;
   color: var(--theme-brand-strong);
-  letter-spacing: 0;
+  letter-spacing: 0.16em;
 }
 
 .topTitle {
-  @apply mt-1 text-2xl sm:text-3xl font-semibold;
+  @apply mt-2 text-3xl sm:text-4xl font-semibold;
   color: var(--theme-text-primary);
   font-family: var(--font-display);
+  letter-spacing: -0.045em;
 }
 
 .topSubtitle,
 .panelSubtitle {
-  @apply mt-1 text-sm;
+  @apply mt-2 text-[13px] leading-relaxed;
   color: var(--theme-text-secondary);
 }
 
 .updatedAt {
-  @apply mt-2 text-xs;
+  @apply text-xs;
   color: var(--theme-text-muted);
 }
 
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 18px 22px;
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 14px;
+  background: var(--theme-surface-primary);
+}
+
+.filterLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.filterHint {
+  margin-top: 3px;
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+}
+
 .topSearch {
-  @apply relative min-w-0;
+  position: relative;
+  flex: 0 1 340px;
+  min-width: min(100%, 240px);
 }
 
 .searchIcon {
@@ -50,7 +79,7 @@
 
 .searchInput {
   @apply h-10 rounded-lg border pl-9 text-sm;
-  background-color: var(--theme-input-bg);
+  background-color: var(--theme-bg-canvas);
   border-color: var(--theme-input-border);
   color: var(--theme-text-primary);
 }
@@ -65,44 +94,27 @@
 
 .primaryAction,
 .secondaryAction {
-  @apply w-full sm:w-auto;
+  min-height: 40px;
+  border-radius: 9px;
 }
 
 .actionIcon {
   @apply size-4;
 }
 
-.profileCard {
-  @apply inline-flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2;
-  background-color: var(--theme-card-muted);
-  border-color: var(--theme-border-soft);
+.spinning {
+  animation: spin 1s linear infinite;
 }
 
-.profileAvatar {
-  @apply inline-flex h-8 w-8 flex-none items-center justify-center rounded-full text-xs font-semibold;
-  background-color: var(--theme-brand-strong);
-  color: var(--theme-text-inverse);
-}
-
-.profileInfo {
-  @apply min-w-0;
-}
-
-.profileName {
-  @apply truncate text-sm font-semibold leading-none;
-  color: var(--theme-text-primary);
-}
-
-.profileRole {
-  @apply mt-1 text-xs leading-none;
-  color: var(--theme-text-secondary);
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .errorState,
 .loadingState,
 .emptyState,
 .emptyChart {
-  @apply mt-4 flex items-center gap-3 rounded-lg border p-4 text-sm;
+  @apply mt-4 flex items-center gap-3 rounded-xl border p-5 text-sm;
   background-color: var(--theme-card-muted);
   border-color: var(--theme-border-soft);
   color: var(--theme-text-secondary);
@@ -127,19 +139,25 @@
 }
 
 .kpiGrid {
-  @apply mt-5 grid gap-3;
+  @apply mt-5 grid gap-4;
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
 .kpiCard {
-  @apply flex min-h-[112px] items-start gap-3 rounded-lg border p-4;
+  @apply flex min-h-[145px] flex-col justify-between gap-4 rounded-xl border p-5;
   background-color: var(--theme-surface-primary);
   border-color: var(--theme-border-soft);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--theme-text-primary) 3%, transparent);
+}
+
+.kpiFeatured {
+  background: linear-gradient(145deg, var(--theme-surface-primary), var(--theme-brand-soft));
+  border-color: color-mix(in srgb, var(--theme-brand-strong) 24%, var(--theme-border-soft));
 }
 
 .kpiIconWrap,
 .panelIconWrap {
-  @apply inline-flex h-10 w-10 flex-none items-center justify-center rounded-lg;
+  @apply inline-flex h-9 w-9 flex-none items-center justify-center rounded-lg;
   background-color: var(--theme-brand-soft);
   color: var(--theme-brand-strong);
 }
@@ -154,24 +172,24 @@
 }
 
 .kpiValue {
-  @apply text-xl font-semibold leading-none;
+  @apply mt-2 text-[27px] font-semibold leading-none;
   color: var(--theme-text-primary);
   font-family: var(--font-display);
 }
 
 .kpiTitle {
-  @apply mt-1 text-sm font-medium;
-  color: var(--theme-text-primary);
+  @apply text-xs font-semibold;
+  color: var(--theme-text-secondary);
 }
 
 .kpiDetail {
-  @apply mt-1 text-xs leading-5;
+  @apply mt-2 text-xs leading-5;
   color: var(--theme-text-secondary);
 }
 
 .secondaryKpiPanel {
-  @apply mt-3 flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center;
-  background-color: var(--theme-card-muted);
+  @apply mt-4 flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center;
+  background-color: var(--theme-surface-primary);
   border-color: var(--theme-border-soft);
 }
 
@@ -186,8 +204,8 @@
 }
 
 .secondaryKpiItem {
-  @apply min-w-0 rounded-md border px-3 py-2;
-  background-color: var(--theme-surface-primary);
+  @apply min-w-0 rounded-lg border px-3 py-2;
+  background-color: var(--theme-card-muted);
   border-color: var(--theme-border-soft);
 }
 
@@ -205,14 +223,15 @@
 .overviewGrid,
 .chartGrid,
 .bottomGrid {
-  @apply mt-4 grid gap-3;
+  @apply mt-5 grid gap-4;
   grid-template-columns: 1fr;
 }
 
 .panel {
-  @apply rounded-lg border p-4;
+  @apply min-w-0 rounded-xl border p-5 sm:p-6;
   background-color: var(--theme-surface-primary);
   border-color: var(--theme-border-soft);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--theme-text-primary) 2%, transparent);
 }
 
 .salesPanel {
@@ -224,9 +243,10 @@
 }
 
 .panelTitle {
-  @apply text-base font-semibold;
+  @apply text-lg font-semibold;
   color: var(--theme-text-primary);
   font-family: var(--font-display);
+  letter-spacing: -0.025em;
 }
 
 .netSalesBlock {
@@ -241,7 +261,7 @@
 
 .netSalesBlock strong {
   @apply text-3xl font-semibold;
-  color: var(--theme-text-primary);
+  color: var(--theme-brand-strong);
   font-family: var(--font-display);
 }
 
@@ -309,24 +329,34 @@
 }
 
 .statusApproved,
-.topFill,
-.currentBar {
-  background: var(--theme-success);
+.topFill {
+  background: var(--theme-brand-strong);
 }
 
-.statusPending,
+.currentBar {
+  background: var(--theme-brand-strong);
+}
+
+.statusApproved {
+  background: #278469;
+}
+
+.statusPending {
+  background: #b78037;
+}
+
 .refundBar {
-  background: var(--theme-accent-yellow);
+  background: #c698a9;
 }
 
 .statusRejected,
 .statusCancelled {
-  background: rgb(239 68 68);
+  background: #be6572;
 }
 
 .statusRefunded,
 .previousBar {
-  background: var(--theme-accent-cyan);
+  background: #8f7b92;
 }
 
 .statusOther {
@@ -347,21 +377,20 @@
 }
 
 .legendCurrent {
-  background: var(--theme-success);
+  background: var(--theme-brand-strong);
 }
 
 .legendPrevious {
-  background: var(--theme-accent-cyan);
+  background: #8f7b92;
 }
 
 .legendRefunded {
-  background: var(--theme-accent-yellow);
+  background: #c698a9;
 }
 
 .monthlyChart {
-  @apply mt-4 flex min-h-[240px] gap-3 overflow-x-auto rounded-lg border p-4;
-  background-color: var(--theme-card-muted);
-  border-color: var(--theme-border-soft);
+  @apply mt-5 flex min-h-[240px] gap-3 overflow-x-auto rounded-lg border-0 p-4;
+  background: repeating-linear-gradient(to top, var(--theme-border-soft) 0 1px, transparent 1px 43px);
 }
 
 .monthColumn {
@@ -373,7 +402,7 @@
 }
 
 .monthBar {
-  @apply block w-2.5 rounded-t-sm;
+  @apply block w-2.5 rounded-t-md;
   min-height: 0;
 }
 
@@ -398,26 +427,24 @@
 }
 
 .table {
-  @apply min-w-[900px] w-full border-separate border-spacing-y-2 text-xs;
+  @apply min-w-[900px] w-full border-collapse text-xs;
 }
 
 .table thead th {
-  @apply px-3 py-1 text-left font-medium;
+  @apply border-b px-3 py-3 text-left font-semibold;
+  border-color: var(--theme-border-soft);
   color: var(--theme-text-secondary);
 }
 
 .table tbody td {
-  @apply px-3 py-3 align-middle;
-  background-color: var(--theme-card-muted);
+  @apply border-b px-3 py-4 align-middle;
+  border-color: var(--theme-border-soft);
+  background: transparent;
   color: var(--theme-text-primary);
 }
 
-.table tbody tr td:first-child {
-  @apply rounded-l-lg;
-}
-
-.table tbody tr td:last-child {
-  @apply rounded-r-lg;
+.table tbody tr:hover td {
+  background: var(--theme-card-muted);
 }
 
 .table tbody td strong {
@@ -435,7 +462,7 @@
 
 .statusBadge {
   @apply inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold;
-  color: white;
+  color: #fff;
 }
 
 .topItem {
@@ -444,7 +471,7 @@
 }
 
 .rankBadge {
-  @apply inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg text-sm font-semibold;
+  @apply inline-flex h-8 w-8 flex-none items-center justify-center rounded-full text-sm font-semibold;
   background-color: var(--theme-brand-soft);
   color: var(--theme-brand-strong);
 }
@@ -473,14 +500,6 @@
 }
 
 @media (min-width: 768px) {
-  .topBar {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
-  }
-
-  .topActions {
-    grid-column: span 2;
-  }
-
   .kpiGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -491,14 +510,6 @@
 }
 
 @media (min-width: 1100px) {
-  .topBar {
-    grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.7fr) auto;
-  }
-
-  .topActions {
-    grid-column: auto;
-  }
-
   .kpiGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -510,4 +521,12 @@
   .bottomGrid {
     grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.9fr);
   }
+}
+
+@media (max-width: 640px) {
+  .topActions { width: 100%; }
+  .updatedAt { width: 100%; }
+  .filterBar { padding: 16px; }
+  .topSearch { flex-basis: 100%; }
+  .primaryAction, .secondaryAction { flex: 1; }
 }
