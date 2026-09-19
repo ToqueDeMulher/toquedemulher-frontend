@@ -1,20 +1,24 @@
+import type { CSSProperties, ReactNode } from "react";
 import {
+  ArrowRight,
   Award,
-  Calendar,
+  CheckCircle2,
   Eye,
+  Flower2,
+  Gift,
+  Heart,
   LogIn,
   ShoppingBag,
   ShoppingCart,
   Sparkles,
   Target,
   Trophy,
-  Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { BeautyFlower } from "@/shared/ui/BeautyFlower";
 import { routes } from "@/app/router/paths";
 import { useAuth } from "@/features/auth/context/auth-context";
 import {
@@ -23,7 +27,7 @@ import {
 } from "@/features/gamification/context/gamification-context";
 import styles from "./MissionsPage.module.css";
 
-const ICON_MAP: Record<string, React.ReactNode> = {
+const ICON_MAP: Record<string, ReactNode> = {
   Sparkles: <Sparkles className={styles.missionIconSvg} />,
   Eye: <Eye className={styles.missionIconSvg} />,
   ShoppingCart: <ShoppingCart className={styles.missionIconSvg} />,
@@ -31,6 +35,12 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   Target: <Target className={styles.missionIconSvg} />,
   Trophy: <Trophy className={styles.missionIconSvg} />,
 };
+
+const TRACK_LABELS = {
+  daily: "Descobrir",
+  weekly: "Evoluir",
+  special: "Conquistar",
+} as const;
 
 function MissionCard({ mission }: { mission: GamificationMission }) {
   const progressPercent = Math.min(
@@ -44,48 +54,91 @@ function MissionCard({ mission }: { mission: GamificationMission }) {
         mission.completed ? styles.missionCardCompleted : ""
       }`}
     >
-      <div className={styles.missionHeader}>
-        <span
-          className={`${styles.missionIconWrap} ${
-            mission.completed ? styles.missionIconWrapCompleted : ""
-          }`}
-        >
-          {mission.completed ? <Award className={styles.missionIconSvg} /> : ICON_MAP[mission.icon]}
-        </span>
+      <span
+        className={`${styles.missionIconWrap} ${
+          mission.completed ? styles.missionIconWrapCompleted : ""
+        }`}
+      >
+        {mission.completed ? (
+          <CheckCircle2 className={styles.missionIconSvg} />
+        ) : (
+          ICON_MAP[mission.icon]
+        )}
+      </span>
 
-        <div className={styles.missionBody}>
-          <div className={styles.missionTitleRow}>
-            <div>
-              <h3 className={styles.missionTitle}>{mission.title}</h3>
-              <p className={styles.missionDescription}>{mission.description}</p>
-            </div>
-            <Badge
-              className={
-                mission.completed ? styles.completedBadge : styles.rewardBadge
-              }
-            >
-              {mission.completed ? "Concluída" : `+${mission.pointsReward} pts`}
-            </Badge>
-          </div>
-
-          {!mission.completed && (
-            <>
-              <div className={styles.progressHeader}>
-                <span>Progresso</span>
-                <span>{mission.progressLabel}</span>
-              </div>
-              <Progress value={progressPercent} className={styles.progressBar} />
-            </>
-          )}
-
-          <div className={styles.missionActions}>
-            <Button asChild variant={mission.completed ? "outline" : "default"} size="sm">
-              <Link to={mission.ctaRoute}>{mission.ctaLabel}</Link>
-            </Button>
-          </div>
+      <div className={styles.missionBody}>
+        <div className={styles.missionMetaRow}>
+          <span className={styles.missionTrack}>{TRACK_LABELS[mission.type]}</span>
+          <span
+            className={
+              mission.completed ? styles.completedBadge : styles.rewardBadge
+            }
+          >
+            {mission.completed ? "Concluída" : `+${mission.pointsReward} pontos`}
+          </span>
         </div>
+
+        <h3 className={styles.missionTitle}>{mission.title}</h3>
+        <p className={styles.missionDescription}>{mission.description}</p>
+
+        {mission.completed ? (
+          <div className={styles.completedMessage}>
+            <Award className={styles.completedMessageIcon} />
+            Recompensa adicionada à sua jornada
+          </div>
+        ) : (
+          <>
+            <div className={styles.progressHeader}>
+              <span>{mission.progressLabel}</span>
+              <strong>{Math.round(progressPercent)}%</strong>
+            </div>
+            <Progress
+              value={progressPercent}
+              className={styles.progressBar}
+              aria-label={`Progresso de ${mission.title}: ${Math.round(progressPercent)}%`}
+            />
+            <Button asChild variant="outline" size="sm" className={styles.missionAction}>
+              <Link to={mission.ctaRoute}>
+                {mission.ctaLabel}
+                <ArrowRight className={styles.actionIcon} />
+              </Link>
+            </Button>
+          </>
+        )}
       </div>
     </article>
+  );
+}
+
+function MissionCollection({
+  eyebrow,
+  title,
+  description,
+  missions,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  missions: GamificationMission[];
+}) {
+  return (
+    <div className={styles.collection}>
+      <header className={styles.collectionHeader}>
+        <div>
+          <p className={styles.collectionEyebrow}>{eyebrow}</p>
+          <h2 className={styles.collectionTitle}>{title}</h2>
+          <p className={styles.collectionText}>{description}</p>
+        </div>
+        <span className={styles.collectionCount}>
+          {missions.filter((mission) => mission.completed).length}/{missions.length}
+        </span>
+      </header>
+      <div className={styles.missionList}>
+        {missions.map((mission) => (
+          <MissionCard key={mission.id} mission={mission} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -97,6 +150,7 @@ export function MissionsPage() {
     missions,
     nextLevelName,
     pointsToNextLevel,
+    progressToNextLevel,
     totalPoints,
   } = useGamification();
 
@@ -105,17 +159,20 @@ export function MissionsPage() {
       <div className={styles.page}>
         <div className={styles.container}>
           <section className={styles.loginCard}>
+            <BeautyFlower className={styles.loginFlower} />
             <span className={styles.loginIconWrap}>
-              <Target className={styles.loginIcon} />
+              <Flower2 className={styles.loginIcon} />
             </span>
-            <h1 className={styles.loginTitle}>Faça login para liberar as missões</h1>
+            <p className={styles.loginEyebrow}>Beauty Club</p>
+            <h1 className={styles.loginTitle}>Uma jornada que floresce com você.</h1>
             <p className={styles.loginText}>
-              Entre na sua conta para acompanhar progresso, pontos e subir no ranking.
+              Entre para completar missões, colecionar pontos e acompanhar cada
+              nova conquista no clube.
             </p>
             <Button asChild className={styles.loginButton}>
               <Link to={routes.login}>
                 <LogIn className={styles.loginButtonIcon} />
-                Fazer login
+                Entrar no Beauty Club
               </Link>
             </Button>
           </section>
@@ -124,137 +181,172 @@ export function MissionsPage() {
     );
   }
 
-  const dailyMissions = missions.filter((mission) => mission.type === "daily");
-  const weeklyMissions = missions.filter((mission) => mission.type === "weekly");
-  const specialMissions = missions.filter((mission) => mission.type === "special");
+  const discoveryMissions = missions.filter((mission) => mission.type === "daily");
+  const evolutionMissions = missions.filter((mission) => mission.type === "weekly");
+  const achievementMissions = missions.filter((mission) => mission.type === "special");
+  const nextMission = missions.find((mission) => !mission.completed);
+  const remainingMissions = missions.length - completedMissionsCount;
+  const ringStyle = {
+    "--club-progress": `${progressToNextLevel}%`,
+  } as CSSProperties;
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
         <section className={styles.hero}>
-          <div>
-            <div className={styles.heroEyebrow}>
-              <Zap className={styles.heroEyebrowIcon} />
+          <BeautyFlower className={styles.heroFlower} />
+          <div className={styles.heroCopy}>
+            <p className={styles.heroEyebrow}>
+              <Sparkles className={styles.heroEyebrowIcon} />
               Beauty Club
-            </div>
-            <h1 className={styles.heroTitle}>Missões da sua jornada</h1>
-            <p className={styles.heroText}>
-              Complete desafios simples para acumular pontos, subir de nível e manter
-              seu perfil em destaque.
             </p>
+            <h1 className={styles.heroTitle}>Sua beleza, sua jornada.</h1>
+            <p className={styles.heroText}>
+              Cada descoberta rende pontos. Cada missão revela um novo nível.
+              Avance no seu ritmo e celebre os pequenos rituais.
+            </p>
+            <div className={styles.heroStats}>
+              <div>
+                <strong>{totalPoints.toLocaleString("pt-BR")}</strong>
+                <span>pontos</span>
+              </div>
+              <div>
+                <strong>{completedMissionsCount}</strong>
+                <span>conquistas</span>
+              </div>
+              <div>
+                <strong>{remainingMissions}</strong>
+                <span>para florescer</span>
+              </div>
+            </div>
           </div>
 
-          <div className={styles.heroStats}>
-            <div className={styles.heroStatCard}>
-              <span className={styles.heroStatLabel}>Pontos</span>
-              <strong className={styles.heroStatValue}>
-                {totalPoints.toLocaleString("pt-BR")}
+          <div className={styles.levelCard}>
+            <div className={styles.levelRing} style={ringStyle}>
+              <div className={styles.levelRingCenter}>
+                <span>Nível</span>
+                <strong>{levelName}</strong>
+              </div>
+            </div>
+            <div className={styles.levelCopy}>
+              <span className={styles.levelCaption}>Seu florescer</span>
+              <strong>
+                {nextLevelName ? `${pointsToNextLevel} pontos` : "Jornada completa"}
               </strong>
-            </div>
-            <div className={styles.heroStatCard}>
-              <span className={styles.heroStatLabel}>Nível atual</span>
-              <strong className={styles.heroStatValue}>{levelName}</strong>
-            </div>
-            <div className={styles.heroStatCard}>
-              <span className={styles.heroStatLabel}>Concluídas</span>
-              <strong className={styles.heroStatValue}>{completedMissionsCount}</strong>
+              <p>
+                {nextLevelName
+                  ? `até alcançar o nível ${nextLevelName}`
+                  : "Você chegou ao nível máximo do clube."}
+              </p>
             </div>
           </div>
         </section>
 
-        <section className={styles.overviewGrid}>
+        <section className={styles.overviewGrid} aria-label="Resumo da jornada">
           <article className={styles.overviewCard}>
-            <p className={styles.overviewLabel}>Meta ativa</p>
-            <strong className={styles.overviewValue}>
-              {missions.filter((mission) => !mission.completed).length} em andamento
-            </strong>
-            <p className={styles.overviewText}>
-              Continue navegando pelo catálogo para completar as próximas.
-            </p>
+            <span className={styles.overviewIcon}><Target /></span>
+            <div>
+              <p className={styles.overviewLabel}>Próxima conquista</p>
+              <strong className={styles.overviewValue}>
+                {nextMission?.title ?? "Todas concluídas"}
+              </strong>
+              <p className={styles.overviewText}>
+                {nextMission?.progressLabel ?? "Sua coleção está completa por agora."}
+              </p>
+            </div>
           </article>
-
           <article className={styles.overviewCard}>
-            <p className={styles.overviewLabel}>Próximo nível</p>
-            <strong className={styles.overviewValue}>
-              {nextLevelName ?? "Nível máximo"}
-            </strong>
-            <p className={styles.overviewText}>
-              {nextLevelName
-                ? `Faltam ${pointsToNextLevel} pontos para avançar.`
-                : "Você já desbloqueou o topo do Beauty Club."}
-            </p>
+            <span className={styles.overviewIcon}><Gift /></span>
+            <div>
+              <p className={styles.overviewLabel}>Próxima recompensa</p>
+              <strong className={styles.overviewValue}>
+                {nextMission ? `+${nextMission.pointsReward} pontos` : "Tudo coletado"}
+              </strong>
+              <p className={styles.overviewText}>Entra automaticamente ao concluir.</p>
+            </div>
           </article>
-
           <article className={styles.overviewCard}>
-            <p className={styles.overviewLabel}>Próximo passo</p>
-            <strong className={styles.overviewValue}>Finalize um pedido</strong>
-            <p className={styles.overviewText}>
-              Checkout concluído é o atalho mais rápido para ganhar muitos pontos.
-            </p>
+            <span className={styles.overviewIcon}><Heart /></span>
+            <div>
+              <p className={styles.overviewLabel}>Próximo nível</p>
+              <strong className={styles.overviewValue}>{nextLevelName ?? "Aura"}</strong>
+              <p className={styles.overviewText}>
+                {nextLevelName ? `${pointsToNextLevel} pontos restantes.` : "Você chegou ao topo."}
+              </p>
+            </div>
           </article>
         </section>
 
         <section className={styles.tabsSection}>
-          <Tabs defaultValue="daily">
+          <Tabs defaultValue="discover">
             <TabsList className={styles.tabsList}>
-              <TabsTrigger value="daily" className={styles.tabsTrigger}>
-                <Zap className={styles.tabsIcon} />
-                Diárias
+              <TabsTrigger value="discover" className={styles.tabsTrigger}>
+                Descobrir <span>{discoveryMissions.length}</span>
               </TabsTrigger>
-              <TabsTrigger value="weekly" className={styles.tabsTrigger}>
-                <Calendar className={styles.tabsIcon} />
-                Semanais
+              <TabsTrigger value="evolve" className={styles.tabsTrigger}>
+                Evoluir <span>{evolutionMissions.length}</span>
               </TabsTrigger>
-              <TabsTrigger value="special" className={styles.tabsTrigger}>
-                <Trophy className={styles.tabsIcon} />
-                Especiais
+              <TabsTrigger value="achieve" className={styles.tabsTrigger}>
+                Conquistar <span>{achievementMissions.length}</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="daily" className={styles.tabsContent}>
-              <div className={styles.missionList}>
-                {dailyMissions.map((mission) => (
-                  <MissionCard key={mission.id} mission={mission} />
-                ))}
-              </div>
+            <TabsContent value="discover" className={styles.tabsContent}>
+              <MissionCollection
+                eyebrow="Primeiros passos"
+                title="Descubra o seu ritual"
+                description="Ações leves para começar a sua história no clube."
+                missions={discoveryMissions}
+              />
             </TabsContent>
-
-            <TabsContent value="weekly" className={styles.tabsContent}>
-              <div className={styles.missionList}>
-                {weeklyMissions.map((mission) => (
-                  <MissionCard key={mission.id} mission={mission} />
-                ))}
-              </div>
+            <TabsContent value="evolve" className={styles.tabsContent}>
+              <MissionCollection
+                eyebrow="Sua evolução"
+                title="Cultive novas escolhas"
+                description="Missões para transformar favoritos em uma jornada completa."
+                missions={evolutionMissions}
+              />
             </TabsContent>
-
-            <TabsContent value="special" className={styles.tabsContent}>
-              <div className={styles.missionList}>
-                {specialMissions.map((mission) => (
-                  <MissionCard key={mission.id} mission={mission} />
-                ))}
-              </div>
+            <TabsContent value="achieve" className={styles.tabsContent}>
+              <MissionCollection
+                eyebrow="Grandes conquistas"
+                title="Faça o seu jardim florescer"
+                description="Marcos especiais para quem explora cada parte da experiência."
+                missions={achievementMissions}
+              />
             </TabsContent>
           </Tabs>
         </section>
 
+        <section className={styles.pointsGuide}>
+          <div className={styles.pointsGuideIntro}>
+            <p className={styles.collectionEyebrow}>Como funciona</p>
+            <h2>Todo toque faz a diferença.</h2>
+            <p>Seus pontos entram automaticamente enquanto você explora a loja.</p>
+          </div>
+          <div className={styles.pointsGuideList}>
+            <span><Eye /> Produto descoberto <strong>+8</strong></span>
+            <span><Sparkles /> Categoria visitada <strong>+12</strong></span>
+            <span><ShoppingCart /> Item escolhido <strong>+4</strong></span>
+            <span><ShoppingBag /> Pedido concluído <strong>pontos extras</strong></span>
+          </div>
+        </section>
+
         <section className={styles.ctaCard}>
+          <BeautyFlower className={styles.ctaFlower} />
           <div>
-            <p className={styles.ctaEyebrow}>Suba no ranking</p>
-            <h2 className={styles.ctaTitle}>Sua próxima compra vale mais do que o carrinho</h2>
+            <p className={styles.ctaEyebrow}>Jardim da comunidade</p>
+            <h2 className={styles.ctaTitle}>Veja como a sua jornada floresce.</h2>
             <p className={styles.ctaText}>
-              Cada pedido concluído acelera seu progresso e melhora sua posição entre as
-              clientes mais ativas.
+              Acompanhe sua posição e conheça as clientes que também estão
+              colecionando descobertas.
             </p>
           </div>
-
-          <div className={styles.ctaActions}>
-            <Button asChild className={styles.ctaPrimary}>
-              <Link to={routes.home}>Continuar comprando</Link>
-            </Button>
-            <Button asChild variant="outline" className={styles.ctaSecondary}>
-              <Link to={routes.ranking}>Ver ranking</Link>
-            </Button>
-          </div>
+          <Button asChild className={styles.ctaPrimary}>
+            <Link to={routes.ranking}>
+              Ver jardim da comunidade <ArrowRight className={styles.actionIcon} />
+            </Link>
+          </Button>
         </section>
       </div>
     </div>
