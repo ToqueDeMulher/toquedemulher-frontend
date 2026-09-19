@@ -1530,6 +1530,7 @@ export function CheckoutPage() {
         >
           <section className={styles.checkoutCard}>
             <header className={styles.checkoutHeader}>
+              <p className={styles.checkoutEyebrow}>Finalização segura</p>
               <h1 className={styles.checkoutTitle}>
                 {checkoutResult === "success"
                   ? checkoutVerification === "approved"

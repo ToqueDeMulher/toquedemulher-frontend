@@ -1,135 +1,121 @@
-@reference "tailwindcss";
-
 .wrapper {
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
-  padding: 0;
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+
+.wrapper::-webkit-scrollbar { display: none; }
 
 .list {
-  @apply flex items-center justify-center;
-  gap: 0;
+  display: flex;
+  align-items: center;
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.stepItem {
-  @apply flex items-center;
-  flex: 0 0 auto;
-}
-
-.iconRow {
-  @apply flex items-center;
-}
+.stepItem,
+.iconRow { display: flex; align-items: center; }
+.stepItem { flex: 1 0 auto; }
+.stepItem:last-child { flex: 0 0 auto; }
 
 .stepButton {
-  @apply rounded-full outline-none transition-transform;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0;
+  color: var(--theme-text-muted);
   background: transparent;
   border: 0;
-  padding: 0;
-  cursor: pointer;
+  text-align: left;
 }
 
-.stepButton:hover .iconCircle {
+.stepButton:not(:disabled) { cursor: pointer; }
+.stepButton:disabled { cursor: default; }
+
+.stepButton:not(:disabled):hover .iconCircle {
+  border-color: var(--theme-brand-strong);
   transform: translateY(-1px);
 }
 
-.stepButton:focus-visible .iconCircle {
-  box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--theme-surface-primary) 90%, transparent),
-    0 0 0 5px color-mix(in oklab, var(--primary) 25%, transparent);
+.stepButton:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--theme-brand-strong) 45%, transparent);
+  outline-offset: 5px;
+  border-radius: 6px;
 }
 
-/* ── Circle ──────────────────────────────────────────── */
 .iconCircle {
-  @apply inline-flex items-center justify-center rounded-full flex-shrink-0 relative;
-  width: 2.2rem;
-  height: 2.2rem;
-  background: var(--theme-surface-primary);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.45rem;
+  height: 2.45rem;
   color: var(--theme-text-muted);
+  background: var(--theme-surface-primary);
   border: 1px solid var(--theme-border-soft);
-  transition: background 0.25s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: 50%;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
 .iconCircleActive {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 20%, transparent);
+  color: white;
+  background: var(--theme-brand-strong);
+  border-color: var(--theme-brand-strong);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--theme-brand-strong) 12%, transparent);
 }
 
 .iconCircleCompleted {
-  background: color-mix(in oklab, var(--primary) 72%, white);
-  color: var(--theme-text-inverse);
+  color: white;
+  background: #2f6b57;
+  border-color: #2f6b57;
 }
 
-/* Checkmark overlay for completed */
 .iconCircleCompleted::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/55% no-repeat;
-  opacity: 0.9;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/52% no-repeat;
 }
 
-.iconCircleCompleted .icon {
-  opacity: 0;
+.iconCircleCompleted .icon { opacity: 0; }
+.icon { width: 1rem; height: 1rem; stroke-width: 2; }
+.stepText { display: grid; gap: 0.05rem; }
+
+.stepNumber {
+  color: var(--theme-text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
-.icon {
-  width: 0.95rem;
-  height: 0.95rem;
-  stroke-width: 2.2;
-  transition: opacity 0.2s;
+.stepLabel {
+  color: var(--theme-text-secondary);
+  font-size: 0.86rem;
+  font-weight: 650;
+  white-space: nowrap;
 }
 
-/* ── Connector line ──────────────────────────────────── */
+.stepButtonActive .stepLabel { color: var(--theme-text-primary); }
+
 .connector {
-  flex: 0 0 auto;
-  width: 4.2rem;
-  height: 2px;
-  margin: 0 0.6rem;
-  border-radius: 999px;
+  flex: 1 0 2.5rem;
+  min-width: 2.5rem;
+  height: 1px;
+  margin: 0 1rem;
   background: var(--theme-border-soft);
 }
 
-.connectorCompleted {
-  background: color-mix(in oklab, var(--primary) 65%, white);
-}
+.connectorCompleted { background: #8daf9f; }
 
-.dark .iconCircleCompleted {
-  background: color-mix(in oklab, var(--theme-brand-strong) 70%, var(--theme-surface-primary));
-  color: var(--theme-text-inverse);
-}
-
-.dark .connectorCompleted {
-  background: color-mix(in oklab, var(--theme-brand-strong) 54%, var(--theme-surface-secondary));
-}
-
-/* ── Responsive ──────────────────────────────────────── */
-@media (max-width: 1023px) {
-  .wrapper {
-    @apply overflow-x-auto;
-  }
-
-  .list {
-    @apply w-max;
-  }
-
-  .iconCircle {
-    width: 2rem;
-    height: 2rem;
-  }
-
-  .icon {
-    width: 0.85rem;
-    height: 0.85rem;
-  }
-
-  .connector {
-    width: 3rem;
-    margin: 0 0.45rem;
-  }
+@media (max-width: 760px) {
+  .list { min-width: max-content; padding: 0.25rem 0.2rem 0.5rem; }
+  .stepText { display: none; }
+  .connector { flex-basis: 2.2rem; min-width: 2.2rem; margin-inline: 0.55rem; }
+  .iconCircle { width: 2.25rem; height: 2.25rem; }
 }
