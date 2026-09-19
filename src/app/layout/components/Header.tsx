@@ -39,17 +39,13 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [marqueePaused, setMarqueePaused] = useState(false);
-  const { isLoggedIn, isAdmin } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { itemCount, openCart } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const accountRoute = !isLoggedIn
-    ? routes.login
-    : isAdmin
-      ? routes.adminDashboard
-      : routes.profile;
+  const accountRoute = isLoggedIn ? routes.profile : routes.login;
   const query = searchTerm.trim().toLocaleLowerCase("pt-BR");
   const categories = Object.values(catalogCategories);
   const results = query

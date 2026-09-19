@@ -6,6 +6,7 @@ import {
   CreditCard,
   Heart,
   Loader2,
+  LayoutDashboard,
   LogOut,
   MapPin,
   Package,
@@ -15,7 +16,7 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { routes } from "@/app/router/paths";
 import {
@@ -296,8 +297,6 @@ export function ProfilePage() {
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (isAdmin) return;
-
     let isMounted = true;
 
     async function loadAccountData() {
@@ -343,11 +342,7 @@ export function ProfilePage() {
     return () => {
       isMounted = false;
     };
-  }, [isAdmin]);
-
-  if (isAdmin) {
-    return <Navigate to={routes.adminDashboard} replace />;
-  }
+  }, []);
 
   const displayName = profile?.name ?? user?.name ?? "Cliente";
   const email = profile?.email ?? user?.email ?? "cliente@email.com";
@@ -1324,9 +1319,11 @@ export function ProfilePage() {
       <div className={styles.container}>
         <div className={styles.pageHeading}>
           <span>SEU ESPAÇO NA TOQUE</span>
-          <h2>Que bom ter você por aqui.</h2>
+          <h2>{isAdmin ? "Sua conta na loja." : "Que bom ter você por aqui."}</h2>
           <p>
-            Seus pedidos, seus favoritos e os detalhes que fazem a diferença.
+            {isAdmin
+              ? "Compre, acompanhe pedidos e cuide dos seus dados com a mesma conta administrativa."
+              : "Seus pedidos, seus favoritos e os detalhes que fazem a diferença."}
           </p>
         </div>
         <div className={styles.profileCard}>
@@ -1367,20 +1364,33 @@ export function ProfilePage() {
                 <h1 className={styles.name}>{displayName}</h1>
                 <p className={styles.email}>{email}</p>
                 <div className={styles.badgeRow}>
+                  {isAdmin && (
+                    <Badge className={styles.adminBadge}>
+                      <ShieldCheck className={styles.badgeIcon} /> Administrador
+                    </Badge>
+                  )}
                   <Badge className={styles.statusOther}>{levelName}</Badge>
                   <span className={styles.memberSince}>{memberSince}</span>
                 </div>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="lg"
-              className={styles.logoutButton}
-              onClick={handleLogout}
-            >
-              <LogOut className={styles.iconInline} />
-              Sair
-            </Button>
+            <div className={styles.profileActions}>
+              {isAdmin && (
+                <Button size="lg" onClick={() => navigate(routes.adminDashboard)}>
+                  <LayoutDashboard className={styles.iconInline} />
+                  Abrir painel
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="lg"
+                className={styles.logoutButton}
+                onClick={handleLogout}
+              >
+                <LogOut className={styles.iconInline} />
+                Sair
+              </Button>
+            </div>
           </div>
 
           <div className={styles.loyaltyCard}>

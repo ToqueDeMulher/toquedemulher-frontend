@@ -65,6 +65,28 @@
 .logoutButton {
   @apply w-full sm:w-auto;
 }
+.profileActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.profileActions button {
+  height: 40px;
+  font-size: 12px;
+}
+.adminBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--theme-border-strong);
+  background: var(--theme-brand-soft);
+  color: var(--theme-brand-strong);
+}
+.badgeIcon {
+  width: 13px;
+  height: 13px;
+}
 
 .loyaltyCard {
   @apply mt-8 p-6 bg-gradient-to-r from-pink-50 to-pink-100 rounded-2xl;
@@ -779,7 +801,10 @@
   }
   .logoutButton {
     width: auto;
-    margin-left: auto;
+  }
+  .profileActions {
+    width: 100%;
+    justify-content: flex-start;
   }
   .loyaltyCard {
     padding: 20px;

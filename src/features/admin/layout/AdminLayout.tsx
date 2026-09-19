@@ -8,6 +8,7 @@ import {
   PanelLeftOpen,
   PackagePlus,
   Store,
+  UserRound,
   X,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
@@ -142,6 +143,18 @@ export function AdminLayout() {
               </NavLink>
             );
           })}
+          <span className={`${styles.navHeading} ${styles.accountNavHeading} ${!isSidebarOpen ? styles.contentHidden : ""}`}>
+            CONTA E LOJA
+          </span>
+          <NavLink
+            to={routes.profile}
+            title={!isSidebarOpen && !isMobile ? "Minha conta" : undefined}
+            aria-label="Minha conta de cliente"
+            className={`${styles.navLink} ${!isSidebarOpen ? styles.navLinkCollapsed : ""}`}
+          >
+            <UserRound className={styles.navIcon} />
+            <span className={!isSidebarOpen ? styles.contentHidden : undefined}>Minha conta</span>
+          </NavLink>
         </nav>
 
         <div className={styles.sidebarActions}>

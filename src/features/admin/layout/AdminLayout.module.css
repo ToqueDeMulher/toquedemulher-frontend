@@ -115,6 +115,7 @@
 }
 .nav { display: grid; align-content: start; gap: 5px; }
 .navHeading { margin: 0 14px 8px; }
+.accountNavHeading { margin-top: 22px; }
 .navLink {
   min-height: 46px;
   display: flex;

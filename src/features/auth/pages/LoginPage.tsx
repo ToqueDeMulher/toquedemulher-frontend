@@ -192,10 +192,6 @@ export function LoginPage() {
       return defaultRoute;
     }
 
-    if (nextRole === "admin" && redirectTo === routes.profile) {
-      return routes.adminDashboard;
-    }
-
     if (nextRole === "customer" && redirectTo.startsWith("/admin")) {
       return routes.profile;
     }
