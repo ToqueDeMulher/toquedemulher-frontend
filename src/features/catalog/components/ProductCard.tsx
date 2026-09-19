@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
+import { useFavorites } from "@/features/catalog/hooks/use-favorites";
 import { routes } from "@/app/router/paths";
 import styles from "./ProductCard.module.css";
 
@@ -40,7 +40,8 @@ export function ProductCard({
   hideMeta = false,
   hideTitle = false,
 }: ProductCardProps) {
-  const [isFav, setIsFav] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const isFav = isFavorite(id);
   const navigate = useNavigate();
 
   const priceBRL = `R$ ${price.toFixed(2).replace(".", ",")}`;
@@ -56,6 +57,11 @@ export function ProductCard({
       : undefined;
 
   const handleCardClick = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("tdm_recent_products") ?? "[]");
+      const recent = Array.isArray(stored) ? stored.filter(value => typeof value === "string" && value !== id) : [];
+      localStorage.setItem("tdm_recent_products", JSON.stringify([id, ...recent].slice(0, 12)));
+    } catch {}
     if (onClick) return onClick();
     navigate(routes.product(id));
   };
@@ -75,6 +81,7 @@ export function ProductCard({
         <ImageWithFallback
           src={image}
           alt={name}
+          loading="lazy"
           className={styles.productImage}
         />
 
@@ -91,7 +98,7 @@ export function ProductCard({
           className={styles.favButton}
           onClick={(e) => {
             e.stopPropagation();
-            setIsFav((v) => !v);
+            toggleFavorite(id);
           }}
           aria-pressed={isFav}
           aria-label={
@@ -149,7 +156,7 @@ export function ProductCard({
           type="button"
         >
           <ShoppingCart className={styles.cartIcon} aria-hidden="true" />
-          Adicionar ao Carrinho
+          Adicionar
         </Button>
       </div>
     </article>

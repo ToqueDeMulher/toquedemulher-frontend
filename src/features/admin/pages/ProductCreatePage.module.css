@@ -1,11 +1,13 @@
 @reference "tailwindcss";
 
 .page {
-  @apply bg-gradient-to-b from-white via-pink-50/30 to-white py-12 sm:py-16;
+  padding: 0 0 40px;
+  background: transparent;
 }
 
 .container {
-  @apply mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-10;
+  @apply mx-auto flex w-full flex-col gap-7;
+  max-width: 1180px;
 }
 
 .headerRow {
@@ -21,27 +23,30 @@
 }
 
 .headerBadge {
-  @apply bg-pink-100 text-pink-700;
+  @apply text-[10px] font-semibold;
+  letter-spacing: 0.14em;
 }
 
 .headerMeta {
-  @apply text-sm text-slate-500;
+  @apply text-xs;
 }
 
 .title {
-  @apply text-3xl sm:text-4xl font-semibold text-gray-900;
+  @apply text-3xl sm:text-4xl font-semibold;
+  font-family: var(--font-display);
+  letter-spacing: -0.045em;
 }
 
 .description {
-  @apply text-base text-gray-600;
+  @apply max-w-2xl text-[13px] leading-relaxed;
 }
 
 .backButton {
-  @apply h-12 rounded-2xl border-pink-200 text-pink-700 hover:bg-pink-50;
+  @apply h-10 rounded-lg;
 }
 
 .form {
-  @apply space-y-8;
+  @apply space-y-5;
 }
 
 .gridTwo {
@@ -65,11 +70,11 @@
 }
 
 .footerItem {
-  @apply flex items-center justify-between rounded-2xl border border-pink-100 p-4;
+  @apply flex items-center justify-between rounded-xl border p-4;
 }
 
 .footerItemWide {
-  @apply flex items-center justify-between rounded-2xl border border-pink-100 p-4 md:col-span-3;
+  @apply flex items-center justify-between rounded-xl border p-4 md:col-span-3;
 }
 
 .footerTextGroup {
@@ -101,7 +106,7 @@
 }
 
 .imageIntro {
-  @apply rounded-2xl border border-dashed border-pink-200 bg-pink-50/50 p-4;
+  @apply rounded-xl border border-dashed p-4;
 }
 
 .inputTopSpace {
@@ -113,7 +118,7 @@
 }
 
 .imageCard {
-  @apply rounded-2xl border border-pink-100 p-4;
+  @apply rounded-xl border p-4;
 }
 
 .imageCardHeader {
@@ -161,7 +166,7 @@
 }
 
 .preview {
-  @apply max-h-[320px] overflow-auto rounded-2xl bg-slate-900 p-4 text-sm text-emerald-200;
+  @apply max-h-[320px] overflow-auto rounded-lg bg-slate-900 p-4 text-xs text-emerald-200;
 }
 
 .cardFooter {
@@ -182,15 +187,6 @@
 
 .iconSmall {
   @apply h-4 w-4;
-}
-
-.page {
-  background: linear-gradient(
-    180deg,
-    var(--theme-bg-canvas),
-    color-mix(in oklab, var(--theme-brand-soft) 36%, var(--theme-bg-canvas)),
-    var(--theme-bg-canvas)
-  );
 }
 
 .headerBadge,
@@ -236,4 +232,42 @@
 
 .fieldLabel {
   color: var(--theme-text-primary);
+}
+
+.technicalPreview {
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: var(--theme-card-muted);
+}
+
+.technicalPreview summary {
+  cursor: pointer;
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.technicalPreview[open] summary {
+  margin-bottom: 12px;
+}
+
+.page [data-slot="card"] {
+  gap: 22px;
+  border-color: var(--theme-border-soft);
+  border-radius: 14px;
+  background: var(--theme-surface-primary);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--theme-text-primary) 2%, transparent);
+}
+
+.page [data-slot="card-title"] {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.page [data-slot="card-description"] {
+  color: var(--theme-text-secondary);
+  font-size: 12px;
 }

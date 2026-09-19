@@ -1,0 +1,53 @@
+.options {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+  min-width: 0;
+}
+.options legend {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 180ms,
+    background 180ms;
+}
+.selected {
+  border-color: #f73986;
+  background: var(--theme-brand-soft);
+}
+.option input {
+  accent-color: #f73986;
+  flex-shrink: 0;
+}
+.option span {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.option strong {
+  font-size: 12px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.option small,
+.options p {
+  font-size: 10px;
+  color: var(--theme-text-secondary);
+  line-height: 1.6;
+}
+.option b {
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}

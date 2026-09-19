@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import {
+  ArrowRight,
+  ArrowUpRight,
   ChevronUp,
-  Crown,
-  MessageCircle,
+  Heart,
+  Pause,
+  Play,
   Sparkles,
-  Target,
+  Truck,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import {
   type CarouselApi,
@@ -20,500 +22,468 @@ import {
 } from "@/shared/ui/carousel";
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
-import { ProductCardSkeleton } from "@/features/catalog/components/ProductCardSkeleton";
 import { routes } from "@/app/router/paths";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
 import { Reveal } from "@/shared/animation/Reveal";
 import {
-  defaultCategorySlug,
+  catalogCategories,
   getProductById,
   trendingProducts,
   type CatalogProduct,
+  type CatalogCategorySlug,
 } from "@/features/catalog/data/catalog-products";
 import { useGamification } from "@/features/gamification/context/gamification-context";
+import saleImage from "@/shared/assets/banner-off-season/Sale.png";
+import skincareImage from "@/shared/assets/banner-off-season/Skincare.png";
+import byomaImage from "@/shared/assets/favorites-cards/Byoma.jpg";
+import diorImage from "@/shared/assets/favorites-cards/Instagram.jpg";
+import gisouImage from "@/shared/assets/favorites-cards/Gisou_Honey_Infused_lip_oil.jpg";
+import { BeautyFlower } from "@/shared/ui/BeautyFlower";
 import styles from "./HomePage.module.css";
 
-import offSeasonSale from "@/shared/assets/banner-off-season/Sale.png";
-import offSeasonSkincare from "@/shared/assets/banner-off-season/Skincare.png";
-import aintSheSweetImage from "@/shared/assets/favorites-cards/Ain't She Sweet Candle Product Shoot - Crickle Daisy - Treesha Millicent.jpg";
-import byomaImage from "@/shared/assets/favorites-cards/Byoma.jpg";
-import gisouLipOilImage from "@/shared/assets/favorites-cards/Gisou_Honey_Infused_lip_oil.jpg";
-import blueTubeImage from "@/shared/assets/favorites-cards/Instagram (1).jpg";
-import instagramTwoImage from "@/shared/assets/favorites-cards/Instagram (2).jpg";
-import instagramImage from "@/shared/assets/favorites-cards/Instagram.jpg";
-import sanrioImage from "@/shared/assets/favorites-cards/Mei_Melody_Instagram.jpg";
-import skincareSweetImage from "@/shared/assets/favorites-cards/skincare-sweet.jpg";
-import downloadFourImage from "@/shared/assets/favorites-cards/download (4).jpg";
-import downloadFiveImage from "@/shared/assets/favorites-cards/download (5).jpg";
-import beVelvetImage from "@/shared/assets/favorites-cards/download (6).jpg";
-import downloadSevenImage from "@/shared/assets/favorites-cards/download (7).jpg";
-import glamOnImage from "@/shared/assets/favorites-cards/Game_on_Glam_on.jpg";
-const favoriteProducts = [
-  { id: "fav-1", image: byomaImage, title: "byoma" },
-  { id: "fav-2", image: instagramImage, title: "dior" },
-  { id: "fav-3", image: downloadFourImage, title: "innisfree" },
-  { id: "fav-4", image: downloadFiveImage, title: "mella" },
-  { id: "fav-5", image: aintSheSweetImage, title: "crickle daisy" },
-  { id: "fav-6", image: skincareSweetImage, title: "offweglow" },
-  { id: "fav-7", image: beVelvetImage, title: "beauty of joseon" },
-  { id: "fav-8", image: gisouLipOilImage, title: "gisou" },
-  { id: "fav-9", image: sanrioImage, title: "sheglam" },
-  { id: "fav-10", image: blueTubeImage, title: "be velvet" },
-  { id: "fav-12", image: downloadSevenImage, title: "joocyee" },
-  { id: "fav-13", image: instagramTwoImage, title: "colorgram" },
-  { id: "fav-14", image: glamOnImage, title: "judydoll" },
+const campaigns = [
+  {
+    image: saleImage,
+    alt: "Seleção de beleza em promoção",
+    label: "Um toque de desejo",
+    text: "Encontre seu novo favorito na nossa seleção de beleza.",
+    to: routes.category("maquiagem"),
+    action: "Explorar maquiagem",
+  },
+  {
+    image: skincareImage,
+    alt: "Seleção de skincare Toque de Mulher",
+    label: "Seu ritual de cuidado",
+    text: "Texturas e cuidados para um momento só seu.",
+    to: routes.category("skincare"),
+    action: "Descobrir skincare",
+  },
+];
+const edits = [
+  {
+    image: diorImage,
+    title: "O poder de um toque",
+    label: "MAQUIAGEM",
+    text: "Cor, textura e novas possibilidades.",
+    to: routes.category("maquiagem"),
+  },
+  {
+    image: byomaImage,
+    title: "Pele bem cuidada",
+    label: "SKINCARE",
+    text: "O começo de todo bom ritual.",
+    to: routes.category("skincare"),
+  },
+  {
+    image: gisouImage,
+    title: "Detalhes que encantam",
+    label: "PARA DESCOBRIR",
+    text: "Pequenos desejos para o dia a dia.",
+    to: routes.category("cabelos"),
+  },
 ];
 
-const applyDominantColor = (img: HTMLImageElement) => {
-  const card = img.closest(`.${styles.favoriteCard}`) as HTMLElement | null;
-  if (!card || img.naturalWidth === 0 || img.naturalHeight === 0) return;
-
-  try {
-    const canvas = document.createElement("canvas");
-    const size = 48;
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
-
-    ctx.drawImage(img, 0, 0, size, size);
-    const { data } = ctx.getImageData(0, 0, size, size);
-
-    let r = 0;
-    let g = 0;
-    let b = 0;
-    let count = 0;
-    const step = 4 * 2;
-    for (let i = 0; i < data.length; i += step) {
-      const alpha = data[i + 3];
-      if (alpha < 200) continue;
-      r += data[i];
-      g += data[i + 1];
-      b += data[i + 2];
-      count += 1;
-    }
-
-    if (count === 0) return;
-    const avgR = Math.round(r / count);
-    const avgG = Math.round(g / count);
-    const avgB = Math.round(b / count);
-    card.style.setProperty("--favorite-dominant", `${avgR}, ${avgG}, ${avgB}`);
-
-    const luminance = (0.2126 * avgR + 0.7152 * avgG + 0.0722 * avgB) / 255;
-    const textColor =
-      luminance > 0.62 ? "rgba(17, 24, 39, 0.9)" : "rgba(255, 255, 255, 0.95)";
-    card.style.setProperty("--favorite-text", textColor);
-  } catch {
-  }
-};
-
 export function HomePage() {
-  const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const { addItem } = useCart();
   const {
-    completedMissionsCount,
+    totalPoints,
     levelName,
-    missions,
+    progressToNextLevel,
     nextLevelName,
     pointsToNextLevel,
-    progressToNextLevel,
-    totalPoints,
   } = useGamification();
-  const [heroApi, setHeroApi] = useState<CarouselApi | null>(null);
-  const [productApi, setProductApi] = useState<CarouselApi | null>(null);
-  const [productIndex, setProductIndex] = useState(0);
-  const [productCount, setProductCount] = useState(0);
+  const [heroApi, setHeroApi] = useState<CarouselApi>();
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [interacting, setInteracting] = useState(false);
+  const [category, setCategory] = useState<CatalogCategorySlug | "all">("all");
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [recentIds, setRecentIds] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const recentKey = "tdm_recent_products";
-
-  const loadRecentIds = () => {
+  const [recentProducts] = useState(() => {
     try {
-      const raw = window.localStorage.getItem(recentKey);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+      const ids: unknown = JSON.parse(
+        localStorage.getItem("tdm_recent_products") ?? "[]",
+      );
+      return Array.isArray(ids)
+        ? [...new Set(ids.filter((id): id is string => typeof id === "string"))]
+            .map(getProductById)
+            .filter((product): product is CatalogProduct => Boolean(product))
+            .slice(0, 4)
+        : [];
     } catch {
       return [];
     }
-  };
-
-  const saveRecentIds = (ids: string[]) => {
-    try {
-      window.localStorage.setItem(recentKey, JSON.stringify(ids));
-    } catch {
-    }
-  };
-
-  const handleRecentClick = (productId: string) => {
-    const current = loadRecentIds();
-    const next = [productId, ...current.filter((id) => id !== productId)].slice(0, 12);
-    saveRecentIds(next);
-    setRecentIds(next);
-    navigate(routes.product(productId));
-  };
+  });
 
   useEffect(() => {
     if (!heroApi) return;
-    const intervalId = window.setInterval(() => {
-      heroApi.scrollNext();
-    }, 5000);
-
+    const update = () => setHeroIndex(heroApi.selectedScrollSnap());
+    update();
+    heroApi.on("select", update);
     return () => {
-      window.clearInterval(intervalId);
+      heroApi.off("select", update);
     };
   }, [heroApi]);
 
   useEffect(() => {
-    if (!productApi) return;
-
-    const updateProgress = (api?: CarouselApi) => {
-      if (!api) return;
-      const snaps = api.scrollSnapList();
-      const index = api.selectedScrollSnap();
-      setProductCount(snaps.length);
-      setProductIndex(index);
-    };
-
-    updateProgress(productApi);
-    productApi.on("select", updateProgress);
-    productApi.on("reInit", updateProgress);
-
-    return () => {
-      productApi.off("select", updateProgress);
-      productApi.off("reInit", updateProgress);
-    };
-  }, [productApi]);
+    if (!heroApi || paused || interacting) return;
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const id = window.setInterval(() => {
+      if (!motion.matches && !document.hidden) heroApi.scrollNext();
+    }, 6500);
+    return () => window.clearInterval(id);
+  }, [heroApi, paused, interacting]);
 
   useEffect(() => {
-    setRecentIds(loadRecentIds());
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setShowScrollTop(window.scrollY > 360);
-    };
+    const onScroll = () => setShowScrollTop(window.scrollY > 700);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(t);
-  }, []);
-
-  const recentProducts = recentIds
-    .map((id) => getProductById(id))
-    .filter((product): product is CatalogProduct => Boolean(product));
-  const highlightedMissions = missions.filter((mission) => !mission.completed).slice(0, 1);
-
-  const recentCardStyle = {
-    "--product-card-min-h": "320px",
-    "--product-card-min-h-sm": "350px",
-    "--product-card-image-h": "11.5rem",
-    "--product-card-image-h-sm": "13rem",
-    "--product-card-bg": "transparent",
-    "--product-card-border": "none",
-  } as React.CSSProperties;
-
-  const recommendedCardStyle = {
-    "--product-card-bg": "transparent",
-    "--product-card-border": "none",
-  } as React.CSSProperties;
+  const selection = (
+    category === "all"
+      ? trendingProducts
+      : trendingProducts.filter((product) => product.category === category)
+  ).slice(0, 8);
+  const campaign = campaigns[heroIndex];
 
   return (
     <div className={styles.page}>
-      <section className={styles.heroSection} aria-label="Destaques principais">
-        <Carousel
-          className={styles.carousel}
-          opts={{ loop: true, align: "start" }}
-          setApi={setHeroApi}
+      <h1 className="sr-only">Toque de Mulher — beleza do seu jeito</h1>
+      <section className={styles.heroSection} aria-label="Destaques da loja">
+        <div
+          onMouseEnter={() => setInteracting(true)}
+          onMouseLeave={() => setInteracting(false)}
+          onFocusCapture={() => setInteracting(true)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget))
+              setInteracting(false);
+          }}
         >
-          <CarouselContent>
-            <CarouselItem>
-              <div className={styles.slide}>
-                <ImageWithFallback
-                  src={offSeasonSale}
-                  alt="Off Season - Sale"
-                  className={styles.slideImageAbsolute}
-                />
-              </div>
-            </CarouselItem>
-
-            <CarouselItem>
-              <div className={styles.slide}>
-                <ImageWithFallback
-                  src={offSeasonSkincare}
-                  alt="Off Season - Skincare"
-                  className={styles.slideImageAbsolute}
-                />
-              </div>
-            </CarouselItem>
-          </CarouselContent>
-          <CarouselPrevious className={styles.carouselPrev} />
-          <CarouselNext className={styles.carouselNext} />
-        </Carousel>
-      </section>
-
-      <section className={styles.clubSection}>
-        <div className={styles.trendingContainer}>
-          <Reveal className={styles.clubCard} delayMs={60}>
-          <div className={styles.clubIntro}>
-            <div className={styles.clubIntroTop}>
-              <div className={styles.clubEyebrow}>
-                <Sparkles className={styles.clubEyebrowIcon} />
-                Beauty Club
-              </div>
-              <div className={styles.clubHeroGlow} aria-hidden="true" />
-            </div>
-            <h2 className={styles.clubTitle}>Acompanhe sua evolução enquanto compra</h2>
-            <p className={styles.clubText}>
-              {isLoggedIn
-                ? "Seu progresso está salvo. Complete missões, some pontos e apareça no ranking."
-                : "Faça login para salvar seus pontos, liberar missões e entrar no ranking do clube."}
-            </p>
-
-            <div className={styles.clubActions}>
-              <Button
-                size="sm"
-                className={styles.clubPrimaryButton}
-                onClick={() => navigate(isLoggedIn ? routes.missions : routes.login)}
-              >
-                <Target className={styles.clubButtonIcon} />
-                {isLoggedIn ? "Ver missões" : "Fazer login"}
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className={styles.clubSecondaryButton}
-                onClick={() => navigate(routes.ranking)}
-              >
-                <Crown className={styles.clubButtonIcon} />
-                Ver ranking
-              </Button>
-            </div>
-          </div>
-
-          <div className={styles.clubPanel}>
-            <div className={styles.clubStatsGrid}>
-              <article className={styles.clubStatCard}>
-                <span className={styles.clubStatLabel}>Pontos</span>
-                <strong className={styles.clubStatValue}>
-                  {totalPoints.toLocaleString("pt-BR")}
-                </strong>
-              </article>
-              <article className={styles.clubStatCard}>
-                <span className={styles.clubStatLabel}>Nível</span>
-                <strong className={styles.clubStatValue}>{levelName}</strong>
-              </article>
-              <article className={styles.clubStatCard}>
-                <span className={styles.clubStatLabel}>Missões feitas</span>
-                <strong className={styles.clubStatValue}>{completedMissionsCount}</strong>
-              </article>
-            </div>
-
-            <div className={styles.clubProgressCard}>
-              <div className={styles.clubProgressHeader}>
-                <div className={styles.clubProgressInfo}>
-                  <p className={styles.clubProgressTitle}>Próximo nível</p>
-                  <p className={styles.clubProgressText}>
-                    {nextLevelName
-                      ? `${pointsToNextLevel} pontos para ${nextLevelName}`
-                      : "Você já chegou ao nível máximo"}
-                  </p>
-                </div>
-                <Badge className={styles.clubBadge}>{levelName}</Badge>
-              </div>
-              <div className={styles.clubProgressMeta}>
-                <span className={styles.clubProgressMetaItem}>
-                  {Math.round(progressToNextLevel)}% concluído
-                </span>
-                <span className={styles.clubProgressMetaItem}>
-                  {nextLevelName ? `${nextLevelName} a seguir` : "Meta concluída"}
-                </span>
-              </div>
-              <Progress value={progressToNextLevel} className={styles.clubProgressBar} />
-            </div>
-
-            <div className={styles.clubMissionList}>
-              {highlightedMissions.slice(0, 1).map((mission) => (
-                <div key={mission.id} className={styles.clubMissionCard}>
-                  <div className={styles.clubMissionContent}>
-                    <p className={styles.clubMissionTitle}>{mission.title}</p>
-                    <p className={styles.clubMissionText}>{mission.progressLabel}</p>
-                  </div>
-                  <Badge className={styles.clubMissionBadge}>
-                    Missão ativa
-                  </Badge>
-                </div>
+          <Carousel
+            opts={{ loop: true }}
+            setApi={setHeroApi}
+            className={styles.heroCarousel}
+          >
+            <CarouselContent>
+              {campaigns.map((item, index) => (
+                <CarouselItem
+                  key={item.label}
+                  aria-hidden={index !== heroIndex}
+                >
+                  <Link
+                    to={item.to}
+                    className={styles.heroLink}
+                    tabIndex={index === heroIndex ? 0 : -1}
+                    aria-label={item.action}
+                  >
+                    <ImageWithFallback
+                      src={item.image}
+                      alt={item.alt}
+                      className={styles.heroImage}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      fetchPriority={index === 0 ? "high" : "auto"}
+                    />
+                  </Link>
+                </CarouselItem>
               ))}
+            </CarouselContent>
+            <CarouselPrevious
+              className={styles.heroPrevious}
+              aria-label="Destaque anterior"
+            />
+            <CarouselNext
+              className={styles.heroNext}
+              aria-label="Próximo destaque"
+            />
+          </Carousel>
+          <div className={styles.heroCaption}>
+            <div className={styles.campaignCopy} key={heroIndex}>
+              <strong>{campaign.label}</strong>
+              <span>{campaign.text}</span>
+            </div>
+            <Link className={styles.textLink} to={campaign.to}>
+              {campaign.action} <ArrowUpRight size={17} />
+            </Link>
+            <div className={styles.heroControls}>
+              {campaigns.map((item, index) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  aria-label={`Mostrar destaque ${index + 1}`}
+                  aria-pressed={index === heroIndex}
+                  onClick={() => heroApi?.scrollTo(index)}
+                  className={styles.heroDot}
+                />
+              ))}
+              <button
+                type="button"
+                className={styles.pauseButton}
+                aria-label={
+                  paused ? "Reproduzir destaques" : "Pausar destaques"
+                }
+                onClick={() => setPaused(!paused)}
+              >
+                {paused ? <Play size={13} /> : <Pause size={13} />}
+              </button>
             </div>
           </div>
-        </Reveal>
         </div>
       </section>
 
-      <section className={styles.trendingSection}>
-        <div className={styles.trendingContainer}>
-          <Reveal className={styles.trendingHeader} delayMs={40}>
-            <h2 id="home-novidades-title" className={styles.trendingTitle}>
-              Novidades
-            </h2>
-          </Reveal>
+      <div className={styles.serviceStrip}>
+        <span>
+          <Truck size={18} /> Frete grátis acima de R$ 150
+        </span>
+        <span>
+          <Heart size={18} /> Beleza escolhida com cuidado
+        </span>
+        <Link to={routes.missions}>
+          <Sparkles size={18} /> Descubra o Beauty Club <ArrowRight size={14} />
+        </Link>
+      </div>
 
-          <Reveal delayMs={120}>
-            <Carousel
-              className={styles.productCarousel}
-              opts={{ align: "start", loop: true }}
-              setApi={setProductApi}
-            >
-              <CarouselContent className={styles.productCarouselContent}>
-                {isLoading 
-                  ? Array.from({ length: 5 }).map((_, index) => (
-                      <CarouselItem key={`skel-nov-${index}`} className={styles.productCarouselItem}>
-                        <ProductCardSkeleton />
-                      </CarouselItem>
-                    ))
-                  : trendingProducts.slice(0, 10).map((product) => (
-                  <CarouselItem key={product.id} className={styles.productCarouselItem}>
+      <section
+        className={styles.section}
+        id="novidades"
+        aria-labelledby="new-title"
+      >
+        <Reveal className={styles.sectionHeading}>
+          <div>
+            <span className={styles.eyebrow}>ACABARAM DE CHEGAR</span>
+            <h2 id="new-title">Novidades para se apaixonar.</h2>
+          </div>
+          <Link to={routes.category("maquiagem")} className={styles.textLink}>
+            Explorar a coleção <ArrowUpRight size={17} />
+          </Link>
+        </Reveal>
+        <Reveal>
+          <Carousel
+            opts={{ align: "start", containScroll: "trimSnaps" }}
+            className={styles.productCarousel}
+          >
+            <CarouselContent className={styles.productTrack}>
+              {trendingProducts
+                .filter((product) => product.isNew)
+                .slice(0, 8)
+                .map((product) => (
+                  <CarouselItem
+                    key={product.id}
+                    className={styles.productSlide}
+                  >
                     <ProductCard
                       {...product}
-                      onAddToCart={() => addItem(product.id, 1)}
-                      onClick={() => handleRecentClick(product.id)}
+                      onAddToCart={() => addItem(product.id)}
                     />
                   </CarouselItem>
                 ))}
-              </CarouselContent>
-              <CarouselPrevious className={styles.productCarouselPrev} />
-              <CarouselNext className={styles.productCarouselNext} />
-            </Carousel>
-          </Reveal>
-          <div className={styles.productCarouselProgress} aria-hidden="true">
-            {Array.from({ length: productCount }).map((_, index) => (
-              <span
-                key={`product-dot-${index}`}
-                className={`${styles.productCarouselDot} ${
-                  index === productIndex ? styles.productCarouselDotActive : ""
-                }`}
-              />
-            ))}
-          </div>
-
-          <Reveal className={styles.trendingSubHeader} delayMs={90}>
-            <h2 id="home-favorites-title" className={styles.trendingTitle}>
-              Favoritos da Semana
-            </h2>
-          </Reveal>
-
-          <Reveal className={styles.favoritesGrid} delayMs={130}>
-            {favoriteProducts.slice(0, 4).map((product) => (
-              <Link
-                key={`favorite-${product.id}`}
-                className={styles.favoriteCard}
-                to={routes.category(defaultCategorySlug)}
-              >
-                <ImageWithFallback
-                  src={product.image}
-                  alt=""
-                  className={styles.favoriteImage}
-                  onLoad={(event) => applyDominantColor(event.currentTarget)}
-                />
-                <div className={styles.favoriteGradient} aria-hidden="true" />
-                <span className={styles.favoriteCaption}>{product.title}</span>
-              </Link>
-            ))}
-          </Reveal>
-          <Reveal className={styles.trendingSubHeader} delayMs={110}>
-            <h2 id="home-recommended-title" className={styles.trendingTitle}>
-              Recomendados
-            </h2>
-          </Reveal>
-
-          <Reveal className={styles.recommendedBox} delayMs={150}>
-            <div className={styles.recommendedGrid}>
-              {isLoading
-                ? Array.from({ length: 12 }).map((_, index) => (
-                    <div key={`skel-rec-${index}`} className={styles.recommendedItem}>
-                      <ProductCardSkeleton style={recommendedCardStyle} />
-                    </div>
-                  ))
-                : Array.from({ length: 12 }).map((_, index) => {
-                const product = trendingProducts[index % trendingProducts.length];
-                return (
-                  <div key={`recommended-${index}`} className={styles.recommendedItem}>
-                    <ProductCard
-                      {...product}
-                      style={recommendedCardStyle}
-                      onAddToCart={() => addItem(product.id, 1)}
-                      onClick={() => handleRecentClick(product.id)}
-                    />
-                  </div>
-                );
-              })}
+            </CarouselContent>
+            <div className={styles.productControls}>
+              <CarouselPrevious aria-label="Produtos anteriores" />
+              <CarouselNext aria-label="Próximos produtos" />
             </div>
-          </Reveal>
+          </Carousel>
+        </Reveal>
+      </section>
 
-          <Reveal className={styles.trendingButtonWrap} delayMs={160}>
-            <Button
-              size="sm"
-              variant="default"
-              className={styles.trendingButton}
-              onClick={() => navigate(routes.category(defaultCategorySlug))}
-            >
-              Ver tudo
-            </Button>
-          </Reveal>
-
-          {recentProducts.length > 0 && (
-            <Reveal delayMs={180}>
-            <section className={styles.recentSection} aria-label="Visto recentemente">
-              <div className={styles.recentHeader}>
-                <h2 className={styles.recentTitle}>Visto recentemente</h2>
-              </div>
-              <div className={styles.recentGrid}>
-                {recentProducts.map((product) => (
-                  <div key={`recent-${product.id}`} className={styles.recommendedItem}>
-                    <ProductCard
-                      {...product}
-                      style={recentCardStyle}
-                      onAddToCart={() => addItem(product.id, 1)}
-                      onClick={() => handleRecentClick(product.id)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </section>
+      <section className={styles.editorialSection} aria-labelledby="edit-title">
+        <Reveal className={styles.sectionHeading}>
+          <div>
+            <span className={styles.eyebrow}>INSPIRAÇÃO PARA O SEU RITUAL</span>
+            <h2 id="edit-title">
+              Qual é o seu momento?{" "}
+              <BeautyFlower className={styles.spinningFlower} />
+            </h2>
+          </div>
+          <p>Do primeiro cuidado ao último toque.</p>
+        </Reveal>
+        <div className={styles.editorialGrid}>
+          {edits.map((edit, index) => (
+            <Reveal key={edit.title} delayMs={index * 85}>
+              <Link className={styles.editorialCard} to={edit.to}>
+                <div className={styles.editorialMedia}>
+                  <ImageWithFallback
+                    src={edit.image}
+                    alt={edit.title}
+                    loading="lazy"
+                  />
+                  <span className={styles.editorialNumber}>0{index + 1}</span>
+                  <span className={styles.editorialArrow}>
+                    <ArrowUpRight size={22} />
+                  </span>
+                </div>
+                <div className={styles.editorialCopy}>
+                  <span className={styles.eyebrow}>{edit.label}</span>
+                  <h3>{edit.title}</h3>
+                  <p>{edit.text}</p>
+                </div>
+              </Link>
             </Reveal>
-          )}
+          ))}
         </div>
       </section>
 
-      {showScrollTop && (
-        <>
+      <section
+        className={styles.section}
+        id="selecao"
+        aria-labelledby="selection-title"
+      >
+        <Reveal className={styles.sectionHeading}>
+          <div>
+            <span className={styles.eyebrow}>
+              A NOSSA SELEÇÃO, A SUA BELEZA
+            </span>
+            <h2 id="selection-title">Seu próximo favorito.</h2>
+          </div>
+          <p>Explore o que combina com você.</p>
+        </Reveal>
+        <div
+          className={styles.categoryTabs}
+          role="group"
+          aria-label="Filtrar seleção por categoria"
+        >
           <button
             type="button"
-            className={styles.scrollChatButton}
-            aria-label="Abrir chat"
-            onClick={() => navigate(routes.help)}
+            aria-pressed={category === "all"}
+            onClick={() => setCategory("all")}
           >
-            <MessageCircle className={styles.scrollTopIcon} aria-hidden="true" />
+            Todos os favoritos
           </button>
-          <button
-            type="button"
-            className={styles.scrollTopButton}
-            aria-label="Voltar ao topo"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            <ChevronUp className={styles.scrollTopIcon} aria-hidden="true" />
-          </button>
-        </>
-      )}
+          {Object.values(catalogCategories).map((item) => (
+            <button
+              key={item.slug}
+              type="button"
+              aria-pressed={category === item.slug}
+              onClick={() => setCategory(item.slug)}
+            >
+              {item.title}
+            </button>
+          ))}
+        </div>
+        <div className={styles.selectionGrid} key={category}>
+          {selection.map((product) => (
+            <ProductCard
+              key={product.id}
+              {...product}
+              onAddToCart={() => addItem(product.id)}
+            />
+          ))}
+        </div>
+        <p className="sr-only" role="status">
+          {selection.length} produtos na seleção
+        </p>
+        <div className={styles.collectionLink}>
+          <Button variant="outline" asChild>
+            <Link
+              to={routes.category(category === "all" ? "maquiagem" : category)}
+            >
+              Ver a coleção completa <ArrowRight size={16} />
+            </Link>
+          </Button>
+        </div>
+      </section>
 
+      <section className={styles.clubSection} aria-labelledby="club-title">
+        <Reveal className={styles.clubCard}>
+          <div className={styles.clubIntro}>
+            <span className={styles.clubEyebrow}>
+              <Sparkles size={16} /> BEAUTY CLUB
+            </span>
+            <h2 id="club-title">
+              Seu toque merece
+              <br />
+              algo a mais.
+            </h2>
+            <p>
+              {isLoggedIn
+                ? "Cada descoberta faz parte da sua jornada. Acompanhe seus pontos e o próximo nível."
+                : "Um lugar para quem ama descobrir beleza. Crie sua conta, complete missões e acompanhe sua evolução."}
+            </p>
+            <Button asChild>
+              <Link to={isLoggedIn ? routes.missions : routes.login}>
+                {isLoggedIn ? "Explorar minhas missões" : "Quero fazer parte"}{" "}
+                <ArrowUpRight size={18} />
+              </Link>
+            </Button>
+          </div>
+          <div className={styles.clubDetail}>
+            {isLoggedIn ? (
+              <>
+                <span className={styles.clubEyebrow}>SEU MOMENTO NO CLUBE</span>
+                <strong className={styles.clubPoints}>
+                  {totalPoints.toLocaleString("pt-BR")} <small>pontos</small>
+                </strong>
+                <div className={styles.clubLevel}>
+                  <span>{levelName}</span>
+                  <span>{nextLevelName ?? "Nível máximo"}</span>
+                </div>
+                <Progress
+                  value={progressToNextLevel}
+                  className={styles.clubProgress}
+                />
+                <p>
+                  {nextLevelName
+                    ? `Faltam ${pointsToNextLevel} pontos para o próximo nível.`
+                    : "Continue descobrindo seus favoritos."}
+                </p>
+                <Link to={routes.ranking} className={styles.textLink}>
+                  Ver ranking <ArrowRight size={16} />
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className={styles.clubMonogram} aria-hidden="true">
+                  tm
+                  <BeautyFlower className={styles.clubFlower} />
+                </span>
+                <span className={styles.clubSignature}>
+                  BELEZA QUE CONECTA.
+                </span>
+              </>
+            )}
+          </div>
+        </Reveal>
+      </section>
+
+      {recentProducts.length > 0 && (
+        <section className={styles.section} aria-labelledby="recent-title">
+          <Reveal className={styles.sectionHeading}>
+            <div>
+              <span className={styles.eyebrow}>CONTINUE DE ONDE PAROU</span>
+              <h2 id="recent-title">Ficaram no seu radar.</h2>
+            </div>
+          </Reveal>
+          <div className={styles.selectionGrid}>
+            {recentProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                {...product}
+                onAddToCart={() => addItem(product.id)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+      {showScrollTop && (
+        <button
+          type="button"
+          className={styles.scrollTop}
+          aria-label="Voltar ao topo"
+          onClick={() =>
+            window.scrollTo({
+              top: 0,
+              behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+                .matches
+                ? "instant"
+                : "smooth",
+            })
+          }
+        >
+          <ChevronUp size={20} />
+        </button>
+      )}
     </div>
   );
 }

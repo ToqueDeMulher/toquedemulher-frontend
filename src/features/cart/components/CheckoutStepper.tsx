@@ -35,10 +35,18 @@ export function CheckoutStepper({
               <div className={styles.iconRow}>
                 <button
                   type="button"
-                  aria-label={`Ir para ${step.label}`}
+                  aria-label={
+                    isCompleted
+                      ? `Voltar para ${step.label}`
+                      : `${step.label}${isActive ? ", etapa atual" : ""}`
+                  }
                   aria-current={isActive ? "step" : undefined}
-                  className={styles.stepButton}
-                  onClick={() => navigate(step.route)}
+                  className={cn(
+                    styles.stepButton,
+                    isActive && styles.stepButtonActive,
+                  )}
+                  onClick={() => isCompleted && navigate(step.route)}
+                  disabled={!isCompleted}
                 >
                   <span
                     aria-hidden="true"
@@ -49,6 +57,10 @@ export function CheckoutStepper({
                     )}
                   >
                     <Icon className={styles.icon} />
+                  </span>
+                  <span className={styles.stepText}>
+                    <span className={styles.stepNumber}>Etapa {index + 1}</span>
+                    <span className={styles.stepLabel}>{step.label}</span>
                   </span>
                 </button>
                 {!isLast && (

@@ -1,0 +1,158 @@
+.page {
+  display: grid;
+  gap: 20px;
+  color: var(--theme-text-primary);
+  padding: 0 0 48px;
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.heading span {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.heading h1 {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  margin: 8px 0;
+}
+.page p {
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.connection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  background: linear-gradient(135deg, var(--theme-surface-primary), var(--theme-card-muted));
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 14px;
+  padding: 24px;
+}
+.page h2 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  margin-bottom: 8px;
+}
+.connection h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.connection svg {
+  color: var(--theme-brand-strong);
+}
+.card {
+  background: var(--theme-surface-primary);
+  padding: 24px;
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 14px;
+  display: grid;
+  gap: 12px;
+}
+.card form {
+  display: grid;
+  gap: 12px;
+}
+.card select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--theme-input-border);
+  border-radius: 8px;
+  background: var(--theme-input-bg);
+  color: var(--theme-text-primary);
+  font-size: 13px;
+}
+.dimensions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 8px 0;
+}
+.dimensions > div {
+  display: grid;
+  gap: 8px;
+}
+.card form > button {
+  justify-self: start;
+}
+.shipmentTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: start;
+}
+.orderId {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--theme-text-secondary);
+}
+.shipmentTop h2 {
+  margin-top: 7px;
+}
+.status {
+  font-size: 11px;
+  padding: 8px 12px;
+  border-radius: 30px;
+  background: var(--theme-brand-soft);
+  border: 1px solid var(--theme-border-strong);
+  color: var(--theme-brand-strong);
+}
+.invoice {
+  display: grid;
+  gap: 10px;
+  max-width: 560px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.error {
+  color: var(--theme-text-primary) !important;
+  padding: 12px;
+  border-left: 3px solid var(--theme-brand-strong);
+  background: var(--theme-brand-soft);
+}
+.recovery {
+  margin-top: 16px;
+  font-size: 12px;
+}
+.recovery summary {
+  cursor: pointer;
+}
+.recovery input {
+  margin: 10px 0;
+}
+@media (max-width: 767px) {
+  .heading,
+  .connection,
+  .shipmentTop {
+    flex-direction: column;
+    align-items: start;
+  }
+  .dimensions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .card,
+  .connection {
+    padding: 20px;
+  }
+  .heading h1 {
+    font-size: 28px;
+  }
+}

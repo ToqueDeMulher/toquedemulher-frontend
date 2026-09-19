@@ -14,7 +14,6 @@ export type RegisterPayload = {
 
 export type AuthTokenResponse = {
   access_token: string;
-  refresh_token: string;
   token_type: string;
 };
 
@@ -69,6 +68,13 @@ export function forgotPasswordRequest(email: string) {
   return apiRequest<{ message: string }>("/user/forgot-password", {
     method: "POST",
     body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPasswordRequest(token: string, newPassword: string) {
+  return apiRequest<{ message: string }>("/user/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, new_password: newPassword }),
   });
 }
 

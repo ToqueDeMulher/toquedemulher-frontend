@@ -1,3 +1,4 @@
+import type { ShippingSelection } from "./shipping-service";
 import { routes } from "@/app/router/paths";
 import type { CartItem } from "@/features/cart/context/cart-context";
 import { apiRequest } from "@/shared/api/api-client";
@@ -10,11 +11,7 @@ export type CheckoutSessionResponse = {
 };
 
 export type CheckoutPaymentStatus =
-  | "pending"
-  | "approved"
-  | "rejected"
-  | "cancelled"
-  | "refunded";
+  "pending" | "approved" | "rejected" | "cancelled" | "refunded";
 
 export type CheckoutStatusResponse = {
   session_id: string;
@@ -37,11 +34,13 @@ export function createCheckoutSession(
   addressId: string,
   items: CartItem[],
   idempotencyKey: string,
+  shipping: ShippingSelection,
 ) {
   return apiRequest<CheckoutSessionResponse>("/payments/checkout", {
     method: "POST",
     body: JSON.stringify({
       address_id: addressId,
+      shipping,
       idempotency_key: idempotencyKey,
       items: items.map((item) => ({
         id: item.id,

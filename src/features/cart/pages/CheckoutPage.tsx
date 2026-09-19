@@ -1,5 +1,13 @@
+import { ShippingOptions } from "@/features/cart/components/ShippingOptions";
+import { useShippingQuote } from "@/features/cart/hooks/use-shipping-quote";
+import { shippingDeadline } from "@/features/cart/api/shipping-service";
 import { useEffect, useRef, useState } from "react";
-import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Navigate,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import {
   CheckCircle2,
   CreditCard,
@@ -27,6 +35,7 @@ import {
 import { routes } from "@/app/router/paths";
 import {
   createAddress,
+  fetchAddressByCep,
   getAddresses,
   getRegiaoByUF,
   type Address,
@@ -57,14 +66,12 @@ type AddressFormState = {
   city: string;
   state: string;
   reference: string;
+  document: string;
 };
 
 type AddressMode = "saved" | "new";
 type CheckoutVerificationState =
-  | CheckoutPaymentStatus
-  | "checking"
-  | "error"
-  | null;
+  CheckoutPaymentStatus | "checking" | "error" | null;
 
 const REQUIRED_ADDRESS_FIELDS: Array<keyof AddressFormState> = [
   "fullName",
@@ -90,7 +97,9 @@ const stepContent = {
   },
 } as const;
 
-function createEmptyAddressForm(contact?: { name?: string; email?: string } | null): AddressFormState {
+function createEmptyAddressForm(
+  contact?: { name?: string; email?: string } | null,
+): AddressFormState {
   return {
     fullName: contact?.name ?? "",
     email: contact?.email ?? "",
@@ -103,6 +112,7 @@ function createEmptyAddressForm(contact?: { name?: string; email?: string } | nu
     city: "",
     state: "",
     reference: "",
+    document: "",
   };
 }
 
@@ -145,7 +155,7 @@ function mapSavedAddressToForm(
     fullName: contact?.name ?? "",
     email: contact?.email ?? "",
     zipCode: onlyDigits(address.cep).slice(0, 8),
-    phone: onlyDigits(address.ddd ?? "").slice(0, 11),
+    phone: "",
     street: address.street ?? "",
     number: address.number ?? "",
     complement: address.complement ?? "",
@@ -153,6 +163,7 @@ function mapSavedAddressToForm(
     city: address.city ?? "",
     state: address.state ?? "",
     reference: "",
+    document: "",
   };
 }
 
@@ -178,7 +189,10 @@ function createAddressPayload(
   };
 }
 
-function findMatchingAddress(addresses: Address[], addressForm: AddressFormState) {
+function findMatchingAddress(
+  addresses: Address[],
+  addressForm: AddressFormState,
+) {
   const cep = onlyDigits(addressForm.zipCode);
   const street = addressForm.street.trim().toLowerCase();
   const number = addressForm.number.trim().toLowerCase();
@@ -261,32 +275,22 @@ function createOrderNumber() {
   return `TDM-${year}${month}${day}-${hours}${minutes}`;
 }
 
-function addBusinessDays(baseDate: Date, businessDays: number) {
-  const result = new Date(baseDate);
-  let addedDays = 0;
-
-  while (addedDays < businessDays) {
-    result.setDate(result.getDate() + 1);
-    const dayOfWeek = result.getDay();
-
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      addedDays += 1;
-    }
-  }
-
-  return result;
-}
-
 function createIdempotencyKey() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
 
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (character) => {
-    const random = Math.floor(Math.random() * 16);
-    const value = character === "x" ? random : (random & 0x3) | 0x8;
-    return value.toString(16);
-  });
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+    /[xy]/g,
+    (character) => {
+      const random = Math.floor(Math.random() * 16);
+      const value = character === "x" ? random : (random & 0x3) | 0x8;
+      return value.toString(16);
+    },
+  );
 }
 
 export function CheckoutPage() {
@@ -294,16 +298,34 @@ export function CheckoutPage() {
   const { step } = useParams<{ step?: string }>();
   const [searchParams] = useSearchParams();
   const { isLoggedIn, user } = useAuth();
-  const { items, itemCount, subtotal, reset } = useCart();
+  const {
+    items,
+    itemCount,
+    subtotal: localSubtotal,
+    reset,
+    shippingQuote,
+    shippingService,
+    clearShippingQuote,
+  } = useCart();
+  const {
+    calculate: calculateShipping,
+    loading: shippingLoading,
+    error: shippingError,
+  } = useShippingQuote();
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepError, setCepError] = useState<string | null>(null);
   const { trackOrder } = useGamification();
   const currentStep = normalizeCheckoutFlowStep(step);
-  const checkoutResult =
-    step === "success" || step === "failure" ? step : null;
+  const checkoutResult = step === "success" || step === "failure" ? step : null;
   const checkoutSessionId = searchParams.get("session_id");
   const checkoutOrderId = searchParams.get("order_id");
+  const cepRun = useRef(0);
   const handledCheckoutResultRef = useRef(false);
   const handledCheckoutCancellationRef = useRef(false);
-  const [checkoutIdempotencyKey] = useState(createIdempotencyKey);
+  const checkoutRequestRef = useRef<{
+    fingerprint: string;
+    key: string;
+  } | null>(null);
   const [checkoutVerification, setCheckoutVerification] =
     useState<CheckoutVerificationState>(() =>
       checkoutResult === "success" ? "checking" : null,
@@ -315,8 +337,10 @@ export function CheckoutPage() {
   );
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [addressMode, setAddressMode] = useState<AddressMode>("new");
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(isLoggedIn);
   const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
@@ -325,7 +349,8 @@ export function CheckoutPage() {
   const addressErrors = getAddressErrors(addressForm);
   const selectedAddress =
     savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
-  const isUsingSavedAddress = addressMode === "saved" && selectedAddress !== null;
+  const isUsingSavedAddress =
+    addressMode === "saved" && selectedAddress !== null;
   const isAddressComplete =
     isUsingSavedAddress || Object.keys(addressErrors).length === 0;
 
@@ -456,7 +481,7 @@ export function CheckoutPage() {
     handledCheckoutResultRef.current = true;
     const earnedPoints = trackOrder(
       items.map((item) => ({
-        price: item.price,
+        price: getQuotedItemPrice(item),
         quantity: item.quantity,
       })),
     );
@@ -469,7 +494,12 @@ export function CheckoutPage() {
     return <Navigate to={routes.checkoutStep(currentStep)} replace />;
   }
 
-  if (!checkoutResult && currentStep === "payment" && !isLoadingAddresses && !isAddressComplete) {
+  if (
+    !checkoutResult &&
+    currentStep === "payment" &&
+    !isLoadingAddresses &&
+    !isAddressComplete
+  ) {
     return <Navigate to={routes.checkoutStep("address")} replace />;
   }
 
@@ -481,19 +511,30 @@ export function CheckoutPage() {
     return <Navigate to={routes.cart} replace />;
   }
 
-  const shipping = 0;
+  const validShipping = Boolean(
+    shippingQuote &&
+    shippingQuote.postal_code === addressForm.zipCode &&
+    shippingService,
+  );
+  const subtotal = validShipping ? shippingQuote!.subtotal : localSubtotal;
+  const shipping = validShipping ? shippingService!.price : 0;
   const total = subtotal + shipping;
+  function getQuotedItemPrice(item: { name: string; price: number }) {
+    return validShipping
+      ? (shippingQuote?.item_prices?.find((price) => price.name === item.name)
+          ?.unit_price ?? item.price)
+      : item.price;
+  }
+
   const rewardPoints = calculateCartRewardPoints(
     items.map((item) => ({
-      price: item.price,
+      price: getQuotedItemPrice(item),
       quantity: item.quantity,
     })),
   );
-  const estimatedDate = new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(addBusinessDays(new Date(), 7));
+  const estimatedDate = validShipping
+    ? shippingDeadline(shippingService!) + " após postagem"
+    : "Escolha uma entrega para consultar o prazo";
   const currentStepIndex = checkoutResult
     ? getCheckoutStepIndex("confirmation")
     : getCheckoutStepIndex(currentStep);
@@ -510,10 +551,47 @@ export function CheckoutPage() {
     (!isLoadingAddresses && (addressMode === "new" || !isUsingSavedAddress));
 
   const updateAddressField = (field: keyof AddressFormState, value: string) => {
+    if (field === "zipCode") {
+      cepRun.current += 1;
+      setCepLoading(false);
+      setCepError(null);
+    }
     setAddressForm((prev) => ({ ...prev, [field]: value }));
+  };
+  const lookupAddress = async () => {
+    const cep = addressForm.zipCode;
+    if (!/^\d{8}$/.test(cep)) return;
+    const run = ++cepRun.current;
+    setCepLoading(true);
+    setCepError(null);
+    try {
+      const data = await fetchAddressByCep(cep);
+      if (data && cepRun.current === run)
+        setAddressForm((previous) =>
+          previous.zipCode === cep
+            ? {
+                ...previous,
+                street: data.street,
+                neighborhood: data.neighborhood,
+                city: data.city,
+                state: data.state,
+              }
+            : previous,
+        );
+    } catch (error) {
+      if (cepRun.current === run)
+        setCepError(
+          error instanceof Error
+            ? error.message
+            : "Preencha o endereço manualmente.",
+        );
+    } finally {
+      if (cepRun.current === run) setCepLoading(false);
+    }
   };
 
   const handleSelectSavedAddress = (address: Address) => {
+    cepRun.current += 1;
     setAddressMode("saved");
     setSelectedAddressId(address.id);
     setAddressAttempted(false);
@@ -521,6 +599,7 @@ export function CheckoutPage() {
   };
 
   const handleUseNewAddress = () => {
+    cepRun.current += 1;
     setAddressMode("new");
     setSelectedAddressId(null);
     setAddressAttempted(false);
@@ -532,12 +611,16 @@ export function CheckoutPage() {
     }));
   };
 
-  const handleAddressSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAddressSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
     setAddressAttempted(true);
 
     if (isUsingSavedAddress) {
-      toast.success("Endereço selecionado. Agora escolha a forma de pagamento.");
+      toast.success(
+        "Endereço selecionado. Agora escolha a forma de pagamento.",
+      );
       navigate(routes.checkoutStep("payment"));
       return;
     }
@@ -566,7 +649,10 @@ export function CheckoutPage() {
       );
 
       const nextAddresses = await getAddresses();
-      const nextSelectedAddress = findMatchingAddress(nextAddresses, addressForm);
+      const nextSelectedAddress = findMatchingAddress(
+        nextAddresses,
+        addressForm,
+      );
 
       if (!nextSelectedAddress) {
         throw new Error("Endereço criado não foi encontrado.");
@@ -575,8 +661,14 @@ export function CheckoutPage() {
       setSavedAddresses(nextAddresses);
       setSelectedAddressId(nextSelectedAddress.id);
       setAddressMode("saved");
-      setAddressForm(mapSavedAddressToForm(nextSelectedAddress, user));
-      toast.success("Endereço selecionado. Agora siga para o pagamento seguro.");
+      setAddressForm((previous) => ({
+        ...mapSavedAddressToForm(nextSelectedAddress, user),
+        phone: previous.phone,
+        document: previous.document,
+      }));
+      toast.success(
+        "Endereço selecionado. Agora siga para o pagamento seguro.",
+      );
     } catch {
       toast.error("Não foi possível preparar o endereço. Tente novamente.");
       setIsSavingAddress(false);
@@ -587,7 +679,9 @@ export function CheckoutPage() {
     navigate(routes.checkoutStep("payment"));
   };
 
-  const handlePaymentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handlePaymentSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     if (!isLoggedIn) {
@@ -604,13 +698,49 @@ export function CheckoutPage() {
       return;
     }
 
+    if (!validShipping || !shippingQuote || !shippingService) {
+      toast.error("Calcule e escolha sua entrega antes de pagar.");
+      return;
+    }
+    if (
+      !/^\d{11}$/.test(addressForm.document) ||
+      addressForm.phone.length < 10 ||
+      addressForm.fullName.trim().length < 3 ||
+      !isValidEmail(addressForm.email)
+    ) {
+      toast.error("Confira nome, e-mail, CPF e telefone do destinatário.");
+      return;
+    }
+    const requestFingerprint = JSON.stringify([
+      selectedAddressId,
+      items.map((item) => [item.id, item.quantity]),
+      shippingQuote.id,
+      shippingService.id,
+      addressForm.fullName,
+      addressForm.email,
+      addressForm.phone,
+      addressForm.document,
+    ]);
+    if (checkoutRequestRef.current?.fingerprint !== requestFingerprint)
+      checkoutRequestRef.current = {
+        fingerprint: requestFingerprint,
+        key: createIdempotencyKey(),
+      };
     setIsCreatingCheckout(true);
 
     try {
       const checkoutSession = await createCheckoutSession(
         selectedAddressId,
         items,
-        checkoutIdempotencyKey,
+        checkoutRequestRef.current!.key,
+        {
+          quote_id: shippingQuote.id,
+          service_id: shippingService.id,
+          recipient_name: addressForm.fullName.trim(),
+          recipient_email: addressForm.email.trim(),
+          recipient_phone: addressForm.phone,
+          recipient_document: addressForm.document,
+        },
       );
       window.location.assign(checkoutSession.checkout_url);
     } catch (error) {
@@ -624,7 +754,11 @@ export function CheckoutPage() {
   };
 
   const renderAddressStep = () => (
-    <form className={styles.checkoutBody} onSubmit={handleAddressSubmit} noValidate>
+    <form
+      className={styles.checkoutBody}
+      onSubmit={handleAddressSubmit}
+      noValidate
+    >
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
           <span className={styles.sectionIconWrap}>
@@ -665,7 +799,8 @@ export function CheckoutPage() {
                 <div className={styles.savedAddressList}>
                   {savedAddresses.map((address) => {
                     const isSelected =
-                      addressMode === "saved" && selectedAddressId === address.id;
+                      addressMode === "saved" &&
+                      selectedAddressId === address.id;
 
                     return (
                       <button
@@ -686,7 +821,9 @@ export function CheckoutPage() {
                             </span>
                           </span>
                           {address.is_default_shipping && (
-                            <span className={styles.savedAddressBadge}>Padrão</span>
+                            <span className={styles.savedAddressBadge}>
+                              Padrão
+                            </span>
                           )}
                         </span>
                         <span className={styles.savedAddressText}>
@@ -736,268 +873,296 @@ export function CheckoutPage() {
             )}
 
             <div className={styles.formGrid}>
-          <div className={styles.fullField}>
-            <Label htmlFor="fullName" className={styles.fieldLabel}>
-              Nome completo
-            </Label>
-            <Input
-              id="fullName"
-              value={addressForm.fullName}
-              onChange={(event) =>
-                updateAddressField("fullName", event.target.value)
-              }
-              className={styles.fieldInput}
-              placeholder="Como deve aparecer na entrega"
-              autoComplete="name"
-              required
-              aria-invalid={addressAttempted && !!addressErrors.fullName}
-              aria-describedby={
-                addressAttempted && addressErrors.fullName ? "fullName-error" : undefined
-              }
-            />
-            {addressAttempted && addressErrors.fullName && (
-              <p id="fullName-error" className={styles.fieldError}>
-                {addressErrors.fullName}
-              </p>
-            )}
-          </div>
+              <div className={styles.fullField}>
+                <Label htmlFor="fullName" className={styles.fieldLabel}>
+                  Nome completo
+                </Label>
+                <Input
+                  id="fullName"
+                  value={addressForm.fullName}
+                  onChange={(event) =>
+                    updateAddressField("fullName", event.target.value)
+                  }
+                  className={styles.fieldInput}
+                  placeholder="Como deve aparecer na entrega"
+                  autoComplete="name"
+                  required
+                  aria-invalid={addressAttempted && !!addressErrors.fullName}
+                  aria-describedby={
+                    addressAttempted && addressErrors.fullName
+                      ? "fullName-error"
+                      : undefined
+                  }
+                />
+                {addressAttempted && addressErrors.fullName && (
+                  <p id="fullName-error" className={styles.fieldError}>
+                    {addressErrors.fullName}
+                  </p>
+                )}
+              </div>
 
-          <div className={styles.fullField}>
-            <Label htmlFor="email" className={styles.fieldLabel}>
-              E-mail
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={addressForm.email}
-              onChange={(event) =>
-                updateAddressField("email", event.target.value)
-              }
-              className={styles.fieldInput}
-              placeholder="seu@exemplo.com"
-            />
-            {addressAttempted && addressErrors.email && (
-              <p id="checkout-email-error" className={styles.fieldError}>
-                {addressErrors.email}
-              </p>
-            )}
-          </div>
+              <div className={styles.fullField}>
+                <Label htmlFor="email" className={styles.fieldLabel}>
+                  E-mail
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={addressForm.email}
+                  onChange={(event) =>
+                    updateAddressField("email", event.target.value)
+                  }
+                  className={styles.fieldInput}
+                  placeholder="seu@exemplo.com"
+                />
+                {addressAttempted && addressErrors.email && (
+                  <p id="checkout-email-error" className={styles.fieldError}>
+                    {addressErrors.email}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <Label htmlFor="zipCode" className={styles.fieldLabel}>
-              CEP
-            </Label>
-            <Input
-              id="zipCode"
-              value={formatZipCode(addressForm.zipCode)}
-              onChange={(event) =>
-                updateAddressField(
-                  "zipCode",
-                  event.target.value.replace(/\D/g, "").slice(0, 8),
-                )
-              }
-              className={styles.fieldInput}
-              placeholder="00000-000"
-              autoComplete="postal-code"
-              inputMode="numeric"
-              required
-              aria-invalid={addressAttempted && !!addressErrors.zipCode}
-              aria-describedby={
-                addressAttempted && addressErrors.zipCode ? "zipCode-error" : undefined
-              }
-            />
-            {addressAttempted && addressErrors.zipCode && (
-              <p id="zipCode-error" className={styles.fieldError}>
-                {addressErrors.zipCode}
-              </p>
-            )}
-          </div>
+              <div>
+                <Label htmlFor="zipCode" className={styles.fieldLabel}>
+                  CEP
+                </Label>
+                <Input
+                  onBlur={() => void lookupAddress()}
+                  id="zipCode"
+                  value={formatZipCode(addressForm.zipCode)}
+                  onChange={(event) =>
+                    updateAddressField(
+                      "zipCode",
+                      event.target.value.replace(/\D/g, "").slice(0, 8),
+                    )
+                  }
+                  className={styles.fieldInput}
+                  placeholder="00000-000"
+                  autoComplete="postal-code"
+                  inputMode="numeric"
+                  required
+                  aria-invalid={addressAttempted && !!addressErrors.zipCode}
+                  aria-describedby={
+                    addressAttempted && addressErrors.zipCode
+                      ? "zipCode-error"
+                      : undefined
+                  }
+                />
+                <p role="status" className={styles.sectionText}>
+                  {cepLoading ? "Consultando endereço..." : (cepError ?? "")}
+                </p>
+                {addressAttempted && addressErrors.zipCode && (
+                  <p id="zipCode-error" className={styles.fieldError}>
+                    {addressErrors.zipCode}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <Label htmlFor="phone" className={styles.fieldLabel}>
-              Telefone
-            </Label>
-            <Input
-              id="phone"
-              value={formatPhone(addressForm.phone)}
-              onChange={(event) =>
-                updateAddressField(
-                  "phone",
-                  event.target.value.replace(/\D/g, "").slice(0, 11),
-                )
-              }
-              className={styles.fieldInput}
-              placeholder="(00) 00000-0000"
-              autoComplete="tel"
-              inputMode="tel"
-              required
-              aria-invalid={addressAttempted && !!addressErrors.phone}
-              aria-describedby={
-                addressAttempted && addressErrors.phone ? "phone-error" : undefined
-              }
-            />
-            {addressAttempted && addressErrors.phone && (
-              <p id="phone-error" className={styles.fieldError}>
-                {addressErrors.phone}
-              </p>
-            )}
-          </div>
+              <div>
+                <Label htmlFor="phone" className={styles.fieldLabel}>
+                  Telefone
+                </Label>
+                <Input
+                  id="phone"
+                  value={formatPhone(addressForm.phone)}
+                  onChange={(event) =>
+                    updateAddressField(
+                      "phone",
+                      event.target.value.replace(/\D/g, "").slice(0, 11),
+                    )
+                  }
+                  className={styles.fieldInput}
+                  placeholder="(00) 00000-0000"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  required
+                  aria-invalid={addressAttempted && !!addressErrors.phone}
+                  aria-describedby={
+                    addressAttempted && addressErrors.phone
+                      ? "phone-error"
+                      : undefined
+                  }
+                />
+                {addressAttempted && addressErrors.phone && (
+                  <p id="phone-error" className={styles.fieldError}>
+                    {addressErrors.phone}
+                  </p>
+                )}
+              </div>
 
-          <div className={styles.fullField}>
-            <Label htmlFor="street" className={styles.fieldLabel}>
-              Endereço
-            </Label>
-            <Input
-              id="street"
-              value={addressForm.street}
-              onChange={(event) =>
-                updateAddressField("street", event.target.value)
-              }
-              className={styles.fieldInput}
-              placeholder="Rua, avenida ou logradouro"
-              autoComplete="address-line1"
-              required
-              aria-invalid={addressAttempted && !!addressErrors.street}
-              aria-describedby={
-                addressAttempted && addressErrors.street ? "street-error" : undefined
-              }
-            />
-            {addressAttempted && addressErrors.street && (
-              <p id="street-error" className={styles.fieldError}>
-                {addressErrors.street}
-              </p>
-            )}
-          </div>
+              <div className={styles.fullField}>
+                <Label htmlFor="street" className={styles.fieldLabel}>
+                  Endereço
+                </Label>
+                <Input
+                  id="street"
+                  value={addressForm.street}
+                  onChange={(event) =>
+                    updateAddressField("street", event.target.value)
+                  }
+                  className={styles.fieldInput}
+                  placeholder="Rua, avenida ou logradouro"
+                  autoComplete="address-line1"
+                  required
+                  aria-invalid={addressAttempted && !!addressErrors.street}
+                  aria-describedby={
+                    addressAttempted && addressErrors.street
+                      ? "street-error"
+                      : undefined
+                  }
+                />
+                {addressAttempted && addressErrors.street && (
+                  <p id="street-error" className={styles.fieldError}>
+                    {addressErrors.street}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <Label htmlFor="number" className={styles.fieldLabel}>
-              Número
-            </Label>
-            <Input
-              id="number"
-              value={addressForm.number}
-              onChange={(event) =>
-                updateAddressField("number", event.target.value)
-              }
-              className={styles.fieldInput}
-              placeholder="123"
-              autoComplete="address-line2"
-              inputMode="numeric"
-              required
-              aria-invalid={addressAttempted && !!addressErrors.number}
-              aria-describedby={
-                addressAttempted && addressErrors.number ? "number-error" : undefined
-              }
-            />
-            {addressAttempted && addressErrors.number && (
-              <p id="number-error" className={styles.fieldError}>
-                {addressErrors.number}
-              </p>
-            )}
-          </div>
+              <div>
+                <Label htmlFor="number" className={styles.fieldLabel}>
+                  Número
+                </Label>
+                <Input
+                  id="number"
+                  value={addressForm.number}
+                  onChange={(event) =>
+                    updateAddressField("number", event.target.value)
+                  }
+                  className={styles.fieldInput}
+                  placeholder="123"
+                  autoComplete="address-line2"
+                  inputMode="numeric"
+                  required
+                  aria-invalid={addressAttempted && !!addressErrors.number}
+                  aria-describedby={
+                    addressAttempted && addressErrors.number
+                      ? "number-error"
+                      : undefined
+                  }
+                />
+                {addressAttempted && addressErrors.number && (
+                  <p id="number-error" className={styles.fieldError}>
+                    {addressErrors.number}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <Label htmlFor="complement" className={styles.fieldLabel}>
-              Apto / Complemento
-            </Label>
-            <Input
-              id="complement"
-              value={addressForm.complement}
-              onChange={(event) =>
-                updateAddressField("complement", event.target.value)
-              }
-              className={styles.fieldInput}
-              placeholder="Apto 302, Bloco B"
-              autoComplete="address-line2"
-            />
-          </div>
+              <div>
+                <Label htmlFor="complement" className={styles.fieldLabel}>
+                  Apto / Complemento
+                </Label>
+                <Input
+                  id="complement"
+                  value={addressForm.complement}
+                  onChange={(event) =>
+                    updateAddressField("complement", event.target.value)
+                  }
+                  className={styles.fieldInput}
+                  placeholder="Apto 302, Bloco B"
+                  autoComplete="address-line2"
+                />
+              </div>
 
-          <div>
-            <Label htmlFor="neighborhood" className={styles.fieldLabel}>
-              Bairro
-            </Label>
-            <Input
-              id="neighborhood"
-              value={addressForm.neighborhood}
-              onChange={(event) =>
-                updateAddressField("neighborhood", event.target.value)
-              }
-              className={styles.fieldInput}
-              placeholder="Seu bairro"
-              autoComplete="address-level3"
-              required
-              aria-invalid={addressAttempted && !!addressErrors.neighborhood}
-              aria-describedby={
-                addressAttempted && addressErrors.neighborhood
-                  ? "neighborhood-error"
-                  : undefined
-              }
-            />
-            {addressAttempted && addressErrors.neighborhood && (
-              <p id="neighborhood-error" className={styles.fieldError}>
-                {addressErrors.neighborhood}
-              </p>
-            )}
-          </div>
+              <div>
+                <Label htmlFor="neighborhood" className={styles.fieldLabel}>
+                  Bairro
+                </Label>
+                <Input
+                  id="neighborhood"
+                  value={addressForm.neighborhood}
+                  onChange={(event) =>
+                    updateAddressField("neighborhood", event.target.value)
+                  }
+                  className={styles.fieldInput}
+                  placeholder="Seu bairro"
+                  autoComplete="address-level3"
+                  required
+                  aria-invalid={
+                    addressAttempted && !!addressErrors.neighborhood
+                  }
+                  aria-describedby={
+                    addressAttempted && addressErrors.neighborhood
+                      ? "neighborhood-error"
+                      : undefined
+                  }
+                />
+                {addressAttempted && addressErrors.neighborhood && (
+                  <p id="neighborhood-error" className={styles.fieldError}>
+                    {addressErrors.neighborhood}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <Label htmlFor="city" className={styles.fieldLabel}>
-              Cidade
-            </Label>
-            <Input
-              id="city"
-              value={addressForm.city}
-              onChange={(event) => updateAddressField("city", event.target.value)}
-              className={styles.fieldInput}
-              placeholder="Sua cidade"
-              autoComplete="address-level2"
-              required
-              aria-invalid={addressAttempted && !!addressErrors.city}
-              aria-describedby={addressAttempted && addressErrors.city ? "city-error" : undefined}
-            />
-            {addressAttempted && addressErrors.city && (
-              <p id="city-error" className={styles.fieldError}>
-                {addressErrors.city}
-              </p>
-            )}
-          </div>
+              <div>
+                <Label htmlFor="city" className={styles.fieldLabel}>
+                  Cidade
+                </Label>
+                <Input
+                  id="city"
+                  value={addressForm.city}
+                  onChange={(event) =>
+                    updateAddressField("city", event.target.value)
+                  }
+                  className={styles.fieldInput}
+                  placeholder="Sua cidade"
+                  autoComplete="address-level2"
+                  required
+                  aria-invalid={addressAttempted && !!addressErrors.city}
+                  aria-describedby={
+                    addressAttempted && addressErrors.city
+                      ? "city-error"
+                      : undefined
+                  }
+                />
+                {addressAttempted && addressErrors.city && (
+                  <p id="city-error" className={styles.fieldError}>
+                    {addressErrors.city}
+                  </p>
+                )}
+              </div>
 
-          <div className={styles.fullField}>
-            <Label htmlFor="state" className={styles.fieldLabel}>
-              Estado
-            </Label>
-            <Input
-              id="state"
-              value={addressForm.state}
-              onChange={(event) => updateAddressField("state", event.target.value)}
-              className={styles.fieldInput}
-              placeholder="Ex.: DF, SP, RJ"
-              autoComplete="address-level1"
-              required
-              aria-invalid={addressAttempted && !!addressErrors.state}
-              aria-describedby={addressAttempted && addressErrors.state ? "state-error" : undefined}
-            />
-            {addressAttempted && addressErrors.state && (
-              <p id="state-error" className={styles.fieldError}>
-                {addressErrors.state}
-              </p>
-            )}
-          </div>
+              <div className={styles.fullField}>
+                <Label htmlFor="state" className={styles.fieldLabel}>
+                  Estado
+                </Label>
+                <Input
+                  id="state"
+                  value={addressForm.state}
+                  onChange={(event) =>
+                    updateAddressField("state", event.target.value)
+                  }
+                  className={styles.fieldInput}
+                  placeholder="Ex.: DF, SP, RJ"
+                  autoComplete="address-level1"
+                  required
+                  aria-invalid={addressAttempted && !!addressErrors.state}
+                  aria-describedby={
+                    addressAttempted && addressErrors.state
+                      ? "state-error"
+                      : undefined
+                  }
+                />
+                {addressAttempted && addressErrors.state && (
+                  <p id="state-error" className={styles.fieldError}>
+                    {addressErrors.state}
+                  </p>
+                )}
+              </div>
 
-          <div className={styles.fullField}>
-            <Label htmlFor="reference" className={styles.fieldLabel}>
-              Ponto de referência
-            </Label>
-            <Textarea
-              id="reference"
-              value={addressForm.reference}
-              onChange={(event) =>
-                updateAddressField("reference", event.target.value)
-              }
-              className={styles.fieldTextarea}
-              placeholder="Prédio, cor do portão, instruções para entrega etc."
-            />
-          </div>
+              <div className={styles.fullField}>
+                <Label htmlFor="reference" className={styles.fieldLabel}>
+                  Ponto de referência
+                </Label>
+                <Textarea
+                  id="reference"
+                  value={addressForm.reference}
+                  onChange={(event) =>
+                    updateAddressField("reference", event.target.value)
+                  }
+                  className={styles.fieldTextarea}
+                  placeholder="Prédio, cor do portão, instruções para entrega etc."
+                />
+              </div>
             </div>
 
             {isLoggedIn && (
@@ -1006,14 +1171,17 @@ export function CheckoutPage() {
                   type="checkbox"
                   className={styles.saveAddressCheckbox}
                   checked={shouldSaveAddress}
-                  onChange={(event) => setShouldSaveAddress(event.target.checked)}
+                  onChange={(event) =>
+                    setShouldSaveAddress(event.target.checked)
+                  }
                 />
                 <span>
                   <span className={styles.saveAddressTitle}>
                     Definir como endereço padrão
                   </span>
                   <span className={styles.saveAddressText}>
-                    O endereço será salvo para esta compra e poderá ficar como padrão no perfil.
+                    O endereço será salvo para esta compra e poderá ficar como
+                    padrão no perfil.
                   </span>
                 </span>
               </label>
@@ -1048,14 +1216,114 @@ export function CheckoutPage() {
           className={styles.primaryButton}
           isLoading={isLoadingAddresses || isSavingAddress}
         >
-          {isSavingAddress ? "Salvando endereço..." : "Continuar para pagamento"}
+          {isSavingAddress
+            ? "Salvando endereço..."
+            : "Continuar para pagamento"}
         </Button>
       </div>
     </form>
   );
 
   const renderPaymentStep = () => (
-    <form className={styles.checkoutBody} onSubmit={handlePaymentSubmit} noValidate>
+    <form
+      className={styles.checkoutBody}
+      onSubmit={handlePaymentSubmit}
+      noValidate
+    >
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <Truck className={styles.sectionIcon} />
+          <div>
+            <h2 className={styles.sectionTitle}>Sua entrega</h2>
+            <p className={styles.sectionText}>
+              Cotação para o CEP {formatZipCode(addressForm.zipCode)}.
+            </p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          isLoading={shippingLoading}
+          onClick={() => {
+            clearShippingQuote();
+            void calculateShipping(addressForm.zipCode);
+          }}
+        >
+          {shippingLoading
+            ? "Consultando transportadoras..."
+            : validShipping
+              ? "Atualizar cotação"
+              : "Calcular entrega"}
+        </Button>
+        {shippingError && (
+          <p role="alert" className={styles.fieldError}>
+            {shippingError}
+          </p>
+        )}
+        {validShipping && <ShippingOptions />}
+        <div className={styles.formGrid}>
+          <div>
+            <Label htmlFor="recipient-name">Destinatário</Label>
+            <Input
+              id="recipient-name"
+              autoComplete="name"
+              value={addressForm.fullName}
+              onChange={(event) =>
+                updateAddressField("fullName", event.target.value)
+              }
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="recipient-email">E-mail de contato</Label>
+            <Input
+              id="recipient-email"
+              type="email"
+              autoComplete="email"
+              value={addressForm.email}
+              onChange={(event) =>
+                updateAddressField("email", event.target.value)
+              }
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="recipient-phone">Telefone com DDD</Label>
+            <Input
+              id="recipient-phone"
+              type="tel"
+              autoComplete="tel"
+              value={formatPhone(addressForm.phone)}
+              onChange={(event) =>
+                updateAddressField(
+                  "phone",
+                  onlyDigits(event.target.value).slice(0, 11),
+                )
+              }
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="recipient-document">CPF do destinatário</Label>
+            <Input
+              id="recipient-document"
+              inputMode="numeric"
+              maxLength={11}
+              value={addressForm.document}
+              onChange={(event) =>
+                updateAddressField(
+                  "document",
+                  onlyDigits(event.target.value).slice(0, 11),
+                )
+              }
+              required
+            />
+            <p className={styles.sectionText}>
+              Necessário para emitir a etiqueta de envio.
+            </p>
+          </div>
+        </div>
+      </div>
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
           <span className={styles.sectionIconWrap}>
@@ -1078,7 +1346,8 @@ export function CheckoutPage() {
               <h3 className={styles.paymentGatewayTitle}>Stripe Checkout</h3>
               <p className={styles.paymentGatewayText}>
                 A Toque de Mulher não armazena dados de cartão. A Stripe recebe
-                o pagamento em uma página protegida e depois retorna você para o pedido.
+                o pagamento em uma página protegida e depois retorna você para o
+                pedido.
               </p>
             </div>
           </div>
@@ -1088,7 +1357,10 @@ export function CheckoutPage() {
             <div>
               <p className={styles.noticeTitle}>Total enviado para pagamento</p>
               <p className={styles.noticeText}>
-                R$ {total.toFixed(2).replace(".", ",")} com estoque reservado no backend.
+                R$ {total.toFixed(2).replace(".", ",")}{" "}
+                {validShipping
+                  ? "incluindo a entrega escolhida."
+                  : "antes do cálculo do frete."}
               </p>
             </div>
           </div>
@@ -1110,6 +1382,7 @@ export function CheckoutPage() {
           type="submit"
           className={styles.primaryButton}
           isLoading={isCreatingCheckout}
+          disabled={!validShipping || shippingLoading}
         >
           {isCreatingCheckout ? (
             "Criando pagamento..."
@@ -1130,7 +1403,8 @@ export function CheckoutPage() {
       returnedFromSuccess && checkoutVerification === "approved";
     const isProcessing =
       returnedFromSuccess &&
-      (checkoutVerification === "checking" || checkoutVerification === "pending");
+      (checkoutVerification === "checking" ||
+        checkoutVerification === "pending");
     const isTerminalFailure =
       returnedFromSuccess &&
       (checkoutVerification === "rejected" ||
@@ -1246,11 +1520,17 @@ export function CheckoutPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <CheckoutStepper currentStep={currentStepIndex} className={styles.stepper} />
+        <CheckoutStepper
+          currentStep={currentStepIndex}
+          className={styles.stepper}
+        />
 
-        <div className={cn(styles.layout, checkoutResult && styles.resultLayout)}>
+        <div
+          className={cn(styles.layout, checkoutResult && styles.resultLayout)}
+        >
           <section className={styles.checkoutCard}>
             <header className={styles.checkoutHeader}>
+              <p className={styles.checkoutEyebrow}>Finalização segura</p>
               <h1 className={styles.checkoutTitle}>
                 {checkoutResult === "success"
                   ? checkoutVerification === "approved"
@@ -1266,7 +1546,9 @@ export function CheckoutPage() {
               <div className={styles.guestBanner}>
                 <LogIn className={styles.guestBannerIcon} />
                 <div>
-                  <p className={styles.guestBannerTitle}>Login necessário para pagar</p>
+                  <p className={styles.guestBannerTitle}>
+                    Login necessário para pagar
+                  </p>
                   <p className={styles.guestBannerText}>
                     O pagamento real usa seu perfil para vincular endereço,
                     pedido e confirmação da Stripe.
@@ -1276,90 +1558,109 @@ export function CheckoutPage() {
             )}
 
             {checkoutResult && renderCheckoutResult()}
-            {!checkoutResult && currentStep === "address" && renderAddressStep()}
-            {!checkoutResult && currentStep === "payment" && renderPaymentStep()}
+            {!checkoutResult &&
+              currentStep === "address" &&
+              renderAddressStep()}
+            {!checkoutResult &&
+              currentStep === "payment" &&
+              renderPaymentStep()}
           </section>
 
           {!checkoutResult && (
-          <aside className={styles.summaryCard}>
-            <div className={styles.summaryHeader}>
-              <h2 className={styles.summaryTitle}>Resumo do pedido</h2>
-              <p className={styles.summarySubtitle}>
-                {itemCount} itens selecionados
-              </p>
-            </div>
+            <aside className={styles.summaryCard}>
+              <div className={styles.summaryHeader}>
+                <h2 className={styles.summaryTitle}>Resumo do pedido</h2>
+                <p className={styles.summarySubtitle}>
+                  {itemCount} itens selecionados
+                </p>
+              </div>
 
-            <div className={styles.summaryBody}>
-              <div className={styles.summaryList}>
-                {items.map((item) => (
-                  <div key={item.id} className={styles.summaryItem}>
-                    <div>
-                      <p className={styles.summaryItemName}>{item.name}</p>
-                      <p className={styles.summaryItemMeta}>
-                        Quantidade: {item.quantity}
-                      </p>
+              <div className={styles.summaryBody}>
+                <div className={styles.summaryList}>
+                  {items.map((item) => (
+                    <div key={item.id} className={styles.summaryItem}>
+                      <div>
+                        <p className={styles.summaryItemName}>{item.name}</p>
+                        <p className={styles.summaryItemMeta}>
+                          Quantidade: {item.quantity}
+                        </p>
+                      </div>
+                      <span className={styles.summaryPrice}>
+                        R${" "}
+                        {(getQuotedItemPrice(item) * item.quantity)
+                          .toFixed(2)
+                          .replace(".", ",")}
+                      </span>
                     </div>
-                    <span className={styles.summaryPrice}>
-                      R$ {(item.price * item.quantity).toFixed(2).replace(".", ",")}
+                  ))}
+                </div>
+
+                <div className={styles.summaryTotals}>
+                  <div className={styles.summaryRow}>
+                    <span>Subtotal</span>
+                    <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>
+                  </div>
+                  <div className={styles.summaryRow}>
+                    <span>Frete</span>
+                    <span>
+                      {validShipping
+                        ? shipping === 0
+                          ? "Grátis"
+                          : `R$ ${shipping.toFixed(2).replace(".", ",")}`
+                        : "Calcular entrega"}
                     </span>
                   </div>
-                ))}
-              </div>
+                  <div className={styles.summaryTotalRow}>
+                    <span>
+                      {validShipping ? "Total" : "Subtotal sem frete"}
+                    </span>
+                    <strong>R$ {total.toFixed(2).replace(".", ",")}</strong>
+                  </div>
+                  <div className={styles.summaryRewardRow}>
+                    <span>Beauty Points</span>
+                    <strong>+{rewardPoints} pts</strong>
+                  </div>
+                </div>
 
-              <div className={styles.summaryTotals}>
-                <div className={styles.summaryRow}>
-                  <span>Subtotal</span>
-                  <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>
+                <div className={styles.summaryPanel}>
+                  <h3 className={styles.summaryPanelTitle}>Endereço</h3>
+                  <p className={styles.summaryPanelText}>
+                    {addressForm.fullName || "Nenhum destinatário informado"}
+                  </p>
+                  <p className={styles.summaryPanelText}>
+                    {addressForm.email || "Nenhum e-mail de contato informado"}
+                  </p>
+                  <p className={styles.summaryPanelText}>
+                    {addressSummary ||
+                      "Preencha o endereço para visualizá-lo aqui."}
+                  </p>
+                  <p className={styles.summaryPanelText}>
+                    {[addressForm.city, addressForm.state]
+                      .filter(Boolean)
+                      .join(" - ") || "Cidade / Estado"}
+                  </p>
                 </div>
-                <div className={styles.summaryRow}>
-                  <span>Frete</span>
-                  <span>Grátis</span>
-                </div>
-                <div className={styles.summaryTotalRow}>
-                  <span>Total</span>
-                  <strong>R$ {total.toFixed(2).replace(".", ",")}</strong>
-                </div>
-                <div className={styles.summaryRewardRow}>
-                  <span>Beauty Points</span>
-                  <strong>+{rewardPoints} pts</strong>
-                </div>
-              </div>
 
-              <div className={styles.summaryPanel}>
-                <h3 className={styles.summaryPanelTitle}>Endereço</h3>
-                <p className={styles.summaryPanelText}>
-                  {addressForm.fullName || "Nenhum destinatário informado"}
-                </p>
-                <p className={styles.summaryPanelText}>
-                  {addressForm.email || "Nenhum e-mail de contato informado"}
-                </p>
-                <p className={styles.summaryPanelText}>
-                  {addressSummary || "Preencha o endereço para visualizá-lo aqui."}
-                </p>
-                <p className={styles.summaryPanelText}>
-                  {[addressForm.city, addressForm.state].filter(Boolean).join(" - ") ||
-                    "Cidade / Estado"}
-                </p>
-              </div>
+                <div className={styles.summaryPanel}>
+                  <h3 className={styles.summaryPanelTitle}>Pagamento</h3>
+                  <p className={styles.summaryPanelText}>Stripe Checkout</p>
+                  <p className={styles.summaryPanelText}>
+                    O método final será escolhido na página segura da Stripe.
+                  </p>
+                </div>
 
-              <div className={styles.summaryPanel}>
-                <h3 className={styles.summaryPanelTitle}>Pagamento</h3>
-                <p className={styles.summaryPanelText}>Stripe Checkout</p>
-                <p className={styles.summaryPanelText}>
-                  O método final será escolhido na página segura da Stripe.
-                </p>
-              </div>
-
-              <div className={styles.summaryEta}>
-                <ShieldCheck className={styles.summaryEtaIcon} />
-                <div>
-                  <p className={styles.summaryEtaTitle}>Entrega estimada</p>
-                  <p className={styles.summaryEtaText}>{estimatedDate}</p>
-                  <p className={styles.summaryEtaSmall}>Pedido: {orderNumber}</p>
+                <div className={styles.summaryEta}>
+                  <ShieldCheck className={styles.summaryEtaIcon} />
+                  <div>
+                    <p className={styles.summaryEtaTitle}>Entrega estimada</p>
+                    <p className={styles.summaryEtaText}>{estimatedDate}</p>
+                    <p className={styles.summaryEtaSmall}>
+                      Pedido: {orderNumber}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </aside>
+            </aside>
           )}
         </div>
       </div>

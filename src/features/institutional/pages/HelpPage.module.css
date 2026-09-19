@@ -210,24 +210,3 @@
 }
 
 /* ─── Header (visão legacy, se ainda usado) ─────────────────── */
-.header {
-  @apply text-center mb-12;
-}
-
-.title {
-  @apply text-3xl sm:text-4xl font-bold mb-3;
-  color: var(--theme-text-primary);
-}
-
-.subtitle {
-  @apply text-base sm:text-lg mb-8;
-  color: var(--theme-text-secondary);
-}
-
-.searchWrap {
-  @apply max-w-2xl mx-auto;
-}
-
-.searchInner {
-  @apply relative;
-}

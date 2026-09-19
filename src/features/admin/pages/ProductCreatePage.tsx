@@ -83,8 +83,6 @@ type ProductFormValues = {
   // ProductImage
   images: ProductImageField[];
 
-  // interno, não vai pro backend
-  notes: string;
 };
 
 const defaultValues: ProductFormValues = {
@@ -118,7 +116,6 @@ const defaultValues: ProductFormValues = {
   stock_quantity: "",
   stock_expiry_date: "",
 
-  notes: "",
   images: [
     {
       url: "",
@@ -211,7 +208,6 @@ export function ProductCreatePage() {
 
   const handleImageFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    fieldId: string,
     index: number,
   ) => {
     const file = event.target.files?.[0];
@@ -283,24 +279,23 @@ export function ProductCreatePage() {
           <div className={styles.headerLeft}>
             <div className={styles.headerMetaRow}>
               <Badge variant="secondary" className={styles.headerBadge}>
-                Novo recurso
+                CATÁLOGO
               </Badge>
               <span className={styles.headerMeta}>
-                Envie os dados no formato aceito pelo endpoint POST /api/v1/products
+                Novo item para a loja
               </span>
             </div>
-            <h1 className={styles.title}>Cadastro de Produtos</h1>
+            <h1 className={styles.title}>Cadastrar produto</h1>
             <p className={styles.description}>
-              Preencha os campos abaixo para cadastrar novos itens no catálogo.
-              Os campos marcados com * são obrigatórios. Os demais são opcionais
-              e podem ser ajustados depois diretamente no painel administrativo.
+              Organize as informações, imagens e estoque do novo produto.
+              Campos marcados com * são obrigatórios.
             </p>
           </div>
           <Button
             type="button"
             variant="outline"
             size="lg"
-            onClick={() => navigate(routes.home)}
+            onClick={() => navigate(routes.adminDashboard)}
             className={styles.backButton}
           >
             <ChevronLeft className={styles.iconLeft} /> Voltar
@@ -312,7 +307,7 @@ export function ProductCreatePage() {
             {/* PRODUCT - Informações gerais */}
             <Card>
               <CardHeader>
-                <CardTitle>Informações gerais (Product)</CardTitle>
+                <CardTitle>Informações gerais</CardTitle>
                 <CardDescription>
                   Dados básicos utilizados para identificar o produto na
                   plataforma.
@@ -427,7 +422,7 @@ export function ProductCreatePage() {
             {/* PRODUCT - Detalhes cosméticos */}
             <Card>
               <CardHeader>
-                <CardTitle>Detalhes cosméticos (Product)</CardTitle>
+                <CardTitle>Detalhes cosméticos</CardTitle>
                 <CardDescription>
                   Especificações usadas para filtros e recomendações
                   personalizadas.
@@ -643,7 +638,7 @@ export function ProductCreatePage() {
             {/* SUPPLIER */}
             <Card>
               <CardHeader>
-                <CardTitle>Fornecedor (Supplier)</CardTitle>
+                <CardTitle>Fornecedor</CardTitle>
                 <CardDescription>
                   Dados para criar ou vincular o fornecedor responsável por este
                   produto.
@@ -717,7 +712,7 @@ export function ProductCreatePage() {
             {/* BRAND */}
             <Card>
               <CardHeader>
-                <CardTitle>Marca (Brand)</CardTitle>
+                <CardTitle>Marca</CardTitle>
                 <CardDescription>
                   Marca comercial exibida junto ao nome do produto.
                 </CardDescription>
@@ -748,7 +743,7 @@ export function ProductCreatePage() {
             {/* DESCRIPTION */}
             <Card>
               <CardHeader>
-                <CardTitle>Descrição (Description)</CardTitle>
+                <CardTitle>Descrição</CardTitle>
                 <CardDescription>
                   Texto detalhado vinculado a este produto.
                 </CardDescription>
@@ -830,10 +825,9 @@ export function ProductCreatePage() {
             {/* CATEGORY */}
             <Card>
               <CardHeader>
-                <CardTitle>Categorias (Category)</CardTitle>
+                <CardTitle>Categorias e tags</CardTitle>
                 <CardDescription>
-                  Este campo alimenta tags do produto. Se informar um número,
-                  ele será usado como category_id.
+                  Agrupe o produto para facilitar a busca no catálogo.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -846,7 +840,7 @@ export function ProductCreatePage() {
                         className={styles.fieldLabel}
                         onMouseDown={preventLabelFocus}
                       >
-                        Tags ou category_id
+                        Tags ou código da categoria
                       </span>
                       <FormControl>
                         <Input
@@ -855,8 +849,8 @@ export function ProductCreatePage() {
                         />
                       </FormControl>
                       <FormDescription>
-                        Valores separados por vírgula viram `tags`; se o conteúdo
-                        for numérico, vira `category_id`.
+                        Separe os nomes por vírgula. Um número sozinho será usado
+                        como código da categoria.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -868,7 +862,7 @@ export function ProductCreatePage() {
             {/* STOCK */}
             <Card>
               <CardHeader>
-                <CardTitle>Estoque inicial (Stock)</CardTitle>
+                <CardTitle>Estoque inicial</CardTitle>
                 <CardDescription>
                   Estoque vinculado ao produto no momento do cadastro.
                 </CardDescription>
@@ -892,7 +886,7 @@ export function ProductCreatePage() {
                         <Input type="number" min="0" step="1" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Será registrada em stock_quantity.
+                        Quantidade disponível para venda ao publicar.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -913,43 +907,8 @@ export function ProductCreatePage() {
                         <Input type="date" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Vai para Stock.expiry_date, se preenchido.
+                        Informe a data quando o produto tiver prazo de validade.
                       </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* NOTES (interno) */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Observações internas</CardTitle>
-                <CardDescription>
-                  Campo opcional apenas para contexto interno (não é enviado ao
-                  backend).
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FormField
-                  control={control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem className={styles.fullWidth}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Observações
-                      </span>
-                      <FormControl>
-                        <Textarea
-                          rows={4}
-                          placeholder="Detalhes extras para o time de catálogo, logística, etc."
-                          {...field}
-                        />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -960,7 +919,7 @@ export function ProductCreatePage() {
             {/* PRODUCTIMAGE */}
             <Card>
               <CardHeader>
-                <CardTitle>Imagens (ProductImage)</CardTitle>
+                <CardTitle>Imagens</CardTitle>
                 <CardDescription>
                   A primeira imagem enviada será marcada como principal.
                 </CardDescription>
@@ -1025,7 +984,7 @@ export function ProductCreatePage() {
                         accept="image/jpeg,image/png,image/webp"
                         className={styles.hiddenInput}
                         onChange={(event) =>
-                          handleImageFileChange(event, field.id, index)
+                          handleImageFileChange(event, index)
                         }
                       />
                       <Button
@@ -1145,18 +1104,20 @@ export function ProductCreatePage() {
               </CardContent>
             </Card>
 
-            {/* PREVIEW */}
             <Card>
               <CardHeader>
-                <CardTitle>Pré-visualização da requisição</CardTitle>
+                <CardTitle>Finalizar cadastro</CardTitle>
                 <CardDescription>
-                  Payload pronto para ser enviado ao endpoint POST /api/v1/products.
+                  Revise os campos e cadastre o produto no catálogo.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className={styles.preview}>
-                  {JSON.stringify(previewPayload, null, 2)}
-                </pre>
+                <details className={styles.technicalPreview}>
+                  <summary>Ver dados técnicos do envio</summary>
+                  <pre className={styles.preview}>
+                    {JSON.stringify(previewPayload, null, 2)}
+                  </pre>
+                </details>
               </CardContent>
               <CardFooter className={styles.cardFooter}>
                 <Button

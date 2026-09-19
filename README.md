@@ -37,8 +37,8 @@ npm run dev
 
 O Vite vai abrir a aplicacao em:
 
-- `http://localhost:5173`
-- ou `http://127.0.0.1:5173`
+- `http://localhost:3000`
+- ou `http://127.0.0.1:3000`
 
 Se precisar fixar host e porta:
 
@@ -253,8 +253,10 @@ O helper `src/shared/api/api-client.ts`:
 Chaves de autenticação usadas no navegador:
 
 - `tdm_access_token`
-- `tdm_refresh_token`
 - `tdm_auth_user`
+
+A API emite apenas tokens de acesso. Tokens de refresh antigos são removidos do
+navegador ao iniciar o app.
 
 ### Cadastro administrativo de produtos
 

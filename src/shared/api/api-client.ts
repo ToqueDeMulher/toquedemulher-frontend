@@ -14,6 +14,11 @@ export function getAuthToken() {
   return window.localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
+export function resolveApiAssetUrl(path: string) {
+  if (/^https?:\/\//.test(path)) return path;
+  return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
 export function clearAuthStorage() {
   window.localStorage.removeItem(AUTH_TOKEN_KEY);
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);

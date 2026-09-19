@@ -1,6 +1,11 @@
 import { useState, useRef } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { MapPin, CheckCircle2, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
+import {
+  MapPin,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import { routes } from "@/app/router/paths";
 import {
   createAddress,
@@ -52,8 +57,11 @@ export function AddressPage() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<keyof FormState, string>>
+  >({});
 
+  const cepSequence = useRef(0);
   const numberRef = useRef<HTMLInputElement>(null);
 
   if (!isLoggedIn) {
@@ -76,6 +84,8 @@ export function AddressPage() {
   }
 
   async function handleCepChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const run = ++cepSequence.current;
+    setCepLoading(false);
     const formatted = formatCep(e.target.value);
     setForm((prev) => ({ ...prev, cep: formatted }));
     setCepError(null);
@@ -86,24 +96,29 @@ export function AddressPage() {
       setCepLoading(true);
       try {
         const data = await fetchAddressByCep(digits);
+        if (run !== cepSequence.current) return;
         if (data) {
           setForm((prev) => ({
             ...prev,
-            street: data.logradouro || prev.street,
-            neighborhood: data.bairro || prev.neighborhood,
-            city: data.localidade || prev.city,
-            state: data.uf || prev.state,
-            region: getRegiaoByUF(data.uf) || prev.region,
-            ddd: data.ddd || prev.ddd,
+            street: data.street || prev.street,
+            neighborhood: data.neighborhood || prev.neighborhood,
+            city: data.city || prev.city,
+            state: data.state || prev.state,
+            region: getRegiaoByUF(data.state) || prev.region,
           }));
           setTimeout(() => numberRef.current?.focus(), 50);
         } else {
           setCepError("CEP não encontrado. Verifique e tente novamente.");
         }
-      } catch {
-        setCepError("Erro ao consultar o CEP. Tente novamente.");
+      } catch (error) {
+        if (run !== cepSequence.current) return;
+        setCepError(
+          error instanceof Error
+            ? error.message
+            : "Consulta indisponível. Preencha manualmente.",
+        );
       } finally {
-        setCepLoading(false);
+        if (run === cepSequence.current) setCepLoading(false);
       }
     }
   }
@@ -111,7 +126,10 @@ export function AddressPage() {
   function validate(): boolean {
     const errors: Partial<Record<keyof FormState, string>> = {};
     if (!form.label.trim()) errors.label = "Campo obrigatório";
-    if (!form.cep.replace(/\D/g, "").trim() || form.cep.replace(/\D/g, "").length !== 8)
+    if (
+      !form.cep.replace(/\D/g, "").trim() ||
+      form.cep.replace(/\D/g, "").length !== 8
+    )
       errors.cep = "CEP inválido";
     if (!form.street.trim()) errors.street = "Campo obrigatório";
     if (!form.number.trim()) errors.number = "Campo obrigatório";
@@ -119,7 +137,7 @@ export function AddressPage() {
     if (!form.city.trim()) errors.city = "Campo obrigatório";
     if (!form.state.trim()) errors.state = "Campo obrigatório";
     if (!form.region.trim()) errors.region = "Campo obrigatório";
-    if (!form.ddd.trim()) errors.ddd = "Campo obrigatório";
+    if (!/^\d{2}$/.test(form.ddd.trim())) errors.ddd = "Informe 2 dígitos";
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -154,7 +172,8 @@ export function AddressPage() {
       setForm(INITIAL_FORM);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Erro ao cadastrar endereço.";
+      const message =
+        err instanceof Error ? err.message : "Erro ao cadastrar endereço.";
       if (message.includes("401") || message.includes("403")) {
         setErrorMsg("Sessão expirada. Faça login novamente.");
       } else if (message.includes("422") || message.includes("400")) {
@@ -170,26 +189,13 @@ export function AddressPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-
-        {/* Header */}
-        <div className={styles.headerRow}>
-          <button
-            className={styles.backButton}
-            onClick={() => navigate(routes.profile)}
-            aria-label="Voltar ao perfil"
-          >
-            <ArrowLeft className={styles.backIcon} />
-            Voltar
-          </button>
-        </div>
-
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.iconWrap}>
               <MapPin className={styles.headerIcon} />
             </div>
             <div>
-              <h1 className={styles.cardTitle}>Cadastrar Endereço</h1>
+              <h1 className={styles.cardTitle}>Cadastrar endereço</h1>
               <p className={styles.cardSubtitle}>
                 Preencha seu CEP e complete os dados restantes
               </p>
@@ -213,11 +219,11 @@ export function AddressPage() {
           )}
 
           <form onSubmit={handleSubmit} noValidate className={styles.form}>
-
             {/* Label do endereço */}
             <div className={styles.fieldGroup}>
               <label htmlFor="label" className={styles.label}>
-                Identificação do endereço <span className={styles.required}>*</span>
+                Identificação do endereço{" "}
+                <span className={styles.required}>*</span>
               </label>
               <input
                 id="label"
@@ -250,7 +256,10 @@ export function AddressPage() {
                   className={`${styles.input} ${fieldErrors.cep || cepError ? styles.inputError : ""}`}
                 />
                 {cepLoading && (
-                  <Loader2 className={styles.inputSpinner} aria-label="Consultando CEP..." />
+                  <Loader2
+                    className={styles.inputSpinner}
+                    aria-label="Consultando CEP..."
+                  />
                 )}
               </div>
               {cepError && (
@@ -277,7 +286,9 @@ export function AddressPage() {
                   className={`${styles.input} ${fieldErrors.street ? styles.inputError : ""}`}
                 />
                 {fieldErrors.street && (
-                  <span className={styles.fieldError}>{fieldErrors.street}</span>
+                  <span className={styles.fieldError}>
+                    {fieldErrors.street}
+                  </span>
                 )}
               </div>
 
@@ -296,7 +307,9 @@ export function AddressPage() {
                   className={`${styles.input} ${fieldErrors.number ? styles.inputError : ""}`}
                 />
                 {fieldErrors.number && (
-                  <span className={styles.fieldError}>{fieldErrors.number}</span>
+                  <span className={styles.fieldError}>
+                    {fieldErrors.number}
+                  </span>
                 )}
               </div>
             </div>
@@ -304,8 +317,7 @@ export function AddressPage() {
             {/* Complemento */}
             <div className={styles.fieldGroup}>
               <label htmlFor="complement" className={styles.label}>
-                Complemento{" "}
-                <span className={styles.optional}>(opcional)</span>
+                Complemento <span className={styles.optional}>(opcional)</span>
               </label>
               <input
                 id="complement"
@@ -334,7 +346,9 @@ export function AddressPage() {
                   className={`${styles.input} ${fieldErrors.neighborhood ? styles.inputError : ""}`}
                 />
                 {fieldErrors.neighborhood && (
-                  <span className={styles.fieldError}>{fieldErrors.neighborhood}</span>
+                  <span className={styles.fieldError}>
+                    {fieldErrors.neighborhood}
+                  </span>
                 )}
               </div>
 
@@ -347,9 +361,12 @@ export function AddressPage() {
                   name="ddd"
                   type="text"
                   placeholder="61"
-                  maxLength={3}
+                  maxLength={2}
                   value={form.ddd}
-                  onChange={handleChange}
+                  onChange={(event) => {
+                    event.target.value = event.target.value.replace(/\D/g, "");
+                    handleChange(event);
+                  }}
                   className={`${styles.input} ${fieldErrors.ddd ? styles.inputError : ""}`}
                 />
                 {fieldErrors.ddd && (
@@ -389,7 +406,12 @@ export function AddressPage() {
                   placeholder="DF"
                   maxLength={2}
                   value={form.state}
-                  onChange={handleChange}
+                  onChange={(event) => {
+                    event.target.value = event.target.value
+                      .replace(/[^a-zA-Z]/g, "")
+                      .toUpperCase();
+                    handleChange(event);
+                  }}
                   className={`${styles.input} ${fieldErrors.state ? styles.inputError : ""}`}
                 />
                 {fieldErrors.state && (
@@ -411,16 +433,23 @@ export function AddressPage() {
                   className={`${styles.input} ${fieldErrors.region ? styles.inputError : ""}`}
                 />
                 {fieldErrors.region && (
-                  <span className={styles.fieldError}>{fieldErrors.region}</span>
+                  <span className={styles.fieldError}>
+                    {fieldErrors.region}
+                  </span>
                 )}
               </div>
             </div>
 
             {/* Opções de padrão */}
             <div className={styles.checkboxSection}>
-              <h3 className={styles.checkboxSectionTitle}>Definir como padrão</h3>
+              <h3 className={styles.checkboxSectionTitle}>
+                Definir como padrão
+              </h3>
               <div className={styles.checkboxRow}>
-                <label className={styles.checkboxLabel} htmlFor="is_default_shipping">
+                <label
+                  className={styles.checkboxLabel}
+                  htmlFor="is_default_shipping"
+                >
                   <input
                     id="is_default_shipping"
                     name="is_default_shipping"
@@ -434,7 +463,10 @@ export function AddressPage() {
                   </span>
                 </label>
 
-                <label className={styles.checkboxLabel} htmlFor="is_default_billing">
+                <label
+                  className={styles.checkboxLabel}
+                  htmlFor="is_default_billing"
+                >
                   <input
                     id="is_default_billing"
                     name="is_default_billing"
@@ -453,6 +485,15 @@ export function AddressPage() {
             {/* Botão submit */}
             <div className={styles.formFooter}>
               <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className={styles.cancelButton}
+                onClick={() => navigate(routes.profile)}
+              >
+                Cancelar
+              </Button>
+              <Button
                 type="submit"
                 disabled={submitLoading}
                 size="lg"
@@ -467,7 +508,7 @@ export function AddressPage() {
                 ) : (
                   <>
                     <MapPin className={styles.submitIcon} />
-                    Salvar Endereço
+                    Salvar endereço
                   </>
                 )}
               </Button>

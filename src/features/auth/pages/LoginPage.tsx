@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Check, X, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -191,10 +191,6 @@ export function LoginPage() {
       return defaultRoute;
     }
 
-    if (nextRole === "admin" && redirectTo === routes.profile) {
-      return routes.adminDashboard;
-    }
-
     if (nextRole === "customer" && redirectTo.startsWith("/admin")) {
       return routes.profile;
     }
@@ -206,14 +202,12 @@ export function LoginPage() {
     (params: {
       authUser: { id: string; name: string; email: string; role: AuthRole };
       accessToken: string;
-      refreshToken: string;
       successMessage: string;
       delay?: number;
     }) => {
       const {
         authUser,
         accessToken,
-        refreshToken,
         successMessage,
         delay = 1200,
       } = params;
@@ -226,7 +220,6 @@ export function LoginPage() {
         login({
           user: authUser,
           accessToken,
-          refreshToken,
         });
         navigate(resolveRedirect(authUser.role), { replace: true });
       }, delay);
@@ -250,7 +243,6 @@ export function LoginPage() {
         completeSignIn({
           authUser: normalizeAuthUser(me),
           accessToken: token.access_token,
-          refreshToken: token.refresh_token,
           successMessage:
             me.role === "admin"
               ? "Login admin com Google realizado com sucesso!"
@@ -309,14 +301,14 @@ export function LoginPage() {
 
   const passwordStrength = getPasswordStrength(registerPassword);
   const passwordStrengthData = getPasswordStrengthLabel(passwordStrength);
-  const loginEmailError = validateEmail(loginEmail) ? undefined : "Digite um e-mail valido.";
+  const loginEmailError = validateEmail(loginEmail) ? undefined : "Digite um e-mail válido.";
   const loginPasswordError =
     loginPassword.length >= 6 ? undefined : "A senha deve ter pelo menos 6 caracteres.";
   const registerNameError =
     registerName.trim().length >= 3 ? undefined : "Nome deve ter pelo menos 3 caracteres.";
   const registerEmailError = validateEmail(registerEmail)
     ? undefined
-    : "Por favor, insira um e-mail valido.";
+    : "Por favor, insira um e-mail válido.";
   const registerPasswordError =
     registerPassword.length >= 8 ? undefined : "A senha deve ter pelo menos 8 caracteres.";
   const registerConfirmPasswordError =
@@ -325,7 +317,7 @@ export function LoginPage() {
       : "As senhas informadas precisam coincidir.";
   const acceptTermsError = acceptTerms
     ? undefined
-    : "Voce precisa aceitar os termos de uso para criar a conta.";
+    : "Você precisa aceitar os termos de uso para criar a conta.";
 
   const triggerBubblyAnimation = (
     setAnimate: React.Dispatch<React.SetStateAction<boolean>>,
@@ -371,7 +363,6 @@ export function LoginPage() {
       completeSignIn({
         authUser: normalizeAuthUser(me),
         accessToken: token.access_token,
-        refreshToken: token.refresh_token,
         successMessage:
           me.role === "admin"
             ? "Login admin realizado com sucesso!"
@@ -442,7 +433,6 @@ export function LoginPage() {
     completeSignIn({
       authUser: normalizeAuthUser(me),
       accessToken: token.access_token,
-      refreshToken: token.refresh_token,
       successMessage: "Cadastro realizado com sucesso! Bem-vinda!",
       delay: 1500,
     });
@@ -459,18 +449,9 @@ export function LoginPage() {
   }
 };
 
-  const handleSocialLogin = (provider: string) => {
-    if (provider === "Google") {
-      toast.error("Configure VITE_GOOGLE_CLIENT_ID para ativar o Google.");
-      return;
-    }
-
-    toast.error(`Login com ${provider} ainda não foi integrado ao backend.`);
-  };
-
   const handleForgotPassword = async () => {
     if (!loginEmail) {
-      setAuthAnnouncement("Digite o e-mail antes de solicitar a recuperacao de senha.");
+      setAuthAnnouncement("Digite o e-mail antes de solicitar a recuperação de senha.");
       toast.error("Digite seu e-mail primeiro");
       return;
     }
@@ -491,24 +472,40 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.decorLayer}>
-        <div className={`${styles.decorOrb} ${styles.decorOrbTopLeft}`} />
-        <div className={`${styles.decorOrb} ${styles.decorOrbBottomRight}`} />
-        <div className={`${styles.decorOrb} ${styles.decorOrbCenter}`} />
-      </div>
+      <div className={styles.shell}>
+        <aside className={styles.brandPanel} aria-hidden="true">
+          <div className={styles.brandPanelGlow} />
+          <div className={styles.brandPanelContent}>
+            <span className={styles.brandLogo}>
+              toque de mulher<span>.</span>
+            </span>
+            <h2 className={styles.brandHeadline}>
+              Seu próximo favorito começa aqui.
+            </h2>
+            <p className={styles.brandCopy}>
+              Entre para acompanhar pedidos, favoritos e as vantagens
+              exclusivas do Beauty Club.
+            </p>
+            <ul className={styles.brandBenefits}>
+              <li>Compras e pagamentos protegidos</li>
+              <li>Pedidos e entregas em um só lugar</li>
+              <li>Favoritos e benefícios personalizados</li>
+            </ul>
+          </div>
+        </aside>
 
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Boas-vindas!</h1>
-          <p className={styles.subtitle}>
-            Entre na sua conta para acessar seus pedidos, favoritos e configurações.
+        <div className={styles.formPanel}>
+          <div className={styles.header}>
+            <span className={styles.eyebrow}>Bem-vinda</span>
+            <h1 className={styles.title}>Boas-vindas!</h1>
+            <p className={styles.subtitle}>
+              Entre na sua conta para acessar seus pedidos, favoritos e configurações.
+            </p>
+          </div>
+          <p className="sr-only" aria-live="polite">
+            {authAnnouncement}
           </p>
-        </div>
-        <p className="sr-only" aria-live="polite">
-          {authAnnouncement}
-        </p>
 
-        <div className={styles.card}>
           <Tabs defaultValue="login" className={styles.tabsRoot}>
             <TabsList className={styles.tabsList}>
               <TabsTrigger value="login" className={styles.tabTriggerLogin}>
@@ -625,7 +622,7 @@ export function LoginPage() {
                 </Button>
               </form>
 
-              <div className={styles.divider}>
+              {googleClientId && <div className={styles.divider}>
                 <div className={styles.dividerLineWrap}>
                   <div className={styles.dividerLine}>
                     <div className={styles.dividerLineInner} />
@@ -636,53 +633,23 @@ export function LoginPage() {
                 </div>
 
                 <div className={styles.socialStack}>
-                  {googleClientId ? (
-                    <div
-                      ref={googleButtonRef}
-                      className={styles.googleButtonSlot}
-                    />
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      className={styles.socialButton}
-                      onClick={() => handleSocialLogin("Google")}
-                      disabled={isLoading}
-                    >
-                      Login com Google
-                    </Button>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className={styles.socialButton}
-                    onClick={() => handleSocialLogin("Facebook")}
-                    disabled={isLoading}
-                  >
-                    <svg
-                      className={styles.iconSocial}
-                      fill="#1877F2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                    </svg>
-                    Login com Facebook
-                  </Button>
+                  <div
+                    ref={googleButtonRef}
+                    className={styles.googleButtonSlot}
+                  />
                 </div>
 
                 <p className={styles.footerMeta}>
                   Sua área mostra pedidos, favoritos e configurações pessoais.
                 </p>
-              </div>
+              </div>}
             </TabsContent>
 
             <TabsContent value="register">
               <form onSubmit={handleRegister} className={styles.formRegister}>
                 <div>
                   <Label htmlFor="reg-name" className={styles.fieldLabel}>
-                    Nome Completo
+                    Nome completo
                   </Label>
                   <Input
                     id="reg-name"
@@ -853,7 +820,7 @@ export function LoginPage() {
                     htmlFor="reg-confirm-password"
                     className={styles.fieldLabel}
                   >
-                    Confirmar Senha
+                    Confirmar senha
                   </Label>
                   <div className={styles.inputWrapper}>
                     <Input

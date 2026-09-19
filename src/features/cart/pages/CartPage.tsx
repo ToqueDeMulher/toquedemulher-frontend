@@ -1,6 +1,17 @@
-import { useEffect, useState } from "react";
+import { ShippingOptions } from "@/features/cart/components/ShippingOptions";
+import { useShippingQuote } from "@/features/cart/hooks/use-shipping-quote";
+import { shippingDeadline } from "@/features/cart/api/shipping-service";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Minus, Plus, ShoppingBag, Package, ChevronRight } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  ShoppingBag,
+  Package,
+  ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { CheckoutStepper } from "@/features/cart/components/CheckoutStepper";
@@ -9,147 +20,67 @@ import { EmptyState } from "@/shared/ui/empty-state";
 import { toast } from "sonner";
 import { routes } from "@/app/router/paths";
 import { useCart } from "@/features/cart/context/cart-context";
+import { useFavorites } from "@/features/catalog/hooks/use-favorites";
+import { Progress } from "@/shared/ui/progress";
 import styles from "./CartPage.module.css";
 
-const CEP_STATE_RANGES = [
-  { min: 1000000, max: 19999999, name: "São Paulo" },
-  { min: 20000000, max: 28999999, name: "Rio de Janeiro" },
-  { min: 29000000, max: 29999999, name: "Espírito Santo" },
-  { min: 30000000, max: 39999999, name: "Minas Gerais" },
-  { min: 40000000, max: 48999999, name: "Bahia" },
-  { min: 49000000, max: 49999999, name: "Sergipe" },
-  { min: 50000000, max: 56999999, name: "Pernambuco" },
-  { min: 57000000, max: 57999999, name: "Alagoas" },
-  { min: 58000000, max: 58999999, name: "Paraíba" },
-  { min: 59000000, max: 59999999, name: "Rio Grande do Norte" },
-  { min: 60000000, max: 63999999, name: "Ceará" },
-  { min: 64000000, max: 64999999, name: "Piauí" },
-  { min: 65000000, max: 65999999, name: "Maranhão" },
-  { min: 66000000, max: 68899999, name: "Pará" },
-  { min: 68900000, max: 68999999, name: "Amapá" },
-  { min: 69000000, max: 69299999, name: "Amazonas" },
-  { min: 69300000, max: 69399999, name: "Roraima" },
-  { min: 69400000, max: 69899999, name: "Amazonas" },
-  { min: 69900000, max: 69999999, name: "Acre" },
-  { min: 70000000, max: 72799999, name: "Distrito Federal" },
-  { min: 72800000, max: 72999999, name: "Goiás" },
-  { min: 73000000, max: 73699999, name: "Distrito Federal" },
-  { min: 73700000, max: 76799999, name: "Goiás" },
-  { min: 76800000, max: 76999999, name: "Rondônia" },
-  { min: 77000000, max: 77999999, name: "Tocantins" },
-  { min: 78000000, max: 78899999, name: "Mato Grosso" },
-  { min: 79000000, max: 79999999, name: "Mato Grosso do Sul" },
-  { min: 80000000, max: 87999999, name: "Paraná" },
-  { min: 88000000, max: 89999999, name: "Santa Catarina" },
-  { min: 90000000, max: 99999999, name: "Rio Grande do Sul" },
-] as const;
-
-const BUSINESS_DAYS_FOR_ESTIMATE = 15;
 const FREE_SHIPPING_THRESHOLD = 150;
-const VALID_COUPON = "BEMVINDA10";
-
-function getStateFromZipCode(zipCode: string) {
-  if (zipCode.length !== 8) return "Brasil";
-
-  const numericZipCode = Number.parseInt(zipCode, 10);
-
-  if (Number.isNaN(numericZipCode)) return "Brasil";
-
-  const range = CEP_STATE_RANGES.find(
-    ({ min, max }) => numericZipCode >= min && numericZipCode <= max,
-  );
-
-  return range?.name ?? "Brasil";
-}
-
-function addBusinessDays(baseDate: Date, businessDays: number) {
-  const result = new Date(baseDate);
-  let addedDays = 0;
-
-  while (addedDays < businessDays) {
-    result.setDate(result.getDate() + 1);
-    const dayOfWeek = result.getDay();
-
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      addedDays += 1;
-    }
-  }
-
-  return result;
-}
 
 export function CartPage() {
   const navigate = useNavigate();
-  const { items, itemCount, subtotal, updateItemQuantity, removeItem } = useCart();
-  const [coupon, setCoupon] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const [isShippingCalculated, setIsShippingCalculated] = useState(false);
+  const { addFavorite } = useFavorites();
+  const {
+    items,
+    itemCount,
+    subtotal: localSubtotal,
+    updateItemQuantity,
+    removeItem,
+    shippingQuote,
+    shippingService,
+    clearShippingQuote,
+  } = useCart();
+  const [zipCode, setZipCode] = useState(shippingQuote?.postal_code ?? "");
+  const {
+    calculate,
+    cancel,
+    loading: shippingLoading,
+    error: shippingError,
+  } = useShippingQuote();
+  const isShippingCalculated = Boolean(
+    shippingQuote && shippingQuote.postal_code === zipCode && shippingService,
+  );
+  const subtotal = isShippingCalculated
+    ? shippingQuote!.subtotal
+    : localSubtotal;
+  const discount = 0;
+  const shipping = isShippingCalculated ? shippingService!.price : 0;
+  const total = subtotal + shipping;
+  function getQuotedItemPrice(item: { name: string; price: number }) {
+    return isShippingCalculated
+      ? (shippingQuote?.item_prices?.find((price) => price.name === item.name)
+          ?.unit_price ?? item.price)
+      : item.price;
+  }
 
-  useEffect(() => {
-    if (zipCode.length !== 8 && isShippingCalculated) {
-      setIsShippingCalculated(false);
-    }
-  }, [zipCode]);
-
-  const discount = appliedCoupon === VALID_COUPON ? subtotal * 0.1 : 0;
-  const shipping = isShippingCalculated
-    ? subtotal >= FREE_SHIPPING_THRESHOLD
-      ? 0
-      : 15.9
-    : 0;
-  const total = subtotal - discount + shipping;
   const remainingForFreeShipping = Math.max(
     0,
     FREE_SHIPPING_THRESHOLD - subtotal,
   );
-  const shippingDestination = getStateFromZipCode(zipCode);
   const shippingSummary = isShippingCalculated
     ? shipping === 0
       ? "GRÁTIS"
       : `R$ ${shipping.toFixed(2).replace(".", ",")}`
     : "Calcular";
-  const shippingLineTitle = isShippingCalculated
-    ? shipping === 0
-      ? "Padrão - GRÁTIS"
-      : `Padrão - ${shippingSummary}`
-    : "Padrão - Calcular frete";
-  const shippingLineSub = isShippingCalculated
-    ? "15 a 30 dias úteis, com código de rastreio"
-    : "Informe o CEP para calcular frete e prazo.";
-  const estimatedShippingDate = new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(addBusinessDays(new Date(), BUSINESS_DAYS_FOR_ESTIMATE));
-
+  const estimatedShippingDate = isShippingCalculated
+    ? shippingDeadline(shippingService!) + " após postagem"
+    : "Calcule o prazo pelo CEP";
   const handleRemoveItem = (productId: string) => {
     removeItem(productId);
     toast.success("Produto removido do carrinho");
   };
 
-  const applyCoupon = () => {
-    if (coupon.trim().toUpperCase() === VALID_COUPON) {
-      setAppliedCoupon(VALID_COUPON);
-      toast.success("Cupom aplicado! 10% de desconto");
-      return;
-    }
-
-    setAppliedCoupon("");
-    toast.error("Cupom inválido.");
-  };
-
   const calculateShipping = () => {
-    if (zipCode.length === 8) {
-      setIsShippingCalculated(true);
-      if (subtotal >= FREE_SHIPPING_THRESHOLD) {
-        toast.success("Frete grátis aplicado!");
-      } else {
-        toast.success(`Frete: R$ ${shipping.toFixed(2)}`);
-      }
-    } else {
-      toast.error("CEP inválido.");
-    }
+    void calculate(zipCode);
   };
 
   if (items.length === 0) {
@@ -159,12 +90,12 @@ export function CartPage() {
           <EmptyState
             icon={ShoppingBag}
             title="Seu carrinho está vazio"
-            description="Adicione produtos incríveis ao seu carrinho!"
+            description="Um novo ritual começa com uma escolha. Encontre os produtos que combinam com você."
             action={
               <Button
                 size="lg"
                 variant="default"
-                onClick={() => navigate(routes.home)}
+                onClick={() => navigate(routes.category("maquiagem"))}
               >
                 Continuar Comprando
               </Button>
@@ -178,11 +109,29 @@ export function CartPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
+        <div className={styles.pageHeading}>
+          <div>
+            <span>ESCOLHIDOS POR VOCÊ</span>
+            <h1>Seu carrinho.</h1>
+            <p>
+              {itemCount}{" "}
+              {itemCount === 1
+                ? "item para o seu ritual"
+                : "itens para o seu ritual"}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            onClick={() => navigate(routes.category("maquiagem"))}
+          >
+            <ArrowLeft size={15} /> Continuar comprando
+          </Button>
+        </div>
         <CheckoutStepper currentStep={0} className={styles.stepper} />
         <div className={styles.layout}>
           <section className={styles.cartCard}>
             <div className={styles.cartHeader}>
-              <h1 className={styles.cartTitle}>Carrinho</h1>
+              <h2 className={styles.cartTitle}>Sua seleção</h2>
             </div>
 
             <div className={styles.cartBody}>
@@ -194,8 +143,9 @@ export function CartPage() {
                     <p
                       className={`${styles.freeShippingText} ${styles.freeShippingPendingText}`}
                     >
-                      Faltam R$ {remainingForFreeShipping.toFixed(2)} para ganhar{" "}
-                      <strong>FRETE GRÁTIS</strong>!
+                      Faltam R${" "}
+                      {remainingForFreeShipping.toFixed(2).replace(".", ",")}{" "}
+                      para ganhar <strong>FRETE GRÁTIS</strong>!
                     </p>
                   </div>
                 )}
@@ -206,7 +156,10 @@ export function CartPage() {
                     <p
                       className={`${styles.freeShippingText} ${styles.freeShippingSuccessText}`}
                     >
-                      <Package className={styles.freeShippingIcon} aria-hidden="true" />
+                      <Package
+                        className={styles.freeShippingIcon}
+                        aria-hidden="true"
+                      />
                       Parabéns! Você ganhou <strong>FRETE GRÁTIS</strong>!
                     </p>
                   </div>
@@ -214,6 +167,14 @@ export function CartPage() {
               </div>
 
               <div className={styles.section}>
+                <Progress
+                  value={Math.min(
+                    100,
+                    (subtotal / FREE_SHIPPING_THRESHOLD) * 100,
+                  )}
+                  className={styles.shippingProgress}
+                  aria-label="Progresso para frete grátis"
+                />
                 <div className={styles.sectionHeader}>
                   <span className={styles.sectionIconWrap}>
                     <ShoppingBag className={styles.sectionIcon} />
@@ -246,18 +207,26 @@ export function CartPage() {
                         <div className={styles.itemContent}>
                           <div className={styles.itemPriceRow}>
                             <span className={styles.price}>
-                              R$ {item.price.toFixed(2).replace(".", ",")}
+                              R${" "}
+                              {getQuotedItemPrice(item)
+                                .toFixed(2)
+                                .replace(".", ",")}
                             </span>
                             {item.originalPrice && (
                               <span className={styles.originalPrice}>
-                                R$ {item.originalPrice.toFixed(2).replace(".", ",")}
+                                R${" "}
+                                {item.originalPrice
+                                  .toFixed(2)
+                                  .replace(".", ",")}
                               </span>
                             )}
                           </div>
                           {item.originalPrice && (
                             <p className={styles.itemOfferLine}>
-                              {Math.round((1 - item.price / item.originalPrice) * 100)}%
-                              OFF
+                              {Math.round(
+                                (1 - item.price / item.originalPrice) * 100,
+                              )}
+                              % OFF
                               <span className={styles.itemOfferTime}>
                                 Oferta por tempo limitado
                               </span>
@@ -281,9 +250,15 @@ export function CartPage() {
                               className={styles.quantityButton}
                               aria-label={`Diminuir quantidade de ${item.name}`}
                             >
-                              <Minus className={styles.quantityIcon} aria-hidden="true" />
+                              <Minus
+                                className={styles.quantityIcon}
+                                aria-hidden="true"
+                              />
                             </Button>
-                            <span className={styles.quantityValue} aria-live="polite">
+                            <span
+                              className={styles.quantityValue}
+                              aria-live="polite"
+                            >
                               {item.quantity}
                             </span>
                             <Button
@@ -295,12 +270,15 @@ export function CartPage() {
                               className={styles.quantityButton}
                               aria-label={`Aumentar quantidade de ${item.name}`}
                             >
-                              <Plus className={styles.quantityIcon} aria-hidden="true" />
+                              <Plus
+                                className={styles.quantityIcon}
+                                aria-hidden="true"
+                              />
                             </Button>
                           </div>
                           <p className={styles.lineTotal}>
                             R${" "}
-                            {(item.price * item.quantity)
+                            {(getQuotedItemPrice(item) * item.quantity)
                               .toFixed(2)
                               .replace(".", ",")}
                           </p>
@@ -308,7 +286,14 @@ export function CartPage() {
                             <button
                               type="button"
                               className={styles.itemActionLink}
-                              onClick={() => toast.success("Item salvo para depois")}
+                              onClick={() => {
+                                if (addFavorite(item.id)) {
+                                  removeItem(item.id);
+                                  toast.success(
+                                    "Produto movido para seus favoritos",
+                                  );
+                                }
+                              }}
                             >
                               Salvar
                             </button>
@@ -324,16 +309,6 @@ export function CartPage() {
                       </div>
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    className={styles.itemGiftRow}
-                    onClick={() =>
-                      toast.success("Opção de presente registrada para revisão na próxima etapa.")
-                    }
-                  >
-                    <span>Embrulho para presente por apenas R$ 12,90!</span>
-                    <ChevronRight className={styles.itemGiftIcon} aria-hidden="true" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -342,67 +317,26 @@ export function CartPage() {
           <aside className={styles.summaryColumn}>
             <div className={styles.summaryCard}>
               <div className={styles.summaryHeader}>
-                <h2 className={styles.summaryTitle}>Checkout</h2>
+                <h2 className={styles.summaryTitle}>Resumo do pedido</h2>
               </div>
               <div className={styles.summaryBody}>
                 <div className={styles.summarySection}>
-                  <div className={styles.summaryActionHeader}>
-                    <span>Envio para {shippingDestination}</span>
-                    <ChevronRight className={styles.summaryChevron} aria-hidden="true" />
-                  </div>
-
-                  <div className={styles.summaryShippingLine}>
-                    <span className={styles.summaryRadioOuter}>
-                      <span className={styles.summaryRadioInner} />
-                    </span>
-                    <div className={styles.summaryShippingText}>
-                      <p className={styles.summaryShippingTitle}>
-                        {shippingLineTitle}
-                      </p>
-                      <p className={styles.summaryShippingSub}>{shippingLineSub}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.summarySection}>
-                  <div className={styles.summaryActionHeader}>
-                    <span>Cupom ou Código de Influenciadora / Recompensas</span>
-                    <ChevronRight className={styles.summaryChevron} aria-hidden="true" />
-                  </div>
-
-                  <form
-                    className={styles.summaryRow}
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      applyCoupon();
-                    }}
-                  >
-                    <label htmlFor="cart-coupon" className="sr-only">
-                      Digite um cupom de desconto
-                    </label>
-                    <Input
-                      id="cart-coupon"
-                      placeholder="Digite o cupom"
-                      value={coupon}
-                      onChange={(e) => setCoupon(e.target.value)}
-                      className={styles.summaryInput}
-                    />
-                    <Button type="submit" variant="outline" className={styles.summaryButton}>
-                      Aplicar
-                    </Button>
-                  </form>
-                </div>
-
-                <div className={styles.summarySection}>
-                  <h3 className={styles.summarySectionTitle}>Sumário</h3>
+                  <h3 className={styles.summarySectionTitle}>
+                    Entrega e valores
+                  </h3>
                   <div className={styles.summaryZipRow}>
                     <Input
                       id="cart-zip-code"
-                      placeholder="CEP"
+                      placeholder="00000-000"
+                      aria-label="CEP para calcular a entrega"
                       value={zipCode}
-                      onChange={(e) =>
-                        setZipCode(e.target.value.replace(/\D/g, "").slice(0, 8))
-                      }
+                      onChange={(e) => {
+                        cancel();
+                        clearShippingQuote();
+                        setZipCode(
+                          e.target.value.replace(/\D/g, "").slice(0, 8),
+                        );
+                      }}
                       maxLength={8}
                       inputMode="numeric"
                       className={styles.summaryInput}
@@ -410,13 +344,20 @@ export function CartPage() {
                     <Button
                       type="button"
                       onClick={calculateShipping}
+                      isLoading={shippingLoading}
                       variant="outline"
                       className={styles.summaryButton}
                     >
-                      OK
+                      {shippingLoading ? "Consultando..." : "Calcular"}
                     </Button>
                   </div>
 
+                  {shippingError && (
+                    <p role="alert" className={styles.summaryShippingSub}>
+                      {shippingError}
+                    </p>
+                  )}
+                  <ShippingOptions />
                   <div className={styles.breakdown} aria-live="polite">
                     <div className={styles.breakdownRow}>
                       <span>Subtotal ({itemCount} itens)</span>
@@ -425,7 +366,9 @@ export function CartPage() {
                     {discount > 0 && (
                       <div className={styles.breakdownHighlight}>
                         <span>Desconto</span>
-                        <span>- R$ {discount.toFixed(2).replace(".", ",")}</span>
+                        <span>
+                          - R$ {discount.toFixed(2).replace(".", ",")}
+                        </span>
                       </div>
                     )}
                     <div
@@ -445,14 +388,18 @@ export function CartPage() {
                   </div>
 
                   <div className={styles.totalRow}>
-                    <span className={styles.totalLabel}>Total</span>
+                    <span className={styles.totalLabel}>
+                      {isShippingCalculated ? "Total" : "Subtotal sem frete"}
+                    </span>
                     <span className={styles.totalValue}>
                       R$ {total.toFixed(2).replace(".", ",")}
                     </span>
                   </div>
 
                   <p className={styles.summaryEta}>
-                    Data estimada de entrega: {estimatedShippingDate}
+                    {isShippingCalculated
+                      ? `Prazo estimado: ${estimatedShippingDate}.`
+                      : "Informe seu CEP para estimar a entrega. O valor final será confirmado no checkout."}
                   </p>
                 </div>
               </div>
@@ -464,8 +411,11 @@ export function CartPage() {
                   className={styles.checkoutButton}
                   onClick={() => navigate(routes.checkoutStep("address"))}
                 >
-                  Finalizar Compra
+                  Continuar para entrega <ArrowRight size={17} />
                 </Button>
+                <p className={styles.checkoutNote}>
+                  <ShieldCheck size={14} /> Seus dados tratados com cuidado
+                </p>
               </div>
             </div>
           </aside>
