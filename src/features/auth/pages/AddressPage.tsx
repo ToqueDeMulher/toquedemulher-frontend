@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  ArrowLeft,
 } from "lucide-react";
 import { routes } from "@/app/router/paths";
 import {
@@ -138,7 +137,7 @@ export function AddressPage() {
     if (!form.city.trim()) errors.city = "Campo obrigatório";
     if (!form.state.trim()) errors.state = "Campo obrigatório";
     if (!form.region.trim()) errors.region = "Campo obrigatório";
-    if (!form.ddd.trim()) errors.ddd = "Campo obrigatório";
+    if (!/^\d{2}$/.test(form.ddd.trim())) errors.ddd = "Informe 2 dígitos";
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -190,25 +189,13 @@ export function AddressPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        {/* Header */}
-        <div className={styles.headerRow}>
-          <button
-            className={styles.backButton}
-            onClick={() => navigate(routes.profile)}
-            aria-label="Voltar ao perfil"
-          >
-            <ArrowLeft className={styles.backIcon} />
-            Voltar
-          </button>
-        </div>
-
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <div className={styles.iconWrap}>
               <MapPin className={styles.headerIcon} />
             </div>
             <div>
-              <h1 className={styles.cardTitle}>Cadastrar Endereço</h1>
+              <h1 className={styles.cardTitle}>Cadastrar endereço</h1>
               <p className={styles.cardSubtitle}>
                 Preencha seu CEP e complete os dados restantes
               </p>
@@ -374,9 +361,12 @@ export function AddressPage() {
                   name="ddd"
                   type="text"
                   placeholder="61"
-                  maxLength={3}
+                  maxLength={2}
                   value={form.ddd}
-                  onChange={handleChange}
+                  onChange={(event) => {
+                    event.target.value = event.target.value.replace(/\D/g, "");
+                    handleChange(event);
+                  }}
                   className={`${styles.input} ${fieldErrors.ddd ? styles.inputError : ""}`}
                 />
                 {fieldErrors.ddd && (
@@ -416,7 +406,12 @@ export function AddressPage() {
                   placeholder="DF"
                   maxLength={2}
                   value={form.state}
-                  onChange={handleChange}
+                  onChange={(event) => {
+                    event.target.value = event.target.value
+                      .replace(/[^a-zA-Z]/g, "")
+                      .toUpperCase();
+                    handleChange(event);
+                  }}
                   className={`${styles.input} ${fieldErrors.state ? styles.inputError : ""}`}
                 />
                 {fieldErrors.state && (
@@ -490,6 +485,15 @@ export function AddressPage() {
             {/* Botão submit */}
             <div className={styles.formFooter}>
               <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className={styles.cancelButton}
+                onClick={() => navigate(routes.profile)}
+              >
+                Cancelar
+              </Button>
+              <Button
                 type="submit"
                 disabled={submitLoading}
                 size="lg"
@@ -504,7 +508,7 @@ export function AddressPage() {
                 ) : (
                   <>
                     <MapPin className={styles.submitIcon} />
-                    Salvar Endereço
+                    Salvar endereço
                   </>
                 )}
               </Button>
