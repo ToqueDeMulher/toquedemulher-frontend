@@ -1,626 +1,383 @@
-@reference "tailwindcss";
-
 .page {
-  @apply min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 sm:px-6 relative overflow-hidden;
-  background-color: var(--theme-bg-canvas);
+  min-height: calc(100vh - 5rem);
+  padding: clamp(2rem, 5vw, 4.5rem) 1.25rem;
+  background:
+    radial-gradient(circle at 12% 12%, color-mix(in oklab, var(--theme-brand-soft) 56%, transparent), transparent 31rem),
+    var(--theme-bg-canvas);
 }
 
 .shell {
-  @apply w-full max-w-5xl relative z-10 grid overflow-hidden;
-  border-radius: 16px;
+  display: grid;
+  grid-template-columns: minmax(19rem, 0.9fr) minmax(31rem, 1.1fr);
+  width: min(100%, 68rem);
+  min-height: 40rem;
+  margin-inline: auto;
+  overflow: hidden;
+  background: var(--theme-surface-primary);
   border: 1px solid var(--theme-border-soft);
-  box-shadow: 0 30px 70px -30px #28131c2e;
-}
-
-@media (min-width: 1024px) {
-  .shell {
-    grid-template-columns: 1fr 1.15fr;
-  }
+  border-radius: 1.1rem;
+  box-shadow: 0 24px 65px rgb(41 30 36 / 0.1);
 }
 
 .brandPanel {
-  display: none;
+  position: relative;
+  display: flex;
+  min-height: 100%;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(145deg, #2d2529 0%, #3b2e35 58%, #50323e 100%);
 }
 
-@media (min-width: 1024px) {
-  .brandPanel {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    padding: 56px 52px;
-    background: #261e23;
-    color: #fffafc;
-  }
+.brandPanel::after {
+  content: "";
+  position: absolute;
+  right: -5rem;
+  bottom: -7rem;
+  width: 20rem;
+  height: 20rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3rem rgb(255 255 255 / 0.025), 0 0 0 7rem rgb(255 255 255 / 0.02);
 }
 
 .brandPanelGlow {
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 25% 15%, #f7398633, transparent 60%),
-    radial-gradient(ellipse at 85% 95%, #f7398626, transparent 70%);
-}
-
-.brandFlowerTop,
-.brandFlowerBottom {
-  position: absolute;
-  color: #ffffff14;
-}
-
-.brandFlowerTop {
-  width: 150px;
-  height: 150px;
-  top: -35px;
-  right: -25px;
-}
-
-.brandFlowerBottom {
-  width: 110px;
-  height: 110px;
-  bottom: 15px;
-  left: -25px;
+  inset: auto auto -7rem -7rem;
+  width: 20rem;
+  height: 20rem;
+  border-radius: 50%;
+  background: rgb(198 98 133 / 0.23);
+  filter: blur(2rem);
 }
 
 .brandPanelContent {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: clamp(2rem, 5vw, 4rem);
 }
 
 .brandLogo {
-  display: inline-flex;
+  margin-bottom: clamp(4rem, 10vh, 7rem);
   font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  margin-bottom: 32px;
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
 }
 
-.brandLogo span {
-  color: #f73986;
-}
+.brandLogo span { color: #e8a3bb; }
 
 .brandHeadline {
+  max-width: 25rem;
+  margin: 0 0 1rem;
   font-family: var(--font-display);
-  font-size: clamp(28px, 2.4vw, 36px);
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.2;
-  max-width: 340px;
-  margin-bottom: 16px;
+  font-size: clamp(2.1rem, 4vw, 3.35rem);
+  font-weight: 560;
+  letter-spacing: -0.045em;
+  line-height: 1.03;
 }
 
 .brandCopy {
-  font-size: 13px;
-  line-height: 1.8;
-  color: #cfc2c8;
-  max-width: 300px;
+  max-width: 25rem;
+  margin: 0;
+  color: rgb(255 255 255 / 0.72);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.brandBenefits {
+  display: grid;
+  gap: 0.75rem;
+  margin: 2rem 0 0;
+  padding: 1.5rem 0 0;
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+  list-style: none;
+}
+
+.brandBenefits li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: rgb(255 255 255 / 0.82);
+  font-size: 0.82rem;
+}
+
+.brandBenefits li::before {
+  content: "✓";
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fff;
+  background: rgb(232 163 187 / 0.22);
+  border: 1px solid rgb(232 163 187 / 0.4);
+  border-radius: 50%;
+  font-size: 0.68rem;
 }
 
 .formPanel {
-  @apply p-5 sm:p-10;
-  background-color: var(--theme-card-bg);
+  align-self: center;
+  width: min(100%, 36rem);
+  margin-inline: auto;
+  padding: clamp(2rem, 5vw, 4.25rem);
 }
 
-.header {
-  @apply flex flex-col items-center text-center mb-6;
-}
+.header { margin-bottom: 1.8rem; }
 
 .eyebrow {
   display: block;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  margin-bottom: 0.65rem;
   color: var(--theme-brand-strong);
-  margin-bottom: 10px;
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
 }
 
 .title {
+  margin: 0;
+  color: var(--theme-text-primary);
   font-family: var(--font-display);
-  letter-spacing: -0.03em;
-  @apply mb-2 text-3xl sm:text-4xl font-medium;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
 }
 
 .subtitle {
-  @apply text-sm sm:text-base;
+  max-width: 31rem;
+  margin: 0.8rem 0 0;
+  color: var(--theme-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
-.tabsRoot {
-  @apply w-full;
-}
+.tabsRoot { width: 100%; }
 
 .tabsList {
-  @apply grid w-full grid-cols-2 mb-8;
-  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: auto;
+  margin-bottom: 1.75rem;
+  padding: 0.25rem;
+  background: var(--theme-card-muted);
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 0.65rem;
+}
+
+.tabTriggerLogin,
+.tabTriggerRegister {
+  min-height: 2.65rem;
+  color: var(--theme-text-secondary);
+  border-radius: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 650;
 }
 
 .tabTriggerLogin[data-state="active"],
 .tabTriggerRegister[data-state="active"] {
-  background-color: var(--theme-brand);
-  color: #fff;
+  color: var(--theme-text-primary);
+  background: var(--theme-surface-primary);
+  box-shadow: 0 1px 4px rgb(40 27 34 / 0.08);
 }
 
-.formLogin {
-  @apply space-y-5;
-}
-
-.formRegister {
-  @apply space-y-4;
-}
+.formLogin,
+.formRegister { display: grid; gap: 1.15rem; }
 
 .fieldLabel {
-  @apply text-gray-700;
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--theme-text-primary);
+  font-size: 0.78rem;
+  font-weight: 650;
 }
 
-.input {
-  @apply border-pink-200 mt-1.5;
-}
-
+.input,
 .inputWithIcon {
-  @apply border-pink-200 pr-10;
+  height: 3rem;
+  color: var(--theme-text-primary);
+  background: var(--theme-input-bg);
+  border-color: var(--theme-input-border);
+  border-radius: 0.6rem;
+  font-size: 0.9rem;
 }
 
-.inputWrapper {
-  @apply relative mt-1.5;
+.input:focus,
+.inputWithIcon:focus {
+  border-color: color-mix(in oklab, var(--theme-brand-strong) 65%, var(--theme-input-border));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--theme-brand-strong) 11%, transparent);
 }
+
+.inputWrapper { position: relative; }
+.inputWithIcon { padding-right: 3rem; }
 
 .toggleButton {
-  @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600;
+  position: absolute;
+  top: 50%;
+  right: 0.85rem;
+  display: grid;
+  place-items: center;
+  padding: 0.25rem;
+  color: var(--theme-text-muted);
+  background: transparent;
+  border: 0;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 
-.toggleButton:focus-visible {
-  outline: 2px solid rgb(247 57 134 / 0.45);
-  outline-offset: 3px;
-  border-radius: 0.375rem;
-}
+.toggleButton:hover { color: var(--theme-text-primary); }
+.iconMedium { width: 1.05rem; height: 1.05rem; }
+.iconTiny, .iconTinyMuted { width: 0.78rem; height: 0.78rem; flex: 0 0 auto; }
+.iconTinyMuted { color: var(--theme-text-muted); }
 
 .metaRow {
-  @apply flex items-center justify-between text-sm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-.checkboxLabel {
-  @apply flex items-center gap-2 cursor-pointer;
-}
+.termsRow { display: grid; gap: 0.4rem; }
 
-.checkboxInput {
-  @apply rounded border-pink-300 text-pink-500 focus:ring-pink-500;
-}
-
-.checkboxText {
-  @apply text-gray-600;
-}
-
-.forgotButton {
-  @apply text-pink-600 hover:text-pink-700 hover:underline;
-}
-
-.submitButton {
-  @apply w-full;
-}
-
-.bubblyButton {
-  --bubbly-color: var(--primary);
-  --bubble-xs: clamp(6px, 0.55em, 9px);
-  --bubble-sm: clamp(8px, 0.75em, 12px);
-  --bubble-md: clamp(10px, 0.95em, 14px);
-  --bubble-lg: clamp(12px, 1.15em, 18px);
-  --bubble-xl: clamp(14px, 1.35em, 22px);
-  position: relative;
-  overflow: visible;
-  isolation: isolate;
-  transition: transform 0.1s ease-in, box-shadow 0.25s ease-in;
-  box-shadow: none;
-}
-
-.bubblyButton::before,
-.bubblyButton::after {
-  display: none;
-}
-
-.bubblyButton::before {
-  display: none;
-  top: -75%;
-  background-image:
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(
-      circle,
-      transparent 20%,
-      var(--bubbly-color) 20%,
-      transparent 30%
-    ),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(
-      circle,
-      transparent 10%,
-      var(--bubbly-color) 15%,
-      transparent 20%
-    ),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%);
-  background-size:
-    var(--bubble-xs) var(--bubble-xs),
-    var(--bubble-xl) var(--bubble-xl),
-    var(--bubble-md) var(--bubble-md),
-    var(--bubble-xl) var(--bubble-xl),
-    var(--bubble-md) var(--bubble-md),
-    var(--bubble-xs) var(--bubble-xs),
-    var(--bubble-md) var(--bubble-md),
-    var(--bubble-xs) var(--bubble-xs),
-    var(--bubble-lg) var(--bubble-lg);
-}
-
-.bubblyButton::after {
-  display: none;
-  bottom: -75%;
-  background-image:
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(
-      circle,
-      transparent 10%,
-      var(--bubbly-color) 15%,
-      transparent 20%
-    ),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%),
-    radial-gradient(circle, var(--bubbly-color) 20%, transparent 20%);
-  background-size:
-    var(--bubble-md) var(--bubble-md),
-    var(--bubble-xl) var(--bubble-xl),
-    var(--bubble-md) var(--bubble-md),
-    var(--bubble-xl) var(--bubble-xl),
-    var(--bubble-md) var(--bubble-md),
-    var(--bubble-xs) var(--bubble-xs),
-    var(--bubble-lg) var(--bubble-lg);
-}
-
-.bubblyButton:active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-.bubblyButtonAnimate::before {
-  display: block;
-  animation: topBubbles 1.2s ease-in-out forwards;
-}
-
-.bubblyButtonAnimate::after {
-  display: block;
-  animation: bottomBubbles 1.2s ease-in-out forwards;
-}
-
-.divider {
-  @apply mt-6;
-}
-
-.dividerLineWrap {
-  @apply relative;
-}
-
-.dividerLine {
-  @apply absolute inset-0 flex items-center;
-}
-
-.dividerLineInner {
-  @apply w-full border-t border-gray-200;
-}
-
-.dividerTextWrap {
-  @apply relative flex justify-center text-sm;
-}
-
-.dividerText {
-  @apply px-2 bg-white text-gray-500;
-}
-
-.socialStack {
-  @apply mt-4 space-y-2;
-}
-
-.socialButton {
-  @apply w-full;
-}
-
-.googleButtonSlot {
-  @apply flex min-h-11 w-full items-center justify-center overflow-hidden;
-}
-
-.googleButtonSlot iframe {
-  max-width: 100%;
-}
-
-.iconMedium {
-  @apply w-5 h-5;
-}
-
-.iconSocial {
-  @apply w-5 h-5 mr-2;
-}
-
-.iconTiny {
-  @apply w-3 h-3;
-}
-
-.iconTinyMuted {
-  @apply w-3 h-3 text-gray-400;
-}
-
-.passwordHint {
-  @apply text-xs text-red-500 mt-1 flex items-center gap-1;
-}
-
-.passwordStrengthWrap {
-  @apply mt-2 space-y-2;
-}
-
-.strengthBars {
-  @apply flex gap-1;
-}
-
-.strengthBar {
-  @apply h-1.5 flex-1 rounded-full transition-all;
-}
-
-.strengthLabel {
-  @apply text-xs;
-}
-
-.strengthTextRed {
-  @apply text-red-600;
-}
-
-.strengthTextOrange {
-  @apply text-orange-600;
-}
-
-.strengthTextYellow {
-  @apply text-yellow-600;
-}
-
-.strengthTextGreen {
-  @apply text-green-600;
-}
-
-.strengthTextEmerald {
-  @apply text-emerald-600;
-}
-
-.strengthBarInactive {
-  @apply bg-gray-200;
-}
-
-.strengthBarRed {
-  @apply bg-red-500;
-}
-
-.strengthBarOrange {
-  @apply bg-orange-500;
-}
-
-.strengthBarYellow {
-  @apply bg-yellow-500;
-}
-
-.strengthBarGreen {
-  @apply bg-green-500;
-}
-
-.strengthBarEmerald {
-  @apply bg-emerald-500;
-}
-
-.strengthRules {
-  @apply text-xs text-gray-600 space-y-1;
-}
-
-.ruleRow {
-  @apply flex items-center gap-1;
-}
-
-.ruleOk {
-  @apply text-green-600;
-}
-
-.confirmHintBad {
-  @apply text-xs text-red-500 mt-1 flex items-center gap-1;
-}
-
-.confirmHintGood {
-  @apply text-xs text-green-600 mt-1 flex items-center gap-1;
-}
-
-.termsRow {
-  @apply text-sm pt-2;
-}
-
+.checkboxLabel,
 .termsLabel {
-  @apply flex items-start gap-2 cursor-pointer;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  cursor: pointer;
 }
 
+.checkboxInput,
 .termsCheckbox {
-  @apply rounded border-pink-300 text-pink-500 focus:ring-pink-500 mt-1;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-top: 0.1rem;
+  accent-color: var(--theme-brand-strong);
 }
 
-.termsText {
-  @apply text-gray-600;
-}
-
-.termsButton {
-  @apply text-pink-600 hover:underline;
-}
-
-.termsButton:focus-visible {
-  outline: 2px solid rgb(247 57 134 / 0.45);
-  outline-offset: 2px;
-  border-radius: 0.25rem;
-}
-
-.registerButton {
-  @apply w-full;
-}
-
-
-.registerMeta {
-  @apply mt-6 text-center text-sm text-gray-600;
-}
-
-.footerMeta {
-  @apply text-center text-sm text-gray-600;
-}
-
-.title,
-.input,
-.inputWithIcon {
-  color: var(--theme-text-primary);
-}
-
-.subtitle,
 .checkboxText,
-.strengthRules,
 .termsText,
-.registerMeta,
-.footerMeta {
+.footerMeta,
+.registerMeta {
   color: var(--theme-text-secondary);
-}
-
-.tabsList {
-  background-color: var(--theme-card-muted);
-  border-color: var(--theme-border-soft);
-}
-
-.fieldLabel {
-  color: var(--theme-text-secondary);
-}
-
-.input,
-.inputWithIcon {
-  background-color: var(--theme-input-bg);
-  border-color: var(--theme-input-border);
-  color: var(--theme-text-primary);
-}
-
-.toggleButton {
-  color: var(--theme-text-muted);
-}
-
-.toggleButton:hover {
-  color: var(--theme-brand-strong);
+  font-size: 0.78rem;
+  line-height: 1.55;
 }
 
 .forgotButton,
 .termsButton {
+  padding: 0;
   color: var(--theme-brand-strong);
+  background: none;
+  border: 0;
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
 }
 
-.dividerLineInner {
-  border-top-color: var(--theme-border-soft);
+.forgotButton:hover,
+.termsButton:hover { text-decoration: underline; }
+
+.submitButton,
+.registerButton {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 0.15rem;
+  border-radius: 0.6rem;
+  font-weight: 700;
+  box-shadow: 0 8px 20px color-mix(in oklab, var(--theme-brand-strong) 18%, transparent);
 }
 
-.dividerText {
-  background-color: var(--theme-card-bg);
+.bubblyButton { position: relative; overflow: hidden; }
+.bubblyButtonAnimate { animation: buttonPress 300ms ease; }
+
+@keyframes buttonPress {
+  50% { transform: scale(0.985); }
+}
+
+.passwordHint,
+.ruleRow,
+.confirmHintGood,
+.confirmHintBad {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0;
+  color: #b42318;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.confirmHintGood,
+.ruleOk { color: #277a58; }
+.confirmHintBad { color: #b42318; }
+
+.passwordStrengthWrap {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.strengthBars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.25rem; }
+.strengthBar { height: 0.2rem; border-radius: 1rem; }
+.strengthBarInactive { background: var(--theme-border-soft); }
+.strengthBarRed { background: #c53d3d; }
+.strengthBarOrange { background: #d97706; }
+.strengthBarYellow { background: #ca8a04; }
+.strengthBarGreen { background: #3b8f6c; }
+.strengthBarEmerald { background: #18794e; }
+
+.strengthLabel {
+  display: flex;
+  justify-content: space-between;
   color: var(--theme-text-muted);
+  font-size: 0.7rem;
 }
 
-.iconTinyMuted {
-  color: var(--theme-text-muted);
+.strengthTextRed { color: #c53d3d; }
+.strengthTextOrange { color: #d97706; }
+.strengthTextYellow { color: #a16207; }
+.strengthTextGreen { color: #3b8f6c; }
+.strengthTextEmerald { color: #18794e; }
+.strengthRules { display: grid; gap: 0.25rem; margin-top: 0.15rem; }
+
+.divider { margin-top: 1.6rem; }
+.dividerLineWrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.dividerLine { position: absolute; inset-inline: 0; top: 50%; }
+.dividerLineInner { height: 1px; background: var(--theme-border-soft); }
+.dividerTextWrap { position: relative; padding-inline: 0.75rem; background: var(--theme-surface-primary); }
+.dividerText { color: var(--theme-text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.socialStack { display: grid; justify-items: center; margin-top: 1rem; }
+.googleButtonSlot { min-height: 2.75rem; }
+.footerMeta, .registerMeta { margin: 1rem 0 0; text-align: center; }
+
+@media (max-width: 860px) {
+  .page { padding: 1.25rem; }
+  .shell { grid-template-columns: 1fr; min-height: 0; }
+  .brandPanel { min-height: auto; }
+  .brandPanelContent { padding: 2rem; }
+  .brandLogo { margin-bottom: 2.5rem; }
+  .brandHeadline { max-width: 32rem; font-size: 2.35rem; }
+  .brandCopy { max-width: 34rem; }
+  .brandBenefits { display: none; }
+  .formPanel { width: 100%; padding: 2rem; }
 }
 
-.strengthBarInactive {
-  background-color: color-mix(in oklab, var(--theme-text-muted) 20%, transparent);
+@media (max-width: 480px) {
+  .page { padding: 0; background: var(--theme-surface-primary); }
+  .shell { border: 0; border-radius: 0; box-shadow: none; }
+  .brandPanelContent { padding: 1.5rem 1.25rem; }
+  .brandLogo { margin-bottom: 1.75rem; }
+  .brandHeadline { font-size: 1.9rem; }
+  .brandCopy { font-size: 0.82rem; }
+  .formPanel { padding: 1.75rem 1.25rem 2.5rem; }
+  .metaRow { align-items: flex-start; }
 }
 
-@keyframes topBubbles {
-  0% {
-    background-position:
-      5% 90%,
-      10% 90%,
-      10% 90%,
-      15% 90%,
-      25% 90%,
-      25% 90%,
-      40% 90%,
-      55% 90%,
-      70% 90%;
-  }
-  50% {
-    background-position:
-      0% 80%,
-      0% 20%,
-      10% 40%,
-      20% 0%,
-      30% 30%,
-      22% 50%,
-      50% 50%,
-      65% 20%,
-      90% 30%;
-  }
-  100% {
-    background-position:
-      0% 70%,
-      0% 10%,
-      10% 30%,
-      20% -10%,
-      30% 20%,
-      22% 40%,
-      50% 40%,
-      65% 10%,
-      90% 20%;
-    background-size:
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%;
-  }
-}
-
-@keyframes bottomBubbles {
-  0% {
-    background-position:
-      10% -10%,
-      30% 10%,
-      55% -10%,
-      70% -10%,
-      85% -10%,
-      70% -10%,
-      70% 0%;
-  }
-  50% {
-    background-position:
-      0% 80%,
-      20% 80%,
-      45% 60%,
-      60% 100%,
-      75% 70%,
-      95% 60%,
-      105% 0%;
-  }
-  100% {
-    background-position:
-      0% 90%,
-      20% 90%,
-      45% 70%,
-      60% 110%,
-      75% 80%,
-      95% 70%,
-      110% 10%;
-    background-size:
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0% 0%;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .bubblyButtonAnimate { animation: none; }
 }
