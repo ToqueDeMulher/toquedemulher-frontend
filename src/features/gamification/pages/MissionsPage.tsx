@@ -203,7 +203,7 @@ export function MissionsPage() {
             <h1 className={styles.heroTitle}>Sua beleza, sua jornada.</h1>
             <p className={styles.heroText}>
               Cada descoberta rende pontos. Cada missão revela um novo nível.
-              Avance no seu ritmo e celebre os pequenos rituais.
+              O progresso fica neste navegador. Pontos não geram descontos ou benefícios de compra.
             </p>
             <div className={styles.heroStats}>
               <div>
@@ -328,7 +328,6 @@ export function MissionsPage() {
             <span><Eye /> Produto descoberto <strong>+8</strong></span>
             <span><Sparkles /> Categoria visitada <strong>+12</strong></span>
             <span><ShoppingCart /> Item escolhido <strong>+4</strong></span>
-            <span><ShoppingBag /> Pedido concluído <strong>pontos extras</strong></span>
           </div>
         </section>
 

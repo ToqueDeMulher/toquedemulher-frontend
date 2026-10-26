@@ -16,7 +16,7 @@ export type ShippingQuote = {
   subtotal: number;
   expires_at: string;
   services: ShippingService[];
-  item_prices: { name: string; unit_price: number }[];
+  item_prices: { id: string; name: string; unit_price: number }[];
 };
 export type ShippingSelection = {
   quote_id: string;

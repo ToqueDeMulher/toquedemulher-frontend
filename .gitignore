@@ -19,3 +19,8 @@ build/
 .netlify/
 .vscode/
 .vercel
+
+!.env.example
+/test-results/
+/playwright-report/
+/artifacts/

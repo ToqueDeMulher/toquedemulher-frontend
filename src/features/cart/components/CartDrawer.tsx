@@ -1,3 +1,5 @@
+import { useCatalog } from "@/features/catalog/context/catalog-context";
+import { CatalogFeedback } from "@/features/catalog/components/CatalogFeedback";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -21,16 +23,17 @@ import {
 import { ImageWithFallback } from "@/shared/ui/ImageWithFallback";
 import { routes } from "@/app/router/paths";
 import { useCart } from "@/features/cart/context/cart-context";
-import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
 import styles from "./CartDrawer.module.css";
 
-const FREE_SHIPPING_THRESHOLD = 150;
+
 
 export function CartDrawer() {
   const navigate = useNavigate();
+  const { freeShippingThreshold, loading, error } = useCatalog();
   const location = useLocation();
   const {
     items,
+    ready,
     itemCount,
     subtotal: localSubtotal,
     shippingQuote,
@@ -45,26 +48,20 @@ export function CartDrawer() {
     closeCart();
   }, [location.pathname]);
 
-  const rewardPoints = calculateCartRewardPoints(
-    items.map((item) => ({
-      price: getQuotedItemPrice(item),
-      quantity: item.quantity,
-    })),
-  );
   const subtotal = shippingQuote?.subtotal ?? localSubtotal;
   const shipping = shippingService?.price ?? 0;
   const total = subtotal + shipping;
-  function getQuotedItemPrice(item: { name: string; price: number }) {
+  function getQuotedItemPrice(item: { id: string; price: number }) {
     return Boolean(shippingQuote)
-      ? (shippingQuote?.item_prices?.find((price) => price.name === item.name)
+      ? (shippingQuote?.item_prices?.find((price) => price.id === item.id)
           ?.unit_price ?? item.price)
       : item.price;
   }
 
-  const freeShippingEligible = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const freeShippingEligible = freeShippingThreshold !== null && subtotal >= freeShippingThreshold;
   const freeShippingProgress = Math.min(
     100,
-    (subtotal / FREE_SHIPPING_THRESHOLD) * 100,
+    (subtotal / (freeShippingThreshold ?? 1)) * 100,
   );
 
   const handleContinueShopping = () => {
@@ -96,7 +93,7 @@ export function CartDrawer() {
                 <SheetDescription className={styles.description}>
                   {itemCount > 0
                     ? `${itemCount} ${itemCount === 1 ? "item selecionado" : "itens selecionados"}`
-                    : "Escolha seus favoritos e acompanhe as recompensas"}
+                    : "Escolha seus próximos favoritos"}
                 </SheetDescription>
               </div>
             </div>
@@ -105,25 +102,25 @@ export function CartDrawer() {
             )}
           </div>
 
-          {items.length > 0 && (
+          {items.length > 0 && freeShippingThreshold && (
             <div className={styles.shippingCard}>
               <div className={styles.shippingHeader}>
                 <div>
                   <p className={styles.shippingTitle}>
                     {freeShippingEligible
-                      ? "Frete grátis liberado"
+                      ? shippingService?.price === 0 ? "Entrega gratuita confirmada" : "Valor mínimo atingido"
                       : "Quase lá para o frete grátis"}
                   </p>
                   <p className={styles.shippingText}>
                     {freeShippingEligible
-                      ? "Seu pedido já atingiu a faixa de entrega gratuita."
-                      : `Faltam R$ ${(FREE_SHIPPING_THRESHOLD - subtotal)
+                      ? "Confira a opção disponível na cotação do seu CEP."
+                      : `Faltam R$ ${((freeShippingThreshold ?? 0) - subtotal)
                           .toFixed(2)
-                          .replace(".", ",")} para zerar o frete.`}
+                          .replace(".", ",")} para atingir o valor mínimo. Consulte o CEP.`}
                   </p>
                 </div>
                 <span className={styles.shippingValue}>
-                  {freeShippingEligible ? "GRÁTIS" : "R$ 150"}
+                  {shippingService?.price === 0 ? "GRÁTIS" : `R$ ${freeShippingThreshold}`}
                 </span>
               </div>
               <Progress
@@ -135,7 +132,7 @@ export function CartDrawer() {
         </SheetHeader>
 
         <div className={styles.body}>
-          {items.length === 0 ? (
+          {loading || error ? <CatalogFeedback /> : items.length === 0 ? (
             <div className={styles.emptyState}>
               <span className={styles.emptyIconWrap}>
                 <ShoppingBag className={styles.emptyIcon} />
@@ -143,7 +140,7 @@ export function CartDrawer() {
               <div>
                 <p className={styles.emptyTitle}>Seu carrinho está vazio</p>
                 <p className={styles.emptyText}>
-                  Adicione produtos e acompanhe seus pontos no Beauty Club.
+                  Explore o catálogo e escolha seus próximos favoritos.
                 </p>
               </div>
               <Button
@@ -169,16 +166,7 @@ export function CartDrawer() {
                     <div className={styles.itemMeta}>
                       <div>
                         <p className={styles.itemName}>{item.name}</p>
-                        <p className={styles.itemReward}>
-                          <Sparkles className={styles.rewardIcon} />+
-                          {calculateCartRewardPoints([
-                            {
-                              price: getQuotedItemPrice(item),
-                              quantity: item.quantity,
-                            },
-                          ])}{" "}
-                          pts nesta compra
-                        </p>
+                        <p className={styles.itemReward}>{!item.available ? "Produto indisponível" : item.quantity > item.stockQuantity ? "Ajuste a quantidade ao estoque disponível" : "Em estoque"}</p>
                       </div>
                       <button
                         type="button"
@@ -214,6 +202,7 @@ export function CartDrawer() {
                           onClick={() =>
                             updateItemQuantity(item.id, item.quantity + 1)
                           }
+                          disabled={!item.available || item.quantity >= Math.min(item.stockQuantity, 100)}
                           aria-label={`Aumentar quantidade de ${item.name}`}
                         >
                           <Plus className={styles.quantityIcon} />
@@ -266,17 +255,11 @@ export function CartDrawer() {
                 <span>Total estimado</span>
                 <strong>R$ {total.toFixed(2).replace(".", ",")}</strong>
               </div>
-              <div className={styles.rewardRow}>
-                <span>
-                  <Sparkles className={styles.rewardSummaryIcon} />
-                  Beauty Points
-                </span>
-                <strong>+{rewardPoints} pts</strong>
-              </div>
+
             </div>
 
             <div className={styles.actions}>
-              <Button className={styles.primaryButton} onClick={handleCheckout}>
+              <Button className={styles.primaryButton} disabled={!ready} onClick={handleCheckout}>
                 Finalizar compra
                 <ArrowRight className={styles.ctaIcon} />
               </Button>

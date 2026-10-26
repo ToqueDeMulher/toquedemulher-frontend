@@ -8,10 +8,10 @@
 
 .container { width: min(100%, 80rem); margin-inline: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
 .heroSection { padding-top: clamp(1.5rem, 4vw, 3rem); }
-.heroCard { position: relative; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr); min-height: 27rem; overflow: hidden; color: #fff; background: linear-gradient(138deg, #30282c 0%, #3d3037 62%, #52343f 100%); border: 1px solid rgb(255 255 255 / 0.08); border-radius: 1rem; box-shadow: 0 22px 55px rgb(40 27 34 / 0.12); }
+.heroCard { position: relative; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr); min-height: 13rem; overflow: hidden; color: #fff; background: linear-gradient(138deg, #30282c 0%, #3d3037 62%, #52343f 100%); border: 1px solid rgb(255 255 255 / 0.08); border-radius: 1rem; box-shadow: 0 22px 55px rgb(40 27 34 / 0.12); }
 .heroCard::after { content: ""; position: absolute; right: -10rem; bottom: -14rem; width: 34rem; height: 34rem; border: 1px solid rgb(255 255 255 / 0.075); border-radius: 50%; box-shadow: 0 0 0 4rem rgb(255 255 255 / 0.018), 0 0 0 9rem rgb(255 255 255 / 0.012); }
 .heroFlower { position: absolute; top: 2rem; right: 2rem; z-index: 1; width: 5.5rem; color: rgb(236 174 197 / 0.12); transform: rotate(14deg); }
-.heroContent { position: relative; z-index: 1; align-self: center; padding: clamp(2.2rem, 6vw, 4.5rem); }
+.heroContent { position: relative; z-index: 1; align-self: center; padding: clamp(1.25rem, 3vw, 2rem); }
 .heroEyebrow { display: flex; align-items: center; gap: 0.45rem; margin: 0 0 1.2rem; color: #e9abc1; font-size: 0.65rem; font-weight: 750; letter-spacing: 0.15em; text-transform: uppercase; }
 .heroEyebrowIcon { width: 0.9rem; height: 0.9rem; }
 .headerTitle { margin: 0; color: #fff; font-family: var(--font-display); font-size: clamp(3.4rem, 8vw, 6.7rem); font-weight: 560; letter-spacing: -0.065em; line-height: 0.88; }
@@ -25,7 +25,7 @@
 .heroTags { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; }
 .heroTags span { padding: 0.3rem 0.55rem; color: rgb(255 255 255 / 0.7); border: 1px solid rgb(255 255 255 / 0.12); border-radius: 2rem; font-size: 0.6rem; }
 
-.productsSection { padding-top: clamp(3rem, 7vw, 5rem); }
+.productsSection { padding-top: clamp(1.5rem, 3vw, 2.5rem); }
 .productsHeader { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: 1.3rem; }
 .sectionEyebrow { margin: 0 0 0.45rem; color: var(--theme-brand-strong); font-size: 0.62rem; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase; }
 .sectionTitle { margin: 0; color: var(--theme-text-primary); font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.7rem); font-weight: 580; letter-spacing: -0.04em; }
@@ -53,7 +53,7 @@
 .emptyText { margin: 0.45rem 0 1rem; color: var(--theme-text-secondary); font-size: 0.76rem; }
 .clearButton { border-radius: 2rem; }
 
-.discoverySection { padding-top: clamp(3rem, 7vw, 5rem); }
+.discoverySection { padding-top: clamp(1.5rem, 3vw, 2.5rem); }
 .discoveryCard { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2rem; padding: clamp(1.8rem, 5vw, 3.2rem); overflow: hidden; color: #fff; background: #322a2f; border-radius: 0.95rem; }
 .discoveryFlower { position: absolute; right: 15rem; width: 9rem; color: rgb(233 171 193 / 0.08); transform: rotate(12deg); }
 .discoveryCard > *:not(.discoveryFlower) { position: relative; z-index: 1; }
@@ -78,7 +78,7 @@
 
 @media (max-width: 720px) {
   .heroCard { grid-template-columns: 1fr; }
-  .heroAside { min-height: 12rem; }
+  .heroAside { display: none; }
   .heroAsideMain { margin-block: 1rem; }
   .heroAsideMain strong { font-size: 3.5rem; }
   .productsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
@@ -100,4 +100,12 @@
   .sortTrigger { width: 100%; }
   .discoveryActions { flex-direction: column; }
   .discoveryPrimary, .discoverySecondary { width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .heroContent { padding: 1.25rem; }
+  .headerTitle { font-size: 2.6rem; }
+  .heroEyebrow { margin-bottom: .8rem; }
+  .heroStatement { margin-top: .8rem; font-size: 1.15rem; }
+  .headerDescription { display: none; }
 }

@@ -38,7 +38,7 @@ export function RankingPage() {
           </p>
           <h1 className={styles.heroTitle}>Cada jornada floresce de um jeito.</h1>
           <p className={styles.heroText}>
-            Acompanhe as clientes que mais exploram o Beauty Club e celebre a
+            Acompanhe seu progresso no Beauty Club e celebre a
             sua evolução, no seu próprio ritmo.
           </p>
           <div className={styles.heroNote}>
@@ -206,7 +206,7 @@ export function RankingPage() {
               <p className={styles.loginPromptEyebrow}>Seu lugar está esperando</p>
               <h2 className={styles.loginPromptTitle}>Comece a sua jornada no jardim.</h2>
               <p className={styles.loginPromptText}>
-                Entre para guardar seus pontos, avançar pelos níveis e aparecer
+                Entre para acompanhar seu progresso neste navegador e explorar
                 entre as clientes mais ativas.
               </p>
             </div>

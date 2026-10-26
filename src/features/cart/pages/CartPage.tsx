@@ -1,3 +1,5 @@
+import { useCatalog } from "@/features/catalog/context/catalog-context";
+import { CatalogFeedback } from "@/features/catalog/components/CatalogFeedback";
 import { ShippingOptions } from "@/features/cart/components/ShippingOptions";
 import { useShippingQuote } from "@/features/cart/hooks/use-shipping-quote";
 import { shippingDeadline } from "@/features/cart/api/shipping-service";
@@ -24,13 +26,15 @@ import { useFavorites } from "@/features/catalog/hooks/use-favorites";
 import { Progress } from "@/shared/ui/progress";
 import styles from "./CartPage.module.css";
 
-const FREE_SHIPPING_THRESHOLD = 150;
+
 
 export function CartPage() {
   const navigate = useNavigate();
+  const { loading, error, freeShippingThreshold } = useCatalog();
   const { addFavorite } = useFavorites();
   const {
     items,
+    ready,
     itemCount,
     subtotal: localSubtotal,
     updateItemQuantity,
@@ -55,16 +59,16 @@ export function CartPage() {
   const discount = 0;
   const shipping = isShippingCalculated ? shippingService!.price : 0;
   const total = subtotal + shipping;
-  function getQuotedItemPrice(item: { name: string; price: number }) {
+  function getQuotedItemPrice(item: { id: string; price: number }) {
     return isShippingCalculated
-      ? (shippingQuote?.item_prices?.find((price) => price.name === item.name)
+      ? (shippingQuote?.item_prices?.find((price) => price.id === item.id)
           ?.unit_price ?? item.price)
       : item.price;
   }
 
   const remainingForFreeShipping = Math.max(
     0,
-    FREE_SHIPPING_THRESHOLD - subtotal,
+    (freeShippingThreshold ?? 0) - subtotal,
   );
   const shippingSummary = isShippingCalculated
     ? shipping === 0
@@ -82,6 +86,8 @@ export function CartPage() {
   const calculateShipping = () => {
     void calculate(zipCode);
   };
+
+  if (loading || error) return <CatalogFeedback />;
 
   if (items.length === 0) {
     return (
@@ -135,7 +141,7 @@ export function CartPage() {
             </div>
 
             <div className={styles.cartBody}>
-              <div className={styles.section}>
+              {freeShippingThreshold && <div className={styles.section}>
                 {remainingForFreeShipping > 0 && (
                   <div
                     className={`${styles.freeShippingNotice} ${styles.freeShippingPending}`}
@@ -145,7 +151,7 @@ export function CartPage() {
                     >
                       Faltam R${" "}
                       {remainingForFreeShipping.toFixed(2).replace(".", ",")}{" "}
-                      para ganhar <strong>FRETE GRÁTIS</strong>!
+                      para atingir o mínimo de frete grátis. Consulte a disponibilidade pelo CEP.
                     </p>
                   </div>
                 )}
@@ -160,21 +166,21 @@ export function CartPage() {
                         className={styles.freeShippingIcon}
                         aria-hidden="true"
                       />
-                      Parabéns! Você ganhou <strong>FRETE GRÁTIS</strong>!
+                      {isShippingCalculated && shipping === 0 ? "Entrega gratuita confirmada na opção selecionada." : "Valor mínimo atingido. Calcule o CEP para confirmar a opção gratuita disponível."}
                     </p>
                   </div>
                 )}
-              </div>
+              </div>}
 
               <div className={styles.section}>
-                <Progress
+                {freeShippingThreshold && <Progress
                   value={Math.min(
                     100,
-                    (subtotal / FREE_SHIPPING_THRESHOLD) * 100,
+                    (subtotal / (freeShippingThreshold ?? 1)) * 100,
                   )}
                   className={styles.shippingProgress}
-                  aria-label="Progresso para frete grátis"
-                />
+                  aria-label="Progresso para o valor mínimo de frete grátis"
+                />}
                 <div className={styles.sectionHeader}>
                   <span className={styles.sectionIconWrap}>
                     <ShoppingBag className={styles.sectionIcon} />
@@ -236,7 +242,7 @@ export function CartPage() {
                             <h3 className={styles.itemTitle}>{item.name}</h3>
                           </div>
                           <p className={styles.itemStockText}>
-                            Em estoque - envio rápido
+                            {item.available ? item.quantity > item.stockQuantity ? "Quantidade acima do estoque disponível. Ajuste para continuar." : "Em estoque" : "Produto indisponível. Remova para continuar."}
                           </p>
                         </div>
                         <div className={styles.itemSide}>
@@ -268,6 +274,7 @@ export function CartPage() {
                                 updateItemQuantity(item.id, item.quantity + 1)
                               }
                               className={styles.quantityButton}
+                              disabled={!item.available || item.quantity >= Math.min(item.stockQuantity, 100)}
                               aria-label={`Aumentar quantidade de ${item.name}`}
                             >
                               <Plus
@@ -337,7 +344,7 @@ export function CartPage() {
                           e.target.value.replace(/\D/g, "").slice(0, 8),
                         );
                       }}
-                      maxLength={8}
+                      maxLength={9}
                       inputMode="numeric"
                       className={styles.summaryInput}
                     />
@@ -345,10 +352,11 @@ export function CartPage() {
                       type="button"
                       onClick={calculateShipping}
                       isLoading={shippingLoading}
+                      disabled={!ready}
                       variant="outline"
                       className={styles.summaryButton}
                     >
-                      {shippingLoading ? "Consultando..." : "Calcular"}
+                      {shippingLoading ? "Consultando..." : shippingError ? "Tentar novamente" : "Calcular"}
                     </Button>
                   </div>
 
@@ -409,6 +417,7 @@ export function CartPage() {
                   size="lg"
                   variant="default"
                   className={styles.checkoutButton}
+                  disabled={!ready}
                   onClick={() => navigate(routes.checkoutStep("address"))}
                 >
                   Continuar para entrega <ArrowRight size={17} />

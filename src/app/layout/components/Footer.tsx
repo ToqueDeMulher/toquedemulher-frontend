@@ -1,7 +1,6 @@
 import { ArrowRight, ArrowUpRight, Heart, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routes } from "@/app/router/paths";
-import { useAuth } from "@/features/auth/context/auth-context";
 import { Reveal } from "@/shared/animation/Reveal";
 import { BeautyFlower } from "@/shared/ui/BeautyFlower";
 import styles from "./Footer.module.css";
@@ -38,7 +37,6 @@ const groups = [
 ];
 
 export function Footer() {
-  const { isLoggedIn } = useAuth();
   return (
     <footer className={styles.footer}>
       <Reveal className={styles.invitation}>
@@ -55,9 +53,9 @@ export function Footer() {
         </div>
         <Link
           className={styles.clubLink}
-          to={isLoggedIn ? routes.missions : routes.login}
+          to={routes.favorites}
         >
-          {isLoggedIn ? "Meu Beauty Club" : "Faça parte do Beauty Club"}
+          Meus favoritos
           <ArrowUpRight size={20} />
         </Link>
       </Reveal>

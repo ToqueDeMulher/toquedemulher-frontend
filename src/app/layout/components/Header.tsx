@@ -1,3 +1,4 @@
+import { useCatalog } from "@/features/catalog/context/catalog-context";
 import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -26,7 +27,6 @@ import { useAuth } from "@/features/auth/context/auth-context";
 import { useCart } from "@/features/cart/context/cart-context";
 import {
   catalogCategories,
-  trendingProducts,
 } from "@/features/catalog/data/catalog-products";
 import styles from "./Header.module.css";
 
@@ -40,6 +40,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [marqueePaused, setMarqueePaused] = useState(false);
   const { isLoggedIn } = useAuth();
+  const { products } = useCatalog();
   const { itemCount, openCart } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ export function Header() {
             to: routes.category(item.slug),
             detail: "Coleção",
           })),
-        ...trendingProducts
+        ...products
           .filter((item) =>
             item.name.toLocaleLowerCase("pt-BR").includes(query),
           )
@@ -123,12 +124,12 @@ export function Header() {
                 {marqueeRepeats.map((i) => (
                   <Link
                     key={i}
-                    to={routes.category("maquiagem")}
+                    to={routes.cart}
                     className={styles.marqueeItem}
                     aria-hidden={i === 0 ? undefined : true}
                     tabIndex={i === 0 ? undefined : -1}
                   >
-                    Frete grátis acima de R$ 150
+                    Calcule a entrega pelo seu CEP
                   </Link>
                 ))}
               </div>
@@ -136,12 +137,12 @@ export function Header() {
                 {marqueeRepeats.map((i) => (
                   <Link
                     key={i}
-                    to={routes.category("maquiagem")}
+                    to={routes.cart}
                     className={styles.marqueeItem}
                     aria-hidden="true"
                     tabIndex={-1}
                   >
-                    Frete grátis acima de R$ 150
+                    Calcule a entrega pelo seu CEP
                   </Link>
                 ))}
               </div>

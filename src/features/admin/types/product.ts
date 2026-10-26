@@ -1,21 +1,18 @@
-export type ProductStatus = "active" | "inactive" | "out_of_stock";
-
 export interface CreateProductPayload {
   name: string;
-  description?: string | null;
-  short_description?: string | null;
-  sku?: string | null;
-  brand?: string | null;
   price: number;
-  compare_at_price?: number | null;
-  cost_price?: number | null;
-  stock_quantity?: number;
-  weight?: number | null;
-  status?: ProductStatus;
-  is_featured?: boolean;
-  tags?: string[] | null;
-  attributes?: Record<string, unknown> | null;
-  category_id?: number | null;
+  active: boolean;
+  volume?: string | null;
+  target_audience?: string | null;
+  product_type?: string | null;
+  skin_type?: string | null;
+  hair_type?: string | null;
+  color?: string | null;
+  fragrance?: string | null;
+  spf?: number | null;
+  vegan: boolean;
+  cruelty_free: boolean;
+  hypoallergenic: boolean;
 }
 
 export interface ProductImageResponse {
@@ -29,4 +26,5 @@ export interface ProductImageResponse {
 export interface UploadProductImageOptions {
   is_primary?: boolean;
   alt_text?: string | null;
+  order?: number;
 }

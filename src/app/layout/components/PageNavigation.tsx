@@ -1,8 +1,9 @@
+import { useCatalog } from "@/features/catalog/context/catalog-context";
+import type { CatalogProduct } from "@/features/catalog/data/catalog-products";
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import {
   catalogCategories,
-  getProductById,
   isCatalogCategorySlug,
 } from "@/features/catalog/data/catalog-products";
 import { routes } from "@/app/router/paths";
@@ -39,15 +40,15 @@ function titleFromSlug(slug: string) {
     .join(" ");
 }
 
-function getBreadcrumbItems(pathname: string, search: string): BreadcrumbItem[] {
+function getBreadcrumbItems(pathname: string, search: string, products: CatalogProduct[]): BreadcrumbItem[] {
   if (pathname === routes.home) return [];
 
   const base: BreadcrumbItem[] = [{ label: "Home", to: routes.home }];
 
   const productMatch = matchPath(routes.product(), pathname);
   if (productMatch?.params.productId) {
-    const product = getProductById(productMatch.params.productId);
-    if (product && isCatalogCategorySlug(product.category)) {
+    const product = products.find(product => product.id === productMatch.params.productId);
+    if (product && product.category && isCatalogCategorySlug(product.category)) {
       return [
         ...base,
         { label: catalogCategories[product.category].title, to: routes.category(product.category) },
@@ -106,7 +107,8 @@ function getBreadcrumbItems(pathname: string, search: string): BreadcrumbItem[] 
 export function PageNavigation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const items = getBreadcrumbItems(location.pathname, location.search);
+  const { products } = useCatalog();
+  const items = getBreadcrumbItems(location.pathname, location.search, products);
 
   if (items.length === 0) return null;
 

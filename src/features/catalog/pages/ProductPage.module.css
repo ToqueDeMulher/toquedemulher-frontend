@@ -502,3 +502,11 @@
     transition: none;
   }
 }
+
+.attributes { display: grid; grid-template-columns: auto 1fr; gap: .4rem 1rem; font-size: .9rem; }
+.attributes dt { font-weight: 600; }
+.attributes dd { margin: 0; overflow-wrap: anywhere; }
+.thumbnails { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+.thumbnails button { border: 2px solid transparent; background: #fff; border-radius: .5rem; padding: .2rem; }
+.thumbnails button[aria-pressed="true"] { border-color: #ac245a; }
+.thumbnails img { width: 4rem; height: 4rem; object-fit: contain; }

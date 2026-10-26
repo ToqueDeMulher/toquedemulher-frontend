@@ -86,9 +86,9 @@ export function LoginPage() {
   const { login, isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo =
-    (location.state as { from?: { pathname?: string } })?.from?.pathname ??
-    routes.home;
+  const from = (location.state as { from?: { pathname?: string; search?: string } } | null)?.from;
+  const redirectTo = from?.pathname?.startsWith("/") && !from.pathname.startsWith("//")
+    ? from.pathname + (from.search ?? "") : routes.home;
   const redirectReason = (location.state as { reason?: string } | null)?.reason;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -296,7 +296,7 @@ export function LoginPage() {
   }, [googleClientId, handleGoogleCredential]);
 
   if (isLoggedIn && role && redirectReason !== "admin-only") {
-    return <Navigate to={getDefaultRouteForRole(role)} replace />;
+    return <Navigate to={resolveRedirect(role)} replace />;
   }
 
   const passwordStrength = getPasswordStrength(registerPassword);
@@ -484,12 +484,12 @@ export function LoginPage() {
             </h2>
             <p className={styles.brandCopy}>
               Entre para acompanhar pedidos, favoritos e as vantagens
-              exclusivas do Beauty Club.
+              da sua conta.
             </p>
             <ul className={styles.brandBenefits}>
               <li>Compras e pagamentos protegidos</li>
               <li>Pedidos e entregas em um só lugar</li>
-              <li>Favoritos e benefícios personalizados</li>
+              <li>Favoritos salvos neste navegador</li>
             </ul>
           </div>
         </aside>

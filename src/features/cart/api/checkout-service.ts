@@ -21,15 +21,6 @@ export type CheckoutStatusResponse = {
   currency: string;
 };
 
-function slugify(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export function createCheckoutSession(
   addressId: string,
   items: CartItem[],
@@ -44,10 +35,7 @@ export function createCheckoutSession(
       idempotency_key: idempotencyKey,
       items: items.map((item) => ({
         id: item.id,
-        slug: slugify(item.name),
-        name: item.name,
         product_url: routes.product(item.id),
-        unit_price: item.price,
         quantity: item.quantity,
       })),
     }),

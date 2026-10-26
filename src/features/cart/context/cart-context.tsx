@@ -1,10 +1,10 @@
+import { useCatalog } from "@/features/catalog/context/catalog-context";
 import type {
   ShippingQuote,
   ShippingService,
 } from "@/features/cart/api/shipping-service";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
-  getProductById,
   type CatalogProduct,
 } from "@/features/catalog/data/catalog-products";
 import { useGamification } from "@/features/gamification/context/gamification-context";
@@ -12,6 +12,7 @@ import { useGamification } from "@/features/gamification/context/gamification-co
 type StoredCartItem = {
   productId: string;
   quantity: number;
+  product?: CatalogProduct;
 };
 
 export type CartItem = CatalogProduct & {
@@ -21,13 +22,14 @@ export type CartItem = CatalogProduct & {
 type CartContextValue = {
   items: CartItem[];
   itemCount: number;
+  ready: boolean;
   subtotal: number;
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
   addItem: (
-    productId: string,
+    product: string | CatalogProduct,
     quantity?: number,
     options?: { openDrawer?: boolean },
   ) => void;
@@ -65,49 +67,32 @@ const CART_STORAGE_KEY = "tdm_cart_items";
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-function hydrateCartItems(entries: StoredCartItem[]) {
-  return entries.reduce<CartItem[]>((items, entry) => {
-    if (entry.quantity < 1) {
-      return items;
-    }
-
-    const product = getProductById(entry.productId);
-    if (!product) {
-      return items;
-    }
-
-    items.push({
-      ...product,
-      quantity: entry.quantity,
-    });
-
-    return items;
-  }, []);
+function readInitialCart(): StoredCartItem[] {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? "[]");
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(entry => entry && typeof entry.productId === "string" &&
+      /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(entry.productId) &&
+      Number.isInteger(entry.quantity) && entry.quantity > 0 && entry.quantity <= 100)
+      .map(({ productId, quantity }) => ({ productId, quantity }));
+  } catch { return []; }
 }
 
-function readInitialCart() {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const raw = window.localStorage.getItem(CART_STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed)
-      ? hydrateCartItems(parsed as StoredCartItem[])
-      : [];
-  } catch {
-    return [];
-  }
+function missingProduct(id: string): CatalogProduct {
+  return { id, slug: "", name: "Produto indisponível", price: 0, image: "", images: [],
+    rating: 0, reviews: 0, categories: [], category: null, subcategory: "",
+    description: "", composition: "", benefits: "", howToUse: "", available: false, stockQuantity: 0 };
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { trackCartAdd } = useGamification();
-  const [items, setItems] = useState<CartItem[]>(readInitialCart);
+  const { products, loading, error } = useCatalog();
+  const [entries, setEntries] = useState<StoredCartItem[]>(readInitialCart);
+  const items = useMemo<CartItem[]>(() => loading || error ? [] : entries.map(entry => ({
+    ...(products.find(product => product.id === entry.productId) ?? missingProduct(entry.productId)),
+    quantity: entry.quantity,
+  })), [entries, products, loading, error]);
+  const ready = !loading && !error && items.length > 0 && items.every(item => item.available && item.quantity <= item.stockQuantity);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [storedShipping, setStoredShipping] = useState<StoredShipping | null>(
     readShipping,
@@ -118,7 +103,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       .sort((a, b) => String(a[0]).localeCompare(String(b[0]))),
   );
   const shippingQuote =
-    storedShipping?.fingerprint === cartFingerprint &&
+    ready && storedShipping?.fingerprint === cartFingerprint &&
     Date.parse(storedShipping.quote.expires_at) > Date.now()
       ? storedShipping.quote
       : null;
@@ -128,7 +113,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     ) ?? null;
   useEffect(() => {
     if (!storedShipping) return;
-    if (storedShipping.fingerprint !== cartFingerprint) {
+    if (!loading && !error && storedShipping.fingerprint !== cartFingerprint) {
       setStoredShipping(null);
       return;
     }
@@ -137,7 +122,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       Math.max(0, Date.parse(storedShipping.quote.expires_at) - Date.now()),
     );
     return () => window.clearTimeout(timeout);
-  }, [storedShipping, cartFingerprint]);
+  }, [storedShipping, cartFingerprint, loading, error]);
   useEffect(() => {
     try {
       if (storedShipping)
@@ -155,15 +140,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const nextValue: StoredCartItem[] = items.map((item) => ({
-        productId: item.id,
-        quantity: item.quantity,
-      }));
-      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextValue));
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(entries));
     } catch {}
-  }, [items]);
+  }, [entries]);
 
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const itemCount = entries.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
@@ -172,6 +153,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       items,
+      ready,
       clearShippingQuote: () => setStoredShipping(null),
       cartFingerprint,
       shippingQuote,
@@ -193,33 +175,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       closeCart: () => setIsCartOpen(false),
       toggleCart: () => setIsCartOpen((prev) => !prev),
       addItem: (
-        productId: string,
+        product: string | CatalogProduct,
         quantity: number = 1,
         options?: { openDrawer?: boolean },
       ) => {
-        const safeQuantity = Math.max(quantity, 1);
-        const product = getProductById(productId);
-        if (!product) {
-          return;
-        }
-
-        setItems((prev) => {
-          const existingItem = prev.find((item) => item.id === productId);
-          if (existingItem) {
-            return prev.map((item) =>
-              item.id === productId
-                ? { ...item, quantity: item.quantity + safeQuantity }
-                : item,
-            );
-          }
-
-          return [
-            ...prev,
-            {
-              ...product,
-              quantity: safeQuantity,
-            },
-          ];
+        const safeQuantity = Math.max(1, Math.floor(quantity));
+        const productId = typeof product === "string" ? product : product.id;
+        const catalogProduct = products.find(item => item.id === productId);
+        if (!catalogProduct?.available || !Number.isFinite(safeQuantity)) return;
+        setEntries(previous => {
+          const current = previous.find(entry => entry.productId === productId);
+          const nextQuantity = Math.min(catalogProduct.stockQuantity, 100, (current?.quantity ?? 0) + safeQuantity);
+          return current ? previous.map(entry => entry.productId === productId ? { productId, quantity: nextQuantity } : entry)
+            : [...previous, { productId, quantity: nextQuantity }];
         });
 
         trackCartAdd(safeQuantity);
@@ -229,27 +197,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       },
       updateItemQuantity: (productId: string, quantity: number) => {
         if (quantity < 1) {
-          setItems((prev) => prev.filter((item) => item.id !== productId));
+          setEntries((prev) => prev.filter((item) => item.productId !== productId));
           return;
         }
 
-        setItems((prev) =>
-          prev.map((item) =>
-            item.id === productId ? { ...item, quantity } : item,
-          ),
-        );
+        if (!Number.isInteger(quantity)) return;
+        const product = products.find(item => item.id === productId);
+        if (!product?.available) return;
+        setEntries(previous => previous.map(entry => entry.productId === productId
+          ? { productId, quantity: Math.min(quantity, product.stockQuantity, 100) } : entry));
       },
       removeItem: (productId: string) => {
-        setItems((prev) => prev.filter((item) => item.id !== productId));
+        setEntries((prev) => prev.filter((item) => item.productId !== productId));
       },
       reset: () => {
-        setItems([]);
+        setEntries([]);
         setStoredShipping(null);
         setIsCartOpen(false);
       },
     }),
     [
       isCartOpen,
+      ready,
+      entries,
+      products,
       itemCount,
       items,
       subtotal,

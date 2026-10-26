@@ -6,66 +6,30 @@ import { Input } from "@/shared/ui/input";
 import { Search, X } from "lucide-react";
 import { routes } from "@/app/router/paths";
 import { useCart } from "@/features/cart/context/cart-context";
-import { trendingProducts } from "@/features/catalog/data/catalog-products";
+import { useCatalog } from "@/features/catalog/context/catalog-context";
+import { CatalogFeedback } from "@/features/catalog/components/CatalogFeedback";
+import { catalogCategories } from "@/features/catalog/data/catalog-products";
 import styles from "./SearchResultsPage.module.css";
 
-const categories = [
-  "maquiagem",
-  "skincare",
-  "corpo",
-  "cabelos",
-  "perfumes",
-  "hidratante",
-  "batom",
-  "serum",
-  "mascara",
-  "base",
-  "perfume",
-  "shampoo",
-  "condicionador",
-  "creme",
-  "oleo",
-  "kit",
-  "paleta",
-  "blush",
-  "gloss",
-];
+const categories = Object.keys(catalogCategories);
 
 export function SearchResultsPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { products, loading, error } = useCatalog();
   const query = searchParams.get("q") || "";
   const [searchTerm, setSearchTerm] = useState(query);
-  const [results, setResults] = useState<typeof trendingProducts>([]);
-  const [matchedCategories, setMatchedCategories] = useState<string[]>([]);
 
   useEffect(() => {
     setSearchTerm(query);
   }, [query]);
 
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setResults([]);
-      setMatchedCategories([]);
-      return;
-    }
-
-    const normalizedTerm = searchTerm.toLowerCase().trim();
-
-    // Buscar em produtos
-    const productResults = trendingProducts.filter((product) =>
-      product.name.toLowerCase().includes(normalizedTerm)
-    );
-
-    // Buscar categorias que correspondem ao termo
-    const matchedCats = categories.filter((cat) =>
-      cat.includes(normalizedTerm) || normalizedTerm.includes(cat)
-    );
-
-    setResults(productResults);
-    setMatchedCategories(matchedCats);
-  }, [searchTerm]);
+  const normalizedTerm = searchTerm.toLocaleLowerCase("pt-BR").trim();
+  const results = normalizedTerm ? products.filter(product =>
+    [product.name, product.description, product.subcategory, ...product.categories].join(" ").toLocaleLowerCase("pt-BR").includes(normalizedTerm)
+  ) : [];
+  const matchedCategories = normalizedTerm ? categories.filter(category => category.includes(normalizedTerm) || normalizedTerm.includes(category)) : [];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +82,7 @@ export function SearchResultsPage() {
         </div>
       </div>
 
+      <CatalogFeedback empty={false} />
       {results.length > 0 && (
         <div className={`${styles.container} ${styles.resultsSection}`}>
           <h2 className={styles.resultsTitle}>
@@ -130,6 +95,7 @@ export function SearchResultsPage() {
             {results.map((product) => (
               <div key={product.id} className={styles.productWrapper}>
                 <ProductCard
+                  {...product}
                   id={product.id}
                   name={product.name}
                   price={product.price}
@@ -140,7 +106,7 @@ export function SearchResultsPage() {
                   isNew={product.isNew}
                   discount={product.discount}
                   onClick={() => handleProductClick(product.id)}
-                  onAddToCart={() => addItem(product.id, 1)}
+                  onAddToCart={() => addItem(product, 1)}
                 />
               </div>
             ))}
@@ -167,7 +133,7 @@ export function SearchResultsPage() {
         </div>
       )}
 
-      {results.length === 0 && searchTerm.trim() !== "" && (
+      {!loading && !error && results.length === 0 && searchTerm.trim() !== "" && (
         <div className={styles.emptyState}>
           <div className={styles.emptyCard}>
             <div className={styles.emptyIcon}>

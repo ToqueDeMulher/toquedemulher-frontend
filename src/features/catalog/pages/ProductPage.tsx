@@ -31,13 +31,13 @@ import { BeautyFlower } from "@/shared/ui/BeautyFlower";
 import { toast } from "sonner";
 import {
   catalogCategories,
-  getProductById,
-  getRelatedProducts,
 } from "@/features/catalog/data/catalog-products";
+import { useCatalog } from "@/features/catalog/context/catalog-context";
+import { CatalogFeedback } from "@/features/catalog/components/CatalogFeedback";
+import type { CatalogProduct } from "@/features/catalog/data/catalog-products";
 import { useFavorites } from "@/features/catalog/hooks/use-favorites";
 import { useCart } from "@/features/cart/context/cart-context";
 import { useGamification } from "@/features/gamification/context/gamification-context";
-import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
 import { routes } from "@/app/router/paths";
 import styles from "./ProductPage.module.css";
 
@@ -49,17 +49,22 @@ export function ProductPage() {
   const { addItem } = useCart();
   const { trackProductView } = useGamification();
   const { isFavorite, toggleFavorite } = useFavorites();
-  const product = getProductById(productId);
+  const { products, loading, error } = useCatalog();
+  const product = products.find(item => item.id === productId);
+  const [imageIndex, setImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [zoomOpen, setZoomOpen] = useState(false);
 
   useEffect(() => {
     setQuantity(1);
     setZoomOpen(false);
+    setImageIndex(0);
   }, [productId]);
   useEffect(() => {
-    if (product) trackProductView(product.id, product.category);
+    if (product?.category) trackProductView(product.id, product.category);
   }, [product, trackProductView]);
+
+  if (loading || error) return <CatalogFeedback />;
 
   if (!product)
     return (
@@ -73,12 +78,10 @@ export function ProductPage() {
       </main>
     );
 
-  const relatedProducts = getRelatedProducts(product.id, 4);
-  const category = catalogCategories[product.category];
+  const relatedProducts = products.filter(item => item.id !== product.id && item.categories.some(category => product.categories.includes(category))).slice(0, 4);
+  const category = product.category ? catalogCategories[product.category] : null;
+  const selectedImage = product.images[imageIndex]?.url ?? product.image;
   const favorite = isFavorite(product.id);
-  const rewardPoints = calculateCartRewardPoints([
-    { price: product.price, quantity },
-  ]);
   const discount =
     product.originalPrice && product.originalPrice > product.price
       ? Math.round((1 - product.price / product.originalPrice) * 100)
@@ -106,7 +109,7 @@ export function ProductPage() {
                   aria-label={`Ampliar foto de ${product.name}`}
                 >
                   <ImageWithFallback
-                    src={product.image}
+                    src={selectedImage}
                     alt={product.name}
                     className={styles.mainImage}
                   />
@@ -123,12 +126,16 @@ export function ProductPage() {
                   Foto ampliada do produto.
                 </DialogDescription>
                 <ImageWithFallback
-                  src={product.image}
+                  src={selectedImage}
                   alt={product.name}
                   className={styles.zoomImage}
                 />
               </DialogContent>
             </Dialog>
+            {product.images.length > 1 && <div className={styles.thumbnails} aria-label="Fotos do produto">{product.images.map((image, index) =>
+              <button key={image.url} type="button" aria-label={`Ver foto ${index + 1}`} aria-pressed={imageIndex === index} onClick={() => setImageIndex(index)}>
+                <img src={image.url} alt={image.alt} />
+              </button>)}</div>}
             <div className={styles.galleryFoot}>
               <span>Um toque de beleza na sua rotina.</span>
               <BeautyFlower className={styles.flower} />
@@ -137,14 +144,14 @@ export function ProductPage() {
           <div className={styles.productInfo}>
             <Link
               className={styles.eyebrow}
-              to={routes.category(product.category)}
+              to={product.category ? routes.category(product.category) : routes.search()}
             >
-              {category.title} <ArrowRight size={14} />
+              {category?.title ?? "Catálogo"} <ArrowRight size={14} />
             </Link>
             <h1 id="product-title" className={styles.title}>
               {product.name}
             </h1>
-            <div className={styles.ratingRow}>
+            {product.reviews > 0 ? <div className={styles.ratingRow}>
               <span
                 className={styles.stars}
                 aria-label={`${product.rating.toFixed(1)} de 5 estrelas`}
@@ -165,7 +172,14 @@ export function ProductPage() {
                 ({product.reviews} avaliações no catálogo)
               </span>
             </div>
-            <p className={styles.description}>{product.description}</p>
+            : <p className={styles.ratingCount}>Este produto ainda não tem avaliações.</p>}
+            {product.description && <p className={styles.description}>{product.description}</p>}
+            <dl className={styles.attributes}>
+              {product.color && <><dt>Tom / cor</dt><dd>{product.color}</dd></>}
+              {product.volume && <><dt>Volume / peso</dt><dd>{product.volume}</dd></>}
+              {product.fragrance && <><dt>Fragrância</dt><dd>{product.fragrance}</dd></>}
+              <dt>Disponibilidade</dt><dd>{product.available ? "Em estoque" : "Indisponível"}</dd>
+            </dl>
             <div className={styles.priceBlock}>
               {discount > 0 && (
                 <div className={styles.priceBefore}>
@@ -198,19 +212,21 @@ export function ProductPage() {
                 <button
                   type="button"
                   onClick={() => setQuantity((current) => current + 1)}
+                  disabled={!product.available || quantity >= Math.min(product.stockQuantity, 100)}
                   aria-label="Aumentar quantidade"
                 >
                   <Plus size={16} />
                 </button>
               </div>
               <Button
+                disabled={!product.available}
                 className={styles.addButton}
                 onClick={() => {
-                  addItem(product.id, quantity);
+                  addItem(product, quantity);
                   toast.success("Produto adicionado ao carrinho.");
                 }}
               >
-                <ShoppingBag size={18} /> Adicionar ao carrinho
+                <ShoppingBag size={18} /> {product.available ? "Adicionar ao carrinho" : "Produto indisponível"}
               </Button>
               <Button
                 variant="outline"
@@ -232,20 +248,11 @@ export function ProductPage() {
               <div>
                 <Truck aria-hidden="true" />
                 <p>
-                  <strong>Frete grátis acima de R$ 150</strong>
+                  <strong>Entrega para o seu CEP</strong>
                   <span>Calcule o prazo pelo seu CEP no carrinho.</span>
                 </p>
               </div>
-              <Link to={routes.missions}>
-                <Sparkles aria-hidden="true" />
-                <p>
-                  <strong>
-                    Esta compra rende +{rewardPoints} Beauty Points
-                  </strong>
-                  <span>Conheça as vantagens do Beauty Club.</span>
-                </p>
-                <ArrowRight size={16} />
-              </Link>
+
             </div>
             <Accordion
               type="single"
@@ -269,7 +276,7 @@ export function ProductPage() {
                   title: "Composição",
                   text: product.composition,
                 },
-              ].map((detail) => (
+              ].filter(detail => detail.text).map((detail) => (
                 <AccordionItem key={detail.id} value={detail.id}>
                   <AccordionTrigger className={styles.accordionTrigger}>
                     {detail.title}
@@ -285,7 +292,7 @@ export function ProductPage() {
             </Link>
           </div>
         </section>
-        <section
+        {relatedProducts.length > 0 && <section
           className={styles.relatedSection}
           aria-labelledby="related-title"
         >
@@ -296,8 +303,8 @@ export function ProductPage() {
                 Mais beleza para a sua rotina <BeautyFlower />
               </h2>
             </div>
-            <Link to={routes.category(product.category)}>
-              Explorar {category.title.toLowerCase()} <ArrowRight size={16} />
+            <Link to={product.category ? routes.category(product.category) : routes.search()}>
+              Explorar {category?.title.toLowerCase() ?? "o catálogo"} <ArrowRight size={16} />
             </Link>
           </div>
           <div className={styles.relatedGrid}>
@@ -305,11 +312,11 @@ export function ProductPage() {
               <ProductCard
                 key={related.id}
                 {...related}
-                onAddToCart={() => addItem(related.id, 1)}
+                onAddToCart={() => addItem(related, 1)}
               />
             ))}
           </div>
-        </section>
+        </section>}
         <aside className={styles.helpBanner}>
           <div>
             <span className={styles.eyebrow}>Compre com tranquilidade</span>

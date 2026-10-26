@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(
+const API_BASE_URL = (import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "")).replace(
   /\/+$/,
   "",
 );
@@ -38,6 +38,10 @@ function getApiTimeoutMs() {
     : DEFAULT_API_TIMEOUT_MS;
 }
 
+export class ApiError extends Error {
+  constructor(message: string, public status: number) { super(message); }
+}
+
 function getErrorMessage(text: string, fallback: string) {
   if (!text) return fallback;
 
@@ -52,7 +56,7 @@ function getErrorMessage(text: string, fallback: string) {
     if (typeof detail === "string") return detail;
     if (Array.isArray(detail)) return "Verifique os campos informados.";
   } catch {
-    return text;
+    return fallback;
   }
 
   return fallback;
@@ -91,11 +95,11 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
   } catch (error) {
     if (controller.signal.aborted) {
       throw new Error(
-        "Não foi possível conectar ao backend. Verifique se a API está rodando e tente novamente.",
+        "A conexão demorou mais que o esperado. Tente novamente.",
       );
     }
 
-    throw error;
+    throw new Error("Não foi possível conectar à loja. Confira sua conexão e tente novamente.");
   } finally {
     window.clearTimeout(timeoutId);
   }
@@ -106,12 +110,23 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
       clearAuthStorage();
       window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
     }
-    throw new Error(getErrorMessage(text, `Erro HTTP ${response.status}`));
+    throw new ApiError(getErrorMessage(text, "Não foi possível concluir a solicitação. Tente novamente."), response.status);
   }
 
   if (response.status === 204) {
     return undefined as T;
   }
 
-  return response.json() as Promise<T>;
+  const text = await response.text();
+  if (!text.trim()) {
+    return undefined as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error(
+      "Não foi possível carregar os dados da loja. Tente novamente.",
+    );
+  }
 }

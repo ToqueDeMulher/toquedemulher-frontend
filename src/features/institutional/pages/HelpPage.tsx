@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { storeContact } from "@/shared/config/store-contact";
 import { useState } from "react";
 import { Search, Mail, Phone, MessageCircle } from "lucide-react";
 import { Input } from "@/shared/ui/input";
@@ -14,82 +16,19 @@ import styles from "./HelpPage.module.css";
 
 const faqs = {
   payments: [
-    {
-      question: "Quais formas de pagamento são aceitas?",
-      answer:
-        "Aceitamos cartões de crédito (Visa, Mastercard, Elo e American Express), PIX e PayPal. Para cartão de crédito, oferecemos parcelamento em até 6x sem juros para compras acima de R$ 100.",
-    },
-    {
-      question: "É seguro comprar no site?",
-      answer:
-        "Sim! Nosso site utiliza certificado SSL, e todas as transações são processadas por meio de gateways de pagamento seguros e certificados.",
-    },
-    {
-      question: "O desconto do PIX é automático?",
-      answer:
-        "Sim! Ao selecionar PIX como forma de pagamento, o desconto de 5% é aplicado automaticamente no valor total.",
-    },
-    {
-      question: "Posso parcelar no PIX?",
-      answer:
-        "Não. O PIX é uma forma de pagamento à vista. Para parcelamento, utilize cartão de crédito.",
-    },
+    { question: "Quais formas de pagamento são aceitas?", answer: "As formas disponíveis e suas condições são exibidas na página de pagamento, antes de concluir a compra." },
+    { question: "Como sei que meu pagamento foi confirmado?", answer: "Ao voltar para a loja, consultamos o status do pagamento. Se ainda estiver em processamento, você poderá verificar novamente ou acompanhar em Meus Pedidos." },
   ],
   shipping: [
-    {
-      question: "Qual o prazo de entrega?",
-      answer:
-        "O prazo de entrega varia de acordo com sua região e é calculado no checkout. Geralmente, entregamos em 5 a 10 dias úteis para as regiões Sul e Sudeste, e de 10 a 15 dias úteis para as demais regiões.",
-    },
-    {
-      question: "Como funciona o frete grátis?",
-      answer:
-        "Oferecemos frete grátis para todo o Brasil em compras acima de R$ 150,00. O desconto é aplicado automaticamente no carrinho quando o valor mínimo é atingido.",
-    },
-    {
-      question: "Posso rastrear meu pedido?",
-      answer:
-        "Sim! Assim que seu pedido for enviado, você receberá um código de rastreamento por e-mail. Você também pode acompanhar o status na seção 'Meus Pedidos' do seu perfil.",
-    },
-    {
-      question: "O que fazer se o produto não chegar?",
-      answer:
-        "Se o prazo de entrega expirar, entre em contato com nossa central de atendimento. Verificaremos a situação com a transportadora e tomaremos as medidas necessárias.",
-    },
+    { question: "Qual o prazo de entrega?", answer: "Calcule o frete pelo CEP e escolha uma entrega. Cada opção mostra seu valor e prazo estimado em dias úteis após a postagem." },
+    { question: "Como funciona o frete grátis?", answer: "Quando disponível, a opção gratuita aparece na cotação. Atingir o valor mínimo não confirma a entrega gratuita: consulte o CEP e escolha a opção indicada como Grátis." },
+    { question: "Posso rastrear meu pedido?", answer: "Consulte Meus Pedidos no perfil. As informações de rastreamento aparecem quando disponibilizadas pela transportadora." },
   ],
   returns: [
-    {
-      question: "Qual é o prazo para trocas e devoluções?",
-      answer:
-        "Você tem até 30 dias após o recebimento do produto para solicitar troca ou devolução. O produto deve estar sem uso, na embalagem original e com a nota fiscal.",
-    },
-    {
-      question: "Como solicitar uma troca ou devolução?",
-      answer:
-        "Acesse 'Minha Conta' > 'Pedidos' > selecione o pedido > clique em 'Solicitar Devolução'. Nossa equipe analisará o pedido e enviará instruções por e-mail.",
-    },
-    {
-      question: "Quem paga o frete da devolução?",
-      answer:
-        "Em caso de defeito ou erro no pedido, nós arcamos com o frete. Para trocas por motivo pessoal, o frete é de responsabilidade do cliente.",
-    },
+    { question: "Como solicitar uma troca ou devolução?", answer: "Use o formulário de contato e informe o número do pedido e o motivo da solicitação. A equipe orientará os próximos passos." },
   ],
   support: [
-    {
-      question: "Como entrar em contato com o suporte?",
-      answer:
-        "Você pode entrar em contato via chat, e-mail ou telefone. Nosso atendimento funciona de segunda a sexta, das 9h às 18h.",
-    },
-    {
-      question: "Quanto tempo leva para responder?",
-      answer:
-        "Nosso tempo médio de resposta é de até 24 horas úteis.",
-    },
-    {
-      question: "Posso alterar meu pedido após confirmar?",
-      answer:
-        "Depende do status do pedido. Se ele ainda não foi enviado, entre em contato rapidamente com nossa central para tentarmos ajustar.",
-    },
+    { question: "Como entrar em contato com o suporte?", answer: "Acesse Fale Conosco e envie sua mensagem pelo formulário. Aguarde a confirmação de envio na própria página." },
   ],
 };
 
@@ -152,16 +91,6 @@ export function HelpPage() {
                 Estamos sempre prontos para ajudar você a ter a melhor
                 experiência.
               </p>
-              <div className={styles.heroStats}>
-                <div>
-                  <p className={styles.heroStatValue}>24h</p>
-                  <p className={styles.heroStatLabel}>Tempo médio de resposta</p>
-                </div>
-                <div>
-                  <p className={styles.heroStatValue}>4.9/5</p>
-                  <p className={styles.heroStatLabel}>Satisfação das clientes</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -171,32 +100,10 @@ export function HelpPage() {
         <div className={styles.container}>
           <div className={styles.contactGrid}>
             <div className={styles.contactCard}>
-              <Mail className={styles.contactIcon} aria-hidden="true" />
-              <h3 className={styles.contactTitle}>E-mail</h3>
-              <p className={styles.contactText}>
-                <a href="mailto:contato@toquedemulher.com">
-                  contato@toquedemulher.com
-                </a>
-              </p>
-              <Badge className={styles.contactBadge}>Resposta em 24h</Badge>
-            </div>
-            <div className={styles.contactCard}>
-              <Phone className={styles.contactIcon} aria-hidden="true" />
-              <h3 className={styles.contactTitle}>Telefone</h3>
-              <p className={styles.contactText}>
-                <a href="tel:1133333333">(11) 3333-3333</a>
-              </p>
-              <Badge className={styles.contactBadge}>Seg a Sex 9h-18h</Badge>
-            </div>
-            <div className={styles.contactCard}>
               <MessageCircle className={styles.contactIcon} aria-hidden="true" />
-              <h3 className={styles.contactTitle}>Chat ao vivo</h3>
-              <p className={styles.contactText}>Inicie uma conversa agora</p>
-              <Button size="lg" variant="default" className={styles.contactButton} asChild>
-                <a href="mailto:contato@toquedemulher.com?subject=Atendimento%20via%20chat">
-                  Iniciar chat
-                </a>
-              </Button>
+              <h3 className={styles.contactTitle}>Fale Conosco</h3>
+              <p className={styles.contactText}>Envie sua dúvida ou solicitação pelo formulário.</p>
+              <Button className={styles.contactButton} asChild><Link to={storeContact.path}>Enviar uma mensagem</Link></Button>
             </div>
           </div>
         </div>
@@ -245,10 +152,10 @@ export function HelpPage() {
         <div className={styles.container}>
           <h2 className={styles.helpCtaTitle}>Ainda com dúvidas?</h2>
           <p className={styles.helpCtaText}>
-            Nossa equipe está pronta para te ajudar a qualquer momento.
+            Envie sua dúvida para nossa equipe.
           </p>
           <a
-            href="mailto:contato@toquedemulher.com?subject=Preciso%20de%20ajuda"
+            href={storeContact.path}
             className={styles.helpCtaButton}
           >
             Falar com atendimento

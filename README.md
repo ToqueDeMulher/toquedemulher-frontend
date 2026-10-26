@@ -109,9 +109,10 @@ Variáveis suportadas:
 - `VITE_API_PREFIX`: prefixo das rotas da API
 - `VITE_GOOGLE_CLIENT_ID`: OAuth Client ID web usado pelo Google Identity Services
 
-Valores padrão atuais:
+Valores padrão atuais (quando a variável não está definida):
 
-- `VITE_API_URL=http://localhost:8000`
+- Desenvolvimento: `VITE_API_URL=http://localhost:8000`.
+- Build de produção: mesma origem (`VITE_API_URL` vazio); o rewrite da Vercel encaminha `/api` ao backend.
 - `VITE_API_PREFIX=/api/v1`
 
 Exemplo de `.env`:
@@ -209,7 +210,7 @@ No checkout, usuarios logados usam enderecos salvos do perfil:
 - o usuario pode escolher outro endereco salvo
 - o usuario pode adicionar um novo endereco e salva-lo no perfil
 
-Visitantes continuam usando o formulario manual de endereco.
+Visitantes recebem uma ação para entrar ou cadastrar-se antes de preencher o endereço. O carrinho permanece salvo por UUID/quantidade e o login preserva o retorno ao checkout.
 
 ## Estrutura principal
 
@@ -274,10 +275,16 @@ No estado atual do frontend, o serviço de produtos consome:
 
 ## Observações importantes
 
-- O frontend usa variáveis de ambiente do Vite, mas não existe um `.env.example` versionado neste diretório no momento.
+- O frontend usa variáveis de ambiente do Vite; veja `.env.example` para desenvolvimento local.
 - O contrato consumido pelo frontend deve permanecer alinhado com o backend ativo, especialmente nas rotas de produtos e upload de imagens.
-- Não há scripts de teste ou lint configurados em `package.json` neste snapshot; os scripts disponíveis são `dev` e `build`.
+- Validação: `npm run typecheck`, `npm run build` e `npm run test:e2e` (Playwright, APIs simuladas, desktop/celular). Use Node 22.12+ e instale o Chromium com `npx playwright install chromium`.
 
 ## Situação atual da documentação
 
 Este README foi atualizado para refletir o estado atual do código versionado em **10 de agosto de 2026**.
+
+## Revisão de funcionamento da loja (26/10/2026)
+
+O catálogo público, busca, categorias, produto, favoritos e carrinho agora usam exclusivamente a API. O carrinho revalida preço e disponibilidade, e o backend valida os valores e reserva o estoque ao criar o pagamento. O contato envia para `POST /api/v1/contact`; mensagens de sucesso dependem da aceitação do backend.
+
+Veja [o relatório do frontend](docs/storefront-review.md) para testes, capturas e configuração. O relatório detalhado do backend está no outro repositório em `docs/storefront-review.md`. Nenhum deploy faz parte desta revisão.

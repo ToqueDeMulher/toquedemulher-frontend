@@ -7,6 +7,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PackagePlus,
+  PackageSearch,
   Store,
   UserRound,
   X,
@@ -28,6 +29,11 @@ const adminNavItems = [
     to: routes.productCreate,
     label: "Novo produto",
     icon: PackagePlus,
+  },
+  {
+    to: routes.adminProducts,
+    label: "Produtos",
+    icon: PackageSearch,
   },
   { to: routes.adminShipping, label: "Envios e etiquetas", icon: Truck },
 ] as const;

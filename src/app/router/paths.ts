@@ -6,6 +6,7 @@ export const routes = {
   confirmEmail: "/confirm-email",
   profile: "/perfil",
   adminDashboard: "/admin",
+  adminProducts: "/admin/produtos",
   adminShipping: "/admin/envios",
   cart: "/carrinho",
   checkout: "/checkout",

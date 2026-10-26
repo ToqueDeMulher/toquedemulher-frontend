@@ -1,9 +1,12 @@
+import { useCatalog } from "@/features/catalog/context/catalog-context";
+import { CatalogFeedback } from "@/features/catalog/components/CatalogFeedback";
 import { ShippingOptions } from "@/features/cart/components/ShippingOptions";
 import { useShippingQuote } from "@/features/cart/hooks/use-shipping-quote";
 import { shippingDeadline } from "@/features/cart/api/shipping-service";
 import { useEffect, useRef, useState } from "react";
 import {
   Navigate,
+  useLocation,
   useNavigate,
   useParams,
   useSearchParams,
@@ -49,8 +52,6 @@ import {
   type CheckoutPaymentStatus,
 } from "@/features/cart/api/checkout-service";
 import { useCart } from "@/features/cart/context/cart-context";
-import { useGamification } from "@/features/gamification/context/gamification-context";
-import { calculateCartRewardPoints } from "@/features/gamification/lib/gamification-config";
 import { toast } from "sonner";
 import styles from "./CheckoutPage.module.css";
 
@@ -264,16 +265,6 @@ function hasMissingAddressField(addressForm: AddressFormState) {
   });
 }
 
-function createOrderNumber() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-
-  return `TDM-${year}${month}${day}-${hours}${minutes}`;
-}
 
 function createIdempotencyKey() {
   if (
@@ -295,14 +286,17 @@ function createIdempotencyKey() {
 
 export function CheckoutPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { loading: catalogLoading, error: catalogError } = useCatalog();
   const { step } = useParams<{ step?: string }>();
   const [searchParams] = useSearchParams();
   const { isLoggedIn, user } = useAuth();
   const {
     items,
+    ready,
     itemCount,
     subtotal: localSubtotal,
-    reset,
+    updateItemQuantity,
     shippingQuote,
     shippingService,
     clearShippingQuote,
@@ -314,21 +308,19 @@ export function CheckoutPage() {
   } = useShippingQuote();
   const [cepLoading, setCepLoading] = useState(false);
   const [cepError, setCepError] = useState<string | null>(null);
-  const { trackOrder } = useGamification();
   const currentStep = normalizeCheckoutFlowStep(step);
-  const checkoutResult = step === "success" || step === "failure" ? step : null;
+  const checkoutResult = step === "success" || step === "failure" || step === "pending" ? step : null;
   const checkoutSessionId = searchParams.get("session_id");
   const checkoutOrderId = searchParams.get("order_id");
   const cepRun = useRef(0);
   const handledCheckoutResultRef = useRef(false);
-  const handledCheckoutCancellationRef = useRef(false);
   const checkoutRequestRef = useRef<{
     fingerprint: string;
     key: string;
   } | null>(null);
   const [checkoutVerification, setCheckoutVerification] =
     useState<CheckoutVerificationState>(() =>
-      checkoutResult === "success" ? "checking" : null,
+      checkoutResult ? "checking" : null,
     );
   const [verificationRun, setVerificationRun] = useState(0);
 
@@ -345,7 +337,6 @@ export function CheckoutPage() {
   const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [addressAttempted, setAddressAttempted] = useState(false);
-  const [orderNumber] = useState(createOrderNumber);
   const addressErrors = getAddressErrors(addressForm);
   const selectedAddress =
     savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
@@ -408,27 +399,17 @@ export function CheckoutPage() {
   }, [isLoggedIn, user?.email, user?.name]);
 
   useEffect(() => {
-    if (
-      checkoutResult !== "failure" ||
-      !checkoutOrderId ||
-      handledCheckoutCancellationRef.current
-    ) {
-      return;
-    }
-
-    handledCheckoutCancellationRef.current = true;
-    cancelCheckout(checkoutOrderId).catch(() => {
-      toast.error(
-        "O pagamento foi cancelado, mas a liberação do estoque ainda está sendo processada.",
-      );
-    });
-  }, [checkoutOrderId, checkoutResult]);
+    if (checkoutResult !== "failure" || !isLoggedIn || !checkoutOrderId) return;
+    let cancelled = false;
+    setCheckoutVerification("checking");
+    cancelCheckout(checkoutOrderId)
+      .then(result => { if (!cancelled) setCheckoutVerification(result.status); })
+      .catch(() => { if (!cancelled) setCheckoutVerification("error"); });
+    return () => { cancelled = true; };
+  }, [checkoutOrderId, checkoutResult, isLoggedIn, verificationRun]);
 
   useEffect(() => {
-    if (checkoutResult !== "success") {
-      setCheckoutVerification(null);
-      return;
-    }
+    if ((checkoutResult !== "success" && checkoutResult !== "pending") || !isLoggedIn) return;
     if (!checkoutSessionId) {
       setCheckoutVerification("error");
       return;
@@ -467,7 +448,7 @@ export function CheckoutPage() {
       isCancelled = true;
       if (timeoutId !== undefined) window.clearTimeout(timeoutId);
     };
-  }, [checkoutResult, checkoutSessionId, verificationRun]);
+  }, [checkoutResult, checkoutSessionId, verificationRun, isLoggedIn]);
 
   useEffect(() => {
     if (
@@ -479,16 +460,19 @@ export function CheckoutPage() {
     }
 
     handledCheckoutResultRef.current = true;
-    const earnedPoints = trackOrder(
-      items.map((item) => ({
-        price: getQuotedItemPrice(item),
-        quantity: item.quantity,
-      })),
-    );
-
-    reset();
-    toast.success(`Pagamento aprovado. Você ganhou +${earnedPoints} pontos.`);
-  }, [checkoutVerification, items, reset, trackOrder]);
+    try {
+      const snapshot = JSON.parse(sessionStorage.getItem("tdm_checkout_snapshot") ?? "null");
+      if (snapshot && (snapshot.sessionId === checkoutSessionId || snapshot.orderId === checkoutOrderId)) {
+        snapshot.items.forEach((purchased: { id: string; quantity: number }) => {
+          const current = items.find(item => item.id === purchased.id);
+          if (current) updateItemQuantity(current.id, Math.max(0, current.quantity - purchased.quantity));
+        });
+        sessionStorage.removeItem("tdm_checkout_snapshot");
+        clearShippingQuote();
+      }
+    } catch {}
+    toast.success("Pagamento aprovado. Seu pedido foi confirmado.");
+  }, [checkoutVerification, checkoutSessionId, checkoutOrderId, items, updateItemQuantity, clearShippingQuote]);
 
   if (!checkoutResult && step !== undefined && step !== currentStep) {
     return <Navigate to={routes.checkoutStep(currentStep)} replace />;
@@ -507,6 +491,8 @@ export function CheckoutPage() {
     return <Navigate to={routes.checkoutStep("payment")} replace />;
   }
 
+  if (!checkoutResult && (catalogLoading || catalogError)) return <CatalogFeedback />;
+
   if (!checkoutResult && items.length === 0) {
     return <Navigate to={routes.cart} replace />;
   }
@@ -519,19 +505,13 @@ export function CheckoutPage() {
   const subtotal = validShipping ? shippingQuote!.subtotal : localSubtotal;
   const shipping = validShipping ? shippingService!.price : 0;
   const total = subtotal + shipping;
-  function getQuotedItemPrice(item: { name: string; price: number }) {
+  function getQuotedItemPrice(item: { id: string; price: number }) {
     return validShipping
-      ? (shippingQuote?.item_prices?.find((price) => price.name === item.name)
+      ? (shippingQuote?.item_prices?.find((price) => price.id === item.id)
           ?.unit_price ?? item.price)
       : item.price;
   }
 
-  const rewardPoints = calculateCartRewardPoints(
-    items.map((item) => ({
-      price: getQuotedItemPrice(item),
-      quantity: item.quantity,
-    })),
-  );
   const estimatedDate = validShipping
     ? shippingDeadline(shippingService!) + " após postagem"
     : "Escolha uma entrega para consultar o prazo";
@@ -698,6 +678,10 @@ export function CheckoutPage() {
       return;
     }
 
+    if (!ready) {
+      toast.error("Confira os produtos e as quantidades no carrinho antes de pagar.");
+      return;
+    }
     if (!validShipping || !shippingQuote || !shippingService) {
       toast.error("Calcule e escolha sua entrega antes de pagar.");
       return;
@@ -742,6 +726,10 @@ export function CheckoutPage() {
           recipient_document: addressForm.document,
         },
       );
+      try {
+        sessionStorage.setItem("tdm_checkout_snapshot", JSON.stringify({ sessionId: checkoutSession.session_id, orderId: checkoutSession.order_id,
+          items: items.map(item => ({ id: item.id, quantity: item.quantity })) }));
+      } catch {}
       window.location.assign(checkoutSession.checkout_url);
     } catch (error) {
       toast.error(
@@ -1193,9 +1181,9 @@ export function CheckoutPage() {
       <div className={styles.noticeCard}>
         <Truck className={styles.noticeIcon} />
         <div>
-          <p className={styles.noticeTitle}>Entrega padrão</p>
+          <p className={styles.noticeTitle}>Sua entrega</p>
           <p className={styles.noticeText}>
-            Prazo médio de 5 a 10 dias úteis após a confirmação do pagamento.
+            O valor e o prazo aparecem na próxima etapa, após a consulta do CEP.
           </p>
         </div>
       </div>
@@ -1332,7 +1320,7 @@ export function CheckoutPage() {
           <div>
             <h2 className={styles.sectionTitle}>Forma de pagamento</h2>
             <p className={styles.sectionText}>
-              O pagamento será feito no Checkout seguro da Stripe.
+              Confira o resumo e siga para escolher como pagar.
             </p>
           </div>
         </div>
@@ -1343,11 +1331,9 @@ export function CheckoutPage() {
               <CreditCard className={styles.paymentGatewayIcon} />
             </span>
             <div>
-              <h3 className={styles.paymentGatewayTitle}>Stripe Checkout</h3>
+              <h3 className={styles.paymentGatewayTitle}>Pagamento seguro</h3>
               <p className={styles.paymentGatewayText}>
-                A Toque de Mulher não armazena dados de cartão. A Stripe recebe
-                o pagamento em uma página protegida e depois retorna você para o
-                pedido.
+                Você escolherá a forma de pagamento na próxima página. Depois, volte à loja para acompanhar a confirmação do pedido.
               </p>
             </div>
           </div>
@@ -1382,7 +1368,7 @@ export function CheckoutPage() {
           type="submit"
           className={styles.primaryButton}
           isLoading={isCreatingCheckout}
-          disabled={!validShipping || shippingLoading}
+          disabled={!ready || !validShipping || shippingLoading}
         >
           {isCreatingCheckout ? (
             "Criando pagamento..."
@@ -1398,15 +1384,12 @@ export function CheckoutPage() {
   );
 
   const renderCheckoutResult = () => {
-    const returnedFromSuccess = checkoutResult === "success";
     const isApproved =
-      returnedFromSuccess && checkoutVerification === "approved";
+      checkoutVerification === "approved";
     const isProcessing =
-      returnedFromSuccess &&
       (checkoutVerification === "checking" ||
         checkoutVerification === "pending");
     const isTerminalFailure =
-      returnedFromSuccess &&
       (checkoutVerification === "rejected" ||
         checkoutVerification === "cancelled" ||
         checkoutVerification === "refunded");
@@ -1421,16 +1404,16 @@ export function CheckoutPage() {
         ? checkoutVerification === "checking"
           ? "Confirmando pagamento"
           : "Pagamento em processamento"
-        : returnedFromSuccess && checkoutVerification === "error"
+        : checkoutVerification === "error"
           ? "Não foi possível confirmar"
           : "Pagamento não concluído";
     const resultText = isApproved
-      ? "Seu pagamento foi confirmado pelo backend e o pedido já está registrado."
+      ? "Seu pagamento foi confirmado e o pedido já está registrado."
       : isProcessing
-        ? "Estamos aguardando a confirmação segura da Stripe. Não feche esta página enquanto verificamos o pagamento."
-        : returnedFromSuccess && checkoutVerification === "error"
+        ? "Estamos consultando a confirmação do pagamento. Você também pode acompanhar o pedido pela sua conta."
+        : checkoutVerification === "error"
           ? "Não conseguimos consultar o pagamento agora. Tente verificar novamente antes de refazer a compra."
-          : "A sessão foi cancelada, recusada ou não foi concluída. A reserva de estoque será liberada pelo backend.";
+          : "O pagamento não foi concluído. Seus itens continuam no carrinho.";
 
     return (
       <div className={styles.checkoutBody}>
@@ -1455,11 +1438,7 @@ export function CheckoutPage() {
             </span>
             <h2 className={styles.resultTitle}>{resultTitle}</h2>
             <p className={styles.resultText}>{resultText}</p>
-            {checkoutSessionId && (
-              <p className={styles.resultSession}>
-                Sessão Stripe: {checkoutSessionId}
-              </p>
-            )}
+
           </div>
         </div>
 
@@ -1472,7 +1451,7 @@ export function CheckoutPage() {
             >
               Voltar para a loja
             </Button>
-          ) : returnedFromSuccess && !isTerminalFailure ? (
+          ) : !isTerminalFailure ? (
             <>
               <Button
                 type="button"
@@ -1542,7 +1521,7 @@ export function CheckoutPage() {
               </h1>
             </header>
 
-            {!checkoutResult && !isLoggedIn && (
+            {!isLoggedIn && (
               <div className={styles.guestBanner}>
                 <LogIn className={styles.guestBannerIcon} />
                 <div>
@@ -1550,18 +1529,18 @@ export function CheckoutPage() {
                     Login necessário para pagar
                   </p>
                   <p className={styles.guestBannerText}>
-                    O pagamento real usa seu perfil para vincular endereço,
-                    pedido e confirmação da Stripe.
+                    Entre ou crie uma conta para continuar. Seus produtos permanecem no carrinho.
                   </p>
+                  <Button onClick={() => navigate(routes.login, { state: { from: { pathname: location.pathname, search: location.search } } })}>Entrar ou criar conta</Button>
                 </div>
               </div>
             )}
 
-            {checkoutResult && renderCheckoutResult()}
-            {!checkoutResult &&
+            {isLoggedIn && checkoutResult && renderCheckoutResult()}
+            {isLoggedIn && !checkoutResult &&
               currentStep === "address" &&
               renderAddressStep()}
-            {!checkoutResult &&
+            {isLoggedIn && !checkoutResult &&
               currentStep === "payment" &&
               renderPaymentStep()}
           </section>
@@ -1616,10 +1595,7 @@ export function CheckoutPage() {
                     </span>
                     <strong>R$ {total.toFixed(2).replace(".", ",")}</strong>
                   </div>
-                  <div className={styles.summaryRewardRow}>
-                    <span>Beauty Points</span>
-                    <strong>+{rewardPoints} pts</strong>
-                  </div>
+
                 </div>
 
                 <div className={styles.summaryPanel}>
@@ -1643,9 +1619,9 @@ export function CheckoutPage() {
 
                 <div className={styles.summaryPanel}>
                   <h3 className={styles.summaryPanelTitle}>Pagamento</h3>
-                  <p className={styles.summaryPanelText}>Stripe Checkout</p>
+                  <p className={styles.summaryPanelText}>Pagamento seguro</p>
                   <p className={styles.summaryPanelText}>
-                    O método final será escolhido na página segura da Stripe.
+                    Escolha como pagar na próxima página.
                   </p>
                 </div>
 
@@ -1654,9 +1630,7 @@ export function CheckoutPage() {
                   <div>
                     <p className={styles.summaryEtaTitle}>Entrega estimada</p>
                     <p className={styles.summaryEtaText}>{estimatedDate}</p>
-                    <p className={styles.summaryEtaSmall}>
-                      Pedido: {orderNumber}
-                    </p>
+
                   </div>
                 </div>
               </div>

@@ -136,14 +136,10 @@ function normalizeNumber(value?: string) {
 }
 
 function buildPayload(values: ProductFormValues): CreateProductPayload {
-  const tags = values.categories_names
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  const stockQuantity = normalizeNumber(values.stock_quantity) ?? 0;
-  const categoryId = normalizeNumber(values.categories_names);
-  const attributes: Record<string, unknown> = {
+  return {
+    name: values.name.trim(),
+    price: Number(values.price) || 0,
+    active: values.active,
     volume: values.volume.trim() || null,
     target_audience: values.target_audience.trim() || null,
     product_type: values.product_type.trim() || null,
@@ -155,25 +151,6 @@ function buildPayload(values: ProductFormValues): CreateProductPayload {
     vegan: values.vegan,
     cruelty_free: values.cruelty_free,
     hypoallergenic: values.hypoallergenic,
-    supplier_name: values.supplier_name.trim() || null,
-    supplier_contact: values.supplier_contact.trim() || null,
-    supplier_email: values.supplier_email.trim() || null,
-    usage_tips: values.description_usage_tips.trim() || null,
-    ingredients: values.description_ingredients.trim() || null,
-    stock_expiry_date: values.stock_expiry_date.trim() || null,
-  };
-
-  return {
-    name: values.name.trim(),
-    description: values.description_text.trim(),
-    short_description: values.description_text.trim().slice(0, 500) || null,
-    brand: values.brand_name.trim() || null,
-    price: Number(values.price) || 0,
-    stock_quantity: stockQuantity,
-    status: values.active ? "active" : "inactive",
-    attributes,
-    tags: tags.length > 0 ? tags : null,
-    category_id: categoryId && categoryId > 0 ? categoryId : null,
   };
 }
 
@@ -199,44 +176,32 @@ export function ProductCreatePage() {
 
   const watchedValues = watch();
   const previewPayload = buildPayload(watchedValues);
-  const [uploadProductId, setUploadProductId] = useState("");
-  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
+  const [pendingImageFiles, setPendingImageFiles] = useState<Record<string, File>>({});
+  const [uploadingImageIds, setUploadingImageIds] = useState<Record<string, boolean>>({});
   const [uploadErrors, setUploadErrors] = useState<
     Record<number, string | null>
   >({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  const handleImageFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+  const uploadImage = async (
+    productId: string,
+    fieldId: string,
     index: number,
+    file: File,
   ) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    if (!uploadProductId.trim()) {
-      toast.error("Informe o ID do produto para enviar imagens.");
-      event.target.value = "";
-      return;
-    }
-
-    setUploadingIndex(index);
+    setUploadingImageIds((previous) => ({ ...previous, [fieldId]: true }));
     setUploadErrors((prev) => ({ ...prev, [index]: null }));
 
     try {
-      const parsedId = normalizeNumber(uploadProductId.trim());
-      if (!parsedId) {
-        throw new Error("ID do produto inválido.");
-      }
-
       const altTextValue = form
         .getValues(`images.${index}.alt_text` as const)
         ?.trim();
 
-      const response = await uploadProductImage(parsedId, file, {
+      const response = await uploadProductImage(productId, file, {
         is_primary: index === 0,
         alt_text: altTextValue || undefined,
+        order: index + 1,
       });
 
       form.setValue(`images.${index}.url`, response.url);
@@ -245,8 +210,12 @@ export function ProductCreatePage() {
         form.setValue(`images.${index}.alt_text`, response.alt_text);
       }
 
+      setPendingImageFiles((previous) => {
+        const { [fieldId]: _uploadedFile, ...remainingFiles } = previous;
+        return remainingFiles;
+      });
       setUploadErrors((prev) => ({ ...prev, [index]: null }));
-      toast.success("Imagem enviada com sucesso!");
+      return true;
     } catch (error) {
       const message =
         error instanceof Error
@@ -254,21 +223,71 @@ export function ProductCreatePage() {
           : "Erro ao enviar imagem. Tente novamente.";
       toast.error(message);
       setUploadErrors((prev) => ({ ...prev, [index]: message }));
+      return false;
     } finally {
-      setUploadingIndex(null);
-      event.target.value = "";
+      setUploadingImageIds((previous) => {
+        const { [fieldId]: _uploading, ...remainingUploads } = previous;
+        return remainingUploads;
+      });
     }
+  };
+
+  const uploadPendingImages = async (productId: string) => {
+    const results = await Promise.all(
+      fields.map((field, index) => {
+        const file = pendingImageFiles[field.id];
+        return file ? uploadImage(productId, field.id, index, file) : true;
+      }),
+    );
+
+    return results.every(Boolean);
+  };
+
+  const handleImageFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    fieldId: string,
+    index: number,
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (createdProductId) {
+      await uploadImage(createdProductId, fieldId, index, file);
+      return;
+    }
+
+    setPendingImageFiles((previous) => ({ ...previous, [fieldId]: file }));
+    setUploadErrors((previous) => ({ ...previous, [index]: null }));
+    toast.success("Imagem selecionada. Ela será enviada ao cadastrar o produto.");
   };
 
   const submitProduct = async (values: ProductFormValues) => {
     const payload = buildPayload(values);
 
     try {
-      await createProduct(payload);
+      const productId = createdProductId ?? (await createProduct(payload)).id;
+      setCreatedProductId(productId);
+
+      const uploaded = await uploadPendingImages(productId);
+      if (!uploaded) {
+        toast.error("Produto criado, mas uma ou mais imagens não foram enviadas.");
+        return;
+      }
+
       toast.success("Produto criado com sucesso!");
       reset(defaultValues);
-    } catch (err) {
-      toast.error("Erro ao cadastrar produto.");
+      setCreatedProductId(null);
+      setPendingImageFiles({});
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Erro ao cadastrar produto.";
+
+      toast.error(
+        message === "Slug ja existe"
+          ? "Já existe um produto com este nome. Altere o nome para continuar."
+          : message,
+      );
     }
   };
 
@@ -648,14 +667,13 @@ export function ProductCreatePage() {
                 <FormField
                   control={control}
                   name="supplier_name"
-                  rules={{ required: "Informe o nome do fornecedor." }}
                   render={({ field }) => (
                     <FormItem>
                       <span
                         className={styles.fieldLabel}
                         onMouseDown={preventLabelFocus}
                       >
-                        Nome do fornecedor *
+                        Nome do fornecedor
                       </span>
                       <FormControl>
                         <Input
@@ -721,14 +739,13 @@ export function ProductCreatePage() {
                 <FormField
                   control={control}
                   name="brand_name"
-                  rules={{ required: "Informe o nome da marca." }}
                   render={({ field }) => (
                     <FormItem className={styles.maxWidthMd}>
                       <span
                         className={styles.fieldLabel}
                         onMouseDown={preventLabelFocus}
                       >
-                        Marca *
+                        Marca
                       </span>
                       <FormControl>
                         <Input placeholder="Toque de Mulher" {...field} />
@@ -752,14 +769,13 @@ export function ProductCreatePage() {
                 <FormField
                   control={control}
                   name="description_text"
-                  rules={{ required: "Informe a descrição principal." }}
                   render={({ field }) => (
                     <FormItem className={styles.fullWidth}>
                       <span
                         className={styles.fieldLabel}
                         onMouseDown={preventLabelFocus}
                       >
-                        Descrição principal *
+                        Descrição principal
                       </span>
                       <FormControl>
                         <Textarea
@@ -871,16 +887,13 @@ export function ProductCreatePage() {
                 <FormField
                   control={control}
                   name="stock_quantity"
-                  rules={{
-                    required: "Informe a quantidade inicial em estoque.",
-                  }}
                   render={({ field }) => (
                     <FormItem>
                       <span
                         className={styles.fieldLabel}
                         onMouseDown={preventLabelFocus}
                       >
-                        Quantidade em estoque *
+                        Quantidade em estoque
                       </span>
                       <FormControl>
                         <Input type="number" min="0" step="1" {...field} />
@@ -925,26 +938,10 @@ export function ProductCreatePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className={styles.cardFlexLarge}>
-                <div className={styles.imageIntro}>
-                  <span
-                    className={styles.fieldLabel}
-                    onMouseDown={preventLabelFocus}
-                  >
-                    ID do produto para upload de imagens
-                  </span>
-                  <Input
-                    value={uploadProductId}
-                    onChange={(event) => setUploadProductId(event.target.value)}
-                    placeholder="ID numérico retornado após criar o produto"
-                    className={styles.inputTopSpace}
-                  />
-                  <p className={styles.helperText}>
-                    O endpoint{" "}
-                    <code>/api/v1/products/&lt;product_id&gt;/images</code>
-                    requer o ID numérico do produto e autenticação admin.
-                    Informe o valor e use o botão de upload em cada imagem.
-                  </p>
-                </div>
+                <p className={styles.helperText}>
+                  Selecione as imagens antes de cadastrar. Após criar o produto,
+                  elas serão enviadas automaticamente.
+                </p>
 
                 {fields.map((field, index) => (
                   <div key={field.id} className={styles.imageCard}>
@@ -984,7 +981,7 @@ export function ProductCreatePage() {
                         accept="image/jpeg,image/png,image/webp"
                         className={styles.hiddenInput}
                         onChange={(event) =>
-                          handleImageFileChange(event, index)
+                          handleImageFileChange(event, field.id, index)
                         }
                       />
                       <Button
@@ -992,18 +989,12 @@ export function ProductCreatePage() {
                         variant="secondary"
                         size="sm"
                         onClick={() => {
-                          if (!uploadProductId.trim()) {
-                            toast.error(
-                              "Informe o ID do produto antes de enviar arquivos.",
-                            );
-                            return;
-                          }
                           fileInputRefs.current[field.id]?.click();
                         }}
-                        disabled={uploadingIndex === index}
+                        disabled={Boolean(uploadingImageIds[field.id])}
                         className={styles.uploadButton}
                       >
-                        {uploadingIndex === index ? (
+                        {uploadingImageIds[field.id] ? (
                           <>
                             <Loader2 className={styles.iconSpin} />
                             Enviando...
@@ -1016,7 +1007,9 @@ export function ProductCreatePage() {
                         )}
                       </Button>
                       <span className={styles.uploadHint}>
-                        Aceita JPG, PNG ou WEBP.
+                        {pendingImageFiles[field.id]
+                          ? `${pendingImageFiles[field.id].name} selecionada`
+                          : "Aceita JPG, PNG ou WEBP."}
                       </span>
                     </div>
                     {uploadErrors[index] && (
@@ -1027,17 +1020,20 @@ export function ProductCreatePage() {
                       <FormField
                         control={control}
                         name={`images.${index}.url` as const}
-                        rules={{ required: "Informe a URL da imagem." }}
                         render={({ field }) => (
                           <FormItem className={styles.imageFieldWide}>
                             <span
                               className={styles.fieldLabel}
                               onMouseDown={preventLabelFocus}
                             >
-                              URL *
+                              URL da imagem
                             </span>
                             <FormControl>
-                              <Input placeholder="https://..." {...field} />
+                              <Input
+                                placeholder="Preenchida após o envio"
+                                readOnly
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

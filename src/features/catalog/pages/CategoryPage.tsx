@@ -1,3 +1,5 @@
+import { useCatalog } from "@/features/catalog/context/catalog-context";
+import { CatalogFeedback } from "@/features/catalog/components/CatalogFeedback";
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import {
@@ -20,7 +22,6 @@ import { BeautyFlower } from "@/shared/ui/BeautyFlower";
 import {
   catalogCategories,
   defaultCategorySlug,
-  getProductsByCategory,
   isCatalogCategorySlug,
   type CatalogCategorySlug,
 } from "@/features/catalog/data/catalog-products";
@@ -70,6 +71,7 @@ function formatSubcategory(value: string) {
 export function CategoryPage() {
   const { category } = useParams();
   const { addItem } = useCart();
+  const { products, loading, error } = useCatalog();
   const { trackCategoryView } = useGamification();
   const [filteredCategory, setFilteredCategory] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
@@ -88,7 +90,7 @@ export function CategoryPage() {
 
   const categoryConfig = catalogCategories[category];
   const editorial = CATEGORY_EDITORIAL[category];
-  const categoryProducts = getProductsByCategory(category);
+  const categoryProducts = products.filter(product => product.categories.includes(category));
   const subcategories = [
     "all",
     ...new Set(
@@ -224,13 +226,14 @@ export function CategoryPage() {
           </Reveal>
         )}
 
-        {sortedProducts.length > 0 ? (
+        <CatalogFeedback empty={false} />
+        {loading || error ? null : sortedProducts.length > 0 ? (
           <Reveal className={styles.productsGrid} delayMs={110}>
             {sortedProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 {...product}
-                onAddToCart={() => addItem(product.id, 1)}
+                onAddToCart={() => addItem(product, 1)}
               />
             ))}
           </Reveal>

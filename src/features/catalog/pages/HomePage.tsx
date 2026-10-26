@@ -28,13 +28,11 @@ import { useCart } from "@/features/cart/context/cart-context";
 import { Reveal } from "@/shared/animation/Reveal";
 import {
   catalogCategories,
-  getProductById,
-  trendingProducts,
-  type CatalogProduct,
   type CatalogCategorySlug,
 } from "@/features/catalog/data/catalog-products";
 import { useGamification } from "@/features/gamification/context/gamification-context";
-import saleImage from "@/shared/assets/banner-off-season/Sale.png";
+import { useCatalog } from "@/features/catalog/context/catalog-context";
+import { CatalogFeedback } from "@/features/catalog/components/CatalogFeedback";
 import skincareImage from "@/shared/assets/banner-off-season/Skincare.png";
 import byomaImage from "@/shared/assets/favorites-cards/Byoma.jpg";
 import diorImage from "@/shared/assets/favorites-cards/Instagram.jpg";
@@ -44,12 +42,12 @@ import styles from "./HomePage.module.css";
 
 const campaigns = [
   {
-    image: saleImage,
-    alt: "Seleção de beleza em promoção",
+    image: null,
+    alt: "Seleção de perfumes",
     label: "Um toque de desejo",
     text: "Encontre seu novo favorito na nossa seleção de beleza.",
-    to: routes.category("maquiagem"),
-    action: "Explorar maquiagem",
+    to: routes.category("perfumes"),
+    action: "Explorar perfumes",
   },
   {
     image: skincareImage,
@@ -100,15 +98,14 @@ export function HomePage() {
   const [interacting, setInteracting] = useState(false);
   const [category, setCategory] = useState<CatalogCategorySlug | "all">("all");
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [recentProducts] = useState(() => {
+  const { products: catalogProducts } = useCatalog();
+  const [recentIds] = useState(() => {
     try {
       const ids: unknown = JSON.parse(
         localStorage.getItem("tdm_recent_products") ?? "[]",
       );
       return Array.isArray(ids)
         ? [...new Set(ids.filter((id): id is string => typeof id === "string"))]
-            .map(getProductById)
-            .filter((product): product is CatalogProduct => Boolean(product))
             .slice(0, 4)
         : [];
     } catch {
@@ -142,10 +139,12 @@ export function HomePage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const recentProducts = catalogProducts.filter(product => recentIds.includes(product.id)).slice(0, 4);
+
   const selection = (
     category === "all"
-      ? trendingProducts
-      : trendingProducts.filter((product) => product.category === category)
+      ? catalogProducts
+      : catalogProducts.filter((product) => product.categories.includes(category))
   ).slice(0, 8);
   const campaign = campaigns[heroIndex];
 
@@ -179,13 +178,16 @@ export function HomePage() {
                     tabIndex={index === heroIndex ? 0 : -1}
                     aria-label={item.action}
                   >
-                    <ImageWithFallback
+                    {item.image ? <ImageWithFallback
                       src={item.image}
                       alt={item.alt}
                       className={styles.heroImage}
                       loading={index === 0 ? "eager" : "lazy"}
                       fetchPriority={index === 0 ? "high" : "auto"}
-                    />
+                    /> : <div className={styles.perfumeHero}>
+                      <div><span>PERFUMES</span><h2>Uma assinatura<br />que é só sua.</h2><p>Explore as fragrâncias do catálogo.</p><strong>Descobrir perfumes <ArrowUpRight size={18} /></strong></div>
+                      <BeautyFlower aria-hidden="true" />
+                    </div>}
                   </Link>
                 </CarouselItem>
               ))}
@@ -235,14 +237,12 @@ export function HomePage() {
 
       <div className={styles.serviceStrip}>
         <span>
-          <Truck size={18} /> Frete grátis acima de R$ 150
+          <Truck size={18} /> Entrega e prazo calculados pelo CEP
         </span>
         <span>
           <Heart size={18} /> Beleza escolhida com cuidado
         </span>
-        <Link to={routes.missions}>
-          <Sparkles size={18} /> Descubra o Beauty Club <ArrowRight size={14} />
-        </Link>
+        <Link to={routes.help}>Dúvidas sobre sua compra <ArrowRight size={14} /></Link>
       </div>
 
       <section
@@ -252,21 +252,21 @@ export function HomePage() {
       >
         <Reveal className={styles.sectionHeading}>
           <div>
-            <span className={styles.eyebrow}>ACABARAM DE CHEGAR</span>
-            <h2 id="new-title">Novidades para se apaixonar.</h2>
+            <span className={styles.eyebrow}>PARA DESCOBRIR</span>
+            <h2 id="new-title">Escolhas para se apaixonar.</h2>
           </div>
           <Link to={routes.category("maquiagem")} className={styles.textLink}>
             Explorar a coleção <ArrowUpRight size={17} />
           </Link>
         </Reveal>
+        <CatalogFeedback />
         <Reveal>
           <Carousel
             opts={{ align: "start", containScroll: "trimSnaps" }}
             className={styles.productCarousel}
           >
             <CarouselContent className={styles.productTrack}>
-              {trendingProducts
-                .filter((product) => product.isNew)
+              {catalogProducts
                 .slice(0, 8)
                 .map((product) => (
                   <CarouselItem
@@ -275,7 +275,7 @@ export function HomePage() {
                   >
                     <ProductCard
                       {...product}
-                      onAddToCart={() => addItem(product.id)}
+                      onAddToCart={() => addItem(product)}
                     />
                   </CarouselItem>
                 ))}
@@ -367,7 +367,7 @@ export function HomePage() {
             <ProductCard
               key={product.id}
               {...product}
-              onAddToCart={() => addItem(product.id)}
+              onAddToCart={() => addItem(product)}
             />
           ))}
         </div>
@@ -392,15 +392,16 @@ export function HomePage() {
               <Sparkles size={16} /> BEAUTY CLUB
             </span>
             <h2 id="club-title">
-              Seu toque merece
+              Cada descoberta tem
               <br />
-              algo a mais.
+              seu momento.
             </h2>
             <p>
               {isLoggedIn
                 ? "Cada descoberta faz parte da sua jornada. Acompanhe seus pontos e o próximo nível."
                 : "Um lugar para quem ama descobrir beleza. Crie sua conta, complete missões e acompanhe sua evolução."}
             </p>
+            <p>Pontos e missões ficam neste navegador e não geram descontos ou benefícios de compra.</p>
             <Button asChild>
               <Link to={isLoggedIn ? routes.missions : routes.login}>
                 {isLoggedIn ? "Explorar minhas missões" : "Quero fazer parte"}{" "}
@@ -460,7 +461,7 @@ export function HomePage() {
               <ProductCard
                 key={product.id}
                 {...product}
-                onAddToCart={() => addItem(product.id)}
+                onAddToCart={() => addItem(product)}
               />
             ))}
           </div>

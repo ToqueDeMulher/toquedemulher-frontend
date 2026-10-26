@@ -56,7 +56,7 @@ export const LEVELS: LevelConfig[] = [
     level: 2,
     name: "Pétala",
     minPoints: 120,
-    benefit: "Novas missões em destaque",
+    benefit: "Suas missões em destaque",
     badgeClassName: "bg-amber-100",
     textClassName: "text-amber-700",
     accentColor: "#b45309",
@@ -65,7 +65,7 @@ export const LEVELS: LevelConfig[] = [
     level: 3,
     name: "Flor",
     minPoints: 320,
-    benefit: "Mais pontos por descoberta",
+    benefit: "Suas descobertas no catálogo",
     badgeClassName: "bg-slate-100",
     textClassName: "text-slate-600",
     accentColor: "#64748b",
@@ -74,7 +74,7 @@ export const LEVELS: LevelConfig[] = [
     level: 4,
     name: "Buquê",
     minPoints: 650,
-    benefit: "Benefícios especiais do clube",
+    benefit: "Continue explorando o catálogo",
     badgeClassName: "bg-yellow-100",
     textClassName: "text-yellow-700",
     accentColor: "#ca8a04",
@@ -83,7 +83,7 @@ export const LEVELS: LevelConfig[] = [
     level: 5,
     name: "Jardim",
     minPoints: 1100,
-    benefit: "Experiências exclusivas",
+    benefit: "Acompanhe sua evolução",
     badgeClassName: "bg-cyan-100",
     textClassName: "text-cyan-700",
     accentColor: "#0891b2",
@@ -104,7 +104,7 @@ export const MISSION_DEFINITIONS: MissionDefinition[] = [
     id: "daily-login",
     type: "daily",
     title: "Entrar no Beauty Club",
-    description: "Faça login para liberar seu histórico, pontos e benefícios exclusivos.",
+    description: "Faça login e acompanhe suas missões neste navegador.",
     icon: "Sparkles",
     pointsReward: 40,
     targetCount: 1,
@@ -136,18 +136,7 @@ export const MISSION_DEFINITIONS: MissionDefinition[] = [
     ctaRoute: routes.home,
     getProgress: (stats) => stats.cartAdds,
   },
-  {
-    id: "weekly-first-order",
-    type: "weekly",
-    title: "Primeiro ritual completo",
-    description: "Finalize um pedido e transforme sua escolha em uma nova conquista.",
-    icon: "ShoppingBag",
-    pointsReward: 180,
-    targetCount: 1,
-    ctaLabel: "Ir para o checkout",
-    ctaRoute: routes.checkoutStep("address"),
-    getProgress: (stats) => stats.orderCount,
-  },
+
   {
     id: "special-category-tour",
     type: "special",
@@ -160,31 +149,10 @@ export const MISSION_DEFINITIONS: MissionDefinition[] = [
     ctaRoute: routes.home,
     getProgress: (stats) => stats.categoryViews.length,
   },
-  {
-    id: "special-beauty-investor",
-    type: "special",
-    title: "Coleção de rituais",
-    description: "Acumule R$ 600 em compras concluídas e floresça mais rápido no clube.",
-    icon: "Trophy",
-    pointsReward: 260,
-    targetCount: 600,
-    ctaLabel: "Continuar comprando",
-    ctaRoute: routes.category("skincare"),
-    getProgress: (stats) => Math.round(stats.spendTotal),
-    formatProgress: (progress, targetCount) =>
-      `R$ ${Math.min(progress, targetCount).toLocaleString("pt-BR")} / R$ ${targetCount.toLocaleString("pt-BR")}`,
-  },
+
 ];
 
-export const COMMUNITY_LEADERBOARD: CommunityLeaderboardEntry[] = [
-  { id: "community-1", name: "Marina", totalPoints: 1940 },
-  { id: "community-2", name: "Beatriz", totalPoints: 1680 },
-  { id: "community-3", name: "Clara", totalPoints: 1425 },
-  { id: "community-4", name: "Helena", totalPoints: 1180 },
-  { id: "community-5", name: "Juliana", totalPoints: 980 },
-  { id: "community-6", name: "Paula", totalPoints: 740 },
-  { id: "community-7", name: "Renata", totalPoints: 530 },
-];
+export const COMMUNITY_LEADERBOARD: CommunityLeaderboardEntry[] = [];
 
 export function calculateProductRewardPoints(price: number) {
   return Math.max(10, Math.round(price / 12));

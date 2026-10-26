@@ -12,6 +12,7 @@ interface ProductCardProps {
   image: string;
   name: string;
   price: number;
+  available?: boolean;
   originalPrice?: number;
   rating?: number;
   reviews?: number;
@@ -29,6 +30,7 @@ export function ProductCard({
   image,
   name,
   price,
+  available = false,
   originalPrice,
   rating,
   reviews,
@@ -118,7 +120,7 @@ export function ProductCard({
       <div className={styles.content}>
         {!hideTitle && <h3 className={styles.title}>{name}</h3>}
 
-        {!hideMeta && typeof rating === "number" && (
+        {!hideMeta && typeof rating === "number" && (reviews ?? 0) > 0 && (
           <div className={styles.ratingRow} aria-label={ratingLabel}>
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
@@ -147,6 +149,7 @@ export function ProductCard({
 
         <Button
           size="sm"
+          disabled={!available}
           variant="default"
           className={styles.addButton}
           onClick={(e) => {
@@ -156,7 +159,7 @@ export function ProductCard({
           type="button"
         >
           <ShoppingCart className={styles.cartIcon} aria-hidden="true" />
-          Adicionar
+          {available ? "Adicionar" : "Indisponível"}
         </Button>
       </div>
     </article>

@@ -47,11 +47,11 @@ export function AboutPage() {
             <span>ser você.</span>
           </h1>
           <p>
-            Nascemos da paixão pela beleza e da vontade de transformar o cuidado
+            Beleza e cuidado podem transformar a rotina
             em um momento especial. Um toque de cor, de confiança, de você.
           </p>
           <a href="#nossa-historia" className={styles.textLink}>
-            Conheça a nossa história <ArrowRight size={17} />
+            Conheça a nossa proposta <ArrowRight size={17} />
           </a>
         </Reveal>
         <Reveal className={styles.heroMedia} delayMs={100}>
@@ -74,7 +74,7 @@ export function AboutPage() {
             de ser bonita. <span>Existe o seu.</span>
           </h2>
           <p>
-            A Toque de Mulher nasceu em 2024 com uma ideia simples: aproximar
+            A proposta da Toque de Mulher é aproximar
             você de produtos que despertem o prazer de se cuidar. Acreditamos
             que beleza é expressão, descoberta e confiança na própria pele.
           </p>

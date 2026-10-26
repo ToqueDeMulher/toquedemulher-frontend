@@ -18,6 +18,7 @@ import { HelpPage } from "@/features/institutional/pages/HelpPage";
 import { AboutPage } from "@/features/institutional/pages/AboutPage";
 import { InstitutionalPage } from "@/features/institutional/pages/InstitutionalPage";
 import { ProductCreatePage } from "@/features/admin/pages/ProductCreatePage";
+import { ProductManagementPage } from "@/features/admin/pages/ProductManagementPage";
 import { MissionsPage } from "@/features/gamification/pages/MissionsPage";
 import { RankingPage } from "@/features/gamification/pages/RankingPage";
 import { NotFoundPage } from "@/features/system/pages/NotFoundPage";
@@ -75,6 +76,7 @@ export function AppRoutes() {
       >
         <Route path={routes.adminShipping} element={<ShippingPage />} />
         <Route path={routes.adminDashboard} element={<AdminDashboardPage />} />
+        <Route path={routes.adminProducts} element={<ProductManagementPage />} />
         <Route path={routes.productCreate} element={<ProductCreatePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
