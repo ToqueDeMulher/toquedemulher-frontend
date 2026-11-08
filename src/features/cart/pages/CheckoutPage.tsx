@@ -100,11 +100,12 @@ const stepContent = {
 
 function createEmptyAddressForm(
   contact?: { name?: string; email?: string } | null,
+  zipCode = "",
 ): AddressFormState {
   return {
     fullName: contact?.name ?? "",
     email: contact?.email ?? "",
-    zipCode: "",
+    zipCode,
     phone: "",
     street: "",
     number: "",
@@ -308,11 +309,11 @@ export function CheckoutPage() {
   } = useShippingQuote();
   const [cepLoading, setCepLoading] = useState(false);
   const [cepError, setCepError] = useState<string | null>(null);
+  const [cepFound, setCepFound] = useState(false);
   const currentStep = normalizeCheckoutFlowStep(step);
   const checkoutResult = step === "success" || step === "failure" || step === "pending" ? step : null;
   const checkoutSessionId = searchParams.get("session_id");
   const checkoutOrderId = searchParams.get("order_id");
-  const cepRun = useRef(0);
   const handledCheckoutResultRef = useRef(false);
   const checkoutRequestRef = useRef<{
     fingerprint: string;
@@ -324,8 +325,13 @@ export function CheckoutPage() {
     );
   const [verificationRun, setVerificationRun] = useState(0);
 
+  const cartPostalCode = onlyDigits(
+    (location.state as { cartPostalCode?: string } | null)?.cartPostalCode ??
+      shippingQuote?.postal_code ??
+      "",
+  ).slice(0, 8);
   const [addressForm, setAddressForm] = useState<AddressFormState>(() =>
-    createEmptyAddressForm(user),
+    createEmptyAddressForm(user, cartPostalCode),
   );
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [addressMode, setAddressMode] = useState<AddressMode>("new");
@@ -397,6 +403,59 @@ export function CheckoutPage() {
       isMounted = false;
     };
   }, [isLoggedIn, user?.email, user?.name]);
+
+  useEffect(() => {
+    if (addressMode !== "new" || !/^\d{8}$/.test(addressForm.zipCode)) {
+      setCepLoading(false);
+      setCepError(null);
+      setCepFound(false);
+      return;
+    }
+
+    const cep = addressForm.zipCode;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      setCepLoading(true);
+      setCepError(null);
+      setCepFound(false);
+      void fetchAddressByCep(cep, controller.signal)
+        .then((data) => {
+          if (controller.signal.aborted) return;
+          if (!data) {
+            setCepError("CEP não encontrado. Preencha o endereço manualmente.");
+            return;
+          }
+          setCepFound(true);
+          setAddressForm((previous) =>
+            previous.zipCode === cep
+              ? {
+                  ...previous,
+                  street: data.street,
+                  neighborhood: data.neighborhood,
+                  city: data.city,
+                  state: data.state,
+                }
+              : previous,
+          );
+        })
+        .catch((error) => {
+          if (!controller.signal.aborted)
+            setCepError(
+              error instanceof Error
+                ? error.message
+                : "Preencha o endereço manualmente.",
+            );
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setCepLoading(false);
+        });
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [addressMode, addressForm.zipCode]);
 
   useEffect(() => {
     if (checkoutResult !== "failure" || !isLoggedIn || !checkoutOrderId) return;
@@ -532,46 +591,13 @@ export function CheckoutPage() {
 
   const updateAddressField = (field: keyof AddressFormState, value: string) => {
     if (field === "zipCode") {
-      cepRun.current += 1;
-      setCepLoading(false);
+      setCepFound(false);
       setCepError(null);
     }
     setAddressForm((prev) => ({ ...prev, [field]: value }));
   };
-  const lookupAddress = async () => {
-    const cep = addressForm.zipCode;
-    if (!/^\d{8}$/.test(cep)) return;
-    const run = ++cepRun.current;
-    setCepLoading(true);
-    setCepError(null);
-    try {
-      const data = await fetchAddressByCep(cep);
-      if (data && cepRun.current === run)
-        setAddressForm((previous) =>
-          previous.zipCode === cep
-            ? {
-                ...previous,
-                street: data.street,
-                neighborhood: data.neighborhood,
-                city: data.city,
-                state: data.state,
-              }
-            : previous,
-        );
-    } catch (error) {
-      if (cepRun.current === run)
-        setCepError(
-          error instanceof Error
-            ? error.message
-            : "Preencha o endereço manualmente.",
-        );
-    } finally {
-      if (cepRun.current === run) setCepLoading(false);
-    }
-  };
 
   const handleSelectSavedAddress = (address: Address) => {
-    cepRun.current += 1;
     setAddressMode("saved");
     setSelectedAddressId(address.id);
     setAddressAttempted(false);
@@ -579,13 +605,12 @@ export function CheckoutPage() {
   };
 
   const handleUseNewAddress = () => {
-    cepRun.current += 1;
     setAddressMode("new");
     setSelectedAddressId(null);
     setAddressAttempted(false);
     setShouldSaveAddress(savedAddresses.length === 0);
     setAddressForm((prev) => ({
-      ...createEmptyAddressForm(user),
+      ...createEmptyAddressForm(user, prev.zipCode),
       fullName: prev.fullName || user?.name || "",
       email: prev.email || user?.email || "",
     }));
@@ -915,7 +940,6 @@ export function CheckoutPage() {
                   CEP
                 </Label>
                 <Input
-                  onBlur={() => void lookupAddress()}
                   id="zipCode"
                   value={formatZipCode(addressForm.zipCode)}
                   onChange={(event) =>
@@ -937,7 +961,11 @@ export function CheckoutPage() {
                   }
                 />
                 <p role="status" className={styles.sectionText}>
-                  {cepLoading ? "Consultando endereço..." : (cepError ?? "")}
+                  {cepLoading
+                    ? "Consultando endereço..."
+                    : (cepError ?? (cepFound
+                      ? "Endereço encontrado. Confira os dados e informe o número."
+                      : "Rua, bairro, cidade e estado aparecem ao completar o CEP."))}
                 </p>
                 {addressAttempted && addressErrors.zipCode && (
                   <p id="zipCode-error" className={styles.fieldError}>

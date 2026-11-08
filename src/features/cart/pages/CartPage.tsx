@@ -419,7 +419,9 @@ export function CartPage() {
                   variant="default"
                   className={styles.checkoutButton}
                   disabled={!ready}
-                  onClick={() => navigate(routes.checkoutStep("address"))}
+                  onClick={() => navigate(routes.checkoutStep("address"), {
+                    state: { cartPostalCode: zipCode },
+                  })}
                 >
                   Continuar para entrega <ArrowRight size={17} />
                 </Button>
