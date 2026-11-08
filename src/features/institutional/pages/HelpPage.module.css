@@ -157,6 +157,18 @@
   color: var(--theme-text-primary);
 }
 
+.searchResults {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.searchGroupTitle {
+  color: var(--theme-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
 .tabsRoot {
   @apply w-full;
 }

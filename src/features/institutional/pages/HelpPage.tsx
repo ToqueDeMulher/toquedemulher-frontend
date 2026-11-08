@@ -31,11 +31,17 @@ const faqs = {
     { question: "Como entrar em contato com o suporte?", answer: "Acesse Fale Conosco e envie sua mensagem pelo formulário. Aguarde a confirmação de envio na própria página." },
   ],
 };
+const faqLabels: Record<keyof typeof faqs, string> = {
+  payments: "Pagamentos",
+  shipping: "Entrega",
+  returns: "Trocas",
+  support: "Suporte",
+};
 
 export function HelpPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const normalizedSearch = searchTerm.trim().toLowerCase();
-  const faqEntries = Object.entries(faqs).map(([key, questions]) => ({
+  const faqEntries = (Object.entries(faqs) as [keyof typeof faqs, (typeof faqs)[keyof typeof faqs]][]).map(([key, questions]) => ({
     key,
     questions: normalizedSearch
       ? questions.filter(
@@ -113,7 +119,27 @@ export function HelpPage() {
         <div className={styles.container}>
           <div className={styles.faqCard}>
             <h2 className={styles.faqTitle}>Perguntas Frequentes</h2>
-            <Tabs defaultValue="payments" className={styles.tabsRoot}>
+            {normalizedSearch ? (
+              totalResults === 0 ? (
+                <p className={styles.emptyState}>Nenhum resultado encontrado para esta busca.</p>
+              ) : (
+                <div className={styles.searchResults}>
+                  {faqEntries.filter(({ questions }) => questions.length > 0).map(({ key, questions }) => (
+                    <section key={key}>
+                      <h3 className={styles.searchGroupTitle}>{faqLabels[key]}</h3>
+                      <Accordion type="single" collapsible className={styles.accordion}>
+                        {questions.map((faq, index) => (
+                          <AccordionItem key={faq.question} value={`${key}-${index}`}>
+                            <AccordionTrigger className={styles.accordionTrigger}>{faq.question}</AccordionTrigger>
+                            <AccordionContent className={styles.accordionContent}>{faq.answer}</AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </section>
+                  ))}
+                </div>
+              )
+            ) : <Tabs defaultValue="payments" className={styles.tabsRoot}>
               <TabsList className={styles.tabsList}>
                 <TabsTrigger value="payments">Pagamentos</TabsTrigger>
                 <TabsTrigger value="shipping">Entrega</TabsTrigger>
@@ -143,7 +169,7 @@ export function HelpPage() {
                   </Accordion>
                 </TabsContent>
               ))}
-            </Tabs>
+            </Tabs>}
           </div>
         </div>
       </section>
