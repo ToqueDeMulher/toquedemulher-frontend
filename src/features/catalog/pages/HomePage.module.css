@@ -673,6 +673,10 @@
   .heroSection {
     width: 100%;
   }
+  .heroPrevious,
+  .heroNext {
+    display: none;
+  }
   .heroCaption {
     padding-inline: 24px;
   }
