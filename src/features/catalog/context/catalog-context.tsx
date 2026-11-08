@@ -41,6 +41,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         )) throw new Error("Não foi possível carregar os produtos. Tente novamente.");
         setData(products.map(product => ({
           ...product,
+          available: product.available && product.stockQuantity > 0,
           image: product.image ? resolveApiAssetUrl(product.image) : "",
           images: product.images?.map(image => ({ ...image, url: resolveApiAssetUrl(image.url) })) ?? [],
         })));

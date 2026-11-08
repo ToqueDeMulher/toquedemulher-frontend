@@ -182,7 +182,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const safeQuantity = Math.max(1, Math.floor(quantity));
         const productId = typeof product === "string" ? product : product.id;
         const catalogProduct = products.find(item => item.id === productId);
-        if (!catalogProduct?.available || !Number.isFinite(safeQuantity)) return;
+        if (!catalogProduct?.available || catalogProduct.stockQuantity < 1 || !Number.isFinite(safeQuantity)) return;
         setEntries(previous => {
           const current = previous.find(entry => entry.productId === productId);
           const nextQuantity = Math.min(catalogProduct.stockQuantity, 100, (current?.quantity ?? 0) + safeQuantity);
@@ -203,7 +203,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         if (!Number.isInteger(quantity)) return;
         const product = products.find(item => item.id === productId);
-        if (!product?.available) return;
+        if (!product?.available || product.stockQuantity < 1) return;
         setEntries(previous => previous.map(entry => entry.productId === productId
           ? { productId, quantity: Math.min(quantity, product.stockQuantity, 100) } : entry));
       },
