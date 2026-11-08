@@ -39,12 +39,12 @@ export function InstitutionalPage() {
       <span className={styles.heroIconWrap}><BookOpen className={styles.heroIcon} /></span>
       <div className={styles.heroMeta}><p className={styles.heroEyebrow}>Institucional</p><h1 className={styles.heroTitle}>{page.title}</h1><p className={styles.heroSubtitle}>{page.subtitle}</p></div>
     </div></div></header>
-    <main className={styles.section}><div className={styles.container}>
+    <section className={styles.section}><div className={styles.container}>
       <div className={styles.articleList}>{page.paragraphs.map(text => <p className={styles.articleText} key={text}>{text}</p>)}</div>
       <div className={styles.ctaBanner}><h2 className={styles.ctaBannerTitle}>Conte com a gente.</h2><div className={styles.ctaBannerActions}>
         {slug === "rastreamento" && <Link to={`${routes.profile}?tab=orders`} className={styles.ctaBannerPrimary}><Package size={18} /> Meus Pedidos</Link>}
         <Link to={storeContact.path} className={styles.ctaBannerPrimary}>Falar com atendimento</Link><Link to={routes.home} className={styles.ctaBannerSecondary}>Voltar à loja</Link>
       </div></div>
-    </div></main>
+    </div></section>
   </div>;
 }

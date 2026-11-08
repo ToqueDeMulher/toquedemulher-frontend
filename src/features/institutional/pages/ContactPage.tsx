@@ -38,7 +38,7 @@ export function ContactPage() {
       <div className={styles.heroMeta}><p className={styles.heroEyebrow}>Atendimento</p><h1 className={styles.heroTitle}>Fale Conosco</h1>
         <p className={styles.heroSubtitle}>Conte como podemos ajudar com sua escolha ou seu pedido.</p></div>
     </div></div></header>
-    <main className={styles.section}><div className={styles.container}><div className={styles.contactGrid}>
+    <section className={styles.section}><div className={styles.container}><div className={styles.contactGrid}>
       <form className={styles.contactForm} onSubmit={submit} aria-busy={sending}>
         <h2 className={styles.contactFormTitle}>Envie uma mensagem</h2>
         <div className={styles.formGroup}><label htmlFor="contact-name" className={styles.formLabel}>Nome completo</label>
@@ -61,6 +61,6 @@ export function ContactPage() {
         <div className={styles.contactInfoCard}><HelpCircle className={styles.contactInfoIcon} /><h2 className={styles.contactInfoTitle}>Dúvidas frequentes</h2>
           <p className={styles.contactInfoText}>Consulte também nossa <Link to={routes.help} className={styles.contactInfoLink}>Central de Ajuda</Link>.</p></div>
       </aside>
-    </div></div></main>
+    </div></div></section>
   </div>;
 }

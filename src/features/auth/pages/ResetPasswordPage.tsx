@@ -50,7 +50,7 @@ export function ResetPasswordPage() {
   };
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <section className={styles.panel}>
         <div className={styles.logoRow}>
           <span className={styles.logoMark}>tm</span>
@@ -137,6 +137,6 @@ export function ResetPasswordPage() {
           </>
         )}
       </section>
-    </main>
+    </div>
   );
 }

@@ -48,7 +48,7 @@ export function ConfirmEmailPage() {
     status === "loading" ? Loader2 : status === "success" ? CheckCircle2 : XCircle;
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <section className={styles.panel}>
         <div className={styles.logoRow}>
           <span className={styles.logoMark}>tm</span>
@@ -80,6 +80,6 @@ export function ConfirmEmailPage() {
           </Button>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

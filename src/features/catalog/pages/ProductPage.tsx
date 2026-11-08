@@ -68,14 +68,14 @@ export function ProductPage() {
 
   if (!product)
     return (
-      <main className={styles.empty}>
+      <div className={styles.empty}>
         <BeautyFlower />
         <h1>Produto não encontrado</h1>
         <p>Explore o catálogo para encontrar seu próximo favorito.</p>
         <Button asChild>
           <Link to={routes.home}>Explorar a loja</Link>
         </Button>
-      </main>
+      </div>
     );
 
   const relatedProducts = products.filter(item => item.id !== product.id && item.categories.some(category => product.categories.includes(category))).slice(0, 4);
