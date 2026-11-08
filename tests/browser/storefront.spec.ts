@@ -103,6 +103,38 @@ test("API failure has retry, no demo products; empty and inactive catalog", asyn
   await expect(page.getByRole("heading", { name: "Produto não encontrado" })).toBeVisible();
 });
 
+test("zero-stock product cannot be added even if API marks it available", async ({ page }) => {
+  await mockStore(page, [{ ...product, available: true, stockQuantity: 0 }]);
+  await page.goto(`/produto/${id}`);
+  await expect(page.getByRole("button", { name: "Produto indisponível", exact: true })).toBeDisabled();
+  await expect(page.getByText("Indisponível", { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]"))).toEqual([]);
+});
+
+test("help search shows matches from every category", async ({ page }) => {
+  await mockStore(page);
+  await page.goto("/ajuda");
+  await page.getByRole("searchbox", { name: "Buscar dúvidas frequentes por palavra-chave" }).fill("frete");
+  await expect(page.getByText("Como funciona o frete grátis?")).toBeVisible();
+  await expect(page.getByText("Qual o prazo de entrega?")).toBeVisible();
+  await expect(page.getByText("Nenhum resultado encontrado nesta categoria.")).toHaveCount(0);
+  await page.getByRole("searchbox", { name: "Buscar dúvidas frequentes por palavra-chave" }).fill("");
+  await expect(page.getByRole("tab", { name: "Pagamentos" })).toBeVisible();
+});
+
+test("store pages expose one main area and mobile hero keeps controls off the title", async ({ page }, testInfo) => {
+  await mockStore(page);
+  await page.goto("/");
+  await expect(page.locator("main")).toHaveCount(1);
+  const previous = page.getByRole("button", { name: "Destaque anterior" });
+  if (testInfo.project.name === "mobile") await expect(previous).toBeHidden();
+  else await expect(previous).toBeVisible();
+  for (const path of ["/institucional/contato", "/institucional/privacidade", `/produto/${otherId}`, "/confirm-email", "/redefinir-senha"]) {
+    await page.goto(path);
+    await expect(page.locator("main")).toHaveCount(1);
+  }
+});
+
 test("cart revalidates price and quote, retries network failure, selected cost and deadline", async ({ page }, testInfo) => {
   await mockStore(page);
   await seedCart(page);
@@ -116,6 +148,7 @@ test("cart revalidates price and quote, retries network failure, selected cost a
   });
   await page.goto("/carrinho");
   await expect(page.getByText("Preço adulterado")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: `Diminuir quantidade de ${product.name}` })).toBeDisabled();
   await expect(page.getByText("Valor mínimo atingido.", { exact: false })).toBeVisible();
   await expect(page.getByText("Entrega gratuita confirmada", { exact: false })).toHaveCount(0);
   await page.getByRole("textbox", { name: "CEP para calcular a entrega" }).fill("70040-010");
@@ -128,6 +161,28 @@ test("cart revalidates price and quote, retries network failure, selected cost a
   await expect(page.getByText("R$ 228,90", { exact: true })).toBeVisible();
   await noOverflow(page);
   await capture(page, "cart", testInfo.project.name);
+});
+
+test("cart CEP carries into checkout and completes the address", async ({ page }, testInfo) => {
+  await mockStore(page);
+  await seedCart(page, true);
+  await page.route("**/api/v1/addresses/", route => route.fulfill({ json: [] }));
+  await page.route("**/api/v1/shipping/quotes", route => route.fulfill({ json: quote() }));
+  await page.route("**/api/v1/brasil/cep/70040010", route => route.fulfill({
+    json: { cep: "70040010", street: "Rua das Flores", neighborhood: "Centro", city: "Brasília", state: "DF" },
+  }));
+  await page.goto("/carrinho");
+  await page.getByRole("textbox", { name: "CEP para calcular a entrega" }).fill("70040010");
+  await page.getByRole("button", { name: "Calcular", exact: true }).click();
+  await expect(page.getByRole("radio")).toHaveCount(2);
+  await page.getByRole("button", { name: "Continuar para entrega" }).click();
+  await expect(page).toHaveURL(/checkout\/address/);
+  await expect(page.locator("#zipCode")).toHaveValue("70040-010");
+  await expect(page.locator("#street")).toHaveValue("Rua das Flores");
+  await expect(page.locator("#neighborhood")).toHaveValue("Centro");
+  await expect(page.locator("#city")).toHaveValue("Brasília");
+  await expect(page.locator("#state")).toHaveValue("DF");
+  await capture(page, "checkout-address", testInfo.project.name);
 });
 
 test("checkout offers login and preserves cart and return route", async ({ page }, testInfo) => {
