@@ -42,7 +42,7 @@
 }
 .option small,
 .options p {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--theme-text-secondary);
   line-height: 1.6;
 }

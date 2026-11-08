@@ -742,7 +742,7 @@
   gap: 14px;
 }
 .itemActionLink {
-  font-size: 10px;
+  font-size: 12px;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -904,6 +904,7 @@
     grid-column: 1/-1;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
   }
   .itemContent {
     width: auto;
