@@ -722,9 +722,13 @@
   gap: 0;
 }
 .quantityButton {
-  width: 32px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+}
+.quantityButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .quantityValue {
   font-size: 12px;

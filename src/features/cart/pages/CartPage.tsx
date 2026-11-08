@@ -253,6 +253,7 @@ export function CartPage() {
                               onClick={() =>
                                 updateItemQuantity(item.id, item.quantity - 1)
                               }
+                              disabled={item.quantity <= 1}
                               className={styles.quantityButton}
                               aria-label={`Diminuir quantidade de ${item.name}`}
                             >

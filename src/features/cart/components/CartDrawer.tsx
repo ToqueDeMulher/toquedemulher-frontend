@@ -186,6 +186,7 @@ export function CartDrawer() {
                           onClick={() =>
                             updateItemQuantity(item.id, item.quantity - 1)
                           }
+                          disabled={item.quantity <= 1}
                           aria-label={`Diminuir quantidade de ${item.name}`}
                         >
                           <Minus className={styles.quantityIcon} />
