@@ -39,7 +39,7 @@ export function ResetPasswordPage() {
     try {
       const response = await resetPasswordRequest(token, newPassword);
       setStatus("success");
-      setMessage(response.message || "Senha redefinida com sucesso.");
+      setMessage(response.mensagem || "Senha redefinida com sucesso.");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Nao foi possivel redefinir sua senha.",

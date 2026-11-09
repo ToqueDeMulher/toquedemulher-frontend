@@ -71,6 +71,7 @@ test("API catalog, search, category, product details and real IDs", async ({ pag
   await capture(page, "home", testInfo.project.name);
   await page.getByRole("link", { name: "Explorar perfumes", exact: true }).first().click();
   await expect(page).toHaveURL(/categoria\/perfumes/);
+  await expect(page.getByRole("heading", { level: 1, name: "Perfumes", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: product.name })).toBeVisible();
   await noOverflow(page);
   await capture(page, "category", testInfo.project.name);
@@ -325,4 +326,91 @@ test("cancellation requires server confirmation and preserves cart", async ({ pa
   await expect(page.getByRole("heading", { name: "Pagamento não concluído", exact: true }).last()).toBeVisible();
   await expect(page.getByText("O pagamento não foi concluído. Seus itens continuam no carrinho.")).toBeVisible();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]").length)).toBe(1);
+});
+
+test("expired confirmation offers resend and preserves email on failure", async ({ page }) => {
+  await mockStore(page);
+  await page.route("**/api/v1/user/confirm-email", route => route.fulfill({
+    status: 400, json: { detail: "Link expirado" },
+  }));
+  let accepted = false;
+  let submitted: unknown;
+  const message = "Se houver uma conta pendente, enviaremos um novo link de confirmacao.";
+  await page.route("**/api/v1/user/resend-confirmation", async route => {
+    submitted = route.request().postDataJSON();
+    await route.fulfill({ status: accepted ? 200 : 503,
+      json: accepted ? { mensagem: message } : { detail: "Serviço indisponível. Tente novamente." },
+    });
+  });
+  await page.goto("/confirm-email?token=expired-test-token");
+  await expect(page.getByRole("heading", { name: "Nao conseguimos confirmar" })).toBeVisible();
+  await page.getByLabel("E-mail da conta").fill(user.email);
+  await page.getByRole("button", { name: "Reenviar confirmação" }).click();
+  await expect(page.getByRole("alert")).toContainText("Serviço indisponível");
+  await expect(page.getByLabel("E-mail da conta")).toHaveValue(user.email);
+  accepted = true;
+  await page.getByRole("button", { name: "Reenviar confirmação" }).click();
+  await expect(page.getByRole("status").filter({ hasText: message })).toBeVisible();
+  expect(submitted).toEqual({ email: user.email });
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await noOverflow(page);
+});
+
+test("confirmation without token offers resend; successful confirmation offers login", async ({ page }) => {
+  await mockStore(page);
+  await page.goto("/login");
+  await page.getByRole("link", { name: "Reenviar confirmação" }).click();
+  await expect(page).toHaveURL(/\/confirm-email$/);
+  await expect(page.getByLabel("E-mail da conta")).toBeVisible();
+  await page.route("**/api/v1/user/confirm-email", route => route.fulfill({
+    json: { mensagem: "Email confirmado com sucesso." },
+  }));
+  await page.goto("/confirm-email?token=valid-test-token");
+  await expect(page.getByRole("heading", { name: "Email confirmado" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Entrar na conta" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reenviar confirmação" })).toHaveCount(0);
+});
+
+test("password reset displays the backend confirmation message", async ({ page }) => {
+  await mockStore(page);
+  const message = "Sua nova senha foi salva. Entre novamente.";
+  await page.route("**/api/v1/user/reset-password", async route => {
+    expect(route.request().postDataJSON()).toEqual({ token: "valid-test-token", new_password: "NovaSenha@123" });
+    await route.fulfill({ json: { mensagem: message } });
+  });
+  await page.goto("/redefinir-senha?token=valid-test-token");
+  await page.getByLabel("Nova senha", { exact: true }).fill("NovaSenha@123");
+  await page.getByLabel("Confirme a nova senha", { exact: true }).fill("NovaSenha@123");
+  await page.getByRole("button", { name: "Redefinir senha", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Senha redefinida" })).toBeVisible();
+  await expect(page.getByText(message, { exact: true })).toBeVisible();
+});
+
+test("password change signs out only after success and preserves the cart", async ({ page }) => {
+  await mockStore(page);
+  await seedCart(page, true);
+  for (const path of ["user/me/orders", "user/me/reviews", "payment-methods/"]) {
+    await page.route(`**/api/v1/${path}`, route => route.fulfill({ json: [] }));
+  }
+  let accepted = false;
+  await page.route("**/api/v1/user/me/password", async route => {
+    expect(route.request().postDataJSON()).toEqual({ current_password: "SenhaAtual@123", new_password: "NovaSenha@123" });
+    await route.fulfill({ status: accepted ? 200 : 400,
+      json: accepted ? { mensagem: "Senha alterada." } : { detail: "Senha atual incorreta." },
+    });
+  });
+  await page.goto("/perfil?tab=settings");
+  const passwordForm = page.locator("form").filter({ has: page.getByRole("button", { name: "Alterar senha" }) });
+  await passwordForm.getByLabel("Senha atual", { exact: true }).fill("SenhaAtual@123");
+  await page.getByLabel("Nova senha", { exact: true }).fill("NovaSenha@123");
+  await page.getByLabel("Confirmar senha", { exact: true }).fill("NovaSenha@123");
+  await page.getByRole("button", { name: "Alterar senha" }).click();
+  await expect(page.getByText("Senha atual incorreta.", { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("tdm_access_token"))).toBe("local-test-token");
+  accepted = true;
+  await page.getByRole("button", { name: "Alterar senha" }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  expect(await page.evaluate(() => localStorage.getItem("tdm_access_token"))).toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem("tdm_auth_user"))).toBeNull();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]"))).toEqual([{ productId: id, quantity: 1 }]);
 });

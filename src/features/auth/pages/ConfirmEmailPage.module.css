@@ -78,6 +78,10 @@
   @apply mt-7;
 }
 
+.resendForm {
+  @apply mt-6 grid gap-3 text-left;
+}
+
 .primaryAction {
   @apply w-full;
 }

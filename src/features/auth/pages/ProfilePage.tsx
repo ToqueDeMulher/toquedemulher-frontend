@@ -481,7 +481,9 @@ export function ProfilePage() {
         new_password: passwordForm.new_password,
       });
       setPasswordForm(EMPTY_PASSWORD_FORM);
-      toast.success("Senha alterada.");
+      toast.success("Senha alterada. Entre novamente para continuar.");
+      logout();
+      navigate(routes.login, { replace: true });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Erro ao alterar senha.",

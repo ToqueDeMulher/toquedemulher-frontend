@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle2, Loader2, MailCheck, XCircle } from "lucide-react";
 import { routes } from "@/app/router/paths";
 import { Button } from "@/shared/ui/button";
-import { confirmEmailRequest } from "@/features/auth/api/auth-service";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { confirmEmailRequest, resendConfirmationRequest } from "@/features/auth/api/auth-service";
 import styles from "./ConfirmEmailPage.module.css";
 
 type ConfirmStatus = "loading" | "success" | "error";
@@ -13,6 +15,26 @@ export function ConfirmEmailPage() {
   const token = searchParams.get("token") ?? "";
   const [status, setStatus] = useState<ConfirmStatus>("loading");
   const [message, setMessage] = useState("Confirmando seu email...");
+  const [email, setEmail] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+  const [resendError, setResendError] = useState("");
+
+  async function handleResend(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (isSending) return;
+    setIsSending(true);
+    setResendMessage("");
+    setResendError("");
+    try {
+      const response = await resendConfirmationRequest(email.trim());
+      setResendMessage(response.mensagem);
+    } catch (error) {
+      setResendError(error instanceof Error ? error.message : "Não foi possível solicitar o link. Tente novamente.");
+    } finally {
+      setIsSending(false);
+    }
+  }
 
   useEffect(() => {
     if (!token) {
@@ -71,6 +93,26 @@ export function ConfirmEmailPage() {
               : "Confirmando sua conta"}
         </h1>
         <p className={styles.message}>{message}</p>
+
+        {status === "error" && (
+          <form className={styles.resendForm} onSubmit={handleResend}>
+            <p className={styles.message}>Informe o e-mail da sua conta para solicitar um novo link.</p>
+            <Label htmlFor="confirmation-email">E-mail da conta</Label>
+            <Input
+              id="confirmation-email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            <Button type="submit" disabled={isSending}>
+              {isSending ? "Solicitando link..." : "Reenviar confirmação"}
+            </Button>
+            {resendMessage && <p className={styles.message} role="status">{resendMessage}</p>}
+            {resendError && <p className={styles.message} role="alert">{resendError}</p>}
+          </form>
+        )}
 
         <div className={styles.actions}>
           <Button asChild size="lg" className={styles.primaryAction}>

@@ -622,6 +622,13 @@ export function LoginPage() {
                 </Button>
               </form>
 
+              <p className={styles.footerMeta}>
+                Não recebeu o e-mail?{" "}
+                <Link to={routes.confirmEmail} className={styles.forgotButton}>
+                  Reenviar confirmação
+                </Link>
+              </p>
+
               {googleClientId && <div className={styles.divider}>
                 <div className={styles.dividerLineWrap}>
                   <div className={styles.dividerLine}>
