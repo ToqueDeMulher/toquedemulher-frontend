@@ -373,6 +373,7 @@ test("confirmation without token offers resend; successful confirmation offers l
 
 test("password reset displays the backend confirmation message", async ({ page }) => {
   await mockStore(page);
+  await seedCart(page, true);
   const message = "Sua nova senha foi salva. Entre novamente.";
   await page.route("**/api/v1/user/reset-password", async route => {
     expect(route.request().postDataJSON()).toEqual({ token: "valid-test-token", new_password: "NovaSenha@123" });
@@ -384,6 +385,11 @@ test("password reset displays the backend confirmation message", async ({ page }
   await page.getByRole("button", { name: "Redefinir senha", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Senha redefinida" })).toBeVisible();
   await expect(page.getByText(message, { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("tdm_access_token"))).toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem("tdm_auth_user"))).toBeNull();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]"))).toEqual([{ productId: id, quantity: 1 }]);
+  await page.getByRole("link", { name: "Entrar na conta", exact: true }).click();
+  await expect(page).toHaveURL(/\/login$/);
 });
 
 test("password change signs out only after success and preserves the cart", async ({ page }) => {

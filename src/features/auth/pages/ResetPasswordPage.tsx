@@ -7,11 +7,13 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { resetPasswordRequest } from "@/features/auth/api/auth-service";
+import { useAuth } from "@/features/auth/context/auth-context";
 import styles from "./ResetPasswordPage.module.css";
 
 type ResetStatus = "form" | "success" | "error";
 
 export function ResetPasswordPage() {
+  const { logout } = useAuth();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [status, setStatus] = useState<ResetStatus>(token ? "form" : "error");
@@ -38,6 +40,7 @@ export function ResetPasswordPage() {
 
     try {
       const response = await resetPasswordRequest(token, newPassword);
+      logout();
       setStatus("success");
       setMessage(response.mensagem || "Senha redefinida com sucesso.");
     } catch (error) {
