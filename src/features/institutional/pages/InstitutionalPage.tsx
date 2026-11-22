@@ -8,7 +8,7 @@ import styles from "./InstitutionalPage.module.css";
 const pages: Record<string, { title: string; subtitle: string; paragraphs: string[] }> = {
   privacidade: {
     title: "Privacidade", subtitle: "Informações sobre os dados usados na sua compra.",
-    paragraphs: ["A loja usa os dados da sua conta, endereço e destinatário para processar pedidos e entregas. O pagamento acontece em uma página protegida do provedor de pagamento.",
+    paragraphs: ["A loja usa os dados da sua conta, endereço e destinatário para processar pedidos e entregas. O Pix é gerado pela AbacatePay e pode ser pago no aplicativo do seu banco. Quando disponível, o pagamento por cartão é concluído na página da AbacatePay.",
       "Preferências, favoritos, carrinho e progresso das missões são salvos neste navegador. Você pode limpar esses dados nas configurações do navegador.",
       "Para solicitar informações sobre seus dados, fale com a equipe pelo formulário de contato."],
   },

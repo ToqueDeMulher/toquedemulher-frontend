@@ -27,6 +27,7 @@ async function mockStore(page: Page, products = [product]) {
     const data = path === "/api/v1/products" ? products
       : path === "/api/v1/store" ? { free_shipping_threshold: 150, contact_email: null }
       : path === "/api/v1/addresses/" ? [address]
+      : path === "/api/v1/payments/methods" ? ["PIX"]
       : path === "/api/v1/user/login" ? { access_token: "local-test-token", token_type: "bearer" }
       : path === "/api/v1/user/me" ? user : {};
     await route.fulfill({ json: data });
@@ -229,7 +230,7 @@ test("redirect alone never approves payment or clears cart", async ({ page }, te
   let status = "pending";
   await page.route("**/api/v1/payments/checkout/cs_test", route => route.fulfill({ json: { session_id: "cs_test", order_id: otherId, status, amount: 199.9, currency: "BRL" } }));
   await page.goto("/checkout/success?session_id=cs_test");
-  await expect(page.getByRole("heading", { name: "Pagamento em processamento" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Aguardando pagamento" })).toBeVisible();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]").length)).toBe(1);
   await expect(page.getByRole("heading", { name: "Pedido confirmado" })).toHaveCount(0);
   await capture(page, "payment-pending", testInfo.project.name);
@@ -268,19 +269,98 @@ test("checkout sends IDs and selected shipping and keeps cart after payment API 
   await expect(page).toHaveURL(/checkout\/payment/);
   await page.getByLabel("Telefone com DDD", { exact: true }).fill("11999999999");
   await page.getByLabel("CPF do destinatário", { exact: true }).fill("52998224725");
-  await expect(page.getByRole("button", { name: "Ir para pagamento seguro" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Gerar Pix" })).toBeDisabled();
   await page.getByRole("button", { name: "Calcular entrega", exact: true }).click();
   await page.getByRole("radio").nth(1).check();
   await expect(page.getByText("R$ 228,90", { exact: true }).last()).toBeVisible();
   await capture(page, "checkout-payment", testInfo.project.name);
-  await page.getByRole("button", { name: "Ir para pagamento seguro" }).click();
+  await page.getByRole("button", { name: "Gerar Pix" }).click();
   await expect.poll(() => submitted).not.toBeNull();
   expect(submitted.items).toEqual([{ id, product_url: `/produto/${id}`, quantity: 1 }]);
+  expect(submitted.method).toBe("PIX");
   expect(submitted.shipping.service_id).toBe(2);
   expect(submitted.shipping.quote_id).toBe(quote().id);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]").length)).toBe(1);
-  await expect(page.getByRole("button", { name: "Ir para pagamento seguro" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Gerar Pix" })).toBeEnabled();
   await noOverflow(page);
+});
+
+test("Pix checkout renders QR and only clears the purchased items after confirmation", async ({ page }, testInfo) => {
+  await mockStore(page);
+  await seedCart(page, true);
+  await page.route("**/api/v1/shipping/quotes", route => route.fulfill({ json: quote() }));
+  await page.route("**/api/v1/payments/checkout", route => route.fulfill({
+    json: { session_id: otherId, order_id: otherId },
+  }));
+  let status = "pending";
+  await page.route(`**/api/v1/payments/checkout/${otherId}`, route => route.fulfill({
+    json: {
+      session_id: otherId, order_id: otherId, status, currency: "BRL", amount: 199.9,
+      pix: status === "pending" ? {
+        code: "000201-test-code",
+        image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAABUCAYAAAAcaxDBAAAAAklEQVR4AewaftIAAAJxSURBVO3BUU4sWQwFwTxW7X/LOfyUZCHdpugxPD4cET+wxhRrVLFGFWvUxSdJ+A0qJ0l4SuUkCb9B5VasUcUaVaxRF19QmZCEkyR0KidJ6JLQqZyoTEjCSbFGFWvUxTck4SmVp1SeUumS8K4kPKXyRLFGFWtUsUZd/EFJOFHpVP6SYo0q1qhijbr4A5LwriR0Kv9SsUYVa9TFN6j8BJUuCZ3Kicq7VKYVa1SxRhVr1MUXkvDTktCpdEm4qXRJ6FROkvDTijWqWKOKNSp+4I9Lwk3lLyvWqGKNuvgkCZ3KLQmdSpeEm0qXhE7lJAmdyk9Iwk3llSTcVE6KNapYo4o16uJ/SEKncqLSJeGm0qlMSEKn0qncktCpvKNYo4o1qlijLj5R6ZLwVBJ+WxI6lZMkvEvlloRO5VasUcUadTFI5ZaETqVLwkkSTlQ6ladUTpLwShJuKifFGlWsUcUaFT/wUBI6lS4JE1S6JNxUXknCicqEJHQqt2KNKtaoYo2KH/jHkvCKyjuS0Km8Kwk3lZNijSrWqItPkvAbVG4qryThRKVLwlNJeErliWKNKtaoYo26+ILKhCQ8lYRO5SQJJyqvqNyS0Km8o1ijijWqWKMuviEJT6k8lYROpUvCTaVTOUnCKyo3lS4JncotCZ3KrVijijXq4g9Q6ZLQqTyVhBOVkyR0Kl0SbionxRpVrFHFGnXxByThlSScqJyodEk4UXlF5ZaETuVWrFHFGlWsURffoPITVF5JwlMqJypdEm5JeEXlpnJSrFHFGnXxhST8tCR0Kp3KU0k4UelUTpJwkoRO5VasUcUaVaxR8QNrTLFGFWvUf0CDK5zmwfSaAAAAAElFTkSuQmCC",
+        expires_at: new Date(Date.now() + 900_000).toISOString(),
+      } : null,
+    },
+  }));
+  await page.goto("/checkout/address");
+  await page.getByRole("button", { name: "Continuar para pagamento" }).click();
+  await page.getByLabel("Telefone com DDD").fill("11999999999");
+  await page.getByLabel("CPF do destinatário").fill("52998224725");
+  await page.getByRole("button", { name: "Calcular entrega", exact: true }).click();
+  await page.getByRole("radio").first().check();
+  await page.getByRole("button", { name: "Gerar Pix" }).click();
+  await expect(page).toHaveURL(/checkout\/pending/);
+  await expect(page.getByRole("heading", { name: "Aguardando pagamento" })).toBeVisible();
+  const qrCode = page.getByRole("img", { name: "QR Code do pagamento Pix" });
+  await expect(qrCode).toBeVisible();
+  await expect.poll(() => qrCode.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(50);
+  await expect(page.getByLabel("Pix copia e cola")).toHaveValue("000201-test-code");
+  await expect(page.getByRole("button", { name: "Copiar código Pix" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]").length)).toBe(1);
+  await noOverflow(page);
+  await capture(page, "checkout-pix", testInfo.project.name);
+
+  status = "approved";
+  await page.getByRole("button", { name: "Verificar novamente" }).click();
+  await expect(page.getByRole("heading", { name: "Pagamento confirmado" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "QR Code do pagamento Pix" })).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]").length)).toBe(0);
+});
+
+test("card opens AbacatePay and verifies payment after returning to the store", async ({ page }) => {
+  await mockStore(page);
+  await seedCart(page, true);
+  await page.route("**/api/v1/payments/methods", route => route.fulfill({ json: ["PIX", "CARD"] }));
+  await page.route("**/api/v1/shipping/quotes", route => route.fulfill({ json: quote() }));
+  const hostedUrl = "https://app.abacatepay.com/pay/bill_browser_fixture";
+  await page.route("**/api/v1/payments/checkout", route => {
+    expect(route.request().postDataJSON().method).toBe("CARD");
+    return route.fulfill({ json: { session_id: otherId, order_id: otherId, checkout_url: hostedUrl } });
+  });
+  await page.route(hostedUrl, route => route.fulfill({
+    status: 302,
+    headers: { location: `http://127.0.0.1:4173/checkout/success?session_id=${otherId}` },
+  }));
+  let status = "pending";
+  await page.route(`**/api/v1/payments/checkout/${otherId}`, route => route.fulfill({
+    json: { session_id: otherId, order_id: otherId, status, currency: "BRL", amount: 199.9 },
+  }));
+  await page.goto("/checkout/address");
+  await page.getByRole("button", { name: "Continuar para pagamento" }).click();
+  await page.getByLabel("Telefone com DDD").fill("11999999999");
+  await page.getByLabel("CPF do destinatário").fill("52998224725");
+  await page.getByRole("button", { name: "Calcular entrega", exact: true }).click();
+  await page.getByRole("radio").first().check();
+  await page.getByLabel("Método", { exact: true }).selectOption("CARD");
+  await page.getByRole("button", { name: "Ir para pagamento seguro" }).click();
+  await expect(page).toHaveURL(/checkout\/success/);
+  await expect(page.getByRole("heading", { name: "Aguardando pagamento" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]").length)).toBe(1);
+  status = "approved";
+  await page.getByRole("button", { name: "Verificar novamente" }).click();
+  await expect(page.getByRole("heading", { name: "Pagamento confirmado" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]").length)).toBe(0);
 });
 
 test("catalog revalidation reflects admin price and stock changes", async ({ page }) => {
@@ -320,11 +400,10 @@ test("cancellation requires server confirmation and preserves cart", async ({ pa
       : { detail: "Não foi possível confirmar o cancelamento." },
   }));
   await page.goto(`/checkout/failure?order_id=${otherId}`);
-  await expect(page.getByRole("heading", { name: "Não foi possível confirmar" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Erro de comunicação" })).toBeVisible();
   confirmed = true;
   await page.getByRole("button", { name: "Verificar novamente" }).click();
-  await expect(page.getByRole("heading", { name: "Pagamento não concluído", exact: true }).last()).toBeVisible();
-  await expect(page.getByText("O pagamento não foi concluído. Seus itens continuam no carrinho.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pagamento cancelado", exact: true }).last()).toBeVisible();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]").length)).toBe(1);
 });
 

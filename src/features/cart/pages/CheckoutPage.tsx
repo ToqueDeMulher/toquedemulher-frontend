@@ -48,7 +48,12 @@ import { useAuth } from "@/features/auth/context/auth-context";
 import {
   cancelCheckout,
   createCheckoutSession,
+  getActiveCheckout,
   getCheckoutStatus,
+  getPaymentMethods,
+  resumeCheckout,
+  type CheckoutStatusResponse,
+  type PaymentMethod,
   type CheckoutPaymentStatus,
 } from "@/features/cart/api/checkout-service";
 import { useCart } from "@/features/cart/context/cart-context";
@@ -314,7 +319,7 @@ export function CheckoutPage() {
   const checkoutResult = step === "success" || step === "failure" || step === "pending" ? step : null;
   const checkoutSessionId = searchParams.get("session_id");
   const checkoutOrderId = searchParams.get("order_id");
-  const handledCheckoutResultRef = useRef(false);
+  const handledCheckoutResultRef = useRef<string | null>(null);
   const checkoutRequestRef = useRef<{
     fingerprint: string;
     key: string;
@@ -324,6 +329,31 @@ export function CheckoutPage() {
       checkoutResult ? "checking" : null,
     );
   const [verificationRun, setVerificationRun] = useState(0);
+  const [checkoutDetails, setCheckoutDetails] = useState<CheckoutStatusResponse | null>(null);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [method, setMethod] = useState<PaymentMethod>("PIX");
+  const [methodsError, setMethodsError] = useState(false);
+  const [methodsRun, setMethodsRun] = useState(0);
+  const [isRecoveringCheckout, setIsRecoveringCheckout] = useState(false);
+
+  useEffect(() => {
+    if (checkoutResult || currentStep !== "payment" || !isLoggedIn) return;
+    const controller = new AbortController();
+    setMethodsError(false);
+    getPaymentMethods(controller.signal)
+      .then((available) => {
+        if (controller.signal.aborted) return;
+        if (!Array.isArray(available) || !available.length ||
+            available.some((option) => option !== "PIX" && option !== "CARD")) {
+          setMethodsError(true);
+          return;
+        }
+        setPaymentMethods(available);
+        setMethod((selected) => available.includes(selected) ? selected : available[0] ?? "PIX");
+      })
+      .catch(() => { if (!controller.signal.aborted) setMethodsError(true); });
+    return () => controller.abort();
+  }, [checkoutResult, currentStep, isLoggedIn, methodsRun]);
 
   const cartPostalCode = onlyDigits(
     (location.state as { cartPostalCode?: string } | null)?.cartPostalCode ??
@@ -474,27 +504,32 @@ export function CheckoutPage() {
       return;
     }
 
-    let isCancelled = false;
+    const controller = new AbortController();
     let timeoutId: number | undefined;
     let attempt = 0;
-    const maxAttempts = 10;
+    const maxAttempts = 35;
 
     const verifyPayment = async () => {
       if (attempt === 0) setCheckoutVerification("checking");
       attempt += 1;
 
       try {
-        const checkout = await getCheckoutStatus(checkoutSessionId);
-        if (isCancelled) return;
+        const checkout = await getCheckoutStatus(checkoutSessionId, controller.signal);
+        if (controller.signal.aborted) return;
 
+        setCheckoutDetails(checkout);
         setCheckoutVerification(checkout.status);
-        if (checkout.status === "pending" && attempt < maxAttempts) {
-          timeoutId = window.setTimeout(verifyPayment, 1500);
+        const expiresAt = checkout.pix ? Date.parse(checkout.pix.expires_at) : null;
+        const pixIsActive = expiresAt !== null && expiresAt > Date.now();
+        if (checkout.status === "pending" && (pixIsActive || attempt < 3) && attempt < maxAttempts) {
+          const delay = attempt < 6 ? 8000 : 30000;
+          const remaining = expiresAt === null ? delay : Math.max(1000, expiresAt - Date.now() + 1000);
+          timeoutId = window.setTimeout(verifyPayment, Math.min(delay, remaining));
         }
       } catch {
-        if (isCancelled) return;
+        if (controller.signal.aborted) return;
         if (attempt < 3) {
-          timeoutId = window.setTimeout(verifyPayment, 1500);
+          timeoutId = window.setTimeout(verifyPayment, 8000);
           return;
         }
         setCheckoutVerification("error");
@@ -504,21 +539,23 @@ export function CheckoutPage() {
     void verifyPayment();
 
     return () => {
-      isCancelled = true;
+      controller.abort();
       if (timeoutId !== undefined) window.clearTimeout(timeoutId);
     };
   }, [checkoutResult, checkoutSessionId, verificationRun, isLoggedIn]);
 
   useEffect(() => {
+    const resultId = checkoutSessionId ?? checkoutOrderId;
     if (
       checkoutVerification !== "approved" ||
-      handledCheckoutResultRef.current ||
+      !resultId ||
+      handledCheckoutResultRef.current === resultId ||
       items.length === 0
     ) {
       return;
     }
 
-    handledCheckoutResultRef.current = true;
+    handledCheckoutResultRef.current = resultId;
     try {
       const snapshot = JSON.parse(sessionStorage.getItem("tdm_checkout_snapshot") ?? "null");
       if (snapshot && (snapshot.sessionId === checkoutSessionId || snapshot.orderId === checkoutOrderId)) {
@@ -688,6 +725,7 @@ export function CheckoutPage() {
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+    if (isCreatingCheckout || !paymentMethods.includes(method)) return;
 
     if (!isLoggedIn) {
       toast.error("Entre na sua conta para iniciar o pagamento.");
@@ -722,6 +760,7 @@ export function CheckoutPage() {
     }
     const requestFingerprint = JSON.stringify([
       selectedAddressId,
+      method,
       items.map((item) => [item.id, item.quantity]),
       shippingQuote.id,
       shippingService.id,
@@ -750,19 +789,50 @@ export function CheckoutPage() {
           recipient_phone: addressForm.phone,
           recipient_document: addressForm.document,
         },
+        method,
       );
       try {
         sessionStorage.setItem("tdm_checkout_snapshot", JSON.stringify({ sessionId: checkoutSession.session_id, orderId: checkoutSession.order_id,
           items: items.map(item => ({ id: item.id, quantity: item.quantity })) }));
       } catch {}
-      window.location.assign(checkoutSession.checkout_url);
+      if (checkoutSession.checkout_url) {
+        window.location.assign(checkoutSession.checkout_url);
+      } else {
+        setCheckoutVerification("checking");
+        setCheckoutDetails(null);
+        navigate(`/checkout/pending?session_id=${encodeURIComponent(checkoutSession.session_id)}`);
+      }
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
           : "Não foi possível iniciar o pagamento.",
       );
+    } finally {
       setIsCreatingCheckout(false);
+    }
+  };
+
+  const recoverCheckout = async () => {
+    setIsRecoveringCheckout(true);
+    try {
+      if (checkoutResult && checkoutDetails) {
+        const checkout = await resumeCheckout(checkoutDetails.order_id);
+        if (checkout.checkout_url) {
+          window.location.assign(checkout.checkout_url);
+        } else {
+          setVerificationRun((value) => value + 1);
+        }
+      } else {
+        const checkout = await getActiveCheckout();
+        setCheckoutVerification("checking");
+        setCheckoutDetails(null);
+        navigate(`/checkout/pending?session_id=${encodeURIComponent(checkout.session_id)}`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível recuperar o pedido.");
+    } finally {
+      setIsRecoveringCheckout(false);
     }
   };
 
@@ -1348,10 +1418,34 @@ export function CheckoutPage() {
           <div>
             <h2 className={styles.sectionTitle}>Forma de pagamento</h2>
             <p className={styles.sectionText}>
-              Confira o resumo e siga para escolher como pagar.
+              Confira o total e escolha como pagar.
             </p>
           </div>
         </div>
+
+        {paymentMethods.length > 0 && (
+          <div>
+            <Label htmlFor="checkout-payment-method">Método</Label>
+            <select
+              id="checkout-payment-method"
+              className={styles.fieldInput}
+              value={method}
+              onChange={(event) => setMethod(event.target.value === "CARD" ? "CARD" : "PIX")}
+            >
+              {paymentMethods.map((option) => (
+                <option key={option} value={option}>{option === "PIX" ? "Pix" : "Cartão de crédito"}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        {methodsError && (
+          <div role="alert">
+            <p className={styles.fieldError}>Não foi possível consultar as formas de pagamento.</p>
+            <Button type="button" variant="outline" onClick={() => setMethodsRun((value) => value + 1)}>
+              Tentar novamente
+            </Button>
+          </div>
+        )}
 
         <div className={styles.paymentGatewayCard}>
           <div className={styles.paymentGatewayTop}>
@@ -1361,7 +1455,9 @@ export function CheckoutPage() {
             <div>
               <h3 className={styles.paymentGatewayTitle}>Pagamento seguro</h3>
               <p className={styles.paymentGatewayText}>
-                Você escolherá a forma de pagamento na próxima página. Depois, volte à loja para acompanhar a confirmação do pedido.
+                {method === "PIX"
+                  ? "Gere um QR Code e pague pelo aplicativo do seu banco."
+                  : "Pague no ambiente seguro do provedor e acompanhe a confirmação nesta loja."}
               </p>
             </div>
           </div>
@@ -1396,18 +1492,21 @@ export function CheckoutPage() {
           type="submit"
           className={styles.primaryButton}
           isLoading={isCreatingCheckout}
-          disabled={!ready || !validShipping || shippingLoading}
+          disabled={!ready || !validShipping || shippingLoading || !paymentMethods.includes(method)}
         >
           {isCreatingCheckout ? (
             "Criando pagamento..."
           ) : (
             <>
               <ExternalLink className={styles.buttonIcon} />
-              Ir para pagamento seguro
+              {method === "PIX" ? "Gerar Pix" : "Ir para pagamento seguro"}
             </>
           )}
         </Button>
       </div>
+      <Button type="button" variant="outline" isLoading={isRecoveringCheckout} onClick={recoverCheckout}>
+        Acompanhar pedido pendente
+      </Button>
     </form>
   );
 
@@ -1420,28 +1519,29 @@ export function CheckoutPage() {
     const isTerminalFailure =
       (checkoutVerification === "rejected" ||
         checkoutVerification === "cancelled" ||
-        checkoutVerification === "refunded");
+        checkoutVerification === "refunded" ||
+        checkoutVerification === "expired");
+    const pixDetails = checkoutVerification === "pending" ? checkoutDetails?.pix : null;
+    const pix = pixDetails && Date.parse(pixDetails.expires_at) > Date.now() ? pixDetails : null;
+    const checkoutUrl = checkoutDetails?.checkout_url;
     const ResultIcon = isProcessing
       ? Loader2
       : isApproved
         ? CheckCircle2
         : XCircle;
-    const resultTitle = isApproved
-      ? "Pagamento confirmado"
-      : isProcessing
-        ? checkoutVerification === "checking"
-          ? "Confirmando pagamento"
-          : "Pagamento em processamento"
-        : checkoutVerification === "error"
-          ? "Não foi possível confirmar"
-          : "Pagamento não concluído";
-    const resultText = isApproved
-      ? "Seu pagamento foi confirmado e o pedido já está registrado."
-      : isProcessing
-        ? "Estamos consultando a confirmação do pagamento. Você também pode acompanhar o pedido pela sua conta."
-        : checkoutVerification === "error"
-          ? "Não conseguimos consultar o pagamento agora. Tente verificar novamente antes de refazer a compra."
-          : "O pagamento não foi concluído. Seus itens continuam no carrinho.";
+    const messages = {
+      approved: ["Pagamento confirmado", "Seu pedido foi confirmado e pode seguir para envio."],
+      checking: ["Consultando pagamento", "Aguarde a consulta do pedido."],
+      pending: ["Aguardando pagamento", "A confirmação será exibida após o processamento pelo provedor."],
+      rejected: ["Pagamento recusado", "Confira o pedido e tente novamente."],
+      cancelled: ["Pagamento cancelado", "Confira o pedido e tente novamente."],
+      expired: ["Pagamento expirado", "Gere uma nova cobrança para concluir a compra."],
+      refund_pending: ["Reembolso em análise", "O envio fica bloqueado enquanto a loja confirma o reembolso."],
+      refunded: ["Pagamento reembolsado", "Acompanhe os detalhes do pedido na sua conta."],
+      disputed: ["Pagamento em análise", "A confirmação do envio depende da resolução da disputa."],
+      error: ["Erro de comunicação", "Verifique o pagamento novamente antes de refazer a compra."],
+    } satisfies Record<NonNullable<CheckoutVerificationState>, [string, string]>;
+    const [resultTitle, resultText] = messages[checkoutVerification ?? "checking"];
 
     return (
       <div className={styles.checkoutBody}>
@@ -1460,13 +1560,47 @@ export function CheckoutPage() {
               <ResultIcon
                 className={cn(
                   styles.resultIcon,
-                  isProcessing && styles.buttonIconSpin,
+                  checkoutVerification === "checking" && styles.buttonIconSpin,
                 )}
               />
             </span>
-            <h2 className={styles.resultTitle}>{resultTitle}</h2>
-            <p className={styles.resultText}>{resultText}</p>
-
+            <div role="status">
+              <h2 className={styles.resultTitle}>{resultTitle}</h2>
+              <p className={styles.resultText}>{resultText}</p>
+            </div>
+            {pix && (
+              <div className={styles.pixDetails}>
+                <img className={styles.pixImage} src={pix.image} alt="QR Code do pagamento Pix" />
+                <p className={styles.resultText}>
+                  Válido até {new Date(pix.expires_at).toLocaleString("pt-BR")}.
+                </p>
+                <Label htmlFor="checkout-pix-code">Pix copia e cola</Label>
+                <Input id="checkout-pix-code" readOnly value={pix.code} />
+                <Button type="button" variant="outline" onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(pix.code);
+                    toast.success("Código Pix copiado.");
+                  } catch {
+                    toast.error("Selecione o código acima para copiá-lo.");
+                  }
+                }}>
+                  Copiar código Pix
+                </Button>
+              </div>
+            )}
+            {pixDetails && !pix && (
+              <p className={styles.resultText}>O QR Code venceu. Verifique o status do pedido.</p>
+            )}
+            {checkoutVerification === "pending" && checkoutUrl && (
+              <Button type="button" onClick={() => window.location.assign(checkoutUrl)}>
+                Abrir pagamento
+              </Button>
+            )}
+            {checkoutVerification === "pending" && checkoutDetails && !pixDetails && !checkoutUrl && checkoutSessionId === checkoutDetails.order_id && (
+              <Button type="button" isLoading={isRecoveringCheckout} onClick={recoverCheckout}>
+                Retomar emissão do pagamento
+              </Button>
+            )}
           </div>
         </div>
 
@@ -1539,13 +1673,11 @@ export function CheckoutPage() {
             <header className={styles.checkoutHeader}>
               <p className={styles.checkoutEyebrow}>Finalização segura</p>
               <h1 className={styles.checkoutTitle}>
-                {checkoutResult === "success"
+                {checkoutResult
                   ? checkoutVerification === "approved"
                     ? "Pedido confirmado"
-                    : "Confirmação do pedido"
-                  : checkoutResult === "failure"
-                    ? "Pagamento não concluído"
-                    : stepContent[currentStep].title}
+                    : "Acompanhe seu pagamento"
+                  : stepContent[currentStep].title}
               </h1>
             </header>
 
@@ -1649,7 +1781,7 @@ export function CheckoutPage() {
                   <h3 className={styles.summaryPanelTitle}>Pagamento</h3>
                   <p className={styles.summaryPanelText}>Pagamento seguro</p>
                   <p className={styles.summaryPanelText}>
-                    Escolha como pagar na próxima página.
+                    Confira as formas disponíveis na etapa de pagamento.
                   </p>
                 </div>
 

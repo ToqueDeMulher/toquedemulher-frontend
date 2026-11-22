@@ -288,3 +288,20 @@
   .paymentGatewayTop { flex-direction: column; }
   .resultCard { margin: 1rem; padding: 2rem 1rem; }
 }
+
+.pixDetails {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  width: min(100%, 23rem);
+  margin-inline: auto;
+}
+
+.pixImage {
+  width: min(100%, 14rem);
+  aspect-ratio: 1;
+  object-fit: contain;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.75rem;
+}

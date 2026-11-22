@@ -198,6 +198,9 @@ function getOrderStatusLabel(status: string) {
     rejected: "Recusado",
     cancelled: "Cancelado",
     refunded: "Reembolsado",
+    expired: "Expirado",
+    disputed: "Em análise",
+    refund_pending: "Reembolso em análise",
   };
 
   return labels[status] ?? status;

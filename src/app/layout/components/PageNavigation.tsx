@@ -30,6 +30,9 @@ const checkoutLabels: Record<string, string> = {
   address: "Endereço",
   payment: "Pagamento",
   confirmation: "Confirmação",
+  pending: "Pagamento",
+  success: "Pagamento",
+  failure: "Pagamento",
 };
 
 function titleFromSlug(slug: string) {

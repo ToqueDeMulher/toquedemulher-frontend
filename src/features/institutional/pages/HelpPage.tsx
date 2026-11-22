@@ -17,7 +17,7 @@ import styles from "./HelpPage.module.css";
 const faqs = {
   payments: [
     { question: "Quais formas de pagamento são aceitas?", answer: "As formas disponíveis e suas condições são exibidas na página de pagamento, antes de concluir a compra." },
-    { question: "Como sei que meu pagamento foi confirmado?", answer: "Ao voltar para a loja, consultamos o status do pagamento. Se ainda estiver em processamento, você poderá verificar novamente ou acompanhar em Meus Pedidos." },
+    { question: "Como sei que meu pagamento foi confirmado?", answer: "A loja consulta a confirmação do Pix ou do cartão. Você pode verificar novamente na tela de pagamento ou acompanhar em Meus Pedidos." },
   ],
   shipping: [
     { question: "Qual o prazo de entrega?", answer: "Calcule o frete pelo CEP e escolha uma entrega. Cada opção mostra seu valor e prazo estimado em dias úteis após a postagem." },
