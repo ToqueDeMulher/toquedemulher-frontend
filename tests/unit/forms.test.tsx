@@ -37,9 +37,10 @@ describe("account forms and product administration", () => {
   });
   it("updates product name, price and availability only after backend acceptance", async () => {
     const product = { id: "fixture", name: "Batom", slug: "batom", price: 49.9, active: true, image: "" };
-    api.products.mockResolvedValueOnce([product]);
+    api.products.mockResolvedValueOnce([product])
+      .mockResolvedValueOnce([{ ...product, name: "Batom rosa", slug: "batom-rosa", price: 55.5, active: false }]);
     api.update.mockRejectedValueOnce(new Error("Serviço indisponível"))
-      .mockResolvedValueOnce({ ...product, name: "Batom rosa", price: 55.5, active: false });
+      .mockResolvedValueOnce({ id: product.id, name: "Batom rosa", price: 55.5, active: false });
     render(<ProductManagementPage />);
     expect(screen.getByText("Carregando produtos...")).toBeVisible();
     fireEvent.click(await screen.findByRole("button", { name: "Editar" }));
@@ -53,5 +54,6 @@ describe("account forms and product administration", () => {
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
     await waitFor(() => expect(screen.queryByLabelText("Nome do produto")).not.toBeInTheDocument());
     expect(screen.getByText(/Desativado/)).toBeVisible();
+    expect(screen.getByText("batom-rosa")).toBeVisible();
   });
 });

@@ -1,1144 +1,320 @@
-import React, { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
-
+import { ChevronLeft, Loader2, Plus, Trash2, UploadCloud } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { Textarea } from "@/shared/ui/textarea";
 import { Checkbox } from "@/shared/ui/checkbox";
-
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/shared/ui/form";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
-
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
-import { ChevronLeft, Loader2, Plus, Trash2, UploadCloud } from "lucide-react";
-import styles from "./ProductCreatePage.module.css";
-
-import {
-  CreateProductPayload,
-} from "@/features/admin/types/product";
-
 import { createProduct, uploadProductImage } from "@/features/admin/api/product-service";
+import { buildProductPayload, defaultProductValues, imageOrderError, productFieldError, productImageError,
+  type ProductFormValues, type ProductTextField } from "@/features/admin/lib/product-form";
 import { routes } from "@/app/router/paths";
-
-type ProductImageField = {
-  url: string;
-  order?: string;
-  alt_text?: string;
-};
-
-type ProductFormValues = {
-  // Product
-  name: string;
-  price: string;
-  active: boolean;
-  volume: string;
-  target_audience: string;
-  product_type: string;
-  skin_type: string;
-  hair_type: string;
-  color: string;
-  fragrance: string;
-  spf: string;
-  vegan: boolean;
-  cruelty_free: boolean;
-  hypoallergenic: boolean;
-
-  // Supplier
-  supplier_name: string;
-  supplier_contact: string;
-  supplier_email: string;
-
-  // Brand
-  brand_name: string;
-
-  // Description
-  description_text: string;
-  description_usage_tips: string;
-  description_ingredients: string;
-
-  // Category (nomes separados por vírgula)
-  categories_names: string;
-
-  // Stock
-  stock_quantity: string;
-  stock_expiry_date: string; // "YYYY-MM-DD" ou ""
-
-  // ProductImage
-  images: ProductImageField[];
-
-};
-
-const defaultValues: ProductFormValues = {
-  name: "",
-  price: "",
-  active: true,
-  volume: "",
-  target_audience: "",
-  product_type: "",
-  skin_type: "",
-  hair_type: "",
-  color: "",
-  fragrance: "",
-  spf: "",
-  vegan: false,
-  cruelty_free: true,
-  hypoallergenic: false,
-
-  supplier_name: "",
-  supplier_contact: "",
-  supplier_email: "",
-
-  brand_name: "",
-
-  description_text: "",
-  description_usage_tips: "",
-  description_ingredients: "",
-
-  categories_names: "",
-
-  stock_quantity: "",
-  stock_expiry_date: "",
-
-  images: [
-    {
-      url: "",
-      order: "1",
-      alt_text: "",
-    },
-  ],
-};
-
-const preventLabelFocus = (event: React.MouseEvent) => {
-  event.preventDefault();
-};
-
-function normalizeNumber(value?: string) {
-  if (!value) return null;
-  const parsed = Number(value.trim());
-  return Number.isNaN(parsed) ? null : parsed;
-}
-
-function buildPayload(values: ProductFormValues): CreateProductPayload {
-  return {
-    name: values.name.trim(),
-    price: Number(values.price) || 0,
-    active: values.active,
-    volume: values.volume.trim() || null,
-    target_audience: values.target_audience.trim() || null,
-    product_type: values.product_type.trim() || null,
-    skin_type: values.skin_type.trim() || null,
-    hair_type: values.hair_type.trim() || null,
-    color: values.color.trim() || null,
-    fragrance: values.fragrance.trim() || null,
-    spf: normalizeNumber(values.spf),
-    vegan: values.vegan,
-    cruelty_free: values.cruelty_free,
-    hypoallergenic: values.hypoallergenic,
-  };
-}
+import styles from "./ProductCreatePage.module.css";
 
 export function ProductCreatePage() {
   const navigate = useNavigate();
-  const form = useForm<ProductFormValues>({
-    defaultValues,
-    mode: "onBlur",
-  });
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting },
-    watch,
-  } = form;
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "images",
-  });
-
-  const watchedValues = watch();
-  const previewPayload = buildPayload(watchedValues);
+  const form = useForm<ProductFormValues>({ defaultValues: defaultProductValues, mode: "onBlur" });
+  const { control, handleSubmit, reset, watch, formState: { isSubmitting } } = form;
+  const { fields, append, remove } = useFieldArray({ control, name: "images" });
+  const values = watch();
   const [createdProductId, setCreatedProductId] = useState<string | null>(null);
+  const createdProductRef = useRef<string | null>(null);
+  const submittingRef = useRef(false);
+  const uploadingRef = useRef(new Set<string>());
   const [pendingImageFiles, setPendingImageFiles] = useState<Record<string, File>>({});
   const [uploadingImageIds, setUploadingImageIds] = useState<Record<string, boolean>>({});
-  const [uploadErrors, setUploadErrors] = useState<
-    Record<number, string | null>
-  >({});
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const busy = isSubmitting || Object.keys(uploadingImageIds).length > 0;
+  let previewPayload = null;
+  try { previewPayload = buildProductPayload(values); } catch { /* The preview waits for valid form values. */ }
 
-  const uploadImage = async (
-    productId: string,
-    fieldId: string,
-    index: number,
-    file: File,
-  ) => {
-    setUploadingImageIds((previous) => ({ ...previous, [fieldId]: true }));
-    setUploadErrors((prev) => ({ ...prev, [index]: null }));
+  const forgetPendingFile = (fieldId: string) => {
+    setPendingImageFiles(previous => {
+      const next = { ...previous };
+      delete next[fieldId];
+      return next;
+    });
+    setUploadErrors(previous => {
+      const next = { ...previous };
+      delete next[fieldId];
+      return next;
+    });
+  };
 
+  const uploadImage = async (productId: string, fieldId: string, index: number, file: File) => {
+    if (uploadingRef.current.has(fieldId)) return false;
+    uploadingRef.current.add(fieldId);
+    setUploadingImageIds(previous => ({ ...previous, [fieldId]: true }));
+    setUploadErrors(previous => ({ ...previous, [fieldId]: "" }));
     try {
-      const altTextValue = form
-        .getValues(`images.${index}.alt_text` as const)
-        ?.trim();
-
+      const metadata = form.getValues(`images.${index}`);
       const response = await uploadProductImage(productId, file, {
-        is_primary: index === 0,
-        alt_text: altTextValue || undefined,
-        order: index + 1,
+        order: metadata.order.trim() ? Number(metadata.order) : undefined,
+        alt_text: metadata.alt_text.trim() || undefined,
       });
-
       form.setValue(`images.${index}.url`, response.url);
-      form.setValue(`images.${index}.order`, String(response.sort_order || index + 1));
-      if (response.alt_text) {
-        form.setValue(`images.${index}.alt_text`, response.alt_text);
-      }
-
-      setPendingImageFiles((previous) => {
-        const { [fieldId]: _uploadedFile, ...remainingFiles } = previous;
-        return remainingFiles;
-      });
-      setUploadErrors((prev) => ({ ...prev, [index]: null }));
+      form.setValue(`images.${index}.order`, String(response.order));
+      form.setValue(`images.${index}.alt_text`, response.alt_text ?? "");
+      forgetPendingFile(fieldId);
       return true;
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erro ao enviar imagem. Tente novamente.";
+      const message = error instanceof Error ? error.message : "Erro ao enviar imagem. Tente novamente.";
+      setUploadErrors(previous => ({ ...previous, [fieldId]: message }));
       toast.error(message);
-      setUploadErrors((prev) => ({ ...prev, [index]: message }));
       return false;
     } finally {
-      setUploadingImageIds((previous) => {
-        const { [fieldId]: _uploading, ...remainingUploads } = previous;
-        return remainingUploads;
+      uploadingRef.current.delete(fieldId);
+      setUploadingImageIds(previous => {
+        const next = { ...previous };
+        delete next[fieldId];
+        return next;
       });
     }
   };
 
-  const uploadPendingImages = async (productId: string) => {
-    const results = await Promise.all(
-      fields.map((field, index) => {
-        const file = pendingImageFiles[field.id];
-        return file ? uploadImage(productId, field.id, index, file) : true;
-      }),
-    );
-
-    return results.every(Boolean);
-  };
-
-  const handleImageFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    fieldId: string,
-    index: number,
-  ) => {
+  const handleImageFileChange = async (event: ChangeEvent<HTMLInputElement>, fieldId: string, index: number) => {
     const file = event.target.files?.[0];
     event.target.value = "";
-    if (!file) return;
-
-    if (createdProductId) {
-      await uploadImage(createdProductId, fieldId, index, file);
-      return;
-    }
-
-    setPendingImageFiles((previous) => ({ ...previous, [fieldId]: file }));
-    setUploadErrors((previous) => ({ ...previous, [index]: null }));
-    toast.success("Imagem selecionada. Ela será enviada ao cadastrar o produto.");
-  };
-
-  const submitProduct = async (values: ProductFormValues) => {
-    const payload = buildPayload(values);
-
-    try {
-      const productId = createdProductId ?? (await createProduct(payload)).id;
-      setCreatedProductId(productId);
-
-      const uploaded = await uploadPendingImages(productId);
-      if (!uploaded) {
-        toast.error("Produto criado, mas uma ou mais imagens não foram enviadas.");
+    if (!file || submittingRef.current || uploadingRef.current.size) return;
+    // Keep failed selections available for retry, including after the product exists.
+    setPendingImageFiles(previous => ({ ...previous, [fieldId]: file }));
+    const error = productImageError(file);
+    setUploadErrors(previous => ({ ...previous, [fieldId]: error ?? "" }));
+    if (error) return;
+    if (createdProductRef.current) {
+      const orderField = `images.${index}.order` as const;
+      const orderError = imageOrderError(form.getValues(orderField));
+      if (orderError !== true) {
+        form.setError(orderField, { type: "validate", message: orderError });
         return;
       }
-
-      toast.success("Produto criado com sucesso!");
-      reset(defaultValues);
-      setCreatedProductId(null);
-      setPendingImageFiles({});
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Erro ao cadastrar produto.";
-
-      toast.error(
-        message === "Slug ja existe"
-          ? "Já existe um produto com este nome. Altere o nome para continuar."
-          : message,
-      );
+      form.clearErrors(orderField);
+      await uploadImage(createdProductRef.current, fieldId, index, file);
     }
   };
 
+  const clearForm = () => {
+    reset(defaultProductValues);
+    createdProductRef.current = null;
+    setCreatedProductId(null);
+    setPendingImageFiles({});
+    setUploadErrors({});
+    setSubmitError(null);
+  };
+
+  const submitProduct = async (submitted: ProductFormValues) => {
+    setSubmitError(null);
+    for (const field of fields) {
+      const file = pendingImageFiles[field.id];
+      const error = file && productImageError(file);
+      if (error) {
+        setUploadErrors(previous => ({ ...previous, [field.id]: error }));
+        setSubmitError("Confira as imagens selecionadas antes de continuar.");
+        return;
+      }
+    }
+    try {
+      let productId = createdProductRef.current;
+      if (!productId) {
+        const product = await createProduct(buildProductPayload(submitted));
+        if (!product || typeof product.id !== "string" || !product.id.trim()) {
+          throw new Error("Não foi possível confirmar o produto criado. Consulte a lista de produtos antes de tentar novamente.");
+        }
+        productId = product.id;
+        createdProductRef.current = productId;
+        setCreatedProductId(productId);
+      }
+      let allUploaded = true;
+      // A blank order is assigned by the backend, so uploads must not race each other.
+      for (const [index, field] of fields.entries()) {
+        const file = pendingImageFiles[field.id];
+        if (file && !await uploadImage(productId, field.id, index, file)) allUploaded = false;
+      }
+      if (!allUploaded) {
+        setSubmitError("Produto criado, mas há imagens pendentes. Reenvie as imagens para concluir.");
+        return;
+      }
+      toast.success("Produto criado com sucesso!");
+      clearForm();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro ao cadastrar produto.";
+      setSubmitError(message);
+      toast.error(message);
+    }
+  };
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (submittingRef.current || uploadingRef.current.size) return;
+    submittingRef.current = true;
+    void handleSubmit(submitProduct)(event).finally(() => { submittingRef.current = false; });
+  };
+
+  const input = (name: ProductTextField, label: string, options: { type?: string; placeholder?: string; description?: string; step?: string } = {}) => (
+    <FormField key={name} control={control} name={name}
+      rules={{ validate: value => productFieldError(name, value, form.getValues()) }}
+      render={({ field }) => <FormItem>
+        <FormLabel className={styles.fieldLabel}>{label}</FormLabel>
+        <FormControl><Input {...field} type={options.type} placeholder={options.placeholder} step={options.step} /></FormControl>
+        {options.description && <FormDescription>{options.description}</FormDescription>}
+        <FormMessage />
+      </FormItem>} />
+  );
+
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <div className={styles.headerRow}>
-          <div className={styles.headerLeft}>
-            <div className={styles.headerMetaRow}>
-              <Badge variant="secondary" className={styles.headerBadge}>
-                CATÁLOGO
-              </Badge>
-              <span className={styles.headerMeta}>
-                Novo item para a loja
-              </span>
-            </div>
-            <h1 className={styles.title}>Cadastrar produto</h1>
-            <p className={styles.description}>
-              Organize as informações, imagens e estoque do novo produto.
-              Campos marcados com * são obrigatórios.
-            </p>
+    <div className={styles.page}><div className={styles.container}>
+      <div className={styles.headerRow}>
+        <div className={styles.headerLeft}>
+          <div className={styles.headerMetaRow}>
+            <Badge variant="secondary" className={styles.headerBadge}>CATÁLOGO</Badge>
+            <span className={styles.headerMeta}>Novo item para a loja</span>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            onClick={() => navigate(routes.adminDashboard)}
-            className={styles.backButton}
-          >
-            <ChevronLeft className={styles.iconLeft} /> Voltar
-          </Button>
+          <h1 className={styles.title}>Cadastrar produto</h1>
+          <p className={styles.description}>Organize as informações e imagens do novo produto. Campos marcados com * são obrigatórios.</p>
         </div>
-
-        <Form {...form}>
-          <form onSubmit={handleSubmit(submitProduct)} className={styles.form}>
-            {/* PRODUCT - Informações gerais */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Informações gerais</CardTitle>
-                <CardDescription>
-                  Dados básicos utilizados para identificar o produto na
-                  plataforma.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className={styles.gridTwo}>
-                <FormField
-                  control={control}
-                  name="name"
-                  rules={{ required: "Informe o nome comercial." }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Nome *
-                      </span>
-                      <FormControl>
-                        <Input
-                          placeholder="Batom Matte Vermelho Power"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={control}
-                  name="price"
-                  rules={{ required: "Informe o preço." }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Preço (R$) *
-                      </span>
-                      <FormControl>
-                        <Input type="number" min="0" step="0.01" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={control}
-                  name="volume"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Volume
-                      </span>
-                      <FormControl>
-                        <Input placeholder="5ml, 30g, 250ml" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={control}
-                  name="product_type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Tipo de produto
-                      </span>
-                      <FormControl>
-                        <Input placeholder="batom, sérum, perfume" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={control}
-                  name="target_audience"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Público
-                      </span>
-                      <FormControl>
-                        <Input
-                          placeholder="feminino, masculino, unissex"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* PRODUCT - Detalhes cosméticos */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Detalhes cosméticos</CardTitle>
-                <CardDescription>
-                  Especificações usadas para filtros e recomendações
-                  personalizadas.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className={styles.gridTwo}>
-                <FormField
-                  control={control}
-                  name="skin_type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Tipo de pele
-                      </span>
-                      <FormControl>
-                        <Input
-                          placeholder="seca, oleosa, sensível"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="hair_type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Tipo de cabelo
-                      </span>
-                      <FormControl>
-                        <Input placeholder="liso, cacheado, todos" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="color"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Cor
-                      </span>
-                      <FormControl>
-                        <Input
-                          placeholder="vermelho, nude, transparente"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="fragrance"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Fragrância
-                      </span>
-                      <FormControl>
-                        <Input
-                          placeholder="floral, amadeirado, cítrico"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="spf"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Proteção solar (SPF)
-                      </span>
-                      <FormControl>
-                        <Input type="number" min="0" step="1" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-              <CardFooter>
-                <div className={styles.footerGrid}>
-                  <FormField
-                    control={control}
-                    name="active"
-                    render={({ field }) => (
-                      <FormItem className={styles.footerItem}>
-                        <div className={styles.footerTextGroup}>
-                          <span
-                            className={styles.fieldLabel}
-                            onMouseDown={preventLabelFocus}
-                          >
-                            Produto ativo
-                          </span>
-                          <FormDescription>
-                            Controla exibição na vitrine.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="vegan"
-                    render={({ field }) => (
-                      <FormItem className={styles.footerItem}>
-                        <div className={styles.footerTextGroup}>
-                          <span
-                            className={styles.fieldLabel}
-                            onMouseDown={preventLabelFocus}
-                          >
-                            Vegano
-                          </span>
-                          <FormDescription>
-                            Sem ingredientes de origem animal.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="cruelty_free"
-                    render={({ field }) => (
-                      <FormItem className={styles.footerItem}>
-                        <div className={styles.footerTextGroup}>
-                          <span
-                            className={styles.fieldLabel}
-                            onMouseDown={preventLabelFocus}
-                          >
-                            Cruelty-free
-                          </span>
-                          <FormDescription>
-                            Sem testes em animais.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="hypoallergenic"
-                    render={({ field }) => (
-                      <FormItem className={styles.footerItemWide}>
-                        <div className={styles.footerTextGroup}>
-                          <span
-                            className={styles.fieldLabel}
-                            onMouseDown={preventLabelFocus}
-                          >
-                            Hipoalergênico
-                          </span>
-                          <FormDescription>
-                            Indicado para peles sensíveis.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardFooter>
-            </Card>
-
-            {/* SUPPLIER */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Fornecedor</CardTitle>
-                <CardDescription>
-                  Dados para criar ou vincular o fornecedor responsável por este
-                  produto.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className={styles.gridThree}>
-                <FormField
-                  control={control}
-                  name="supplier_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Nome do fornecedor
-                      </span>
-                      <FormControl>
-                        <Input
-                          placeholder="Beleza Suprema Distribuidora"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="supplier_contact"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Contato do fornecedor
-                      </span>
-                      <FormControl>
-                        <Input placeholder="(11) 99999-0000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="supplier_email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        E-mail do fornecedor
-                      </span>
-                      <FormControl>
-                        <Input
-                          placeholder="contato@fornecedor.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* BRAND */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Marca</CardTitle>
-                <CardDescription>
-                  Marca comercial exibida junto ao nome do produto.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FormField
-                  control={control}
-                  name="brand_name"
-                  render={({ field }) => (
-                    <FormItem className={styles.maxWidthMd}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Marca
-                      </span>
-                      <FormControl>
-                        <Input placeholder="Toque de Mulher" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* DESCRIPTION */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Descrição</CardTitle>
-                <CardDescription>
-                  Texto detalhado vinculado a este produto.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className={styles.cardFlex}>
-                <FormField
-                  control={control}
-                  name="description_text"
-                  render={({ field }) => (
-                    <FormItem className={styles.fullWidth}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Descrição principal
-                      </span>
-                      <FormControl>
-                        <Textarea
-                          rows={4}
-                          placeholder="Batom matte de longa duração com acabamento aveludado..."
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Texto exibido na página do produto.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="description_usage_tips"
-                  render={({ field }) => (
-                    <FormItem className={styles.fullWidth}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Dicas de uso
-                      </span>
-                      <FormControl>
-                        <Textarea
-                          rows={3}
-                          placeholder="Aplicar diretamente nos lábios limpos..."
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="description_ingredients"
-                  render={({ field }) => (
-                    <FormItem className={styles.fullWidth}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Ingredientes
-                      </span>
-                      <FormControl>
-                        <Textarea
-                          rows={3}
-                          placeholder="Cera vegetal, manteiga de karité, óleo de rícino..."
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* CATEGORY */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Categorias e tags</CardTitle>
-                <CardDescription>
-                  Agrupe o produto para facilitar a busca no catálogo.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FormField
-                  control={control}
-                  name="categories_names"
-                  render={({ field }) => (
-                    <FormItem className={styles.maxWidthXl}>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Tags ou código da categoria
-                      </span>
-                      <FormControl>
-                        <Input
-                          placeholder="Maquiagem, Lábios, Batom ou 1"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Separe os nomes por vírgula. Um número sozinho será usado
-                        como código da categoria.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* STOCK */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Estoque inicial</CardTitle>
-                <CardDescription>
-                  Estoque vinculado ao produto no momento do cadastro.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className={styles.gridTwoWide}>
-                <FormField
-                  control={control}
-                  name="stock_quantity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Quantidade em estoque
-                      </span>
-                      <FormControl>
-                        <Input type="number" min="0" step="1" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Quantidade disponível para venda ao publicar.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="stock_expiry_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <span
-                        className={styles.fieldLabel}
-                        onMouseDown={preventLabelFocus}
-                      >
-                        Validade (opcional)
-                      </span>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Informe a data quando o produto tiver prazo de validade.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* PRODUCTIMAGE */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Imagens</CardTitle>
-                <CardDescription>
-                  A primeira imagem enviada será marcada como principal.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className={styles.cardFlexLarge}>
-                <p className={styles.helperText}>
-                  Selecione as imagens antes de cadastrar. Após criar o produto,
-                  elas serão enviadas automaticamente.
-                </p>
-
-                {fields.map((field, index) => (
-                  <div key={field.id} className={styles.imageCard}>
-                    <div className={styles.imageCardHeader}>
-                      <div className={styles.imageCardMeta}>
-                        <Badge variant="outline">Imagem {index + 1}</Badge>
-                        {index === 0 && (
-                          <span className={styles.primaryBadge}>Principal</span>
-                        )}
-                      </div>
-                      {fields.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            delete fileInputRefs.current[field.id];
-                            remove(index);
-                          }}
-                          className={styles.removeButton}
-                        >
-                          <Trash2 className={styles.iconLeft} /> Remover
-                        </Button>
-                      )}
-                    </div>
-
-                    <div className={styles.imageRow}>
-                      <input
-                        ref={(element) => {
-                          if (element) {
-                            fileInputRefs.current[field.id] = element;
-                          } else {
-                            delete fileInputRefs.current[field.id];
-                          }
-                        }}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        className={styles.hiddenInput}
-                        onChange={(event) =>
-                          handleImageFileChange(event, field.id, index)
-                        }
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => {
-                          fileInputRefs.current[field.id]?.click();
-                        }}
-                        disabled={Boolean(uploadingImageIds[field.id])}
-                        className={styles.uploadButton}
-                      >
-                        {uploadingImageIds[field.id] ? (
-                          <>
-                            <Loader2 className={styles.iconSpin} />
-                            Enviando...
-                          </>
-                        ) : (
-                          <>
-                            <UploadCloud className={styles.iconSmall} /> Upload
-                            de arquivo
-                          </>
-                        )}
-                      </Button>
-                      <span className={styles.uploadHint}>
-                        {pendingImageFiles[field.id]
-                          ? `${pendingImageFiles[field.id].name} selecionada`
-                          : "Aceita JPG, PNG ou WEBP."}
-                      </span>
-                    </div>
-                    {uploadErrors[index] && (
-                      <p className={styles.errorText}>{uploadErrors[index]}</p>
-                    )}
-
-                    <div className={styles.gridImageFields}>
-                      <FormField
-                        control={control}
-                        name={`images.${index}.url` as const}
-                        render={({ field }) => (
-                          <FormItem className={styles.imageFieldWide}>
-                            <span
-                              className={styles.fieldLabel}
-                              onMouseDown={preventLabelFocus}
-                            >
-                              URL da imagem
-                            </span>
-                            <FormControl>
-                              <Input
-                                placeholder="Preenchida após o envio"
-                                readOnly
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={control}
-                        name={`images.${index}.order` as const}
-                        render={({ field }) => (
-                          <FormItem>
-                            <span
-                              className={styles.fieldLabel}
-                              onMouseDown={preventLabelFocus}
-                            >
-                              Ordenação
-                            </span>
-                            <FormControl>
-                              <Input type="number" min="1" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={control}
-                        name={`images.${index}.alt_text` as const}
-                        render={({ field }) => (
-                          <FormItem className={styles.fullWidth}>
-                            <span
-                              className={styles.fieldLabel}
-                              onMouseDown={preventLabelFocus}
-                            >
-                              Texto alternativo
-                            </span>
-                            <FormControl>
-                              <Input
-                                placeholder="Descrição acessível da imagem"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    append({
-                      url: "",
-                      order: String(fields.length + 1),
-                      alt_text: "",
-                    })
-                  }
-                  className={styles.addButton}
-                >
-                  <Plus className={styles.iconLeft} /> Adicionar imagem
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Finalizar cadastro</CardTitle>
-                <CardDescription>
-                  Revise os campos e cadastre o produto no catálogo.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <details className={styles.technicalPreview}>
-                  <summary>Ver dados técnicos do envio</summary>
-                  <pre className={styles.preview}>
-                    {JSON.stringify(previewPayload, null, 2)}
-                  </pre>
-                </details>
-              </CardContent>
-              <CardFooter className={styles.cardFooter}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => reset(defaultValues)}
-                  disabled={isSubmitting}
-                >
-                  Limpar campos
-                </Button>
-                <Button
-                  type="submit"
-                  size="lg"
-                  variant="default"
-                  disabled={isSubmitting}
-                  className={styles.submitButton}
-                >
-                  {isSubmitting && <Loader2 className={styles.iconSpin} />}
-                  Cadastrar produto
-                </Button>
-              </CardFooter>
-            </Card>
-          </form>
-        </Form>
+        <Button type="button" variant="outline" size="lg" onClick={() => navigate(routes.adminDashboard)} disabled={busy} className={styles.backButton}>
+          <ChevronLeft className={styles.iconLeft} /> Voltar
+        </Button>
       </div>
-    </div>
+      {createdProductId && <div role="status" className={styles.imageIntro}>
+        Produto já criado. Os dados estão salvos; conclua o envio das imagens pendentes.
+        {" "}<Link to={routes.adminProducts}>Ver produtos</Link>
+      </div>}
+      {submitError && <p role="alert" className={styles.errorText}>{submitError}</p>}
+      <Form {...form}>
+        <form onSubmit={submit} noValidate className={styles.form}>
+          <fieldset disabled={busy || Boolean(createdProductId)} className={styles.form}>
+            <Card>
+              <CardHeader><CardTitle>Informações gerais</CardTitle><CardDescription>O identificador e o slug são gerados automaticamente no cadastro.</CardDescription></CardHeader>
+              <CardContent className={styles.gridTwo}>
+                {input("name", "Nome *", { placeholder: "Batom Matte Vermelho Power" })}
+                {input("price", "Preço (R$) *", { type: "number", step: "any" })}
+                {input("volume", "Volume", { placeholder: "5ml, 30g, 250ml" })}
+                {input("product_type", "Tipo de produto", { placeholder: "batom, sérum, perfume" })}
+                {input("target_audience", "Público", { placeholder: "feminino, masculino, unissex" })}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Detalhes cosméticos</CardTitle><CardDescription>Especificações usadas para filtros e recomendações personalizadas.</CardDescription></CardHeader>
+              <CardContent className={styles.gridTwo}>
+                {input("skin_type", "Tipo de pele", { placeholder: "seca, oleosa, sensível" })}
+                {input("hair_type", "Tipo de cabelo", { placeholder: "liso, cacheado, todos" })}
+                {input("color", "Cor", { placeholder: "vermelho, nude, transparente" })}
+                {input("fragrance", "Fragrância", { placeholder: "floral, amadeirado, cítrico" })}
+                {input("spf", "Proteção solar (SPF)", { type: "number", step: "1" })}
+              </CardContent>
+              <CardFooter><div className={styles.footerGrid}>
+                {([ ["active", "Produto ativo", "Controla exibição na vitrine."], ["vegan", "Vegano", "Sem ingredientes de origem animal."],
+                  ["cruelty_free", "Cruelty-free", "Sem testes em animais."], ["hypoallergenic", "Hipoalergênico", "Indicado para peles sensíveis."] ] as const)
+                  .map(([name, label, description]) => <FormField key={name} control={control} name={name} render={({ field }) => (
+                    <FormItem className={name === "hypoallergenic" ? styles.footerItemWide : styles.footerItem}>
+                      <div className={styles.footerTextGroup}><FormLabel className={styles.fieldLabel}>{label}</FormLabel><FormDescription>{description}</FormDescription></div>
+                      <FormControl><Checkbox checked={field.value} onCheckedChange={checked => field.onChange(checked === true)} /></FormControl>
+                    </FormItem>
+                  )} />)}
+              </div></CardFooter>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Fornecedor</CardTitle><CardDescription>Vincule um fornecedor já cadastrado. Informe o custo para criar o vínculo.</CardDescription></CardHeader>
+              <CardContent className={styles.gridThree}>
+                {input("supplier_name", "Nome do fornecedor", { placeholder: "Beleza Suprema Distribuidora" })}
+                {input("supplier_price", "Custo do fornecedor (R$)", { type: "number", step: "any" })}
+                {input("lead_time_days", "Prazo do fornecedor (dias)", { type: "number", step: "1" })}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Marca e descrição</CardTitle><CardDescription>Vínculos opcionais com registros já existentes.</CardDescription></CardHeader>
+              <CardContent className={styles.gridTwo}>
+                {input("brand_id", "Código da marca", { type: "number", step: "1" })}
+                {input("description_id", "Código da descrição", { type: "number", step: "1" })}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Medidas para entrega</CardTitle><CardDescription>Medidas opcionais: até 300 cm por dimensão e 1000 kg de peso, sempre maiores que zero.</CardDescription></CardHeader>
+              <CardContent className={styles.gridTwo}>
+                {input("shipping_width", "Largura (cm)", { type: "number", step: "any" })}
+                {input("shipping_height", "Altura (cm)", { type: "number", step: "any" })}
+                {input("shipping_length", "Comprimento (cm)", { type: "number", step: "any" })}
+                {input("shipping_weight", "Peso (kg)", { type: "number", step: "any" })}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Estoque e categorias</CardTitle></CardHeader>
+              <CardContent><p className={styles.helperText}>O produto é criado com estoque zero. Entradas de estoque e vínculos de categorias não são feitos neste cadastro.</p></CardContent>
+            </Card>
+          </fieldset>
+          <fieldset disabled={busy}>
+            <Card>
+              <CardHeader><CardTitle>Imagens do produto</CardTitle><CardDescription>A imagem de ordem 1 será a principal. Aceita JPG, PNG ou WEBP.</CardDescription></CardHeader>
+              <CardContent className={styles.cardFlexLarge}>
+                <p className={styles.helperText}>Selecione as imagens antes de cadastrar. Elas serão enviadas após a criação do produto.</p>
+                {fields.map((field, index) => {
+                  const image = values.images[index];
+                  const uploaded = Boolean(image?.url);
+                  return <div key={field.id} className={styles.imageCard}>
+                    <div className={styles.imageCardHeader}>
+                      <div className={styles.imageCardMeta}><Badge variant="outline">Imagem {index + 1}</Badge>
+                        {Number(image?.order) === 1 && <span className={styles.primaryBadge}>Principal</span>}
+                      </div>
+                      {fields.length > 1 && !uploaded && <Button type="button" variant="ghost" size="sm" className={styles.removeButton} onClick={() => {
+                        forgetPendingFile(field.id); delete fileInputRefs.current[field.id]; remove(index);
+                      }}><Trash2 className={styles.iconLeft} /> Remover</Button>}
+                    </div>
+                    <div className={styles.imageRow}>
+                      <input ref={element => {
+                        if (element) fileInputRefs.current[field.id] = element;
+                        else delete fileInputRefs.current[field.id];
+                      }} type="file" accept="image/jpeg,image/png,image/webp"
+                        aria-label={`Arquivo da imagem ${index + 1}`} disabled={uploaded} className={styles.hiddenInput}
+                        onChange={event => void handleImageFileChange(event, field.id, index)} />
+                      <Button type="button" variant="secondary" size="sm" disabled={uploaded || Boolean(uploadingImageIds[field.id])}
+                        onClick={() => fileInputRefs.current[field.id]?.click()} className={styles.uploadButton}>
+                        {uploadingImageIds[field.id] ? <><Loader2 className={styles.iconSpin} /> Enviando...</> : <><UploadCloud className={styles.iconSmall} /> Upload de arquivo</>}
+                      </Button>
+                      <span className={styles.uploadHint}>{pendingImageFiles[field.id]?.name ?? (uploaded ? "Imagem já enviada." : "Aceita JPG, PNG ou WEBP.")}</span>
+                      {pendingImageFiles[field.id] && <Button type="button" variant="ghost" size="sm" onClick={() => forgetPendingFile(field.id)}>Limpar seleção</Button>}
+                    </div>
+                    {uploadErrors[field.id] && <p role="alert" className={styles.errorText}>{uploadErrors[field.id]}</p>}
+                    <div className={styles.gridImageFields}>
+                      <FormField control={control} name={`images.${index}.url`} render={({ field: imageField }) => <FormItem className={styles.imageFieldWide}>
+                        <FormLabel className={styles.fieldLabel}>URL da imagem {index + 1}</FormLabel><FormControl><Input {...imageField} placeholder="Preenchida após o envio" readOnly /></FormControl><FormMessage />
+                      </FormItem>} />
+                      <FormField control={control} name={`images.${index}.order`} rules={{ validate: imageOrderError }} render={({ field: imageField }) => <FormItem>
+                        <FormLabel className={styles.fieldLabel}>Ordenação da imagem {index + 1}</FormLabel><FormControl><Input {...imageField} type="number" min="1" step="1" disabled={uploaded} /></FormControl><FormMessage />
+                      </FormItem>} />
+                      <FormField control={control} name={`images.${index}.alt_text`} render={({ field: imageField }) => <FormItem className={styles.fullWidth}>
+                        <FormLabel className={styles.fieldLabel}>Texto alternativo da imagem {index + 1}</FormLabel><FormControl><Input {...imageField} placeholder="Descrição acessível da imagem" disabled={uploaded} /></FormControl><FormMessage />
+                      </FormItem>} />
+                    </div>
+                  </div>;
+                })}
+                <Button type="button" variant="outline" size="sm" className={styles.addButton} onClick={() => append({ url: "", alt_text: "",
+                  order: String(Math.max(0, ...form.getValues("images").map(image => Number(image.order) || 0)) + 1),
+                })}><Plus className={styles.iconLeft} /> Adicionar imagem</Button>
+              </CardContent>
+            </Card>
+          </fieldset>
+          <Card>
+            <CardHeader><CardTitle>Finalizar cadastro</CardTitle><CardDescription>Revise os campos e cadastre o produto no catálogo.</CardDescription></CardHeader>
+            <CardContent><details className={styles.technicalPreview}><summary>Ver dados técnicos do envio</summary><pre className={styles.preview}>
+              {previewPayload ? JSON.stringify(previewPayload, null, 2) : "Preencha os campos obrigatórios com valores válidos para visualizar o envio."}
+            </pre></details></CardContent>
+            <CardFooter className={styles.cardFooter}>
+              <Button type="button" variant="ghost" onClick={clearForm} disabled={busy}>{createdProductId ? "Novo produto" : "Limpar campos"}</Button>
+              <Button type="submit" size="lg" disabled={busy} className={styles.submitButton}>
+                {isSubmitting && <Loader2 className={styles.iconSpin} />}
+                {createdProductId ? (Object.keys(pendingImageFiles).length ? "Reenviar imagens pendentes" : "Concluir cadastro") : "Cadastrar produto"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </Form>
+    </div></div>
   );
 }
