@@ -499,3 +499,115 @@ test("password change signs out only after success and preserves the cart", asyn
   expect(await page.evaluate(() => localStorage.getItem("tdm_auth_user"))).toBeNull();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items") ?? "[]"))).toEqual([{ productId: id, quantity: 1 }]);
 });
+
+test("login survives 401, network and profile 403 failures before persisting a validated session", async ({ page }) => {
+  await mockStore(page);
+  await seedCart(page);
+  for (const path of ["user/me/orders", "user/me/reviews", "payment-methods/"]) {
+    await page.route(`**/api/v1/${path}`, route => route.fulfill({ json: [] }));
+  }
+  let attempts = 0;
+  let profileRequests = 0;
+  await page.route("**/api/v1/user/login", async route => {
+    expect(route.request().postDataJSON()).toEqual({ email: user.email, password: "Fixture@123" });
+    attempts++;
+    if (attempts === 1) return route.fulfill({ status: 401, json: { detail: "Credenciais inválidas." } });
+    if (attempts === 2) return route.abort("failed");
+    return route.fulfill({ json: { access_token: "validated-fixture-token", token_type: "bearer" } });
+  });
+  await page.route("**/api/v1/user/me", async route => {
+    expect(route.request().headers().authorization).toBe("Bearer validated-fixture-token");
+    profileRequests++;
+    return route.fulfill({ status: profileRequests === 1 ? 403 : 200,
+      json: profileRequests === 1 ? { detail: "Conta sem permissão." } : user });
+  });
+  await page.goto("/login");
+  await page.getByLabel("E-mail", { exact: true }).fill(user.email);
+  await page.getByLabel("Senha", { exact: true }).fill("Fixture@123");
+  const messages = ["Credenciais inválidas.",
+    "Não foi possível conectar à loja. Confira sua conexão e tente novamente.", "Conta sem permissão."];
+  for (const [index, message] of messages.entries()) {
+    await page.getByRole("button", { name: "Entrar", exact: true }).click();
+    await expect(page.locator('p[aria-live="polite"]')).toHaveText(message);
+    await expect(page.getByRole("button", { name: "Entrar", exact: true })).toBeEnabled();
+    await expect(page.getByLabel("E-mail", { exact: true })).toHaveValue(user.email);
+    await expect(page.getByLabel("Senha", { exact: true })).toHaveValue("Fixture@123");
+    expect(profileRequests).toBe(index < 2 ? 0 : 1);
+    expect(await page.evaluate(() => localStorage.getItem("tdm_access_token"))).toBeNull();
+    expect(await page.evaluate(() => localStorage.getItem("tdm_auth_user"))).toBeNull();
+  }
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page).toHaveURL(/\/perfil$/);
+  expect(attempts).toBe(4);
+  expect(await page.evaluate(() => localStorage.getItem("tdm_access_token"))).toBe("validated-fixture-token");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_auth_user")!))).toEqual(user);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items")!))).toEqual([{ productId: id, quantity: 1 }]);
+});
+
+test("checkout prevents simultaneous submissions, reuses a retry key and changes it for a new payment method", async ({ page }) => {
+  await mockStore(page);
+  await seedCart(page, true);
+  await page.route("**/api/v1/payments/methods", route => route.fulfill({ json: ["PIX", "CARD"] }));
+  await page.route("**/api/v1/shipping/quotes", route => route.fulfill({ json: quote() }));
+  const attempts: { idempotency_key: string; method: string }[] = [];
+  let received!: () => void;
+  let release!: () => void;
+  const firstReceived = new Promise<void>(resolve => { received = resolve; });
+  const firstResponse = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/v1/payments/checkout", async route => {
+    attempts.push(route.request().postDataJSON());
+    if (attempts.length === 1) {
+      received();
+      await firstResponse;
+    }
+    await route.fulfill({ status: 503, json: { detail: "Pagamento temporariamente indisponível." } });
+  });
+  await page.goto("/checkout/address");
+  await page.getByRole("button", { name: "Continuar para pagamento" }).click();
+  await page.getByLabel("Telefone com DDD", { exact: true }).fill("11999999999");
+  await page.getByLabel("CPF do destinatário", { exact: true }).fill("52998224725");
+  await page.getByRole("button", { name: "Calcular entrega", exact: true }).click();
+  await page.getByRole("radio").first().check();
+  await page.getByRole("button", { name: "Gerar Pix" }).click();
+  try {
+    await firstReceived;
+    const submitting = page.getByRole("button", { name: "Criando pagamento...", exact: true });
+    await expect(submitting).toBeDisabled();
+    // A second native form submission must also respect the in-flight guard.
+    await submitting.evaluate(button => (button as HTMLButtonElement).form!.requestSubmit());
+  } finally {
+    release();
+  }
+  await expect(page.getByRole("button", { name: "Gerar Pix" })).toBeEnabled();
+  expect(attempts).toHaveLength(1);
+  expect(attempts[0].idempotency_key).toMatch(/^[a-f0-9-]{36}$/i);
+  await page.getByRole("button", { name: "Gerar Pix" }).click();
+  await expect.poll(() => attempts.length).toBe(2);
+  await expect(page.getByRole("button", { name: "Gerar Pix" })).toBeEnabled();
+  expect(attempts[1]).toEqual(attempts[0]);
+  await page.getByLabel("Método", { exact: true }).selectOption("CARD");
+  await page.getByRole("button", { name: "Ir para pagamento seguro" }).click();
+  await expect.poll(() => attempts.length).toBe(3);
+  await expect(page.getByRole("button", { name: "Ir para pagamento seguro" })).toBeEnabled();
+  expect(attempts[2].idempotency_key).not.toBe(attempts[0].idempotency_key);
+  expect(attempts[2].method).toBe("CARD");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items")!))).toEqual([{ productId: id, quantity: 1 }]);
+});
+
+test("a success return URL cannot approve a rejected payment or consume its cart snapshot", async ({ page }) => {
+  await mockStore(page);
+  await seedCart(page, true);
+  const snapshot = { sessionId: otherId, orderId: otherId, items: [{ id, quantity: 1 }] };
+  await page.addInitScript(snapshot => sessionStorage.setItem("tdm_checkout_snapshot", JSON.stringify(snapshot)), snapshot);
+  await page.route(`**/api/v1/payments/checkout/${otherId}`, route => route.fulfill({
+    json: { session_id: otherId, order_id: otherId, status: "rejected", amount: 199.9, currency: "BRL" },
+  }));
+  await page.goto(`/checkout/success?session_id=${otherId}`);
+  await expect(page.getByRole("heading", { name: "Pagamento recusado", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pagamento confirmado", exact: true })).toHaveCount(0);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tdm_cart_items")!))).toEqual([{ productId: id, quantity: 1 }]);
+  expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem("tdm_checkout_snapshot")!))).toEqual(snapshot);
+  await page.getByRole("button", { name: "Voltar ao carrinho", exact: true }).click();
+  await expect(page).toHaveURL(/\/carrinho$/);
+  await expect(page.getByRole("button", { name: "Continuar para entrega" })).toBeEnabled();
+});
