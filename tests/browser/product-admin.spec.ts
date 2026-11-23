@@ -84,6 +84,26 @@ test("admin creates the exact product contract and retries a failed multipart up
   expect(events).toEqual(["create", "upload", "upload"]);
 });
 
+test("admin keeps long image filenames readable without horizontal overflow", async ({ page }, testInfo) => {
+  await mockAdmin(page);
+  await page.goto("/admin/produtos/novo");
+  const filename = `${"produto".repeat(28)}.png`;
+  await page.getByLabel("Arquivo da imagem 1", { exact: true }).setInputFiles({ ...file, name: filename });
+  const selection = page.getByText(filename, { exact: true });
+  await expect(selection).toBeVisible();
+  const dimensions = await selection.evaluate(element => ({
+    left: element.getBoundingClientRect().left,
+    right: element.getBoundingClientRect().right,
+    viewport: window.innerWidth,
+    documentWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.left).toBeGreaterThanOrEqual(0);
+  expect(dimensions.right).toBeLessThanOrEqual(dimensions.viewport);
+  expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.viewport);
+  await mkdir("artifacts/screenshots", { recursive: true });
+  await page.screenshot({ path: `artifacts/screenshots/${testInfo.project.name}-product-long-filename.png`, fullPage: true });
+});
+
 test("admin rejects invalid required values and invalid images before creating a product", async ({ page }) => {
   await mockAdmin(page);
   const mutations: string[] = [];

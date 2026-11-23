@@ -12,6 +12,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { createProduct, uploadProductImage } from "@/features/admin/api/product-service";
+import { ApiError } from "@/shared/api/api-client";
 import { buildProductPayload, defaultProductValues, imageOrderError, productFieldError, productImageError,
   type ProductFormValues, type ProductTextField } from "@/features/admin/lib/product-form";
 import { routes } from "@/app/router/paths";
@@ -51,6 +52,7 @@ export function ProductCreatePage() {
   const [uploadingImageIds, setUploadingImageIds] = useState<Record<string, boolean>>({});
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [creationUnconfirmed, setCreationUnconfirmed] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const busy = isSubmitting || Object.keys(uploadingImageIds).length > 0;
   let previewPayload = null;
@@ -128,10 +130,12 @@ export function ProductCreatePage() {
     setPendingImageFiles({});
     setUploadErrors({});
     setSubmitError(null);
+    setCreationUnconfirmed(false);
   };
 
   const submitProduct = async (submitted: ProductFormValues) => {
     setSubmitError(null);
+    setCreationUnconfirmed(false);
     for (const field of fields) {
       const file = pendingImageFiles[field.id];
       const error = file && productImageError(file);
@@ -144,8 +148,14 @@ export function ProductCreatePage() {
     try {
       let productId = createdProductRef.current;
       if (!productId) {
-        const product = await createProduct(buildProductPayload(submitted));
+        const payload = buildProductPayload(submitted);
+        const product = await createProduct(payload).catch(error => {
+          // A missing response or a server/gateway error does not prove the POST was rolled back.
+          setCreationUnconfirmed(!(error instanceof ApiError) || error.status >= 500);
+          throw error;
+        });
         if (!product || typeof product.id !== "string" || !product.id.trim()) {
+          setCreationUnconfirmed(true);
           throw new Error("Não foi possível confirmar o produto criado. Consulte a lista de produtos antes de tentar novamente.");
         }
         productId = product.id;
@@ -209,6 +219,11 @@ export function ProductCreatePage() {
         {" "}<Link to={routes.adminProducts}>Ver produtos</Link>
       </div>}
       {submitError && <p role="alert" className={styles.errorText}>{submitError}</p>}
+      {creationUnconfirmed && <div role="status" className={styles.imageIntro}>
+        A criação pode ter sido concluída, mas não foi possível confirmar a resposta.
+        Consulte a lista antes de reenviar para evitar um cadastro duplicado.
+        {" "}<Link to={routes.adminProducts}>Consultar produtos</Link>
+      </div>}
       <Form {...form}>
         <form onSubmit={submit} noValidate className={styles.form}>
           <fieldset disabled={busy || Boolean(createdProductId)} className={styles.form}>

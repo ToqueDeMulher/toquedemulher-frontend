@@ -92,6 +92,7 @@ describe("product creation regressions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar produto" }));
     expect(await screen.findByText("Informe o nome comercial.")).toBeVisible();
     expect(screen.getByLabelText("Nome *")).toBeInvalid();
+    await waitFor(() => expect(screen.getByLabelText("Nome *")).toHaveFocus());
     expect(api.fetch).not.toHaveBeenCalled();
   });
   it("rejects an empty price instead of silently creating a free product", async () => {
@@ -111,6 +112,26 @@ describe("product creation regressions", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Slug ja existe");
     expect(screen.getByLabelText("Nome *")).toHaveValue("Batom");
     expect(screen.getByRole("button", { name: "Cadastrar produto" })).toBeEnabled();
+  });
+  it.each(["network", "invalid-response", "server-error", "missing-id"])("explains an unconfirmed creation after %s without hiding the error or repeating the POST", async failure => {
+    const api = mockProductApi();
+    if (failure === "network") api.fetch.mockRejectedValueOnce(new TypeError("offline"));
+    else if (failure === "invalid-response") api.fetch.mockResolvedValueOnce(new Response("{invalid"));
+    else if (failure === "missing-id") api.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ name: "Batom" })));
+    else api.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ detail: "Serviço indisponível." }), { status: 503 }));
+    renderForm();
+    fillMinimum();
+    fireEvent.click(screen.getByRole("button", { name: "Cadastrar produto" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      failure === "network" ? "Não foi possível conectar" : failure === "invalid-response" ? "Não foi possível carregar os dados"
+        : failure === "missing-id" ? "Não foi possível confirmar o produto criado" : "Serviço indisponível.",
+    );
+    expect(screen.getByText(/A criação pode ter sido concluída/)).toBeVisible();
+    expect(screen.getByRole("link", { name: "Consultar produtos" })).toHaveAttribute("href", "/admin/produtos");
+    expect(screen.getByLabelText("Nome *")).toHaveValue("Batom");
+    expect(api.fetch).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: "Limpar campos" }));
+    expect(screen.queryByText(/A criação pode ter sido concluída/)).not.toBeInTheDocument();
   });
   it.each([
     new File(["GIF89a"], "invalid.gif", { type: "image/gif" }),

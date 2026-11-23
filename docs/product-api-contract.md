@@ -1,6 +1,6 @@
 # Contrato administrativo de produtos — issue #17
 
-Revisão de 22/11/2026, relacionada à [issue #17](https://github.com/ToqueDeMulher/toquedemulher-frontend/issues/17).
+Revisão final de 23/11/2026, relacionada à [issue #17](https://github.com/ToqueDeMulher/toquedemulher-frontend/issues/17).
 Base frontend: `5cdb15ec840e9937d376cccd76e04ea1c0cf8e5c` (`main`, após a PR #40).
 Backend consultado: `4adbb8d1dfacb6876d2654b3ccb595194af358b7`.
 
@@ -14,6 +14,44 @@ As fontes de verdade são os [schemas de produto](https://github.com/ToqueDeMulh
 o [schema do vínculo de fornecedor](https://github.com/ToqueDeMulher/toquedemulher-backend/blob/4adbb8d1dfacb6876d2654b3ccb595194af358b7/app/schemas/supplier_product.py)
 e os [endpoints implementados](https://github.com/ToqueDeMulher/toquedemulher-backend/blob/4adbb8d1dfacb6876d2654b3ccb595194af358b7/app/api/v1/endpoints/product.py).
 Exemplos antigos da issue não substituem esses contratos.
+
+## Estado das PRs e preservação dos testes
+
+A [PR #41](https://github.com/ToqueDeMulher/toquedemulher-frontend/pull/41)
+continuava aberta no commit `7a4f8cc79d1af1a86d08e6db965a73769cab7ba0` durante
+esta revisão. Por isso, a base da #42 permanece `main` em `5cdb15e`, sem merge
+da #41, rebase ou descarte dos commits `f6b552a` e `2a493b3` já existentes na #42.
+Os testes novos da #41 ainda não fazem parte desta branch; sua incorporação
+depende da aprovação e integração daquela PR.
+
+Foi feito um ensaio em uma worktree descartável, sem commit ou envio ao GitHub:
+a junção das duas branches não apresentou conflitos e os seis arquivos da #41
+ficaram idênticos aos da branch original. Os 32 unitários adicionais de serviços
+de autenticação, sessão/redefinição e checkout e os seis E2E adicionais (desktop
+e celular) passaram contra o código revisado da #42. Esse ensaio não altera a
+base nem antecipa a aprovação da #41.
+
+## Comparação funcional com a versão anterior à #42
+
+| Seção ou operação | Antes da #42 | Preservado/corrigido nesta PR | Pendente para outra PR |
+| --- | --- | --- | --- |
+| Informações e detalhes cosméticos | Campos operacionais, mas preço vazio podia virar zero e inteiros/medidas não tinham validação adequada | Mesmas seções e atributos, números finitos, booleanos, opcionais e limites do schema | Nenhuma ampliação funcional nesta entrega |
+| Fornecedores | Nome, contato e email apareciam, mas não entravam no POST | Seção mantida; vínculo real com fornecedor existente via nome, custo e prazo; contato/email indisponíveis com explicação | Listagem, seleção e manutenção completas de fornecedores |
+| Estoque | Quantidade e validade editáveis não eram persistidas | Seção e campos mantidos desabilitados; aviso explícito de estoque inicial zero | Integração própria de entrada de estoque e validade, sem alterar regras comerciais nesta PR |
+| Marcas | Nome digitável não era persistido | Seção informativa e campo desabilitado; DTO suporta `brand_id`, sem pedir códigos manuais na tela | Contrato e fluxo de seleção/cadastro de marcas |
+| Descrições | Texto, dicas e ingredientes digitáveis não eram persistidos | Três campos preservados e indisponíveis com explicação; DTO suporta `description_id` | Contrato e fluxo de manutenção/seleção de descrições |
+| Categorias | Tags/código digitáveis não eram persistidos | Seção e campo preservados, indisponíveis com explicação | API administrativa e associação de categorias |
+| Imagens | Upload operacional, mas ordem digitada era ignorada; nova seleção após falha podia se perder; URL manual não vinculava imagem | Upload separado, ordem/alt enviados, URL somente leitura, arquivos pendentes e UUID preservados, sem repetir imagens confirmadas | Idempotência de criação/upload no backend requer autorização e PR própria |
+| Edição e exclusão | Nome/preço/ativo e exclusão já funcionavam, com preço vazio convertido em zero e suposição incorreta sobre o slug do PATCH | Operações mantidas, validação, erros reais e recarga do slug; falha no GET após salvar não repete o PATCH | Edição de atributos adicionais depende de ampliar o contrato do backend |
+
+Nenhum campo editável da tela final é apresentado como persistente e descartado
+silenciosamente: os campos de produto aceitos montam o JSON, o vínculo usa
+`supplier_products` e os metadados de imagem seguem no multipart com o arquivo.
+Os nove controles ainda sem integração são visíveis, desabilitados e associados
+à explicação por `aria-describedby`; a URL da imagem é somente leitura.
+Os metadados de uma linha de imagem só são persistidos quando seu arquivo é enviado.
+O painel ainda não oferece os módulos auxiliares pendentes; a interface não
+encaminha a pessoa para telas inexistentes.
 
 ## Criação e edição
 
@@ -156,9 +194,33 @@ idempotência para produtos/uploads; consultar a lista antes de repetir é neces
 nessa situação. A recuperação implementada cobre as falhas em que o UUID da
 criação já foi confirmado. Não foi inventada garantia de idempotência no servidor.
 
+Na criação, falhas de rede, resposta ilegível/sem ID ou erros 5xx agora mostram
+um aviso de resultado não confirmado com link **Consultar produtos**, além da
+mensagem original do erro. Não há reenvio automático e o rascunho é mantido.
+Erros de rejeição confirmada, como 400/404/422, continuam mostrando seu erro real.
+Uma resposta perdida no upload também exige conferência antes de repetir;
+a trava contra cliques simultâneos não substitui idempotência do servidor.
+
+## Ajustes finais de interface e acessibilidade
+
+- `ProductCreatePage.module.css`: nomes extensos de arquivos saíam da área do
+  formulário no desktop. A quebra de palavras e o limite de largura mantêm o nome
+  completo legível; não foi usado recorte para esconder o problema.
+- `ProductCreatePage.tsx`: aviso de criação não confirmada, sem esconder a falha
+  recebida nem apagar o rascunho.
+- `src/shared/ui/input.tsx`: encaminhamento de referência com `forwardRef`,
+  necessário no React 18. Antes, o React Hook Form não conseguia focar o primeiro
+  campo inválido. A marcação, os estilos e as propriedades dos inputs foram mantidos.
+
+Os três achados foram reproduzidos antes da correção. Os testes novos verificam
+o nome do arquivo dentro da viewport em desktop/celular e os quatro resultados
+não confirmados; os testes existentes de nome inválido agora também confirmam
+o foco no campo. Screenshots dos dois dispositivos foram inspecionados: cards,
+seções, cores e organização visual permanecem no padrão existente.
+
 ## Testes e critérios de aceite
 
-Foram adicionados 77 testes unitários e três cenários Playwright, executados em
+Foram adicionados 81 testes unitários e quatro cenários Playwright, executados em
 desktop e celular. Os testes existentes foram preservados; o mock do PATCH no
 teste de edição foi corrigido para refletir a resposta real, sem slug.
 
@@ -174,13 +236,19 @@ teste de edição foi corrigido para refletir a resposta real, sem slug.
 | Edição e painel preservados | Preço vazio não vira zero, slug recarregado, refresh após PATCH sem repetir escrita, exclusão 409 sem remover o item |
 | Sem envios duplicados | Dois submits antes de concluir a validação, seleção durante upload e dois cliques em salvar |
 | Seções administrativas preservadas sem falso salvamento | Nove controles visíveis e desabilitados, com descrição acessível da indisponibilidade; ausência de IDs manuais, campos fora do POST e estado preservado após concluir o cadastro |
+| Criação com resposta não confirmada | Rede, JSON inválido, 503 e resposta sem UUID mantêm o rascunho e o erro original, mostram orientação para consultar produtos e não repetem o POST |
+| Responsividade e validação acessível | Nome longo de arquivo não ultrapassa a viewport; primeiro campo inválido recebe foco |
 
 Os testes simulam somente dependências externas HTTP e `ResizeObserver`, ausente
 no jsdom. O formulário real, React Hook Form, conversão do payload e serviços são
 exercitados. No Playwright, todas as chamadas `/api/v1/**` são interceptadas;
 nenhuma mutação chega a serviços reais. Os payloads POST/PATCH também foram
 validados diretamente nos schemas Pydantic do checkout local do backend, sem
-inicializar a aplicação, acessar banco ou storage.
+inicializar a aplicação, acessar banco ou storage. Foi usado Pydantic `2.11.7`,
+como no `requirements.txt` do backend: dois payloads de criação gerados pelo
+montador TypeScript real e dois de edição passaram em validação estrita e na
+checagem explícita de campos extras. Os parâmetros multipart foram conferidos
+na assinatura do endpoint, e o DTO real de resposta de imagem também foi validado.
 
 ## Validação
 
@@ -198,8 +266,8 @@ npm audit
 git diff --check
 ```
 
-Resultados: instalação, ambas as verificações TypeScript, 119 testes unitários,
-48 testes Playwright (24 cenários em dois dispositivos), build, auditoria e
+Resultados: instalação, ambas as verificações TypeScript, 123 testes unitários,
+50 testes Playwright (25 cenários em dois dispositivos), build, auditoria e
 `git diff --check` aprovados; `npm audit` sem vulnerabilidades. Screenshots de
 falha recuperável de upload foram inspecionados para conferir o padrão visual.
 
@@ -216,6 +284,10 @@ foram alterados. Os módulos administrativos ainda não pertencem à seleção d
 relatório global; esses percentuais não representam a cobertura dos novos
 arquivos. O HTML fica em `artifacts/unit-coverage/index.html`; o CI publica o
 artefato `vitest-coverage`.
+
+Na entrada desta revisão (`2a493b3`), eram 119 unitários e 48 E2E. As quatro
+métricas globais ficaram idênticas após os ajustes finais, inclusive os totais
+de elementos instrumentados e cobertos por arquivo; nenhum teste foi removido.
 
 O backend não foi modificado. Não houve operação no Supabase de produção nem
 deploy manual. A issue permanece aberta para revisão; esta entrega não inclui merge.
