@@ -355,8 +355,12 @@ No estado atual do frontend, o serviço de produtos consome:
 - `GET /products/admin/all`, `PATCH /products/{id}` e `DELETE /products/{id}`
 
 O fornecedor deve existir e o vínculo exige seu custo em `supplier_products`.
-Marca e descrição usam IDs existentes. O backend gera UUID, slug e estoque inicial
-zero; categorias e entradas de estoque não são gravadas pelo cadastro de produto.
+As seções de marca, descrição, categorias, estoque e contato/email do fornecedor
+permanecem visíveis, com campos desabilitados e explicações das integrações
+pendentes. Esses campos não aceitam dados que seriam descartados; não há entrada
+manual de códigos de marca/descrição. O backend gera UUID, slug e estoque inicial
+zero. A manutenção de fornecedores e entradas de estoque possuem APIs próprias,
+mas ainda não têm telas integradas neste painel.
 Consulte o [contrato e os cenários de teste](docs/product-api-contract.md) para os
 campos aceitos, tratamento de falhas e justificativas dos ajustes.
 

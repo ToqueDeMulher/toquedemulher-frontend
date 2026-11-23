@@ -27,7 +27,8 @@ test("admin creates the exact product contract and retries a failed multipart up
     const body = route.request().postDataJSON();
     expect(body).toMatchObject({ name: "Produto de contrato", price: 49.9, spf: 50, active: false, vegan: true,
       supplier_products: [{ supplier_name: "Fornecedor existente", supplier_price: 25, lead_time_days: 2 }] });
-    for (const key of ["id", "slug", "images", "supplier_contact", "supplier_email", "brand_name", "description_text", "categories_names", "stock_quantity"]) {
+    for (const key of ["id", "slug", "images", "supplier_contact", "supplier_email", "brand_name", "description_text",
+      "description_usage_tips", "description_ingredients", "categories_names", "stock_quantity", "stock_expiry_date"]) {
       expect(body).not.toHaveProperty(key);
     }
     await route.fulfill({ json: { id, name: body.name, slug: "produto-de-contrato", message: "Criado" } });
@@ -47,6 +48,16 @@ test("admin creates the exact product contract and retries a failed multipart up
       : { id: 1, url: "/icone.png", order: 4, sort_order: 4, is_primary: false, alt_text: "Foto do produto" } });
   });
   await page.goto("/admin/produtos/novo");
+  const unavailableFields = ["Contato do fornecedor", "E-mail do fornecedor", "Marca", "Descrição principal",
+    "Dicas de uso", "Ingredientes", "Tags ou código da categoria", "Quantidade em estoque", "Validade (opcional)"];
+  for (const label of unavailableFields) {
+    const field = page.getByLabel(label, { exact: true });
+    await expect(field).toBeVisible();
+    await expect(field).toBeDisabled();
+    await expect(field).toHaveAccessibleDescription(/indisponível|indisponíveis/i);
+  }
+  await expect(page.getByLabel("Código da marca", { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel("Código da descrição", { exact: true })).toHaveCount(0);
   await page.getByLabel("Nome *", { exact: true }).fill("Produto de contrato");
   await page.getByLabel("Preço (R$) *", { exact: true }).fill("49.9");
   await page.getByLabel("Proteção solar (SPF)", { exact: true }).fill("50");
@@ -68,6 +79,8 @@ test("admin creates the exact product contract and retries a failed multipart up
   await page.screenshot({ path: `artifacts/screenshots/${testInfo.project.name}-product-upload-retry.png`, fullPage: true });
   await page.getByRole("button", { name: "Reenviar imagens pendentes", exact: true }).click();
   await expect(page.getByLabel("Nome *", { exact: true })).toHaveValue("");
+  await expect(page.getByLabel("Nome *", { exact: true })).toBeEnabled();
+  for (const label of unavailableFields) await expect(page.getByLabel(label, { exact: true })).toBeDisabled();
   expect(events).toEqual(["create", "upload", "upload"]);
 });
 

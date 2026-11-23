@@ -45,6 +45,26 @@ function selectImage(index: number, file = new File(["fixture-image"], "image.pn
 }
 
 describe("product creation regressions", () => {
+  it.each([
+    "Contato do fornecedor", "E-mail do fornecedor", "Marca", "Descrição principal",
+    "Dicas de uso", "Ingredientes", "Tags ou código da categoria", "Quantidade em estoque", "Validade (opcional)",
+  ])("preserves the unavailable administrative field %s with an explanation", label => {
+    const api = mockProductApi();
+    renderForm();
+    const field = screen.getByLabelText(label, { exact: true });
+    expect(field).toBeVisible();
+    expect(field).toBeDisabled();
+    expect(field).toHaveAccessibleDescription(/indisponível|indisponíveis/i);
+    expect(api.fetch).not.toHaveBeenCalled();
+  });
+
+  it("does not ask administrators for brand or description IDs without a selection flow", () => {
+    mockProductApi();
+    renderForm();
+    expect(screen.queryByLabelText("Código da marca")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Código da descrição")).not.toBeInTheDocument();
+  });
+
   it("uploads the order chosen in the form instead of the row index", async () => {
     const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async (_url, options) => {
       const response = options?.body instanceof FormData

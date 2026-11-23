@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { ChevronLeft, Loader2, Plus, Trash2, UploadCloud } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Textarea } from "@/shared/ui/textarea";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card";
@@ -14,6 +16,26 @@ import { buildProductPayload, defaultProductValues, imageOrderError, productFiel
   type ProductFormValues, type ProductTextField } from "@/features/admin/lib/product-form";
 import { routes } from "@/app/router/paths";
 import styles from "./ProductCreatePage.module.css";
+
+function UnavailableProductField({ name, label, noticeId, type = "text", rows }: {
+  name: string;
+  label: string;
+  noticeId: string;
+  type?: string;
+  rows?: number;
+}) {
+  // These controls preserve the administrative sections without accepting data
+  // that the current flow cannot save. They are not registered with the form.
+  const props = { id: name, name, disabled: true, "aria-describedby": noticeId };
+  return (
+    <div className={styles.cardFlex}>
+      <Label htmlFor={name} className={styles.fieldLabel}>{label}</Label>
+      {rows
+        ? <Textarea {...props} rows={rows} placeholder="Aguardando integração" />
+        : <Input {...props} type={type} placeholder="Aguardando integração" />}
+    </div>
+  );
+}
 
 export function ProductCreatePage() {
   const navigate = useNavigate();
@@ -226,13 +248,59 @@ export function ProductCreatePage() {
                 {input("supplier_name", "Nome do fornecedor", { placeholder: "Beleza Suprema Distribuidora" })}
                 {input("supplier_price", "Custo do fornecedor (R$)", { type: "number", step: "any" })}
                 {input("lead_time_days", "Prazo do fornecedor (dias)", { type: "number", step: "1" })}
+                <p id="supplier-unavailable-notice" className={`${styles.fullWidth} ${styles.helperText}`}>
+                  Contato e e-mail indisponíveis neste cadastro. A manutenção de fornecedores ainda não está integrada ao painel.
+                </p>
+                <UnavailableProductField name="supplier_contact" label="Contato do fornecedor" noticeId="supplier-unavailable-notice" />
+                <UnavailableProductField name="supplier_email" label="E-mail do fornecedor" type="email" noticeId="supplier-unavailable-notice" />
               </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle>Marca e descrição</CardTitle><CardDescription>Vínculos opcionais com registros já existentes.</CardDescription></CardHeader>
-              <CardContent className={styles.gridTwo}>
-                {input("brand_id", "Código da marca", { type: "number", step: "1" })}
-                {input("description_id", "Código da descrição", { type: "number", step: "1" })}
+              <CardHeader>
+                <CardTitle>Marca</CardTitle>
+                <CardDescription id="brand-unavailable-notice">
+                  Indisponível neste cadastro. A seleção e o cadastro de marcas ainda não estão disponíveis no painel.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <UnavailableProductField name="brand_name" label="Marca" noticeId="brand-unavailable-notice" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Descrição</CardTitle>
+                <CardDescription id="description-unavailable-notice">
+                  Indisponível neste cadastro. A edição da descrição, dicas de uso e ingredientes ainda não está integrada ao painel.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className={styles.cardFlex}>
+                <UnavailableProductField name="description_text" label="Descrição principal" rows={4} noticeId="description-unavailable-notice" />
+                <UnavailableProductField name="description_usage_tips" label="Dicas de uso" rows={3} noticeId="description-unavailable-notice" />
+                <UnavailableProductField name="description_ingredients" label="Ingredientes" rows={3} noticeId="description-unavailable-notice" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Categorias e tags</CardTitle>
+                <CardDescription id="category-unavailable-notice">
+                  Indisponível neste cadastro. A seleção de categorias ainda não está integrada ao painel.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <UnavailableProductField name="categories_names" label="Tags ou código da categoria" noticeId="category-unavailable-notice" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Estoque inicial</CardTitle>
+                <CardDescription id="stock-unavailable-notice">
+                  Indisponível neste cadastro. O produto será criado com estoque zero.
+                  A entrada de estoque e validade ainda não está integrada ao painel.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className={styles.gridTwoWide}>
+                <UnavailableProductField name="stock_quantity" label="Quantidade em estoque" type="number" noticeId="stock-unavailable-notice" />
+                <UnavailableProductField name="stock_expiry_date" label="Validade (opcional)" type="date" noticeId="stock-unavailable-notice" />
               </CardContent>
             </Card>
             <Card>
@@ -243,10 +311,6 @@ export function ProductCreatePage() {
                 {input("shipping_length", "Comprimento (cm)", { type: "number", step: "any" })}
                 {input("shipping_weight", "Peso (kg)", { type: "number", step: "any" })}
               </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Estoque e categorias</CardTitle></CardHeader>
-              <CardContent><p className={styles.helperText}>O produto é criado com estoque zero. Entradas de estoque e vínculos de categorias não são feitos neste cadastro.</p></CardContent>
             </Card>
           </fieldset>
           <fieldset disabled={busy}>
