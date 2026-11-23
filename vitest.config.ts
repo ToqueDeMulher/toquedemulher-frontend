@@ -21,8 +21,16 @@ export default defineConfig({
         "src/features/auth/api/auth-service.ts",
         "src/features/catalog/components/CatalogFeedback.tsx",
       ],
-      reporter: ["text", "json-summary"],
+      reporter: ["text", "html", "json-summary"],
       reportsDirectory: "artifacts/unit-coverage",
+      reportOnFailure: true,
+      thresholds: {
+        perFile: false,
+        statements: 70,
+        branches: 70,
+        functions: 45,
+        lines: 70,
+      },
     },
   },
 });

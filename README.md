@@ -96,8 +96,83 @@ use a URL publica do backend.
 Verificacao TypeScript:
 
 ```bash
-./node_modules/.bin/tsc --noEmit
+npm run typecheck
 ```
+
+## Testes e validação do CI
+
+Use Node.js 22.12+ (a versão principal está em `.nvmrc`) e instale as
+dependências a partir do lockfile. Para reproduzir as verificações localmente:
+
+```bash
+npm ci
+npm run typecheck
+npm run typecheck:tests
+npm run test:coverage
+npm run build
+npx playwright install chromium
+npm run test:e2e
+git diff --check
+```
+
+`npm run typecheck` verifica a aplicação; `npm run typecheck:tests` verifica
+também os testes unitários e a configuração do Vitest. Para executar os
+unitários sem coletar cobertura, use `npm test`. Os testes unitários e os E2E
+de `npm run test:e2e` simulam as APIs e não exigem um backend ativo. O Playwright
+inicia o Vite automaticamente e executa os cenários em desktop e celular.
+
+Se o Playwright informar que o executável do navegador não existe, instale o
+Chromium com o comando acima e repita os E2E. Esse erro indica um pré-requisito
+do ambiente; falhas de asserção devem ser investigadas nos logs e traces.
+
+### Cobertura mínima
+
+`npm run test:coverage` usa o provider V8 do Vitest. Os limites são globais:
+aplicam-se ao conjunto de arquivos selecionado em `coverage.include` no
+[`vitest.config.ts`](vitest.config.ts), e não a cada arquivo nem a todo o
+frontend.
+
+| Métrica | Mínimo |
+| --- | ---: |
+| Statements | 70% |
+| Branches | 70% |
+| Functions | 45% |
+| Lines | 70% |
+
+Qualquer teste com falha ou métrica abaixo do mínimo faz o comando terminar
+com erro e reprova o job. Esses limites são o piso inicial; preserve a
+cobertura existente ao revisar alterações. Não reduza o conjunto de arquivos
+medidos nem remova testes para atingir as metas.
+
+O resumo aparece no terminal. Os relatórios são gerados em
+`artifacts/unit-coverage/`: abra `index.html` para consultar a cobertura por
+arquivo ou use `coverage-summary.json` para ler os valores consolidados. Os
+relatórios também são gerados quando há falhas nos testes, se a execução
+conseguir coletar a cobertura. A pasta `artifacts/` não é versionada.
+
+### Relatórios no GitHub Actions
+
+O workflow [`CI`](.github/workflows/ci.yml) executa em PRs destinadas à `main`,
+em pushes na `main` e por acionamento manual. O job **Typecheck e build**
+executa instalação, tipagem da aplicação e dos testes, unitários com cobertura
+e build. O nome do check foi mantido para preservar referências existentes.
+O job **Testes E2E** mantém os cenários Playwright e a instalação do Chromium.
+
+1. Abra a aba [Actions](https://github.com/ToqueDeMulher/toquedemulher-frontend/actions/workflows/ci.yml)
+   e selecione a execução do workflow **CI**. Na PR, também é possível abrir
+   os detalhes de cada check.
+2. Consulte o passo `npm run test:coverage` no job **Typecheck e build** para
+   ver os testes executados, a tabela de cobertura e eventuais falhas.
+3. No resumo da execução, em **Artifacts**, baixe `vitest-coverage`, extraia
+   o ZIP e abra `index.html`. O artefato inclui o resumo JSON e fica disponível
+   por 7 dias. O envio também é tentado após falhas nos unitários ou no build;
+   execuções canceladas ou que não chegaram à etapa de cobertura podem não
+   produzir relatórios. A ausência de arquivos no envio reprova o passo.
+4. Para falhas nos E2E, consulte os logs de **Testes E2E** e o artefato
+   `playwright-falhas`, com traces e screenshots, também retido por 7 dias.
+
+Referências: [cobertura no Vitest 3](https://v3.vitest.dev/config/#coverage)
+e [artefatos do GitHub Actions](https://docs.github.com/en/actions/tutorials/store-and-share-data).
 
 ## Configuração da API
 
