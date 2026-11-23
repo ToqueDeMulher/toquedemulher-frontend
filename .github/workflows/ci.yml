@@ -31,6 +31,9 @@ jobs:
       - run: npm run test:coverage
         id: coverage
       - run: npm run build
+      # Inclui ferramentas de build/teste; política em docs/dependency-security-review.md.
+      - name: Auditar dependências (altas e críticas)
+        run: npm audit --audit-level=high
       - name: Enviar relatório de cobertura
         if: ${{ !cancelled() && (steps.coverage.outcome == 'success' || steps.coverage.outcome == 'failure') }}
         uses: actions/upload-artifact@v4
