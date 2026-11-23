@@ -171,7 +171,11 @@ O job **Testes E2E** mantém os cenários Playwright e a instalação do Chromiu
 4. Para falhas nos E2E, consulte os logs de **Testes E2E** e o artefato
    `playwright-falhas`, com traces e screenshots, também retido por 7 dias.
 
-Referências: [cobertura no Vitest 3](https://v3.vitest.dev/config/#coverage)
+O CI também executa `npm audit --audit-level=high`. A avaliação de exposição,
+as correções e a política de triagem estão na
+[revisão de segurança das dependências](docs/dependency-security-review.md).
+
+Referências: [cobertura no Vitest 4](https://v4.vitest.dev/config/#coverage)
 e [artefatos do GitHub Actions](https://docs.github.com/en/actions/tutorials/store-and-share-data).
 
 ## Configuração da API
