@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://toquedemulher-backend.vercel.app/api/:path*"
+      "destination": "https://toquedemulher-backend-78s6ugpms-toque-de-mulher.vercel.app/api/:path*"
     },
     {
       "source": "/(.*)",
