@@ -20,11 +20,20 @@ export interface CreateProductPayload {
   hypoallergenic?: boolean;
   brand_id?: number | null;
   description_id?: number | null;
+  description?: ProductDescriptionPayload | null;
+  category_ids?: number[];
+  stock_quantity?: number;
   supplier_products?: {
     supplier_name: string;
     supplier_price: number;
     lead_time_days?: number | null;
   }[] | null;
+}
+
+export interface ProductDescriptionPayload {
+  text: string;
+  usage_tips?: string | null;
+  ingredients?: string | null;
 }
 
 export interface CreateProductResponse {
@@ -39,6 +48,9 @@ export interface UpdateProductPayload {
   price?: number;
   active?: boolean;
   slug?: string;
+  description?: ProductDescriptionPayload;
+  category_ids?: number[];
+  stock_quantity?: number;
 }
 
 export interface UpdateProductResponse {
@@ -46,6 +58,29 @@ export interface UpdateProductResponse {
   name: string;
   price: number;
   active: boolean;
+}
+
+export interface AdminCategory { id: number; name: string }
+export interface AdminProductImage {
+  id: number;
+  url: string;
+  alt_text: string | null;
+  order: number;
+  is_primary: boolean;
+}
+export interface AdminProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  active: boolean;
+  status: "draft" | "published";
+  image: string;
+  images: AdminProductImage[];
+  categories: AdminCategory[];
+  category_ids: number[];
+  description: ProductDescriptionPayload | null;
+  stock_quantity: number;
 }
 
 export interface ProductImageResponse {

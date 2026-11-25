@@ -3,8 +3,9 @@ import {
   CreateProductResponse,
   ProductImageResponse,
   UpdateProductPayload,
-  UpdateProductResponse,
   UploadProductImageOptions,
+  AdminCategory,
+  AdminProduct,
 } from "@/features/admin/types/product";
 import { apiRequest } from "@/shared/api/api-client";
 import type { CatalogProduct } from "@/features/catalog/data/catalog-products";
@@ -18,23 +19,28 @@ export async function getPublishedProduct(productId: string): Promise<CatalogPro
   return apiRequest<CatalogProduct>(`/products/${encodeURIComponent(productId)}`);
 }
 
-export type AdminProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  active: boolean;
-  image: string;
+export type { AdminProduct } from "@/features/admin/types/product";
+
+export const getAdminProducts = (filters: { search?: string; status?: string; categoryId?: number } = {}) => {
+  const query = new URLSearchParams();
+  if (filters.search?.trim()) query.set("search", filters.search.trim());
+  if (filters.status && filters.status !== "all") query.set("status", filters.status);
+  if (filters.categoryId) query.set("category_id", String(filters.categoryId));
+  const suffix = query.size ? `?${query.toString()}` : "";
+  return apiRequest<AdminProduct[]>(`/products/admin/all${suffix}`);
 };
 
-export const getAdminProducts = () =>
-  apiRequest<AdminProduct[]>("/products/admin/all");
+export const getAdminProduct = (productId: string) =>
+  apiRequest<AdminProduct>(`/products/admin/${encodeURIComponent(productId)}`);
+
+export const getAdminCategories = () =>
+  apiRequest<AdminCategory[]>("/products/admin/categories");
 
 export const updateProduct = (
   productId: string,
   payload: UpdateProductPayload,
 ) =>
-  apiRequest<UpdateProductResponse>(`/products/${encodeURIComponent(productId)}`, {
+  apiRequest<AdminProduct>(`/products/${encodeURIComponent(productId)}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
@@ -43,6 +49,15 @@ export const deleteProduct = (productId: string) =>
   apiRequest<{ message: string }>(`/products/${encodeURIComponent(productId)}`, {
     method: "DELETE",
   });
+
+export const publishProduct = (productId: string) =>
+  apiRequest<AdminProduct>(`/products/${encodeURIComponent(productId)}/publish`, { method: "POST" });
+
+export const unpublishProduct = (productId: string) =>
+  apiRequest<AdminProduct>(`/products/${encodeURIComponent(productId)}/unpublish`, { method: "POST" });
+
+export const setPrimaryProductImage = (productId: string, imageId: number) =>
+  apiRequest<AdminProduct>(`/products/${encodeURIComponent(productId)}/images/${imageId}/primary`, { method: "POST" });
 
 export async function createProduct(payload: CreateProductPayload) {
   return apiRequest<CreateProductResponse>("/products", {

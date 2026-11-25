@@ -5,7 +5,7 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { ProductManagementPage } from "@/features/admin/pages/ProductManagementPage";
 
 const api = vi.hoisted(() => ({
-  login: vi.fn(), products: vi.fn(), update: vi.fn(), remove: vi.fn(),
+  login: vi.fn(), products: vi.fn(), categories: vi.fn(), update: vi.fn(), publish: vi.fn(), unpublish: vi.fn(),
 }));
 vi.mock("@/features/auth/context/auth-context", () => ({
   useAuth: () => ({ login: vi.fn(), isLoggedIn: false, role: "customer" }),
@@ -15,7 +15,8 @@ vi.mock("@/features/auth/api/auth-service", async (importOriginal) => ({
   loginRequest: api.login,
 }));
 vi.mock("@/features/admin/api/product-service", () => ({
-  getAdminProducts: api.products, updateProduct: api.update, deleteProduct: api.remove,
+  getAdminProducts: api.products, getAdminCategories: api.categories, updateProduct: api.update,
+  publishProduct: api.publish, unpublishProduct: api.unpublish,
 }));
 
 describe("account forms and product administration", () => {
@@ -35,25 +36,26 @@ describe("account forms and product administration", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Entrar" })).toBeEnabled());
     expect(screen.getByLabelText("E-mail", { exact: true })).toHaveValue("fixture@example.com");
   });
-  it("updates product name, price and availability only after backend acceptance", async () => {
-    const product = { id: "fixture", name: "Batom", slug: "batom", price: 49.9, active: true, image: "" };
-    api.products.mockResolvedValueOnce([product])
-      .mockResolvedValueOnce([{ ...product, name: "Batom rosa", slug: "batom-rosa", price: 55.5, active: false }]);
+  it("updates product fields only after backend acceptance", async () => {
+    const product = { id: "fixture", name: "Batom", slug: "batom", price: 49.9, active: false,
+      status: "draft", image: "", images: [], categories: [{ id: 1, name: "Maquiagem" }],
+      category_ids: [1], description: { text: "Cor intensa" }, stock_quantity: 2 };
+    api.categories.mockResolvedValue([{ id: 1, name: "Maquiagem" }]);
+    api.products.mockResolvedValueOnce([product]);
     api.update.mockRejectedValueOnce(new Error("Serviço indisponível"))
-      .mockResolvedValueOnce({ id: product.id, name: "Batom rosa", price: 55.5, active: false });
+      .mockResolvedValueOnce({ ...product, name: "Batom rosa", price: 55.5, stock_quantity: 4 });
     render(<ProductManagementPage />);
     expect(screen.getByText("Carregando produtos...")).toBeVisible();
     fireEvent.click(await screen.findByRole("button", { name: "Editar" }));
     fireEvent.change(screen.getByLabelText("Nome do produto"), { target: { value: "Batom rosa" } });
     fireEvent.change(screen.getByLabelText("Preço do produto"), { target: { value: "55.5" } });
-    fireEvent.click(screen.getByLabelText("Ativo na vitrine"));
+    fireEvent.change(screen.getByLabelText("Estoque do produto"), { target: { value: "4" } });
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
-    await waitFor(() => expect(api.update).toHaveBeenCalledWith("fixture", { name: "Batom rosa", price: 55.5, active: false }));
+    await waitFor(() => expect(api.update).toHaveBeenCalledWith("fixture", expect.objectContaining({ name: "Batom rosa", price: 55.5, stock_quantity: 4 })));
     await waitFor(() => expect(screen.getByRole("button", { name: "Salvar" })).toBeEnabled());
     expect(screen.getByLabelText("Nome do produto")).toHaveValue("Batom rosa");
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
     await waitFor(() => expect(screen.queryByLabelText("Nome do produto")).not.toBeInTheDocument());
-    expect(screen.getByText(/Desativado/)).toBeVisible();
-    expect(screen.getByText("batom-rosa")).toBeVisible();
+    expect(screen.getByText(/4 em estoque/)).toBeVisible();
   });
 });

@@ -1,0 +1,138 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.topBar,
+.orderActions,
+.orderItem,
+.orderMain {
+  display: flex;
+}
+
+.topBar {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.topTitleBlock,
+.orderMain {
+  min-width: 0;
+}
+
+.topEyebrow {
+  color: var(--theme-brand-strong);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.topTitle {
+  color: var(--theme-text-primary);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-weight: 650;
+}
+
+.topSubtitle,
+.orderMain span,
+.orderMain small {
+  color: var(--theme-text-secondary);
+}
+
+.panel,
+.orderItem {
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 0.9rem;
+  background: var(--theme-surface-primary);
+}
+
+.panel {
+  min-width: 0;
+  padding: 1rem;
+}
+
+.orderList {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.orderItem {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.orderMain {
+  flex: 1;
+  flex-direction: column;
+  gap: 0.65rem;
+  overflow-wrap: anywhere;
+}
+
+.orderMain > img,
+.orderMain figure img {
+  border-radius: 0.65rem;
+  object-fit: cover;
+}
+
+.orderMain > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.orderMain figure {
+  margin: 0;
+}
+
+.orderMain figcaption {
+  font-size: 0.75rem;
+}
+
+.orderActions {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.panel > .orderActions > :first-child {
+  flex: 1 1 14rem;
+}
+
+.loadingState,
+.emptyState {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--theme-text-secondary);
+}
+
+.spinning,
+.spinnerIcon {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .topBar,
+  .orderItem {
+    flex-direction: column;
+  }
+
+  .topBar > *,
+  .orderItem > *,
+  .orderActions > * {
+    width: 100%;
+  }
+
+  .panel {
+    padding: 0.75rem;
+  }
+}
