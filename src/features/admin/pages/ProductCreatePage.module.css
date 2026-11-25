@@ -150,7 +150,8 @@
 }
 
 .uploadHint {
-  @apply text-xs text-gray-500;
+  @apply min-w-0 max-w-full text-xs text-gray-500;
+  overflow-wrap: anywhere;
 }
 
 .errorText {

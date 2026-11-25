@@ -340,17 +340,29 @@ navegador ao iniciar o app.
 
 ### Cadastro administrativo de produtos
 
-A tela `src/features/admin/pages/ProductCreatePage.tsx` já possui:
+A tela `src/features/admin/pages/ProductCreatePage.tsx` possui:
 
-- formulário administrativo com preview de payload
+- validação dos campos aceitos pelo FastAPI e preview de payload
 - criação de produto via `src/features/admin/api/product-service.ts`
 - upload de imagens com `FormData`
-- feedback visual com toast
+- erros persistentes e feedback visual com toast
+- reenvio das imagens pendentes sem repetir a criação do produto
 
 No estado atual do frontend, o serviço de produtos consome:
 
-- `POST /products/`
-- `POST /products/{id}/images`
+- `POST /products` (JSON)
+- `POST /products/{id}/images/upload` (`FormData`: `file`, `order`, `alt_text`)
+- `GET /products/admin/all`, `PATCH /products/{id}` e `DELETE /products/{id}`
+
+O fornecedor deve existir e o vínculo exige seu custo em `supplier_products`.
+As seções de marca, descrição, categorias, estoque e contato/email do fornecedor
+permanecem visíveis, com campos desabilitados e explicações das integrações
+pendentes. Esses campos não aceitam dados que seriam descartados; não há entrada
+manual de códigos de marca/descrição. O backend gera UUID, slug e estoque inicial
+zero. A manutenção de fornecedores e entradas de estoque possuem APIs próprias,
+mas ainda não têm telas integradas neste painel.
+Consulte o [contrato e os cenários de teste](docs/product-api-contract.md) para os
+campos aceitos, tratamento de falhas e justificativas dos ajustes.
 
 ## Observações importantes
 

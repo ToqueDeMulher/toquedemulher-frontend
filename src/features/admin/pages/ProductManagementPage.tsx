@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Loader2, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
@@ -10,6 +10,7 @@ import {
   updateProduct,
 } from "@/features/admin/api/product-service";
 import styles from "./AdminDashboardPage.module.css";
+import { numberFieldError } from "@/features/admin/lib/product-form";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -23,13 +24,19 @@ export function ProductManagementPage() {
   const [editing, setEditing] = useState<AdminProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [priceInput, setPriceInput] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const mutationRef = useRef(false);
 
   const loadProducts = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       setProducts(await getAdminProducts());
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível carregar os produtos.");
+      const message = error instanceof Error ? error.message : "Não foi possível carregar os produtos.";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -40,34 +47,59 @@ export function ProductManagementPage() {
   }, []);
 
   const saveProduct = async () => {
-    if (!editing) return;
+    if (!editing || mutationRef.current) return;
+    const validation = numberFieldError(priceInput, { label: "O preço", required: true, min: 0 });
+    if (!editing.name.trim() || validation !== true) {
+      setError(!editing.name.trim() ? "Informe o nome do produto." : String(validation));
+      return;
+    }
+    mutationRef.current = true;
     setIsSaving(true);
+    setError(null);
     try {
       const updated = await updateProduct(editing.id, {
         name: editing.name.trim(),
-        price: editing.price,
+        price: Number(priceInput),
         active: editing.active,
       });
       setProducts((current) => current.map((item) =>
-        item.id === updated.id ? { ...item, ...updated } : item,
+        item.id === updated.id ? { ...item, ...updated, slug: updated.name === item.name ? item.slug : "" } : item,
       ));
       setEditing(null);
       toast.success("Produto atualizado.");
+      try {
+        // PATCH does not return the regenerated slug; reload its authoritative value.
+        setProducts(await getAdminProducts());
+      } catch {
+        setError("O produto foi salvo, mas a lista não pôde ser recarregada. Use Atualizar.");
+      }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível atualizar o produto.");
+      const message = error instanceof Error ? error.message : "Não foi possível atualizar o produto.";
+      setError(message);
+      toast.error(message);
     } finally {
+      mutationRef.current = false;
       setIsSaving(false);
     }
   };
 
   const removeProduct = async (product: AdminProduct) => {
+    if (mutationRef.current) return;
     if (!window.confirm(`Excluir definitivamente “${product.name}”?`)) return;
+    mutationRef.current = true;
+    setIsSaving(true);
+    setError(null);
     try {
       await deleteProduct(product.id);
       setProducts((current) => current.filter((item) => item.id !== product.id));
       toast.success("Produto excluído.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível excluir o produto.");
+      const message = error instanceof Error ? error.message : "Não foi possível excluir o produto.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      mutationRef.current = false;
+      setIsSaving(false);
     }
   };
 
@@ -79,11 +111,12 @@ export function ProductManagementPage() {
           <h1 className={styles.topTitle}>Produtos</h1>
           <p className={styles.topSubtitle}>Edite, desative ou exclua itens da vitrine.</p>
         </div>
-        <Button type="button" variant="outline" onClick={() => void loadProducts()} disabled={isLoading}>
+        <Button type="button" variant="outline" onClick={() => void loadProducts()} disabled={isLoading || isSaving}>
           {isLoading ? <Loader2 className={styles.spinning} /> : <RefreshCw />}
           Atualizar
         </Button>
       </header>
+      {error && <p role="alert">{error}</p>}
 
       <section className={styles.panel}>
         {isLoading ? (
@@ -100,15 +133,15 @@ export function ProductManagementPage() {
                   <div className={styles.orderMain}>
                     {isEditing ? (
                       <>
-                        <Input value={item.name} onChange={(event) => setEditing({ ...item, name: event.target.value })} aria-label="Nome do produto" />
-                        <Input type="number" min="0" step="0.01" value={item.price} onChange={(event) => setEditing({ ...item, price: Number(event.target.value) })} aria-label="Preço do produto" />
-                        <label><input type="checkbox" checked={item.active} onChange={(event) => setEditing({ ...item, active: event.target.checked })} /> Ativo na vitrine</label>
+                        <Input value={item.name} disabled={isSaving} onChange={(event) => setEditing({ ...item, name: event.target.value })} aria-label="Nome do produto" />
+                        <Input type="number" min="0" step="any" value={priceInput} disabled={isSaving} onChange={(event) => setPriceInput(event.target.value)} aria-label="Preço do produto" />
+                        <label><input type="checkbox" checked={item.active} disabled={isSaving} onChange={(event) => setEditing({ ...item, active: event.target.checked })} /> Ativo na vitrine</label>
                       </>
                     ) : (
                       <>
                         <strong>{product.name}</strong>
                         <span>{formatPrice(product.price)} · {product.active ? "Ativo" : "Desativado"}</span>
-                        <small>{product.slug}</small>
+                        {product.slug && <small>{product.slug}</small>}
                       </>
                     )}
                   </div>
@@ -118,7 +151,10 @@ export function ProductManagementPage() {
                         <Check /> Salvar
                       </Button>
                     ) : (
-                      <Button type="button" size="sm" variant="outline" onClick={() => setEditing(product)}>
+                      <Button type="button" size="sm" variant="outline" disabled={isSaving} onClick={() => {
+                        if (mutationRef.current) return;
+                        setEditing(product); setPriceInput(String(product.price)); setError(null);
+                      }}>
                         <Pencil /> Editar
                       </Button>
                     )}
