@@ -14,6 +14,7 @@ describe("product payload derived from the FastAPI ProductRequest", () => {
       target_audience: null, product_type: null, skin_type: null, hair_type: null, color: null, fragrance: null,
       spf: 50, vegan: true, cruelty_free: false, hypoallergenic: true, brand_id: 3, description_id: 5,
       shipping_width: 10, shipping_height: 20, shipping_length: 30, shipping_weight: 0.2,
+      description: { text: "ignored", usage_tips: null, ingredients: null }, stock_quantity: 99,
       supplier_products: [{ supplier_name: "Existente", supplier_price: 0, lead_time_days: 0 }] });
   });
 

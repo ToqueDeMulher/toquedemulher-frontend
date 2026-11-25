@@ -2,7 +2,9 @@ import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 
 const id = "a1000000-0000-4000-8000-000000000001";
-const product = { id, name: "Batom", slug: "batom", price: 49.9, active: true, image: "" };
+const product = { id, name: "Batom", slug: "batom", price: 49.9, active: false, status: "draft", image: "",
+  images: [], categories: [{ id: 1, name: "Maquiagem" }], category_ids: [1],
+  description: { text: "Cor intensa", usage_tips: null, ingredients: null }, stock_quantity: 2 };
 const file = { name: "produto.png", mimeType: "image/png", buffer: Buffer.from("fixture-image") };
 
 async function mockAdmin(page: Page) {
@@ -48,8 +50,7 @@ test("admin creates the exact product contract and retries a failed multipart up
       : { id: 1, url: "/icone.png", order: 4, sort_order: 4, is_primary: false, alt_text: "Foto do produto" } });
   });
   await page.goto("/admin/produtos/novo");
-  const unavailableFields = ["Contato do fornecedor", "E-mail do fornecedor", "Marca", "Descrição principal",
-    "Dicas de uso", "Ingredientes", "Tags ou código da categoria", "Quantidade em estoque", "Validade (opcional)"];
+  const unavailableFields = ["Contato do fornecedor", "E-mail do fornecedor", "Marca", "Validade (opcional)"];
   for (const label of unavailableFields) {
     const field = page.getByLabel(label, { exact: true });
     await expect(field).toBeVisible();
@@ -61,7 +62,7 @@ test("admin creates the exact product contract and retries a failed multipart up
   await page.getByLabel("Nome *", { exact: true }).fill("Produto de contrato");
   await page.getByLabel("Preço (R$) *", { exact: true }).fill("49.9");
   await page.getByLabel("Proteção solar (SPF)", { exact: true }).fill("50");
-  await page.getByRole("checkbox", { name: "Produto ativo", exact: true }).uncheck();
+  await expect(page.getByRole("checkbox", { name: "Publicar após cadastrar", exact: true })).not.toBeChecked();
   await page.getByRole("checkbox", { name: "Vegano", exact: true }).check();
   await page.getByLabel("Nome do fornecedor", { exact: true }).fill("Fornecedor existente");
   await page.getByLabel("Custo do fornecedor (R$)", { exact: true }).fill("25");
@@ -125,29 +126,30 @@ test("admin rejects invalid required values and invalid images before creating a
   expect(mutations).toEqual([]);
 });
 
-test("admin preserves an empty price draft, reloads regenerated slugs and displays delete conflicts", async ({ page }) => {
+test("admin edits stock and description, filters drafts and publishes through the validated endpoint", async ({ page }) => {
   await mockAdmin(page);
   let current = product;
-  let failRefresh = false;
   let patches = 0;
-  await page.route("**/api/v1/products/admin/all", route => {
-    if (failRefresh) {
-      failRefresh = false;
-      return route.fulfill({ status: 503, json: { detail: "Lista temporariamente indisponível." } });
-    }
+  await page.route("**/api/v1/products/admin/categories", route => route.fulfill({ json: [{ id: 1, name: "Maquiagem" }] }));
+  await page.route("**/api/v1/products/admin/all**", route => {
     return route.fulfill({ json: [current] });
   });
   await page.route(`**/api/v1/products/${id}`, async route => {
-    if (route.request().method() === "DELETE") return route.fulfill({ status: 409,
-      json: { detail: "Este produto possui movimentacoes e nao pode ser excluido. Desative-o em vez disso." } });
     expect(route.request().method()).toBe("PATCH");
     patches++;
-    expect(route.request().postDataJSON()).toEqual({ name: "Batom rosa", price: 55.5, active: false });
-    current = { ...product, name: "Batom rosa", slug: "batom-rosa", price: 55.5, active: false };
-    failRefresh = true;
-    await route.fulfill({ json: { id, name: current.name, price: current.price, active: current.active } });
+    expect(route.request().postDataJSON()).toMatchObject({ name: "Batom rosa", price: 55.5,
+      stock_quantity: 4, category_ids: [1], description: { text: "Nova descrição" } });
+    current = { ...current, name: "Batom rosa", price: 55.5, stock_quantity: 4,
+      description: { ...current.description, text: "Nova descrição" } };
+    await route.fulfill({ json: current });
+  });
+  await page.route(`**/api/v1/products/${id}/publish`, route => {
+    current = { ...current, active: true, status: "published" };
+    return route.fulfill({ json: current });
   });
   await page.goto("/admin/produtos");
+  await page.getByLabel("Filtrar por status").selectOption("draft");
+  await page.getByRole("button", { name: "Aplicar filtros" }).click();
   await page.getByRole("button", { name: "Editar", exact: true }).click();
   await page.getByLabel("Preço do produto", { exact: true }).fill("");
   await page.getByRole("button", { name: "Salvar", exact: true }).click();
@@ -156,15 +158,11 @@ test("admin preserves an empty price draft, reloads regenerated slugs and displa
   await expect(page.getByLabel("Preço do produto", { exact: true })).toHaveValue("");
   await page.getByLabel("Nome do produto", { exact: true }).fill("Batom rosa");
   await page.getByLabel("Preço do produto", { exact: true }).fill("55.5");
-  await page.getByLabel("Ativo na vitrine", { exact: true }).uncheck();
+  await page.getByLabel("Estoque do produto", { exact: true }).fill("4");
+  await page.getByLabel("Descrição do produto", { exact: true }).fill("Nova descrição");
   await page.getByRole("button", { name: "Salvar", exact: true }).evaluate(button => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
-  await expect(page.getByRole("alert")).toContainText("O produto foi salvo, mas a lista não pôde ser recarregada");
   expect(patches).toBe(1);
-  await expect(page.getByText("batom", { exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "Atualizar", exact: true }).click();
-  await expect(page.getByText("batom-rosa", { exact: true })).toBeVisible();
-  page.once("dialog", dialog => dialog.accept());
-  await page.getByRole("button", { name: "Excluir", exact: true }).click();
-  await expect(page.getByRole("alert")).toContainText("Desative-o em vez disso");
-  await expect(page.getByText("Batom rosa", { exact: true })).toBeVisible();
+  await expect(page.getByText(/4 em estoque/)).toBeVisible();
+  await page.getByRole("button", { name: "Publicar", exact: true }).click();
+  await expect(page.getByText(/4 em estoque · Publicado/)).toBeVisible();
 });

@@ -14,6 +14,9 @@ function mockProductApi(statuses: number[] = []) {
   const uploads: FormData[] = [];
   const creates: unknown[] = [];
   const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async (url, options) => {
+    if (String(url) === "/api/v1/products/admin/categories") {
+      return new Response(JSON.stringify([{ id: 1, name: "Maquiagem" }]));
+    }
     if (String(url) === "/api/v1/products") {
       creates.push(JSON.parse(String(options?.body)));
       return new Response(JSON.stringify({ id: productId, name: "Batom", slug: "batom", message: "Criado" }));
@@ -46,8 +49,7 @@ function selectImage(index: number, file = new File(["fixture-image"], "image.pn
 
 describe("product creation regressions", () => {
   it.each([
-    "Contato do fornecedor", "E-mail do fornecedor", "Marca", "Descrição principal",
-    "Dicas de uso", "Ingredientes", "Tags ou código da categoria", "Quantidade em estoque", "Validade (opcional)",
+    "Contato do fornecedor", "E-mail do fornecedor", "Marca", "Validade (opcional)",
   ])("preserves the unavailable administrative field %s with an explanation", label => {
     const api = mockProductApi();
     renderForm();
@@ -55,7 +57,7 @@ describe("product creation regressions", () => {
     expect(field).toBeVisible();
     expect(field).toBeDisabled();
     expect(field).toHaveAccessibleDescription(/indisponível|indisponíveis/i);
-    expect(api.fetch).not.toHaveBeenCalled();
+    expect(api.creates).toHaveLength(0);
   });
 
   it("does not ask administrators for brand or description IDs without a selection flow", () => {
@@ -81,8 +83,9 @@ describe("product creation regressions", () => {
       target: { files: [new File(["fixture-image"], "image.png", { type: "image/png" })] },
     });
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar produto" }));
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
-    expect((fetch.mock.calls[1][1]?.body as FormData).get("order")).toBe("4");
+    await waitFor(() => expect(fetch.mock.calls.some(call => call[1]?.body instanceof FormData)).toBe(true));
+    const uploadCall = fetch.mock.calls.find(call => call[1]?.body instanceof FormData)!;
+    expect((uploadCall[1]?.body as FormData).get("order")).toBe("4");
   });
 
   it.each(["", "   "])("rejects missing/whitespace name %j before creating a product", async name => {
@@ -93,7 +96,7 @@ describe("product creation regressions", () => {
     expect(await screen.findByText("Informe o nome comercial.")).toBeVisible();
     expect(screen.getByLabelText("Nome *")).toBeInvalid();
     await waitFor(() => expect(screen.getByLabelText("Nome *")).toHaveFocus());
-    expect(api.fetch).not.toHaveBeenCalled();
+    expect(api.creates).toHaveLength(0);
   });
   it("rejects an empty price instead of silently creating a free product", async () => {
     const api = mockProductApi();
@@ -101,12 +104,13 @@ describe("product creation regressions", () => {
     fireEvent.change(screen.getByLabelText("Nome *"), { target: { value: "Batom" } });
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar produto" }));
     expect(await screen.findByText("O preço é obrigatório.")).toBeVisible();
-    expect(api.fetch).not.toHaveBeenCalled();
+    expect(api.creates).toHaveLength(0);
   });
   it("displays the backend duplicate-slug message and preserves the draft", async () => {
     const api = mockProductApi();
-    api.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ detail: "Slug ja existe" }), { status: 400 }));
     renderForm();
+    await waitFor(() => expect(api.fetch).toHaveBeenCalled());
+    api.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ detail: "Slug ja existe" }), { status: 400 }));
     fillMinimum();
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar produto" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Slug ja existe");
@@ -115,11 +119,12 @@ describe("product creation regressions", () => {
   });
   it.each(["network", "invalid-response", "server-error", "missing-id"])("explains an unconfirmed creation after %s without hiding the error or repeating the POST", async failure => {
     const api = mockProductApi();
+    renderForm();
+    await waitFor(() => expect(api.fetch).toHaveBeenCalled());
     if (failure === "network") api.fetch.mockRejectedValueOnce(new TypeError("offline"));
     else if (failure === "invalid-response") api.fetch.mockResolvedValueOnce(new Response("{invalid"));
     else if (failure === "missing-id") api.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ name: "Batom" })));
     else api.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ detail: "Serviço indisponível." }), { status: 503 }));
-    renderForm();
     fillMinimum();
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar produto" }));
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -129,7 +134,7 @@ describe("product creation regressions", () => {
     expect(screen.getByText(/A criação pode ter sido concluída/)).toBeVisible();
     expect(screen.getByRole("link", { name: "Consultar produtos" })).toHaveAttribute("href", "/admin/produtos");
     expect(screen.getByLabelText("Nome *")).toHaveValue("Batom");
-    expect(api.fetch).toHaveBeenCalledOnce();
+    expect(api.creates).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: "Limpar campos" }));
     expect(screen.queryByText(/A criação pode ter sido concluída/)).not.toBeInTheDocument();
   });
@@ -143,7 +148,7 @@ describe("product creation regressions", () => {
     selectImage(1, file);
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar produto" }));
     expect(await screen.findByText("Confira as imagens selecionadas antes de continuar.")).toBeVisible();
-    expect(api.fetch).not.toHaveBeenCalled();
+    expect(api.creates).toHaveLength(0);
   });
   it("retains a replacement file after an immediate upload failure and retries only images", async () => {
     const api = mockProductApi([503, 503, 200]);
@@ -191,14 +196,14 @@ describe("product creation regressions", () => {
       selectImage(1, new File(["one"], "one.webp", { type: "image/webp" }));
       selectImage(1, new File(["two"], "two.webp", { type: "image/webp" }));
       fireEvent.submit(container.querySelector("form")!);
-      expect(api.fetch).toHaveBeenCalledTimes(3);
+      expect(api.fetch).toHaveBeenCalledTimes(4);
       expect(screen.getByText("one.webp")).toBeVisible();
       expect(screen.queryByText("two.webp")).not.toBeInTheDocument();
     } finally {
       release(new Response(JSON.stringify({ id: 1, url: "/one.webp", order: 1, sort_order: 1, is_primary: true, alt_text: null })));
     }
     await waitFor(() => expect(screen.getByLabelText("URL da imagem 1")).toHaveValue("/one.webp"));
-    expect(api.fetch).toHaveBeenCalledTimes(3);
+    expect(api.fetch).toHaveBeenCalledTimes(4);
   });
   it("keeps image errors attached to the correct row after removing another image", () => {
     mockProductApi();
@@ -213,19 +218,20 @@ describe("product creation regressions", () => {
   it("prevents duplicate creation while validation and the POST are in flight", async () => {
     const api = mockProductApi();
     let release!: (response: Response) => void;
-    api.fetch.mockImplementationOnce(() => new Promise<Response>(resolve => { release = resolve; }));
     const { container } = renderForm();
+    await waitFor(() => expect(api.fetch).toHaveBeenCalled());
+    api.fetch.mockImplementationOnce(() => new Promise<Response>(resolve => { release = resolve; }));
     fillMinimum();
     fireEvent.submit(container.querySelector("form")!);
     fireEvent.submit(container.querySelector("form")!);
     try {
-      await waitFor(() => expect(api.fetch).toHaveBeenCalledOnce());
+      await waitFor(() => expect(api.fetch).toHaveBeenCalledTimes(2));
       expect(screen.getByRole("button", { name: "Cadastrar produto" })).toBeDisabled();
     } finally {
       release(new Response(JSON.stringify({ id: productId, name: "Batom", slug: "batom" })));
     }
     await waitFor(() => expect(screen.getByLabelText("Nome *")).toHaveValue(""));
-    expect(api.fetch).toHaveBeenCalledOnce();
+    expect(api.fetch).toHaveBeenCalledTimes(2);
   });
   it("starts a fresh product after clearing a partially completed creation", async () => {
     const api = mockProductApi([503]);

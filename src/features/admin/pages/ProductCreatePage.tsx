@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -11,7 +11,8 @@ import { Checkbox } from "@/shared/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
-import { createProduct, uploadProductImage } from "@/features/admin/api/product-service";
+import { createProduct, getAdminCategories, publishProduct, uploadProductImage } from "@/features/admin/api/product-service";
+import type { AdminCategory } from "@/features/admin/types/product";
 import { ApiError } from "@/shared/api/api-client";
 import { buildProductPayload, defaultProductValues, imageOrderError, productFieldError, productImageError,
   type ProductFormValues, type ProductTextField } from "@/features/admin/lib/product-form";
@@ -53,10 +54,17 @@ export function ProductCreatePage() {
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [creationUnconfirmed, setCreationUnconfirmed] = useState(false);
+  const [categories, setCategories] = useState<AdminCategory[]>([]);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const busy = isSubmitting || Object.keys(uploadingImageIds).length > 0;
   let previewPayload = null;
   try { previewPayload = buildProductPayload(values); } catch { /* The preview waits for valid form values. */ }
+
+  useEffect(() => {
+    void getAdminCategories().then(value => setCategories(Array.isArray(value) ? value : [])).catch(error => {
+      setSubmitError(error instanceof Error ? error.message : "Não foi possível carregar as categorias.");
+    });
+  }, []);
 
   const forgetPendingFile = (fieldId: string) => {
     setPendingImageFiles(previous => {
@@ -172,7 +180,8 @@ export function ProductCreatePage() {
         setSubmitError("Produto criado, mas há imagens pendentes. Reenvie as imagens para concluir.");
         return;
       }
-      toast.success("Produto criado com sucesso!");
+      if (submitted.active) await publishProduct(productId);
+      toast.success(submitted.active ? "Produto criado e publicado!" : "Produto salvo como rascunho!");
       clearForm();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erro ao cadastrar produto.";
@@ -247,7 +256,7 @@ export function ProductCreatePage() {
                 {input("spf", "Proteção solar (SPF)", { type: "number", step: "1" })}
               </CardContent>
               <CardFooter><div className={styles.footerGrid}>
-                {([ ["active", "Produto ativo", "Controla exibição na vitrine."], ["vegan", "Vegano", "Sem ingredientes de origem animal."],
+                {([ ["active", "Publicar após cadastrar", "A publicação ocorrerá após o envio das imagens."], ["vegan", "Vegano", "Sem ingredientes de origem animal."],
                   ["cruelty_free", "Cruelty-free", "Sem testes em animais."], ["hypoallergenic", "Hipoalergênico", "Indicado para peles sensíveis."] ] as const)
                   .map(([name, label, description]) => <FormField key={name} control={control} name={name} render={({ field }) => (
                     <FormItem className={name === "hypoallergenic" ? styles.footerItemWide : styles.footerItem}>
@@ -282,40 +291,31 @@ export function ProductCreatePage() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <CardTitle>Descrição</CardTitle>
-                <CardDescription id="description-unavailable-notice">
-                  Indisponível neste cadastro. A edição da descrição, dicas de uso e ingredientes ainda não está integrada ao painel.
-                </CardDescription>
-              </CardHeader>
+              <CardHeader><CardTitle>Descrição</CardTitle><CardDescription>Conteúdo exibido na página do produto.</CardDescription></CardHeader>
               <CardContent className={styles.cardFlex}>
-                <UnavailableProductField name="description_text" label="Descrição principal" rows={4} noticeId="description-unavailable-notice" />
-                <UnavailableProductField name="description_usage_tips" label="Dicas de uso" rows={3} noticeId="description-unavailable-notice" />
-                <UnavailableProductField name="description_ingredients" label="Ingredientes" rows={3} noticeId="description-unavailable-notice" />
+                <FormField control={control} name="description_text" rules={{ validate: value => productFieldError("description_text", value, form.getValues()) }} render={({ field }) => <FormItem><FormLabel>Descrição principal *</FormLabel><FormControl><Textarea {...field} rows={4} /></FormControl><FormMessage /></FormItem>} />
+                <FormField control={control} name="description_usage_tips" render={({ field }) => <FormItem><FormLabel>Dicas de uso</FormLabel><FormControl><Textarea {...field} rows={3} /></FormControl></FormItem>} />
+                <FormField control={control} name="description_ingredients" render={({ field }) => <FormItem><FormLabel>Ingredientes</FormLabel><FormControl><Textarea {...field} rows={3} /></FormControl></FormItem>} />
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle>Categorias e tags</CardTitle>
-                <CardDescription id="category-unavailable-notice">
-                  Indisponível neste cadastro. A seleção de categorias ainda não está integrada ao painel.
-                </CardDescription>
+                <CardDescription>Selecione uma categoria já cadastrada.</CardDescription>
               </CardHeader>
               <CardContent>
-                <UnavailableProductField name="categories_names" label="Tags ou código da categoria" noticeId="category-unavailable-notice" />
+                <FormField control={control} name="category_id" rules={{ validate: value => productFieldError("category_id", value, form.getValues()) }} render={({ field }) => <FormItem><FormLabel>Categoria *</FormLabel><FormControl><select {...field} aria-label="Categoria"><option value="">Selecione</option>{categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}</select></FormControl><FormMessage /></FormItem>} />
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle>Estoque inicial</CardTitle>
-                <CardDescription id="stock-unavailable-notice">
-                  Indisponível neste cadastro. O produto será criado com estoque zero.
-                  A entrada de estoque e validade ainda não está integrada ao painel.
-                </CardDescription>
+                <CardDescription>Quantidade disponível ao cadastrar. Alterações posteriores ficam no histórico.</CardDescription>
               </CardHeader>
               <CardContent className={styles.gridTwoWide}>
-                <UnavailableProductField name="stock_quantity" label="Quantidade em estoque" type="number" noticeId="stock-unavailable-notice" />
-                <UnavailableProductField name="stock_expiry_date" label="Validade (opcional)" type="date" noticeId="stock-unavailable-notice" />
+                {input("stock_quantity", "Quantidade em estoque *", { type: "number", step: "1" })}
+                <UnavailableProductField name="stock_expiry_date" label="Validade (opcional)" type="date" noticeId="stock-expiry-notice" />
+                <p id="stock-expiry-notice" className={styles.helperText}>Validade indisponível neste cadastro; permanece no fluxo de entrada por lote e fornecedor.</p>
               </CardContent>
             </Card>
             <Card>
