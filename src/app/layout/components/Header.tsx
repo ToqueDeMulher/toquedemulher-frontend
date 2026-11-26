@@ -5,8 +5,6 @@ import {
   ArrowRight,
   Heart,
   Menu,
-  Pause,
-  Play,
   Search,
   ShoppingBag,
   Sparkles,
@@ -29,8 +27,11 @@ import {
   catalogCategories,
 } from "@/features/catalog/data/catalog-products";
 import styles from "./Header.module.css";
-
-const marqueeRepeats = Array.from({ length: 8 }, (_, i) => i);
+import { AnnouncementBar } from "@/features/store-content/components/AnnouncementBar";
+import {
+  FALLBACK_ANNOUNCEMENT,
+  getPublicAnnouncements,
+} from "@/features/store-content/api/announcement-service";
 
 export function Header() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +39,7 @@ export function Header() {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [marqueePaused, setMarqueePaused] = useState(false);
+  const [announcements, setAnnouncements] = useState(FALLBACK_ANNOUNCEMENT.messages);
   const { isLoggedIn } = useAuth();
   const { products } = useCatalog();
   const { itemCount, openCart } = useCart();
@@ -96,6 +97,17 @@ export function Header() {
       window.removeEventListener("scroll", scroll);
     };
   }, []);
+  useEffect(() => {
+    let active = true;
+    void getPublicAnnouncements()
+      .then((response) => {
+        if (active && Array.isArray(response.messages)) setAnnouncements(response.messages);
+      })
+      .catch(() => {
+        // Keep the established message if the content API is unavailable.
+      });
+    return () => { active = false; };
+  }, []);
 
   const search = (event: React.FormEvent) => {
     event.preventDefault();
@@ -112,55 +124,7 @@ export function Header() {
 
   return (
     <>
-      <div className={styles.promoBar}>
-        <div className={styles.marqueeWrap}>
-          <div className={styles.marqueeViewport}>
-            <div
-              className={styles.marqueeTrack}
-              data-paused={marqueePaused}
-              aria-live="off"
-            >
-              <div className={styles.marqueeChunk}>
-                {marqueeRepeats.map((i) => (
-                  <Link
-                    key={i}
-                    to={routes.cart}
-                    className={styles.marqueeItem}
-                    aria-hidden={i === 0 ? undefined : true}
-                    tabIndex={i === 0 ? undefined : -1}
-                  >
-                    Calcule a entrega pelo seu CEP
-                  </Link>
-                ))}
-              </div>
-              <div className={styles.marqueeChunk} aria-hidden="true">
-                {marqueeRepeats.map((i) => (
-                  <Link
-                    key={i}
-                    to={routes.cart}
-                    className={styles.marqueeItem}
-                    aria-hidden="true"
-                    tabIndex={-1}
-                  >
-                    Calcule a entrega pelo seu CEP
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-          <button
-            type="button"
-            className={styles.marqueeToggle}
-            onClick={() => setMarqueePaused((paused) => !paused)}
-            aria-label={
-              marqueePaused ? "Retomar animação" : "Pausar animação"
-            }
-            aria-pressed={marqueePaused}
-          >
-            {marqueePaused ? <Play size={11} /> : <Pause size={11} />}
-          </button>
-        </div>
-      </div>
+      <AnnouncementBar messages={announcements} />
       <header className={styles.header} data-scrolled={scrolled}>
         <div className={styles.mainRow}>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>

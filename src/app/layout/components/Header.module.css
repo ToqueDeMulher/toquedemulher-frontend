@@ -1,79 +1,3 @@
-.promoBar {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 9px max(48px, calc((100vw - 1320px) / 2));
-  background: #000;
-  color: #f9eef3;
-  font-size: 10px;
-  letter-spacing: 0.035em;
-}
-.promoBar a {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-}
-.marqueeWrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-.marqueeViewport {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 12px,
-    #000 calc(100% - 12px),
-    transparent
-  );
-}
-.marqueeTrack {
-  display: flex;
-  flex-wrap: nowrap;
-  width: max-content;
-  animation: promo-marquee 55s linear infinite;
-}
-.marqueeTrack[data-paused="true"] {
-  animation-play-state: paused;
-}
-.marqueeChunk {
-  display: flex;
-  flex-shrink: 0;
-}
-.marqueeItem {
-  flex-shrink: 0;
-  white-space: nowrap;
-  padding-right: 40px;
-}
-@keyframes promo-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-.marqueeToggle {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1px solid #ffffff40;
-  color: #f9eef3;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-}
-.marqueeToggle:hover {
-  background: #ffffff1a;
-  border-color: #ffffff80;
-}
 .header {
   position: sticky;
   top: 0;
@@ -347,10 +271,6 @@
   }
 }
 @media (max-width: 767px) {
-  .promoBar {
-    padding: 8px 18px;
-    font-size: 10px;
-  }
   .mainRow {
     width: calc(100% - 36px);
     grid-template-columns: 28px 1fr auto;

@@ -8,6 +8,7 @@ export const routes = {
   adminDashboard: "/admin",
   adminProducts: "/admin/produtos",
   adminShipping: "/admin/envios",
+  adminAnnouncements: "/admin/conteudo/avisos",
   cart: "/carrinho",
   checkout: "/checkout",
   checkoutStep: (step: string = ":step") => `/checkout/${step}`,
