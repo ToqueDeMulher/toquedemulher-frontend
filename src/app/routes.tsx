@@ -26,6 +26,7 @@ import { SearchResultsPage } from "@/features/catalog/pages/SearchResultsPage";
 import { AddressPage } from "@/features/auth/pages/AddressPage";
 import { FavoritesPage } from "@/features/catalog/pages/FavoritesPage";
 import { ResetPasswordPage } from "@/features/auth/pages/ResetPasswordPage";
+import { AnnouncementManagementPage } from "@/features/admin/pages/AnnouncementManagementPage";
 
 export function AppRoutes() {
   return (
@@ -77,6 +78,7 @@ export function AppRoutes() {
         <Route path={routes.adminShipping} element={<ShippingPage />} />
         <Route path={routes.adminDashboard} element={<AdminDashboardPage />} />
         <Route path={routes.adminProducts} element={<ProductManagementPage />} />
+        <Route path={routes.adminAnnouncements} element={<AnnouncementManagementPage />} />
         <Route path={routes.productCreate} element={<ProductCreatePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />

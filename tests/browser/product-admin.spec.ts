@@ -105,6 +105,38 @@ test("admin keeps long image filenames readable without horizontal overflow", as
   await page.screenshot({ path: `artifacts/screenshots/${testInfo.project.name}-product-long-filename.png`, fullPage: true });
 });
 
+test("admin previews, saves and explicitly publishes announcement content", async ({ page }, testInfo) => {
+  await mockAdmin(page);
+  let messages = [{ id: "d1000000-0000-4000-8000-000000000001", text: "Aviso original", destination: "/carrinho", active: true, sort_order: 1 }];
+  let publications = 0;
+  const revision = () => ({ id: "e1000000-0000-4000-8000-000000000001", status: "draft", updated_at: new Date().toISOString(), published_at: null, messages });
+  await page.route("**/api/v1/announcements/admin/draft", async route => {
+    if (route.request().method() === "PUT") {
+      messages = route.request().postDataJSON().messages.map((message: typeof messages[number], index: number) => ({ ...message, id: `saved-${index}` }));
+    }
+    await route.fulfill({ json: revision() });
+  });
+  await page.route("**/api/v1/announcements/admin/publish", async route => {
+    publications += 1;
+    await route.fulfill({ json: { ...revision(), status: "published", published_at: new Date().toISOString() } });
+  });
+
+  await page.goto("/admin/conteudo/avisos");
+  await expect(page.getByRole("heading", { name: "Faixa de avisos", exact: true })).toBeVisible();
+  await page.getByRole("textbox", { name: "Mensagem 1", exact: true }).fill("Frete grátis neste fim de semana");
+  await expect(page.getByRole("region", { name: "Pré-visualização da faixa de avisos" }).getByText("Frete grátis neste fim de semana").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Publicar na loja/ })).toBeDisabled();
+  await page.getByRole("button", { name: /Salvar rascunho/ }).click();
+  await expect(page.getByText("Rascunho salvo. A loja ainda não foi alterada.")).toBeVisible();
+  expect(publications).toBe(0);
+  await page.getByRole("button", { name: /Publicar na loja/ }).click();
+  await expect(page.getByText("Faixa de avisos publicada na loja.")).toBeVisible();
+  expect(publications).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await mkdir("artifacts/screenshots", { recursive: true });
+  await page.screenshot({ path: `artifacts/screenshots/${testInfo.project.name}-announcement-content.png`, fullPage: true });
+});
+
 test("admin rejects invalid required values and invalid images before creating a product", async ({ page }) => {
   await mockAdmin(page);
   const mutations: string[] = [];

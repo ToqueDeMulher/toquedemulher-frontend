@@ -1,0 +1,44 @@
+.page { display: grid; gap: 1.25rem; padding: clamp(1rem, 2vw, 2rem) 0 3rem; }
+.pageHeader, .panelHeader, .actions, .messageCard, .cardActions, .previewToggle { display: flex; align-items: center; }
+.pageHeader { justify-content: space-between; gap: 1.5rem; }
+.pageHeader h1 { margin: 0.35rem 0; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+.pageHeader p, .panelHeader p { margin: 0; color: var(--admin-muted); }
+.eyebrow { display: inline-flex; align-items: center; gap: 0.4rem; color: #f73986; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; }
+.savedBadge, .pendingBadge { flex: none; padding: 0.45rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+.savedBadge { color: #73e0ad; background: #1d6b4b33; }
+.pendingBadge { color: #ffd58a; background: #8f611d33; }
+.panel { overflow: hidden; border: 1px solid var(--admin-line); border-radius: 18px; background: var(--theme-surface-primary); }
+.panelHeader { justify-content: space-between; gap: 1rem; padding: 1.25rem; border-bottom: 1px solid var(--admin-line); }
+.panelHeader h2 { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.25rem; font-size: 1rem; }
+.messageList { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.messageCard { gap: 1rem; padding: 1.15rem 1.25rem; border-bottom: 1px solid var(--admin-line); }
+.messageCard:last-child { border-bottom: 0; }
+.orderControls { display: grid; grid-template-columns: 32px 32px; align-items: center; gap: 0.2rem; }
+.orderControls strong { grid-row: 1 / 3; display: grid; place-items: center; color: #f73986; }
+.fields { display: grid; grid-template-columns: minmax(240px, 2fr) minmax(180px, 1fr); gap: 1rem; flex: 1; }
+.fields label { display: grid; gap: 0.4rem; font-size: 0.76rem; font-weight: 700; }
+.fields label span { color: var(--admin-muted); font-size: 0.68rem; font-weight: 400; }
+.cardActions { gap: 0.65rem; }
+.switchLabel { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.76rem; }
+.switchLabel input { accent-color: #f73986; width: 17px; height: 17px; }
+.emptyState, .hiddenPreview, .state { padding: 2rem; color: var(--admin-muted); text-align: center; }
+.previewToggle { gap: 0.5rem; }
+.previewFrame { width: 100%; min-height: 90px; padding: 1.5rem; margin-inline: auto; transition: max-width 0.2s; }
+.previewMobile { max-width: 390px; }
+.previewFrame > section { border-radius: 9px; }
+.actions { position: sticky; bottom: 1rem; z-index: 5; justify-content: flex-end; gap: 0.75rem; padding: 1rem; border: 1px solid var(--admin-line); border-radius: 16px; background: color-mix(in srgb, var(--theme-surface-primary) 90%, transparent); backdrop-filter: blur(16px); }
+
+@media (max-width: 900px) {
+  .messageCard { align-items: stretch; flex-wrap: wrap; }
+  .fields { order: 3; grid-template-columns: 1fr; flex-basis: 100%; }
+  .cardActions { margin-left: auto; }
+}
+@media (max-width: 640px) {
+  .pageHeader, .panelHeader, .actions { align-items: stretch; flex-direction: column; }
+  .savedBadge, .pendingBadge { align-self: flex-start; }
+  .panelHeader button { width: 100%; }
+  .previewToggle { display: grid; grid-template-columns: 1fr 1fr; }
+  .actions { position: static; }
+  .previewFrame { padding: 1rem 0; }
+}
+

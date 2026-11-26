@@ -8,6 +8,7 @@ import {
   PanelLeftOpen,
   PackagePlus,
   PackageSearch,
+  Megaphone,
   Store,
   UserRound,
   X,
@@ -38,13 +39,17 @@ const adminNavItems = [
   { to: routes.adminShipping, label: "Envios e etiquetas", icon: Truck },
 ] as const;
 
+const contentNavItems = [
+  { to: routes.adminAnnouncements, label: "Faixa de avisos", icon: Megaphone },
+] as const;
+
 export function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const currentPage = adminNavItems.find((item) => item.to === location.pathname)?.label ?? "Gestão";
+  const currentPage = [...adminNavItems, ...contentNavItems].find((item) => item.to === location.pathname)?.label ?? "Gestão";
   const userInitial = (user?.name ?? user?.email ?? "A").charAt(0).toUpperCase();
 
   useEffect(() => {
@@ -146,6 +151,19 @@ export function AdminLayout() {
                 >
                   {item.label}
                 </span>
+              </NavLink>
+            );
+          })}
+          <span className={`${styles.navHeading} ${styles.accountNavHeading} ${!isSidebarOpen ? styles.contentHidden : ""}`}>
+            CONTEÚDO DA LOJA
+          </span>
+          {contentNavItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink key={item.to} to={item.to} title={!isSidebarOpen && !isMobile ? item.label : undefined}
+                aria-label={item.label} className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ""} ${!isSidebarOpen ? styles.navLinkCollapsed : ""}`}>
+                <Icon className={styles.navIcon} />
+                <span className={!isSidebarOpen ? styles.contentHidden : undefined}>{item.label}</span>
               </NavLink>
             );
           })}
